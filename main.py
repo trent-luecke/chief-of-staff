@@ -66,9 +66,14 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
     loop_summary = build_loop_summary(email_threads, notion_items, resolved, still_open)
 
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        print("ERROR: ANTHROPIC_API_KEY not set. Add it to your .env file.", file=sys.stderr)
+        sys.exit(1)
+
     print("🤖  Generating brief with Claude...")
     brief = generate_brief(
-        api_key=os.environ["ANTHROPIC_API_KEY"],
+        api_key=api_key,
         model=config["ai_model"],
         today_events=today_events,
         tomorrow_events=tomorrow_events,
@@ -120,7 +125,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
 def main():
     parser = argparse.ArgumentParser(description="AI Chief of Staff Morning Brief")
-    parser.add_argument("--dry-run", action="store_true", help="Skip email send and state save")
+    parser.add_argument("--dry-run", action="store_true", help="Skip email send (state snapshot still saved)")
     parser.add_argument("--no-email", action="store_true", help="Generate brief but skip email send")
     parser.add_argument("--config", default="config.json", help="Config file path")
     args = parser.parse_args()
