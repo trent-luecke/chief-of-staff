@@ -20,7 +20,7 @@
     {
       "name": "Monthly metrics review",
       "schedule": "monthly",
-      "day": 1,
+      "day": "1",
       "description": "Pull MRR, churn, and NPS from dashboard"
     }
   ]
