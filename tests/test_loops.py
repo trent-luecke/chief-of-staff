@@ -87,3 +87,15 @@ def test_build_loop_summary_empty_state():
     assert summary.resolved_notion_ids == []
     assert summary.still_open_email_ids == []
     assert summary.still_open_notion_ids == []
+
+
+def test_build_loop_summary_still_open_notion():
+    notion_items = [make_notion_item("n_persist", "Pending follow-up")]
+    resolved = {"email": [], "notion": []}
+    still_open = {"email": [], "notion": ["n_persist"]}
+
+    summary = build_loop_summary([], notion_items, resolved, still_open)
+
+    assert "n_persist" in summary.still_open_notion_ids
+    new_item_ids = [l["item_id"] for l in summary.new_notion_loops]
+    assert "n_persist" not in new_item_ids

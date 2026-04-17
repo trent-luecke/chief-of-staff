@@ -46,8 +46,8 @@ def build_loop_summary(
     return LoopSummary(
         new_email_loops=new_email_loops,
         new_notion_loops=new_notion_loops,
-        resolved_email_ids=resolved.get("email", []),
-        resolved_notion_ids=resolved.get("notion", []),
+        resolved_email_ids=list(resolved.get("email", [])),
+        resolved_notion_ids=list(resolved.get("notion", [])),
         still_open_email_ids=list(still_open_email_set),
         still_open_notion_ids=list(still_open_notion_set),
     )
