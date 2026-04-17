@@ -1,0 +1,7 @@
+{
+  "tasks": [
+    {"name": "Review pipeline", "schedule": "weekly", "day": "Monday", "description": "Check deals"},
+    {"name": "Check trials", "schedule": "daily", "description": "Review expiring trials"},
+    {"name": "Monthly metrics", "schedule": "monthly", "day": "1", "description": "Pull MRR"}
+  ]
+}
