@@ -18,6 +18,8 @@ class EmailThread:
 
 def _run_gws(*cmd_parts: str, params: dict, profile: Optional[str] = None) -> dict:
     cmd = ["gws"] + list(cmd_parts) + ["--params", json.dumps(params)]
+    if profile:
+        cmd = ["gws", "--profile", profile] + list(cmd_parts) + ["--params", json.dumps(params)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         return {}
