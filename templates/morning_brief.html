@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 680px; margin: 0 auto; color: #1a1a1a; background: #f9f9f9; }
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 28px 32px; border-radius: 8px 8px 0 0; }
+  .header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+  .header .date { margin: 4px 0 0; font-size: 14px; opacity: 0.75; }
+  .body { background: white; padding: 28px 32px; border-radius: 0 0 8px 8px; border: 1px solid #e5e5e5; border-top: none; }
+  .section { margin-bottom: 28px; }
+  .section h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin: 0 0 12px; }
+  .summary { font-size: 16px; line-height: 1.6; color: #1a1a1a; padding: 16px; background: #f0f4ff; border-left: 3px solid #4a6cf7; border-radius: 0 6px 6px 0; }
+  .priority-list { list-style: none; padding: 0; margin: 0; }
+  .priority-list li { padding: 8px 12px; margin-bottom: 6px; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 14px; }
+  .priority-list li::before { content: "▸ "; color: #4a6cf7; font-weight: bold; }
+  .event-row { display: flex; align-items: baseline; padding: 6px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+  .event-time { width: 80px; flex-shrink: 0; color: #888; font-size: 13px; }
+  .email-row { padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; }
+  .email-from { font-weight: 600; }
+  .email-snippet { color: #666; font-size: 13px; }
+  .loop-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; margin-right: 6px; }
+  .resolved { background: #e8f5e9; color: #2e7d32; }
+  .still-open { background: #fff3e0; color: #e65100; }
+  .new-loop { background: #e3f2fd; color: #1565c0; }
+  .project-row { padding: 6px 0; font-size: 14px; border-bottom: 1px solid #f5f5f5; }
+  .status-badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; margin-left: 6px; background: #e8eaf6; color: #3949ab; }
+  .watch-out { padding: 8px 12px; margin-bottom: 6px; background: #fff8f0; border-left: 3px solid #ff9800; border-radius: 0 6px 6px 0; font-size: 14px; }
+  .footer { text-align: center; padding: 16px; font-size: 12px; color: #aaa; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>☀️ Morning Brief</h1>
+  <div class="date">{{ date_str }} · Generated {{ generated_at }}</div>
+</div>
+<div class="body">
+
+  <div class="section">
+    <h2>Today's Focus</h2>
+    <div class="summary">{{ brief.executive_summary }}</div>
+  </div>
+
+  <div class="section">
+    <h2>Top 3 Priorities</h2>
+    <ul class="priority-list">
+      {% for p in brief.top_3_priorities %}
+      <li>{{ p }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% if brief.watch_outs %}
+  <div class="section">
+    <h2>Watch Outs</h2>
+    {% for w in brief.watch_outs %}
+    <div class="watch-out">{{ w }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="section">
+    <h2>Today's Calendar</h2>
+    {% if today_events %}
+      {% for e in today_events %}
+      <div class="event-row">
+        <span class="event-time">{{ e.start.strftime('%I:%M%p').lstrip('0') }}</span>
+        <span>{{ e.summary }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <span style="color:#aaa; font-size:14px">No events today</span>
+    {% endif %}
+    {% if brief.schedule_notes %}
+    <div style="margin-top:10px; font-size:13px; color:#888; font-style:italic">{{ brief.schedule_notes }}</div>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>Open Loops</h2>
+    {% if loop_summary.resolved_email_ids or loop_summary.resolved_notion_ids %}
+    <div style="margin-bottom:8px">
+      <span class="loop-badge resolved">✓ Resolved</span>
+      {{ loop_summary.resolved_email_ids|length + loop_summary.resolved_notion_ids|length }} item(s) closed since yesterday
+    </div>
+    {% endif %}
+    {% for email_loop in loop_summary.new_email_loops %}
+    <div class="email-row">
+      <span class="loop-badge new-loop">New</span>
+      <span class="email-from">{{ email_loop.subject }}</span>
+      <span style="color:#888; font-size:13px"> — {{ email_loop['from'] }}</span>
+      {% if email_loop.snippet %}<div class="email-snippet">{{ email_loop.snippet }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    {% for item in loop_summary.new_notion_loops %}
+    <div class="email-row">
+      <span class="loop-badge new-loop">Captured</span>
+      {{ item.name }}
+      <span style="color:#888; font-size:12px"> ({{ item.urgency }})</span>
+    </div>
+    {% endfor %}
+    {% if loop_summary.still_open_email_ids %}
+    <div style="margin-top:8px; font-size:13px; color:#e65100">
+      <span class="loop-badge still-open">Still Open</span>
+      {{ loop_summary.still_open_email_ids|length }} email thread(s) unresolved from prior days
+    </div>
+    {% endif %}
+    {% if not loop_summary.new_email_loops and not loop_summary.new_notion_loops and not loop_summary.still_open_email_ids %}
+    <span style="color:#aaa; font-size:14px">No open loops 🎉</span>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>Active Projects</h2>
+    {% for p in projects %}
+    <div class="project-row">
+      <strong>{{ p.name }}</strong>
+      <span class="status-badge">{{ p.status }}</span>
+      {% if p.next_step %}<div style="color:#666; font-size:13px; margin-top:2px">→ {{ p.next_step }}</div>{% endif %}
+    </div>
+    {% endfor %}
+    {% if not projects %}<span style="color:#aaa; font-size:14px">No active projects</span>{% endif %}
+  </div>
+
+  {% if due_tasks %}
+  <div class="section">
+    <h2>Recurring Tasks Due Today</h2>
+    {% for t in due_tasks %}
+    <div class="event-row">
+      <span class="event-time" style="color:#4a6cf7">{{ t.schedule }}</span>
+      <span>{{ t.name }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+<div class="footer">Generated by AI Chief of Staff · {{ generated_at }}</div>
+</body>
+</html>
