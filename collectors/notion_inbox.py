@@ -45,9 +45,12 @@ def fetch_inbox_items(
     items = []
     for result in response.json().get("results", []):
         props = result.get("properties", {})
+        status = _extract_select(props, "Status")
+        if filter_statuses and status and status not in filter_statuses:
+            continue
         items.append(
             InboxItem(
-                id=result["id"],
+                id=result.get("id", ""),
                 name=_extract_title(props, "Name"),
                 item_type=_extract_select(props, "Type"),
                 urgency=_extract_select(props, "Urgency"),
