@@ -83,6 +83,23 @@ def test_generate_brief_uses_correct_model(mock_anthropic):
     assert call_kwargs.kwargs["model"] == "claude-sonnet-4-6"
 
 
+def test_generate_brief_raises_on_invalid_json(mock_anthropic):
+    mock_anthropic.return_value.messages.create.return_value = make_mock_claude_response(
+        "This is not JSON at all, just plain text."
+    )
+    with pytest.raises(ValueError, match="Claude returned non-JSON response"):
+        generate_brief(
+            api_key="sk-test",
+            model="claude-haiku-4-5-20251001",
+            today_events=[],
+            tomorrow_events=[],
+            email_threads=[],
+            projects=[],
+            due_tasks=[],
+            loop_summary=LoopSummary(),
+        )
+
+
 def test_generate_brief_prompt_includes_calendar_events(mock_anthropic):
     mock_anthropic.return_value.messages.create.return_value = make_mock_claude_response(
         json.dumps(MOCK_BRIEF_JSON)

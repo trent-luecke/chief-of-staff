@@ -100,7 +100,10 @@ def generate_brief(
     if match:
         raw = match.group(1).strip()
 
-    data = json.loads(raw)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Claude returned non-JSON response: {e}\nRaw response: {raw[:200]}") from e
     return BriefContent(
         executive_summary=data.get("executive_summary", ""),
         top_3_priorities=data.get("top_3_priorities", []),
