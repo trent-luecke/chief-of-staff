@@ -40,8 +40,8 @@ def build_html_email(
         projects=projects,
         due_tasks=due_tasks,
         loop_summary=loop_summary,
-        date_str=now.strftime("%A, %B %-d"),
-        generated_at=now.strftime("%-I:%M %p"),
+        date_str=now.strftime("%A, %B ") + str(now.day),
+        generated_at=now.strftime("%I:%M %p").lstrip("0"),
     )
 
 
