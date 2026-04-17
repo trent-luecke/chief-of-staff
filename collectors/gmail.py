@@ -22,6 +22,7 @@ def _run_gws(*cmd_parts: str, params: dict, profile: Optional[str] = None) -> di
         cmd = ["gws", "--profile", profile] + list(cmd_parts) + ["--params", json.dumps(params)]
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
+        print(f"WARNING: gws command failed (exit {result.returncode}): {result.stderr.strip()}", flush=True)
         return {}
     try:
         return json.loads(result.stdout)

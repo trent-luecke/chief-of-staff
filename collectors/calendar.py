@@ -39,6 +39,7 @@ def fetch_today_events(
 
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
+        print(f"WARNING: gws calendar command failed (exit {result.returncode}): {result.stderr.strip()}", flush=True)
         return []
 
     try:

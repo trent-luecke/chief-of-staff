@@ -1,6 +1,5 @@
 import base64
 import os
-import sys
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -12,10 +11,7 @@ from collectors.local_data import Project, RecurringTask
 from processors.brief import BriefContent
 from processors.loops import LoopSummary
 
-# Import shared google_auth from parent directory
-_shared_dir = os.path.join(os.path.dirname(__file__), "..", "..", "shared")
-sys.path.insert(0, os.path.abspath(_shared_dir))
-from google_auth import get_credentials, build_gmail_service as _build_gmail_service  # noqa: E402
+from lib.google_auth import get_credentials, build_gmail_service as _build_gmail_service
 
 
 def build_gmail_service_from_config(credentials_path: str, token_path: str):

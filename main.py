@@ -29,12 +29,17 @@ def load_config(path: str = "config.json") -> dict:
 
 def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     print("🗓  Fetching calendar...")
-    today_events, tomorrow_events = fetch_two_day_events(config["calendar_ids"])
+    today_events, tomorrow_events = fetch_two_day_events(
+        config["calendar_ids"],
+        profile=config.get("gmail_profile"),
+    )
 
     print("📧  Fetching Gmail...")
+    gmail_profile = config.get("gmail_profile")
     email_threads = fetch_threads_needing_attention(
         user_email=config["email"],
         max_results=config.get("unread_email_max", 15),
+        profile=gmail_profile,
     )
 
     print("📋  Loading projects and recurring tasks...")
@@ -72,16 +77,26 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         sys.exit(1)
 
     print("🤖  Generating brief with Claude...")
-    brief = generate_brief(
-        api_key=api_key,
-        model=config["ai_model"],
-        today_events=today_events,
-        tomorrow_events=tomorrow_events,
-        email_threads=email_threads,
-        projects=projects,
-        due_tasks=due_tasks,
-        loop_summary=loop_summary,
-    )
+    try:
+        brief = generate_brief(
+            api_key=api_key,
+            model=config["ai_model"],
+            today_events=today_events,
+            tomorrow_events=tomorrow_events,
+            email_threads=email_threads,
+            projects=projects,
+            due_tasks=due_tasks,
+            loop_summary=loop_summary,
+        )
+    except (ValueError, Exception) as e:
+        print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)
+        from processors.brief import BriefContent
+        brief = BriefContent(
+            executive_summary="Brief generation failed — check logs for details.",
+            top_3_priorities=["Check logs", "Retry manually: python main.py --no-email", "Contact support if issue persists"],
+            watch_outs=[str(e)[:200]],
+            schedule_notes="",
+        )
 
     print("📊  Writing dashboard...")
     write_dashboard(
