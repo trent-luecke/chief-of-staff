@@ -2,7 +2,7 @@ import json
 from datetime import date, datetime
 from unittest.mock import patch, MagicMock
 import pytest
-from collectors.calendar import fetch_today_events, CalendarEvent
+from collectors.calendar import fetch_today_events, fetch_two_day_events, CalendarEvent
 
 
 MOCK_EVENTS_RESPONSE = {
@@ -60,3 +60,18 @@ def test_fetch_today_events_handles_gws_error(mock_subprocess):
     mock_subprocess.return_value = MagicMock(stdout="{}", returncode=1)
     events = fetch_today_events(calendar_id="primary", target_date=date(2026, 4, 17))
     assert events == []
+
+
+def test_fetch_two_day_events_returns_sorted_tuple(mock_subprocess):
+    # Return same mock response for both today and tomorrow calls
+    mock_subprocess.return_value = MagicMock(
+        stdout=json.dumps(MOCK_EVENTS_RESPONSE),
+        returncode=0
+    )
+    today_events, tomorrow_events = fetch_two_day_events(calendar_ids=["primary"])
+    # Both lists should have 1 event (all-day filtered)
+    assert len(today_events) == 1
+    assert len(tomorrow_events) == 1
+    # Both should be sorted by start (only 1 event each, so just verify type)
+    assert isinstance(today_events[0].start, datetime)
+    assert isinstance(tomorrow_events[0].start, datetime)

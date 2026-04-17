@@ -51,18 +51,21 @@ def fetch_today_events(
         start_raw = item.get("start", {})
         if "date" in start_raw and "dateTime" not in start_raw:
             continue  # skip all-day events
-        events.append(
-            CalendarEvent(
-                id=item["id"],
-                summary=item.get("summary", "(no title)"),
-                start=parse_dt(start_raw["dateTime"]),
-                end=parse_dt(item["end"]["dateTime"]),
-                description=item.get("description", ""),
-                attendees=[
-                    a["email"] for a in item.get("attendees", []) if not a.get("self")
-                ],
+        try:
+            events.append(
+                CalendarEvent(
+                    id=item["id"],
+                    summary=item.get("summary", "(no title)"),
+                    start=parse_dt(start_raw["dateTime"]),
+                    end=parse_dt(item["end"]["dateTime"]),
+                    description=item.get("description", ""),
+                    attendees=[
+                        a["email"] for a in item.get("attendees", []) if not a.get("self")
+                    ],
+                )
             )
-        )
+        except (KeyError, ValueError):
+            continue
     return events
 
 
