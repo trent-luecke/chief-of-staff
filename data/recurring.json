@@ -1,0 +1,27 @@
+{
+  "tasks": [
+    {
+      "name": "Review sales pipeline",
+      "schedule": "weekly",
+      "day": "Monday",
+      "description": "Check all active deals for stalled conversations"
+    },
+    {
+      "name": "Send weekly team recap",
+      "schedule": "weekly",
+      "day": "Friday",
+      "description": "Summarize wins/losses for the week"
+    },
+    {
+      "name": "Check trial expirations",
+      "schedule": "daily",
+      "description": "Review trials ending in next 3 days"
+    },
+    {
+      "name": "Monthly metrics review",
+      "schedule": "monthly",
+      "day": 1,
+      "description": "Pull MRR, churn, and NPS from dashboard"
+    }
+  ]
+}
