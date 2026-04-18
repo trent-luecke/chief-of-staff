@@ -1,7 +1,7 @@
 # tests/test_brief_extended.py
 import json
 from unittest.mock import patch, MagicMock
-from datetime import date
+from datetime import date, datetime
 import pytest
 from processors.brief import generate_brief, BriefContent
 from collectors.calendar import CalendarEvent
@@ -11,7 +11,6 @@ from collectors.local_data import Project, RecurringTask
 from processors.loops import LoopSummary
 from processors.issues import Issue
 from processors.drafts import Draft
-from datetime import datetime
 
 
 def make_mock_claude(text: str):
