@@ -35,7 +35,7 @@ def test_generate_demo_followup_returns_draft(mock_anthropic):
     assert draft.draft_type == "demo_followup"
 
 
-def test_generate_demo_followup_no_attendees_returns_none(mock_anthropic):
+def test_generate_demo_followup_no_attendees_returns_none():
     event = make_event("Demo: Apex Fitness", [])
     draft = generate_demo_followup(api_key="sk-test", model="claude-haiku-4-5-20251001", event=event)
     assert draft is None
@@ -60,6 +60,41 @@ def test_generate_trial_followup_returns_draft(mock_anthropic):
     )
     assert draft is not None
     assert draft.draft_type == "trial_followup"
+
+
+def test_generate_demo_followup_returns_none_on_bad_json(mock_anthropic):
+    mock_anthropic.return_value.messages.create.return_value = make_mock_claude("Sorry, I cannot help with that.")
+    event = make_event("Demo: Apex Fitness", ["contact@apexfitness.com"])
+    draft = generate_demo_followup(api_key="sk-test", model="claude-haiku-4-5-20251001", event=event)
+    assert draft is None
+
+
+def test_save_and_load_draft_roundtrip(tmp_path):
+    from processors.drafts import save_draft, load_todays_drafts
+    from datetime import date
+    draft = Draft(
+        subject="Test subject",
+        body="Test body",
+        to="test@example.com",
+        draft_type="demo_followup",
+        context="Test context",
+        created_date=date.today().isoformat(),
+    )
+    save_draft(draft, str(tmp_path))
+    loaded = load_todays_drafts(str(tmp_path))
+    assert len(loaded) == 1
+    assert loaded[0].subject == "Test subject"
+    assert loaded[0].to == "test@example.com"
+    assert loaded[0].draft_type == "demo_followup"
+
+
+def test_load_todays_drafts_handles_corrupt_file(tmp_path):
+    from processors.drafts import load_todays_drafts
+    from datetime import date
+    corrupt_file = tmp_path / f"demo_followup_{date.today().isoformat()}_bad.json"
+    corrupt_file.write_text("not valid json")
+    drafts = load_todays_drafts(str(tmp_path))
+    assert drafts == []
 
 
 @pytest.fixture

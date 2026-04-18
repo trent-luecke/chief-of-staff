@@ -41,7 +41,7 @@ def _parse_draft(raw: str, fallback_to: str, draft_type: str, context: str = "")
             draft_type=draft_type,
             context=context,
         )
-    except (json.JSONDecodeError, KeyError):
+    except json.JSONDecodeError:
         return None
 
 
@@ -146,9 +146,12 @@ def load_todays_drafts(drafts_dir: str) -> list[Draft]:
     try:
         for filename in sorted(os.listdir(drafts_dir)):
             if today in filename and filename.endswith(".json"):
-                with open(os.path.join(drafts_dir, filename)) as f:
-                    data = json.load(f)
-                drafts.append(Draft(**data))
+                try:
+                    with open(os.path.join(drafts_dir, filename)) as f:
+                        data = json.load(f)
+                    drafts.append(Draft(**data))
+                except (json.JSONDecodeError, TypeError):
+                    pass
     except FileNotFoundError:
         pass
     return drafts
