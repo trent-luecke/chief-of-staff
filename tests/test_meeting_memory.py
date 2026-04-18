@@ -53,3 +53,21 @@ def test_load_last_session_summary_returns_most_recent(tmp_path):
     summary = load_last_session_summary(memory_file)
     assert "Latest session" in summary
     assert "Old session" not in summary
+
+
+def test_append_session_notes_creates_file_if_missing(tmp_path):
+    memory_file = str(tmp_path / "new_meeting.md")
+    append_session_notes(memory_file, "2026-04-21", "First session notes.")
+    with open(memory_file) as f:
+        content = f.read()
+    assert "2026-04-21" in content
+    assert "First session notes" in content
+
+
+def test_load_last_session_summary_single_session(tmp_path):
+    memory_file = str(tmp_path / "meeting.md")
+    content = "# Test\n\n## Session Log\n\n### 2026-04-21\nOnly session.\n"
+    with open(memory_file, "w") as f:
+        f.write(content)
+    summary = load_last_session_summary(memory_file)
+    assert "Only session" in summary

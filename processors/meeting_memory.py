@@ -46,8 +46,11 @@ def append_session_notes(memory_file: str, session_date: str, notes: str) -> Non
     else:
         content = content + "\n## Session Log\n" + entry
 
-    with open(memory_file, "w") as f:
-        f.write(content)
+    try:
+        with open(memory_file, "w") as f:
+            f.write(content)
+    except OSError as e:
+        raise OSError(f"Failed to write meeting memory file {memory_file}: {e}") from e
 
 
 def load_last_session_summary(memory_file: str) -> str:
