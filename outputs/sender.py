@@ -1,5 +1,4 @@
 import base64
-import os
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
