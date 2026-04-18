@@ -1,0 +1,5 @@
+{
+  "allowed_senders": [],
+  "allowed_domains": [],
+  "notes": "Add wife email, bookkeeper email, and teachers' emails before first run. Any sender not listed is ignored."
+}

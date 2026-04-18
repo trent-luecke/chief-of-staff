@@ -1,27 +1,73 @@
 {
   "tasks": [
     {
-      "name": "Review sales pipeline",
+      "name": "Month-end data reconciliation",
+      "schedule": "monthly",
+      "day": 1,
+      "description": "Reconcile new sales, demo count, conversion tracker, and update active client roster in Google Sheets"
+    },
+    {
+      "name": "ICP gym scrape review",
+      "schedule": "daily",
+      "description": "Review daily web scrape results for new gym facility matches; approve or discard outreach drafts"
+    },
+    {
+      "name": "Trial lead follow-ups",
+      "schedule": "daily",
+      "description": "30-45 min block: review trial leads who haven't responded; drafts are pre-generated, review and send from Gmail"
+    },
+    {
+      "name": "New leads inbox outreach",
+      "schedule": "daily",
+      "description": "Check sales inbox for new leads (2-10/day); review and send pre-generated outreach drafts"
+    },
+    {
+      "name": "Recipe research and grocery planning",
+      "schedule": "weekly",
+      "day": "Thursday",
+      "description": "Research recipes via NYT Cooking or ATK; pull ingredients; update shared note with wife for Friday shopping"
+    },
+    {
+      "name": "Saturday breakfast recipe lookup",
+      "schedule": "weekly",
+      "day": "Thursday",
+      "description": "Find a fun Saturday breakfast recipe before Friday grocery run"
+    },
+    {
+      "name": "Budget and debt tracker update",
       "schedule": "weekly",
       "day": "Monday",
-      "description": "Check all active deals for stalled conversations"
+      "description": "Update Finance Tracker with last week's bank statement data (script in finance-tracker/)"
     },
     {
-      "name": "Send weekly team recap",
+      "name": "LinkedIn content batch",
       "schedule": "weekly",
       "day": "Friday",
-      "description": "Summarize wins/losses for the week"
+      "description": "Focused morning block: research new topics or synthesize research, then generate and refine content"
     },
     {
-      "name": "Check trial expirations",
-      "schedule": "daily",
-      "description": "Review trials ending in next 3 days"
+      "name": "PT client programming input",
+      "schedule": "weekly",
+      "day": "Sunday",
+      "description": "Input weekly programming for personal training and remote training clients in TeamBuildr Strength"
     },
     {
-      "name": "Monthly metrics review",
+      "name": "Competitor research",
+      "schedule": "weekly",
+      "day": "Wednesday",
+      "description": "Deep research on member management software space: new features, new players, important developments"
+    },
+    {
+      "name": "Content podcast research",
+      "schedule": "weekly",
+      "day": "Monday",
+      "description": "Prepare research and talking points for Tuesday content generation podcast session with mentor"
+    },
+    {
+      "name": "PT client new programming cycle",
       "schedule": "monthly",
-      "day": "1",
-      "description": "Pull MRR, churn, and NPS from dashboard"
+      "day": 1,
+      "description": "Write new 6-week programming block for personal training and remote training clients (staggered schedules)"
     }
   ]
 }

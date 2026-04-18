@@ -1,9 +1,34 @@
-## Project: AI Chief of Staff
+## Project: LTV Lead Magnet
 **Status:** In Progress
-**Next:** Complete morning brief MVP
-**Notes:** Python script, runs daily at 7am
+**Priority:** High
+**Tier:** core
+**Next:** Design calculator UI and define LTV input variables
+**Notes:** Helps TeamBuildr OS leads calculate LTV before a demo; higher conversion expected
 
-## Project: Cold Email Automation
+## Project: LinkedIn Content
 **Status:** Active
-**Next:** Review and refresh prospect list
-**Notes:** Processes 5 leads/day from Google Sheets
+**Priority:** Medium
+**Tier:** evergreen
+**Next:** Batch content block Friday morning
+**Notes:** Managed in Notion LinkedIn Content database; chief of staff audits weekly for post gaps and suggests topics
+
+## Project: Vero
+**Status:** In Progress
+**Priority:** Low-Medium
+**Tier:** side-project
+**Next:** Review gym-ai folder for current state
+**Notes:** Gym AI side hustle — surface if dormant more than 2 weeks
+
+## Project: Customer Feedback Loop
+**Status:** Active
+**Priority:** High
+**Tier:** core
+**Next:** Identify customers at 90–120 day mark for outreach scheduling
+**Notes:** Schedule calls at 90–120 days post-signup; track cadence and follow-ups
+
+## Project: Content Generation Podcast
+**Status:** Active
+**Priority:** Medium
+**Tier:** recurring
+**Next:** Research topics for next Tuesday session
+**Notes:** Weekly Tuesday podcast with mentor; research and talking points needed before each session

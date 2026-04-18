@@ -1,0 +1,22 @@
+{
+  "meetings": [
+    {
+      "calendar_pattern": "product",
+      "memory_file": "data/meeting_memory/product_sync.md",
+      "nudge_subject": "Product sync notes?",
+      "nudge_minutes_after": 5
+    },
+    {
+      "calendar_pattern": "dev",
+      "memory_file": "data/meeting_memory/dev_triage.md",
+      "nudge_subject": "Dev triage notes?",
+      "nudge_minutes_after": 5
+    },
+    {
+      "calendar_pattern": "teofe",
+      "memory_file": "data/meeting_memory/product_sync.md",
+      "nudge_subject": "Product meeting notes?",
+      "nudge_minutes_after": 5
+    }
+  ]
+}

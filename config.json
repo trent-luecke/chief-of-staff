@@ -1,7 +1,9 @@
 {
   "email": "trent@teambuildr.com",
-  "brief_subject_prefix": "☀️ Morning Brief",
-  "calendar_ids": ["primary"],
+  "brief_subject_prefix": "\u2600\ufe0f Morning Brief",
+  "calendar_ids": [
+    "primary"
+  ],
   "gmail_profile": "work",
   "gmail_personal_profile": "personal",
   "include_personal_gmail": false,
@@ -17,6 +19,21 @@
   "notion": {
     "enabled": false,
     "inbox_database_id": "",
-    "inbox_filter_status": ["Inbox", "Processing"]
-  }
+    "inbox_filter_status": [
+      "Inbox",
+      "Processing"
+    ]
+  },
+  "slack_channels": [
+    "TeamBuildr-OS",
+    "support",
+    "support-tickets"
+  ],
+  "personal_gmail_profile": "personal",
+  "personal_allowlist_file": "data/personal_allowlist.json",
+  "meeting_index_file": "data/meeting_index.json",
+  "issues_file": "data/issues.json",
+  "pending_nudges_file": "data/pending_nudges.json",
+  "drafts_dir": "data/drafts",
+  "issue_auto_resolve_days": 3
 }
