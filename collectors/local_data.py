@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from dataclasses import dataclass
 from datetime import date
@@ -49,6 +50,14 @@ def load_projects(path: str) -> list[Project]:
         if name:
             projects.append(Project(name=name, status=status, next_step=next_step, notes=notes))
     return projects
+
+
+def read_inbox(path: str) -> str:
+    try:
+        with open(os.path.expanduser(path)) as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        return ""
 
 
 def load_due_recurring_tasks(path: str, target_date: Optional[date] = None) -> list[RecurringTask]:

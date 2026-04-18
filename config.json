@@ -34,5 +34,6 @@
   "issues_file": "data/issues.json",
   "pending_nudges_file": "data/pending_nudges.json",
   "drafts_dir": "data/drafts",
-  "issue_auto_resolve_days": 3
+  "issue_auto_resolve_days": 3,
+  "inbox_file": "~/Library/Mobile Documents/com~apple~CloudDocs/chief-of-staff-inbox.md"
 }

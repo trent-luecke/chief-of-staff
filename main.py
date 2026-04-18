@@ -14,7 +14,7 @@ load_dotenv()
 from collectors.calendar import fetch_two_day_events
 from collectors.gmail import fetch_threads_needing_attention
 from collectors.gmail_personal import fetch_personal_emails
-from collectors.local_data import load_projects, load_due_recurring_tasks
+from collectors.local_data import load_projects, load_due_recurring_tasks, read_inbox
 from collectors.notion_inbox import fetch_inbox_items
 from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_snapshots
 from processors.loops import build_loop_summary
@@ -92,6 +92,9 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     projects = load_projects(config["projects_file"])
     due_tasks = load_due_recurring_tasks(config["recurring_file"])
 
+    print("📝  Reading inbox...")
+    inbox_text = read_inbox(config.get("inbox_file", ""))
+
     notion_items = []
     if config.get("notion", {}).get("enabled"):
         print("🔔  Fetching Notion inbox...")
@@ -149,6 +152,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             personal_emails=personal_emails,
             drafts=todays_drafts,
             meeting_prep=meeting_prep,
+            inbox_text=inbox_text,
         )
     except Exception as e:
         print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)

@@ -23,6 +23,7 @@ Rules:
 - drafts_ready lists email drafts generated and waiting for review — just name and context
 - personal_items lists anything from personal Gmail that needs attention — brief, not buried
 - meeting_prep lists prep notes for internal meetings today — last session summary and open items
+- inbox contains raw quick-capture notes from iPhone — surface urgent items in top_3_priorities, map ideas to active projects where relevant, flag anything actionable today
 
 Respond ONLY in JSON with these exact keys:
 {
@@ -61,6 +62,7 @@ def _build_prompt(
     personal_emails: list[PersonalEmail],
     drafts: list[Draft],
     meeting_prep: list[str],
+    inbox_text: str,
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -99,6 +101,9 @@ def _build_prompt(
         "## Recurring Tasks Due Today",
         *([f"  {t.name} ({t.schedule})" for t in due_tasks] or ["  (none)"]),
         "",
+        "## Quick Capture Inbox (raw notes from iPhone — categorize and surface)",
+        inbox_text if inbox_text else "  (empty)",
+        "",
         "## Open Loop Summary",
         f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} items",
         f"  Still open: {len(loop_summary.still_open_email_ids)} items",
@@ -119,6 +124,7 @@ def generate_brief(
     personal_emails: list[PersonalEmail] = None,
     drafts: list[Draft] = None,
     meeting_prep: list[str] = None,
+    inbox_text: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -128,6 +134,7 @@ def generate_brief(
         personal_emails or [],
         drafts or [],
         meeting_prep or [],
+        inbox_text or "",
     )
     response = client.messages.create(
         model=model,
