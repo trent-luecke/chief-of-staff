@@ -46,11 +46,12 @@ def send_brief_email(
     to_email: str,
     subject: str,
     html_body: str,
+    plain_text: str = "Morning brief — view in an HTML-capable email client.",
 ) -> str:
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["To"] = to_email
-    msg.attach(MIMEText("Morning brief — view in an HTML-capable email client.", "plain"))
+    msg.attach(MIMEText(plain_text, "plain"))
     msg.attach(MIMEText(html_body, "html"))
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
     result = gmail_service.users().messages().send(userId="me", body={"raw": raw}).execute()

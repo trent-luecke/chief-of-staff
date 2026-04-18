@@ -2,7 +2,6 @@
 """Post-meeting nudger: sends a reply-able email after each tracked internal meeting ends."""
 
 import json
-import os
 from datetime import date, datetime, timedelta
 from dotenv import load_dotenv
 

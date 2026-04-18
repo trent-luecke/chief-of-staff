@@ -3,7 +3,6 @@
 
 import base64
 import json
-import os
 import subprocess
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
