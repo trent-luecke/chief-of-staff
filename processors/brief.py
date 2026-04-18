@@ -4,21 +4,37 @@ import anthropic
 from dataclasses import dataclass, field
 from collectors.calendar import CalendarEvent
 from collectors.gmail import EmailThread
+from collectors.gmail_personal import PersonalEmail
 from collectors.local_data import Project, RecurringTask
 from processors.loops import LoopSummary
+from processors.issues import Issue
+from processors.drafts import Draft
 
 
 SYSTEM_PROMPT = """\
-You are an AI Chief of Staff for Trent Luecke, VP of Sales at TeamBuildr OS \
-(a B2B SaaS company serving strength & conditioning coaches). \
-Your job is to deliver a sharp, actionable morning brief.
+You are an AI Chief of Staff for Trent Luecke — VP of Sales at TeamBuildr OS (B2B SaaS for strength and conditioning coaches) and founder of Vero (gym AI side project). You also help with his personal life, LinkedIn content, and a weekly content podcast.
 
-Be direct. No filler. Prioritize ruthlessly. Surface only what matters for today.
-Respond in JSON with exactly these keys:
-- executive_summary: 2-3 sentence synthesis of the day ahead
-- top_3_priorities: list of exactly 3 action items, ordered by importance
-- watch_outs: list of 0-3 risks or things that could go wrong today
-- schedule_notes: one sentence about schedule shape (back-to-backs, gaps, etc.)
+Deliver an expansive, actionable morning brief. Be direct. No filler. Prioritize ruthlessly.
+
+Rules:
+- Open issues from prior days appear in top_3_priorities with age and source: "[ISSUE: N days, Slack #channel] title"
+- Issues are the highest-priority items if they are multi-day or involve customer-facing problems
+- recurring_due lists tasks due today by name and cadence — do not bury these in priorities
+- drafts_ready lists email drafts generated and waiting for review — just name and context
+- personal_items lists anything from personal Gmail that needs attention — brief, not buried
+- meeting_prep lists prep notes for internal meetings today — last session summary and open items
+
+Respond ONLY in JSON with these exact keys:
+{
+  "executive_summary": "2-3 sentence synthesis of the day ahead",
+  "top_3_priorities": ["3 action items, open issues called out with age and source"],
+  "watch_outs": ["0-3 risks or things that could go wrong today"],
+  "schedule_notes": "one sentence about schedule shape",
+  "personal_items": ["personal email items needing attention, empty list if none"],
+  "recurring_due": ["recurring tasks due today with cadence"],
+  "drafts_ready": ["drafts ready to review and send"],
+  "meeting_prep": ["prep notes for today's internal meetings, empty list if none"]
+}
 """
 
 
@@ -28,6 +44,10 @@ class BriefContent:
     top_3_priorities: list[str] = field(default_factory=list)
     watch_outs: list[str] = field(default_factory=list)
     schedule_notes: str = ""
+    personal_items: list[str] = field(default_factory=list)
+    recurring_due: list[str] = field(default_factory=list)
+    drafts_ready: list[str] = field(default_factory=list)
+    meeting_prep: list[str] = field(default_factory=list)
 
 
 def _build_prompt(
@@ -37,37 +57,51 @@ def _build_prompt(
     projects: list[Project],
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
+    open_issues: list[Issue],
+    personal_emails: list[PersonalEmail],
+    drafts: list[Draft],
+    meeting_prep: list[str],
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
-        time = e.start.strftime("%I:%M%p").lstrip("0")
-        return f"  {time} — {e.summary}"
+        return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
 
-    def fmt_email(t: EmailThread) -> str:
-        return f"  {t.subject} from {t.last_sender}"
+    def fmt_issue(i: Issue) -> str:
+        return f"  [{i.age_days}d, {i.source}#{i.channel}] {i.title} (status: {i.status})"
+
+    def fmt_draft(d: Draft) -> str:
+        return f"  {d.draft_type}: {d.context} → to {d.to}"
 
     sections = [
+        "## Open Issues (surface in priorities with age and source)",
+        *([fmt_issue(i) for i in open_issues] or ["  (none)"]),
+        "",
         "## Today's Calendar",
         *([fmt_event(e) for e in today_events] or ["  (no events)"]),
         "",
-        "## Tomorrow's Preview",
+        "## Tomorrow Preview",
         *([fmt_event(e) for e in tomorrow_events] or ["  (no events)"]),
         "",
-        "## Emails Needing Attention",
-        *([fmt_email(t) for t in email_threads] or ["  (none)"]),
+        "## Work Emails Needing Attention",
+        *([f"  {t.subject} from {t.last_sender}" for t in email_threads] or ["  (none)"]),
         "",
-        "## Open Loops",
-        f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} emails, "
-        f"{len(loop_summary.resolved_notion_ids)} inbox items",
-        f"  Still open from prior days: {len(loop_summary.still_open_email_ids)} emails, "
-        f"{len(loop_summary.still_open_notion_ids)} inbox items",
-        f"  New today: {len(loop_summary.new_email_loops)} emails, "
-        f"{len(loop_summary.new_notion_loops)} inbox items",
+        "## Personal Items (allowlisted personal Gmail)",
+        *([f"  {e.sender}: {e.subject} — {e.snippet[:80]}" for e in personal_emails] or ["  (none)"]),
+        "",
+        "## Email Drafts Ready for Review",
+        *([fmt_draft(d) for d in drafts] or ["  (none)"]),
+        "",
+        "## Meeting Prep (internal meetings today)",
+        *([f"  {m}" for m in meeting_prep] or ["  (no tracked internal meetings today)"]),
         "",
         "## Active Projects",
         *([f"  {p.name} [{p.status}] — Next: {p.next_step}" for p in projects] or ["  (none)"]),
         "",
         "## Recurring Tasks Due Today",
         *([f"  {t.name} ({t.schedule})" for t in due_tasks] or ["  (none)"]),
+        "",
+        "## Open Loop Summary",
+        f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} items",
+        f"  Still open: {len(loop_summary.still_open_email_ids)} items",
     ]
     return "\n".join(sections)
 
@@ -81,25 +115,30 @@ def generate_brief(
     projects: list[Project],
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
+    open_issues: list[Issue] = None,
+    personal_emails: list[PersonalEmail] = None,
+    drafts: list[Draft] = None,
+    meeting_prep: list[str] = None,
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
-        today_events, tomorrow_events, email_threads, projects, due_tasks, loop_summary
+        today_events, tomorrow_events, email_threads, projects, due_tasks,
+        loop_summary,
+        open_issues or [],
+        personal_emails or [],
+        drafts or [],
+        meeting_prep or [],
     )
-
     response = client.messages.create(
         model=model,
-        max_tokens=1500,
+        max_tokens=2000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
     )
     raw = response.content[0].text.strip()
-
-    # Strip markdown code block if present
     match = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
     if match:
         raw = match.group(1).strip()
-
     try:
         data = json.loads(raw)
     except json.JSONDecodeError as e:
@@ -109,4 +148,8 @@ def generate_brief(
         top_3_priorities=data.get("top_3_priorities", []),
         watch_outs=data.get("watch_outs", []),
         schedule_notes=data.get("schedule_notes", ""),
+        personal_items=data.get("personal_items", []),
+        recurring_due=data.get("recurring_due", []),
+        drafts_ready=data.get("drafts_ready", []),
+        meeting_prep=data.get("meeting_prep", []),
     )
