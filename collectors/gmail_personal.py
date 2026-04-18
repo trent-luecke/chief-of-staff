@@ -16,7 +16,7 @@ class PersonalEmail:
 
 def _sender_email(from_header: str) -> str:
     if "<" in from_header:
-        return from_header.split("<")[1].rstrip(">").strip().lower()
+        return from_header.split("<")[1].strip().rstrip(">").lower()
     return from_header.strip().lower()
 
 

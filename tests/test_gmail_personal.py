@@ -56,6 +56,32 @@ def test_fetch_personal_emails_gws_failure_returns_empty(mock_sub):
     assert emails == []
 
 
+def test_sender_email_parses_display_name_format(mock_sub):
+    thread_with_display_name = {
+        "id": "t2",
+        "messages": [{
+            "id": "m2",
+            "payload": {"headers": [
+                {"name": "Subject", "value": "Hello"},
+                {"name": "From", "value": "Jane Smith <jane@school.edu>"},
+            ]},
+            "internalDate": "1713450000000",
+        }]
+    }
+    mock_sub.side_effect = [
+        MagicMock(stdout=json.dumps({"threads": [{"id": "t2", "snippet": "hi"}]}), returncode=0),
+        MagicMock(stdout=json.dumps(thread_with_display_name), returncode=0),
+    ]
+    emails = fetch_personal_emails(
+        profile="personal",
+        allowed_senders=["jane@school.edu"],
+        allowed_domains=[],
+        max_results=10,
+    )
+    assert len(emails) == 1
+    assert emails[0].sender == "jane@school.edu"
+
+
 @pytest.fixture
 def mock_sub():
     with patch("collectors.gmail_personal.subprocess.run") as m:
