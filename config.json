@@ -5,7 +5,6 @@
     "primary"
   ],
   "gmail_profile": "work",
-  "gmail_personal_profile": "personal",
   "include_personal_gmail": false,
   "unread_email_max": 15,
   "starred_email_max": 10,

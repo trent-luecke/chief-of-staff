@@ -21,7 +21,11 @@ def _sender_email(from_header: str) -> str:
 
 
 def _run_gws(cmd: list[str]) -> dict:
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        print("WARNING: gws not found in PATH — personal gmail fetch skipped.", flush=True)
+        return {}
     if result.returncode != 0:
         return {}
     try:

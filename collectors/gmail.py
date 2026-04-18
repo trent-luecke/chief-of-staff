@@ -20,7 +20,11 @@ def _run_gws(*cmd_parts: str, params: dict, profile: Optional[str] = None) -> di
     cmd = ["gws"] + list(cmd_parts) + ["--params", json.dumps(params)]
     if profile:
         cmd = ["gws", "--profile", profile] + list(cmd_parts) + ["--params", json.dumps(params)]
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        print("WARNING: gws not found in PATH — gmail fetch skipped.", flush=True)
+        return {}
     if result.returncode != 0:
         print(f"WARNING: gws command failed (exit {result.returncode}): {result.stderr.strip()}", flush=True)
         return {}

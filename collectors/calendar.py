@@ -37,7 +37,11 @@ def fetch_today_events(
     if profile:
         cmd = ["gws", "--profile", profile] + cmd[1:]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        print("WARNING: gws not found in PATH — calendar fetch skipped.", flush=True)
+        return []
     if result.returncode != 0:
         print(f"WARNING: gws calendar command failed (exit {result.returncode}): {result.stderr.strip()}", flush=True)
         return []
