@@ -35,5 +35,16 @@
   "pending_nudges_file": "data/pending_nudges.json",
   "drafts_dir": "data/drafts",
   "issue_auto_resolve_days": 3,
-  "inbox_file": "~/Library/Mobile Documents/iCloud~is~workflow~my~workflows/Documents/chief-of-staff-inbox.md"
+  "inbox_file": "~/Library/Mobile Documents/iCloud~is~workflow~my~workflows/Documents/chief-of-staff-inbox.md",
+  "pipeline": {
+    "enabled": true,
+    "cache_path": "data/pipeline_cache.json",
+    "trial_followup_after_days": 5,
+    "stale_after_days": 14
+  },
+  "gym_scout": {
+    "enabled": true,
+    "results_csv": "/Users/trentluecke/dev/Claude-Projects/Gym_Scout/gym_scout_results.csv",
+    "lookback_days": 7
+  }
 }

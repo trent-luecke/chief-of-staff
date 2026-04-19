@@ -6,6 +6,8 @@ from collectors.calendar import CalendarEvent
 from collectors.gmail import EmailThread
 from collectors.gmail_personal import PersonalEmail
 from collectors.local_data import Project, RecurringTask
+from collectors.pipeline import PipelineLead
+from collectors.gym_scout import GymScoutLead
 from processors.loops import LoopSummary
 from processors.issues import Issue
 from processors.drafts import Draft
@@ -24,6 +26,8 @@ Rules:
 - personal_items lists anything from personal Gmail that needs attention — brief, not buried
 - meeting_prep lists prep notes for internal meetings today — last session summary and open items
 - inbox contains raw quick-capture notes from iPhone — surface urgent items in top_3_priorities, map ideas to active projects where relevant, flag anything actionable today
+- pipeline_attention lists open opportunities that have gone cold or need a nudge — surface the highest-priority ones; trial follow-up drafts appear in drafts_ready
+- gym_scout_leads lists new gym leads found this week — remind to check and send outreach drafts from the Gym Scout email
 
 Respond ONLY in JSON with these exact keys:
 {
@@ -34,7 +38,8 @@ Respond ONLY in JSON with these exact keys:
   "personal_items": ["personal email items needing attention, empty list if none"],
   "recurring_due": ["recurring tasks due today with cadence"],
   "drafts_ready": ["drafts ready to review and send"],
-  "meeting_prep": ["prep notes for today's internal meetings, empty list if none"]
+  "meeting_prep": ["prep notes for today's internal meetings, empty list if none"],
+  "pipeline_attention": ["open pipeline opps needing a nudge, empty list if none"]
 }
 """
 
@@ -49,6 +54,7 @@ class BriefContent:
     recurring_due: list[str] = field(default_factory=list)
     drafts_ready: list[str] = field(default_factory=list)
     meeting_prep: list[str] = field(default_factory=list)
+    pipeline_attention: list[str] = field(default_factory=list)
 
 
 def _build_prompt(
@@ -63,6 +69,8 @@ def _build_prompt(
     drafts: list[Draft],
     meeting_prep: list[str],
     inbox_text: str,
+    attention_leads: list[PipelineLead] = None,
+    gym_scout_leads: list[GymScoutLead] = None,
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -72,6 +80,26 @@ def _build_prompt(
 
     def fmt_draft(d: Draft) -> str:
         return f"  {d.draft_type}: {d.context} → to {d.to}"
+
+    def fmt_attention_lead(l: PipelineLead) -> str:
+        days = f"{l.days_since_contact}d ago" if l.days_since_contact is not None else "no contact date"
+        val = f"${l.estimated_value:,.0f}" if l.estimated_value else ""
+        parts = [f"  {l.name}"]
+        if l.contact:
+            parts[0] += f" ({l.contact})"
+        parts[0] += f" — {l.status}, last contacted {days}"
+        if val:
+            parts[0] += f", est. {val}"
+        if l.stale:
+            parts[0] += " [STALE]"
+        return parts[0]
+
+    def fmt_gym_lead(g: GymScoutLead) -> str:
+        name = g.gym_name or "Unknown gym"
+        loc = f" in {g.location}" if g.location else ""
+        owner = f" (owner: {g.owner_name})" if g.owner_name else ""
+        confidence = "confirmed" if g.match == "yes" else "possible"
+        return f"  {name}{loc}{owner} — {confidence} ICP match, {g.category}"
 
     sections = [
         "## Open Issues (surface in priorities with age and source)",
@@ -107,6 +135,12 @@ def _build_prompt(
         "## Open Loop Summary",
         f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} items",
         f"  Still open: {len(loop_summary.still_open_email_ids)} items",
+        "",
+        "## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
+        *([fmt_attention_lead(l) for l in (attention_leads or [])] or ["  (none)"]),
+        "",
+        "## Gym Scout — New Leads This Week (outreach reminder)",
+        *([fmt_gym_lead(g) for g in (gym_scout_leads or [])] or ["  (none this week)"]),
     ]
     return "\n".join(sections)
 
@@ -125,6 +159,8 @@ def generate_brief(
     drafts: list[Draft] = None,
     meeting_prep: list[str] = None,
     inbox_text: str = "",
+    attention_leads: list[PipelineLead] = None,
+    gym_scout_leads: list[GymScoutLead] = None,
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -135,6 +171,8 @@ def generate_brief(
         drafts or [],
         meeting_prep or [],
         inbox_text or "",
+        attention_leads=attention_leads or [],
+        gym_scout_leads=gym_scout_leads or [],
     )
     response = client.messages.create(
         model=model,
@@ -159,4 +197,5 @@ def generate_brief(
         recurring_due=data.get("recurring_due", []),
         drafts_ready=data.get("drafts_ready", []),
         meeting_prep=data.get("meeting_prep", []),
+        pipeline_attention=data.get("pipeline_attention", []),
     )
