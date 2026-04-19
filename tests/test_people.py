@@ -248,3 +248,43 @@ def test_enrich_people_creates_new_profile_from_slack_dm(people_dir):
     content = new_file.read_text()
     assert "James New" in content
     assert "james@teambuildr.com" in content
+
+
+MOCK_CLAUDE_SIGNIFICANT = ""  # built dynamically in the test
+
+
+def test_enrich_people_writes_significant_touchpoint(people_dir):
+    import json
+    event = make_event("CSM Q2 Review", ["lmartin@teambuildr.com"])
+    luke_path = str(Path(people_dir) / "luke-martin.md")
+    mock_response = json.dumps({
+        "touchpoint_assessments": [
+            {
+                "key": "0:0:CSM Q2 Review",
+                "filepath": luke_path,
+                "significant": True,
+                "reason": "committed to sending list by Friday",
+                "subject": "CSM Q2 Review"
+            }
+        ],
+        "new_profiles": []
+    })
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=mock_response)]
+        )
+        enrich_people(
+            calendar_events=[event],
+            email_threads=[],
+            slack_dms=[],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    content = Path(people_dir, "luke-martin.md").read_text()
+    # Should appear in the Significant section, not just Routine
+    assert "committed to sending list by Friday" in content
+    sig_section_start = content.find("**Significant touchpoints:**")
+    routine_section_start = content.find("**Recent touchpoints")
+    reason_pos = content.find("committed to sending list by Friday")
+    assert sig_section_start < reason_pos < routine_section_start

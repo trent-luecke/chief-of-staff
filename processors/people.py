@@ -9,6 +9,7 @@ import anthropic
 
 MARKER = "<!-- AUTO-UPDATED: do not edit below this line -->"
 MAX_ROUTINE = 5
+MAX_SIGNIFICANT = 20
 
 
 def build_email_index(people_dir: str) -> dict[str, str]:
@@ -153,7 +154,7 @@ For each Slack DM, decide if this person is worth tracking (recurring relationsh
 Respond ONLY in JSON:
 {{
   "touchpoint_assessments": [
-    {{"key": "<key from input>", "filepath": "<filepath>", "significant": true, "reason": "<one line>"}}
+    {{"key": "<key from input>", "filepath": "<filepath>", "significant": true, "reason": "<one line>", "subject": "<subject from input>"}}
   ],
   "new_profiles": [
     {{"user_id": "<id>", "worth_tracking": true, "suggested_filename": "firstname-lastname.md",
@@ -273,7 +274,7 @@ def enrich_people(
             continue
         try:
             existing = read_auto_section(filepath)
-            significant = list(existing["significant"]) + sig_by_file.get(filepath, [])
+            significant = (list(existing["significant"]) + sig_by_file.get(filepath, []))[-MAX_SIGNIFICANT:]
             sig_subjects = sig_subjects_by_file.get(filepath, set())
             routine_new = [
                 f"{tp['date']} | {tp['source']} | \"{tp['subject']}\""
@@ -281,10 +282,11 @@ def enrich_people(
                 if tp["subject"] not in sig_subjects
             ]
             routine = (routine_new + existing["routine"])[:MAX_ROUTINE]
-            open_threads = new_open_threads.get(filepath, []) + [
+            existing_threads = [
                 t for t in existing["open_threads"]
                 if t not in new_open_threads.get(filepath, [])
             ]
+            open_threads = (new_open_threads.get(filepath, []) + existing_threads)[:MAX_ROUTINE]
             write_auto_section(filepath, significant, routine, open_threads)
         except Exception:
             continue
