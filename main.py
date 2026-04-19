@@ -158,6 +158,11 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         if gym_scout_leads:
             print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
 
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
+        sys.exit(1)
+
     print("🧠  Enriching people store...")
     slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
     slack_dms = []
@@ -173,7 +178,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             email_threads=email_threads,
             slack_dms=slack_dms,
             people_dir=people_dir,
-            api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+            api_key=api_key,
             model=config["ai_model"],
         )
 
@@ -192,11 +197,6 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         still_open = {"email": [], "notion": []}
 
     loop_summary = build_loop_summary(email_threads, notion_items, resolved, still_open)
-
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
-        sys.exit(1)
 
     print("🤖  Generating brief with Claude...")
     try:
