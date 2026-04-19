@@ -42,5 +42,17 @@
     "enabled": true,
     "results_csv": "data/gym_scout_results.csv",
     "lookback_days": 7
+  },
+  "memory": {
+    "enabled": true,
+    "dir": "data/memory",
+    "observations_file": "data/memory/observations.jsonl",
+    "decisions_file": "data/memory/decisions.md",
+    "archive_dir": "data/memory/archive",
+    "observation_lookback_days": 30,
+    "default_ttl_days": 90,
+    "activity_extension_days": 30,
+    "cold_start_days": 3,
+    "retrieval_token_budget": 1500
   }
 }

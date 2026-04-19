@@ -1,21 +1,5 @@
 {
   "date": "2026-04-19",
-  "open_email_thread_ids": [
-    "19da618afd230f5c",
-    "19da60c9dc818f86",
-    "19da5e82c3022f33",
-    "19da5d4f4b932d51",
-    "19da5cb79821ab14",
-    "19da5c89d0be6af0",
-    "19da5a19d92e7f80",
-    "19da5060635994ac",
-    "19da342c17365dc7",
-    "19da3429ff429e36",
-    "19da340f37d5ae3c",
-    "19da340cb6558925",
-    "19da340c98c9ae1c",
-    "19da340c628a58b0",
-    "19da340bdb960d13"
-  ],
+  "open_email_thread_ids": [],
   "open_notion_item_ids": []
 }

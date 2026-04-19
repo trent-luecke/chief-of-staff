@@ -27,6 +27,9 @@ from processors.people import enrich_people
 from outputs.sender import build_html_email, send_brief_email
 from lib.google_auth import build_gmail_service
 from outputs.dashboard import write_dashboard
+from processors.memory_observer import observe
+from processors.memory_synthesizer import synthesize
+from processors.memory_retriever import retrieve_memories, get_cold_start_message
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -174,6 +177,21 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             model=config["ai_model"],
         )
 
+    memory_context = ""
+    memory_cold_start_msg = None
+    memory_cfg = config.get("memory", {})
+    if memory_cfg.get("enabled"):
+        memory_context = retrieve_memories(
+            memory_dir=memory_cfg["dir"],
+            token_budget=memory_cfg.get("retrieval_token_budget", 1500),
+        )
+        memory_cold_start_msg = get_cold_start_message(
+            obs_file=memory_cfg["observations_file"],
+            cold_start_days=memory_cfg.get("cold_start_days", 3),
+        )
+        if memory_cold_start_msg:
+            print(f"   ℹ️  {memory_cold_start_msg}")
+
     todays_drafts = load_todays_drafts(config["drafts_dir"])
 
     print("🔄  Resolving open loops...")
@@ -208,6 +226,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             attention_leads=attention_leads,
             gym_scout_leads=gym_scout_leads,
             people_context=people_context,
+            memory_context=memory_context,
         )
     except Exception as e:
         print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)
@@ -216,6 +235,9 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             top_3_priorities=["Check logs", "Retry: python main.py --no-email"],
             watch_outs=[str(e)[:200]],
         )
+
+    if memory_cold_start_msg:
+        brief.watch_outs = [memory_cold_start_msg] + (brief.watch_outs or [])
 
     pipeline_stale_days = config.get("pipeline", {}).get("cache_stale_warn_days", 7)
     if pipeline_cache_age_days is not None and pipeline_cache_age_days >= pipeline_stale_days:
@@ -250,6 +272,33 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         open_notion_item_ids=today_notion_ids,
     )
     save_snapshot(snapshot, config["state_dir"])
+
+    if memory_cfg.get("enabled"):
+        try:
+            observe(
+                obs_file=memory_cfg["observations_file"],
+                decisions_file=memory_cfg["decisions_file"],
+                email_threads=email_threads,
+                still_open_ids=still_open if previous_state else {"email": [], "notion": []},
+                pipeline_leads=list(trial_leads) + list(attention_leads),
+                brief=brief,
+                issues=open_issues,
+            )
+            print("🧠  Observations captured.")
+            print("🔄  Running memory synthesis...")
+            synthesize(
+                obs_file=memory_cfg["observations_file"],
+                memory_dir=memory_cfg["dir"],
+                archive_dir=memory_cfg["archive_dir"],
+                api_key=api_key,
+                model=config["ai_model"],
+                lookback_days=memory_cfg.get("observation_lookback_days", 30),
+                default_ttl_days=memory_cfg.get("default_ttl_days", 90),
+                activity_extension_days=memory_cfg.get("activity_extension_days", 30),
+            )
+            print("✅  Memory synthesis complete.")
+        except Exception as e:
+            print(f"⚠️  Memory pipeline error (non-fatal): {e}", file=sys.stderr)
 
     print("\n✅ Brief complete.")
     print(f"\nSummary: {brief.executive_summary}")
