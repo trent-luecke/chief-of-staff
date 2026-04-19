@@ -1,0 +1,43 @@
+name: Check Email Replies
+
+on:
+  schedule:
+    # Every 15 minutes, Mon-Fri, 8am-5pm CDT (UTC-5).
+    # Change to "*/15 14-23 * * 1-5" in November for CST (UTC-6).
+    - cron: "*/15 13-22 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  check-replies:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: America/Chicago
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check for email replies
+        env:
+          GOOGLE_OAUTH_JSON: ${{ secrets.GOOGLE_OAUTH_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python check_replies.py
+
+      - name: Persist data
+        run: |
+          git config user.name "chief-of-staff[bot]"
+          git config user.email "noreply@github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "chore: feedback $(date +%Y-%m-%d-%H%M)"
+          git push
