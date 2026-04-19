@@ -1,7 +1,14 @@
 import json
 import os
-from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+
+ALL_SCOPES = [
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.modify",
+]
 
 CALENDAR_SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 GMAIL_SCOPES = [
@@ -11,28 +18,30 @@ GMAIL_SCOPES = [
 ]
 
 
-def get_service_account_credentials(scopes: list[str], subject_email: str):
-    raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+def _get_credentials() -> Credentials:
+    raw = os.environ.get("GOOGLE_OAUTH_JSON")
     if not raw:
         raise RuntimeError(
-            "GOOGLE_SERVICE_ACCOUNT_JSON environment variable is not set. "
-            "Set it to the contents of your service account key JSON file."
+            "GOOGLE_OAUTH_JSON environment variable is not set. "
+            "Run scripts/authorize.py to generate it."
         )
     try:
-        info = json.loads(raw)
+        data = json.loads(raw)
     except json.JSONDecodeError as e:
-        raise RuntimeError(
-            f"GOOGLE_SERVICE_ACCOUNT_JSON is not valid JSON: {e}"
-        ) from e
-    creds = service_account.Credentials.from_service_account_info(info, scopes=scopes)
-    return creds.with_subject(subject_email)
+        raise RuntimeError(f"GOOGLE_OAUTH_JSON is not valid JSON: {e}") from e
+    return Credentials(
+        token=None,
+        refresh_token=data["refresh_token"],
+        token_uri=data.get("token_uri", "https://oauth2.googleapis.com/token"),
+        client_id=data["client_id"],
+        client_secret=data["client_secret"],
+        scopes=data.get("scopes", ALL_SCOPES),
+    )
 
 
-def build_gmail_service(user_email: str):
-    creds = get_service_account_credentials(GMAIL_SCOPES, user_email)
-    return build("gmail", "v1", credentials=creds)
+def build_gmail_service(user_email: str = ""):
+    return build("gmail", "v1", credentials=_get_credentials())
 
 
-def build_calendar_service(user_email: str):
-    creds = get_service_account_credentials(CALENDAR_SCOPES, user_email)
-    return build("calendar", "v3", credentials=creds)
+def build_calendar_service(user_email: str = ""):
+    return build("calendar", "v3", credentials=_get_credentials())
