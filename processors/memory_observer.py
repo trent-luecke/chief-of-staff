@@ -1,6 +1,5 @@
 import json
 from datetime import date
-from typing import Optional
 
 from collectors.gmail import EmailThread
 from collectors.pipeline import PipelineLead
@@ -11,7 +10,7 @@ from processors.issues import Issue
 def _load_known_decision_dates(obs_file: str) -> set[str]:
     known = set()
     try:
-        with open(obs_file) as f:
+        with open(obs_file, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line:
@@ -30,7 +29,7 @@ def _load_known_decision_dates(obs_file: str) -> set[str]:
 def _read_decisions(decisions_file: str, known_contents: set[str]) -> list[dict]:
     observations = []
     try:
-        with open(decisions_file) as f:
+        with open(decisions_file, encoding='utf-8') as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -124,6 +123,6 @@ def observe(
     if not observations:
         return
 
-    with open(obs_file, "a") as f:
+    with open(obs_file, "a", encoding='utf-8') as f:
         for obs in observations:
             f.write(json.dumps(obs) + "\n")
