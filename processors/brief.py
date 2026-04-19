@@ -71,6 +71,7 @@ def _build_prompt(
     inbox_text: str,
     attention_leads: list[PipelineLead] = None,
     gym_scout_leads: list[GymScoutLead] = None,
+    people_context: str = "",
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -102,6 +103,9 @@ def _build_prompt(
         return f"  {name}{loc}{owner} — {confidence} ICP match, {g.category}"
 
     sections = [
+        "## People Context (background — use to identify missed deliverables and add relationship context to existing sections, do not create a new section)",
+        people_context if people_context else "  (no contacts matched today)",
+        "",
         "## Open Issues (surface in priorities with age and source)",
         *([fmt_issue(i) for i in open_issues] or ["  (none)"]),
         "",
@@ -161,6 +165,7 @@ def generate_brief(
     inbox_text: str = "",
     attention_leads: list[PipelineLead] = None,
     gym_scout_leads: list[GymScoutLead] = None,
+    people_context: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -173,6 +178,7 @@ def generate_brief(
         inbox_text or "",
         attention_leads=attention_leads or [],
         gym_scout_leads=gym_scout_leads or [],
+        people_context=people_context,
     )
     response = client.messages.create(
         model=model,
