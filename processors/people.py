@@ -1,4 +1,6 @@
 import re
+import os
+import tempfile
 from pathlib import Path
 from datetime import date
 
@@ -8,10 +10,12 @@ MAX_ROUTINE = 5
 
 def build_email_index(people_dir: str) -> dict[str, str]:
     """Scan *.md in people_dir; return {email_lower: filepath} for files with **Email:** fields."""
+    if not Path(people_dir).is_dir():
+        return {}
     index = {}
     for path in Path(people_dir).glob("*.md"):
         content = path.read_text()
-        m = re.search(r'\*\*Email:\*\*\s*(\S+@\S+)', content, re.IGNORECASE)
+        m = re.search(r'\*\*Email:\*\*\s*([\w.+\-]+@[\w.\-]+\.[a-zA-Z]{2,})', content, re.IGNORECASE)
         if m:
             index[m.group(1).lower()] = str(path)
     return index
@@ -32,7 +36,9 @@ def read_auto_section(filepath: str) -> dict:
             return []
         lines = []
         for line in m.group(1).strip().splitlines():
-            line = line.strip().lstrip("- ")
+            line = line.strip()
+            if line.startswith("- "):
+                line = line[2:]
             if line and line != "(none)":
                 lines.append(line)
         return lines
@@ -78,4 +84,15 @@ def write_auto_section(
         lines.append("- (none)")
     lines.append("")
 
-    Path(filepath).write_text(human_part + "\n" + "\n".join(lines))
+    new_content = human_part + "\n" + "\n".join(lines)
+
+    # Atomic write: write to temp file then rename to avoid partial writes on crash
+    path = Path(filepath)
+    fd, tmp_path = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w") as f:
+            f.write(new_content)
+        os.replace(tmp_path, filepath)
+    except Exception:
+        os.unlink(tmp_path)
+        raise

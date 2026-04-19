@@ -44,12 +44,13 @@ def test_write_auto_section_creates_marker_if_absent(people_dir):
 
 def test_write_auto_section_preserves_human_content(people_dir):
     filepath = str(Path(people_dir) / "luke-martin.md")
+    original_content = Path(filepath).read_text()
     write_auto_section(filepath, significant=[], routine=[], open_threads=[])
-    content = Path(filepath).read_text()
-    # Human section untouched
-    assert "**Email:** lmartin@teambuildr.com" in content
-    assert "## Notes" in content
-    assert "- test" in content
+    new_content = Path(filepath).read_text()
+    # Human section above MARKER must be byte-for-byte identical
+    original_human = original_content.split(MARKER)[0].rstrip()
+    new_human = new_content.split(MARKER)[0].rstrip()
+    assert original_human == new_human
 
 
 def test_write_auto_section_replaces_previous_auto_section(people_dir):
