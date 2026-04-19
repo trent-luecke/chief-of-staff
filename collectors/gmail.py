@@ -1,8 +1,8 @@
-import json
-import subprocess
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+
+from lib.google_auth import build_gmail_service
 
 
 @dataclass
@@ -16,22 +16,8 @@ class EmailThread:
     label: str = "unread"
 
 
-def _run_gws(*cmd_parts: str, params: dict, profile: Optional[str] = None) -> dict:
-    cmd = ["gws"] + list(cmd_parts) + ["--params", json.dumps(params)]
-    if profile:
-        cmd = ["gws", "--profile", profile] + list(cmd_parts) + ["--params", json.dumps(params)]
-    try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-    except FileNotFoundError:
-        print("WARNING: gws not found in PATH — gmail fetch skipped.", flush=True)
-        return {}
-    if result.returncode != 0:
-        print(f"WARNING: gws command failed (exit {result.returncode}): {result.stderr.strip()}", flush=True)
-        return {}
-    try:
-        return json.loads(result.stdout)
-    except json.JSONDecodeError:
-        return {}
+def _build_service(user_email: str):
+    return build_gmail_service(user_email)
 
 
 def _get_header(headers: list[dict], name: str) -> str:
@@ -70,30 +56,27 @@ def _parse_thread(thread_data: dict, user_email: str) -> Optional[EmailThread]:
 def fetch_threads_needing_attention(
     user_email: str,
     max_results: int = 15,
-    profile: Optional[str] = None,
     query: str = "is:unread OR is:starred -in:sent",
 ) -> list[EmailThread]:
-    list_data = _run_gws(
-        "gmail", "users", "threads", "list",
-        params={"userId": "me", "q": query, "maxResults": max_results},
-        profile=profile,
-    )
-    if not list_data:
+    try:
+        service = _build_service(user_email)
+        list_data = service.users().threads().list(
+            userId="me", q=query, maxResults=max_results
+        ).execute()
+    except Exception as e:
+        print(f"WARNING: Gmail fetch failed: {e}", flush=True)
         return []
 
     threads = []
     for t in list_data.get("threads", []):
-        thread_data = _run_gws(
-            "gmail", "users", "threads", "get",
-            params={
-                "userId": "me",
-                "id": t["id"],
-                "format": "metadata",
-                "metadataHeaders": ["Subject", "From", "Date"],
-            },
-            profile=profile,
-        )
-        if not thread_data:
+        try:
+            thread_data = service.users().threads().get(
+                userId="me",
+                id=t["id"],
+                format="metadata",
+                metadataHeaders=["Subject", "From", "Date"],
+            ).execute()
+        except Exception:
             continue
         thread_data.setdefault("snippet", t.get("snippet", ""))
         parsed = _parse_thread(thread_data, user_email)
