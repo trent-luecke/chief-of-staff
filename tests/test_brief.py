@@ -127,7 +127,6 @@ def test_generate_brief_prompt_includes_calendar_events(mock_anthropic):
 
 def test_people_context_appears_in_prompt():
     from processors.brief import _build_prompt
-    from unittest.mock import MagicMock
 
     prompt = _build_prompt(
         today_events=[],
