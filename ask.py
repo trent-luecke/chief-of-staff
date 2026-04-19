@@ -48,7 +48,8 @@ def main() -> None:
             send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
         sys.exit(1)
 
-    send_message(bot_token, chat_id, result.answer)
+    if bot_token:
+        send_message(bot_token, chat_id, result.answer)
 
     captures_file = config.get("captures_file", "data/captures.md")
     for capture in result.captures:
