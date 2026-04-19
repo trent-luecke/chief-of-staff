@@ -22,7 +22,7 @@ Rules:
 - Issues are the highest-priority items if they are multi-day or involve customer-facing problems
 - recurring_due lists tasks due today by name and cadence — do not bury these in priorities
 - drafts_ready lists email drafts generated and waiting for review — just name and context
-- personal_items lists anything from personal Gmail that needs attention — brief, not buried
+- personal_items lists any personal or life items needing attention — brief, not buried
 - meeting_prep lists prep notes for internal meetings today — last session summary and open items
 - inbox contains raw quick-capture notes from iPhone — surface urgent items in top_3_priorities, map ideas to active projects where relevant, flag anything actionable today
 - pipeline_attention lists open opportunities that have gone cold or need a nudge — surface the highest-priority ones; trial follow-up drafts appear in drafts_ready
