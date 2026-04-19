@@ -13,7 +13,6 @@ load_dotenv()
 
 from collectors.calendar import fetch_two_day_events
 from collectors.gmail import fetch_threads_needing_attention
-from collectors.gmail_personal import fetch_personal_emails
 from collectors.local_data import load_projects, load_due_recurring_tasks, read_inbox
 from collectors.notion_inbox import fetch_inbox_items
 from collectors.pipeline import fetch_pipeline_leads, PipelineLead
@@ -25,21 +24,14 @@ from processors.meeting_memory import load_meeting_index, find_meeting_for_event
 from processors.drafts import generate_demo_followup, generate_trial_followup, save_draft, load_todays_drafts
 from processors.brief import generate_brief, BriefContent
 from processors.people import enrich_people
-from outputs.sender import build_gmail_service_from_config, build_html_email, send_brief_email
+from outputs.sender import build_html_email, send_brief_email
+from lib.google_auth import build_gmail_service
 from outputs.dashboard import write_dashboard
 
 
 def load_config(path: str = "config.json") -> dict:
     with open(path) as f:
         return json.load(f)
-
-
-def load_personal_allowlist(path: str) -> dict:
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {"allowed_senders": [], "allowed_domains": []}
 
 
 def build_meeting_prep(today_events, meeting_configs) -> list[str]:
@@ -87,23 +79,13 @@ def generate_daily_drafts(config: dict, today_events) -> None:
 def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     print("🗓  Fetching calendar...")
     today_events, tomorrow_events = fetch_two_day_events(
-        config["calendar_ids"], profile=config.get("gmail_profile")
+        config["calendar_ids"], user_email=config["email"]
     )
 
     print("📧  Fetching Gmail (work)...")
     email_threads = fetch_threads_needing_attention(
         user_email=config["email"],
         max_results=config.get("unread_email_max", 15),
-        profile=config.get("gmail_profile"),
-    )
-
-    print("📱  Fetching Gmail (personal)...")
-    allowlist = load_personal_allowlist(config.get("personal_allowlist_file", "data/personal_allowlist.json"))
-    personal_emails = fetch_personal_emails(
-        profile=config.get("personal_gmail_profile", "personal"),
-        allowed_senders=allowlist.get("allowed_senders", []),
-        allowed_domains=allowlist.get("allowed_domains", []),
-        max_results=20,
     )
 
     print("📋  Loading projects and recurring tasks...")
@@ -220,7 +202,6 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             due_tasks=due_tasks,
             loop_summary=loop_summary,
             open_issues=open_issues,
-            personal_emails=personal_emails,
             drafts=todays_drafts,
             meeting_prep=meeting_prep,
             inbox_text=inbox_text,
@@ -254,7 +235,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
     if not dry_run and not no_email:
         print("📤  Sending brief email...")
-        gmail = build_gmail_service_from_config(config["credentials_path"], config["token_path"])
+        gmail = build_gmail_service(config["email"])
         subject = f"☀️ Morning Brief — {datetime.now().strftime('%A, %B %-d')}"
         html = build_html_email(brief, today_events, projects, due_tasks, loop_summary)
         msg_id = send_brief_email(gmail, config["email"], subject, html)
