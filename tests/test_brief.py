@@ -136,7 +136,6 @@ def test_people_context_appears_in_prompt():
         due_tasks=[],
         loop_summary=MagicMock(resolved_email_ids=[], still_open_email_ids=[]),
         open_issues=[],
-        personal_emails=[],
         drafts=[],
         meeting_prep=[],
         inbox_text="",

@@ -6,7 +6,6 @@ import pytest
 from processors.brief import generate_brief, BriefContent
 from collectors.calendar import CalendarEvent
 from collectors.gmail import EmailThread
-from collectors.gmail_personal import PersonalEmail
 from collectors.local_data import Project, RecurringTask
 from processors.loops import LoopSummary
 from processors.issues import Issue
@@ -49,7 +48,7 @@ def test_generate_brief_includes_issue_fields(mock_anthropic):
         api_key="sk-test", model="claude-haiku-4-5-20251001",
         today_events=[], tomorrow_events=[], email_threads=[],
         projects=[], due_tasks=[], loop_summary=LoopSummary(),
-        open_issues=issues, personal_emails=[], drafts=[], meeting_prep=[],
+        open_issues=issues, drafts=[], meeting_prep=[],
     )
     assert len(brief.top_3_priorities) == 3
     assert len(brief.recurring_due) == 2

@@ -4,7 +4,6 @@ import anthropic
 from dataclasses import dataclass, field
 from collectors.calendar import CalendarEvent
 from collectors.gmail import EmailThread
-from collectors.gmail_personal import PersonalEmail
 from collectors.local_data import Project, RecurringTask
 from collectors.pipeline import PipelineLead
 from collectors.gym_scout import GymScoutLead
@@ -65,7 +64,6 @@ def _build_prompt(
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
     open_issues: list[Issue],
-    personal_emails: list[PersonalEmail],
     drafts: list[Draft],
     meeting_prep: list[str],
     inbox_text: str,
@@ -118,9 +116,6 @@ def _build_prompt(
         "## Work Emails Needing Attention",
         *([f"  {t.subject} from {t.last_sender}" for t in email_threads] or ["  (none)"]),
         "",
-        "## Personal Items (allowlisted personal Gmail)",
-        *([f"  {e.sender}: {e.subject} — {e.snippet[:80]}" for e in personal_emails] or ["  (none)"]),
-        "",
         "## Email Drafts Ready for Review",
         *([fmt_draft(d) for d in drafts] or ["  (none)"]),
         "",
@@ -159,7 +154,6 @@ def generate_brief(
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
     open_issues: list[Issue] = None,
-    personal_emails: list[PersonalEmail] = None,
     drafts: list[Draft] = None,
     meeting_prep: list[str] = None,
     inbox_text: str = "",
@@ -172,7 +166,6 @@ def generate_brief(
         today_events, tomorrow_events, email_threads, projects, due_tasks,
         loop_summary,
         open_issues or [],
-        personal_emails or [],
         drafts or [],
         meeting_prep or [],
         inbox_text or "",
