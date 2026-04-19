@@ -69,7 +69,7 @@ def resolve_channel_ids(token: str, channel_names: list[str]) -> dict[str, str]:
     return result
 
 
-def fetch_dm_messages(token: str, since_hours: int = 24) -> list["SlackDM"]:
+def fetch_dm_messages(token: str, since_hours: int = 24) -> list[SlackDM]:
     client = WebClient(token=token)
     try:
         result = client.conversations_list(types="im", limit=200)
@@ -93,7 +93,7 @@ def fetch_dm_messages(token: str, since_hours: int = 24) -> list["SlackDM"]:
             profile = user_info["user"]["profile"]
             display_name = profile.get("real_name") or profile.get("display_name", user_id)
             email = profile.get("email", "")
-        except SlackApiError:
+        except (SlackApiError, KeyError, TypeError):
             display_name = user_id
             email = ""
 

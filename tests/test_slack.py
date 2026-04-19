@@ -92,11 +92,13 @@ def test_fetch_dm_messages_returns_dm_for_open_channel(mock_client):
 
 def test_fetch_dm_messages_skips_closed_channels(mock_client):
     mock_client.return_value.conversations_list.return_value = MOCK_DM_CHANNELS
-    mock_client.return_value.conversations_history.return_value = {"messages": []}
+    # D001 (open) gets messages; D002 (closed) should be skipped before history is even fetched
+    mock_client.return_value.conversations_history.return_value = MOCK_DM_HISTORY
     mock_client.return_value.users_info.return_value = MOCK_USER_INFO
 
     dms = fetch_dm_messages(token="xoxb-test", since_hours=24)
-    assert all(dm.channel_id != "D002" for dm in dms)
+    assert len(dms) == 1
+    assert dms[0].channel_id == "D001"
 
 
 def test_fetch_dm_messages_returns_empty_on_api_error(mock_client):
