@@ -137,13 +137,23 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
     trial_leads: list[PipelineLead] = []
     attention_leads: list[PipelineLead] = []
+    pipeline_cache_age_days: int | None = None
     if config.get("pipeline", {}).get("enabled"):
         print("📈  Loading pipeline cache...")
+        cache_path = config["pipeline"]["cache_path"]
         trial_leads, attention_leads = fetch_pipeline_leads(
-            cache_path=config["pipeline"]["cache_path"],
+            cache_path=cache_path,
             trial_followup_after_days=config["pipeline"].get("trial_followup_after_days", 5),
             stale_after_days=config["pipeline"].get("stale_after_days", 14),
         )
+        try:
+            with open(cache_path) as f:
+                synced_at = json.load(f).get("synced_at", "")
+            if synced_at:
+                synced_date = date.fromisoformat(synced_at[:10])
+                pipeline_cache_age_days = (date.today() - synced_date).days
+        except (FileNotFoundError, json.JSONDecodeError, ValueError):
+            pass
         print(f"   {len(trial_leads)} trial follow-up(s), {len(attention_leads)} stale opp(s)")
         if trial_leads:
             print("✍️  Generating trial follow-up drafts...")
@@ -224,6 +234,12 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             executive_summary="Brief generation failed — check logs.",
             top_3_priorities=["Check logs", "Retry: python main.py --no-email"],
             watch_outs=[str(e)[:200]],
+        )
+
+    pipeline_stale_days = config.get("pipeline", {}).get("cache_stale_warn_days", 7)
+    if pipeline_cache_age_days is not None and pipeline_cache_age_days >= pipeline_stale_days:
+        brief.watch_outs.append(
+            f"Pipeline cache is {pipeline_cache_age_days} days old — open Claude Code and ask to re-sync the pipeline cache from Notion."
         )
 
     print("📊  Writing dashboard...")

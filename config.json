@@ -41,7 +41,8 @@
     "enabled": true,
     "cache_path": "data/pipeline_cache.json",
     "trial_followup_after_days": 5,
-    "stale_after_days": 14
+    "stale_after_days": 14,
+    "cache_stale_warn_days": 7
   },
   "gym_scout": {
     "enabled": true,
