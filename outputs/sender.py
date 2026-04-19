@@ -10,13 +10,6 @@ from collectors.local_data import Project, RecurringTask
 from processors.brief import BriefContent
 from processors.loops import LoopSummary
 
-from lib.google_auth import get_credentials, build_gmail_service as _build_gmail_service
-
-
-def build_gmail_service_from_config(credentials_path: str, token_path: str):
-    creds = get_credentials(credentials_path, token_path)
-    return _build_gmail_service(creds)
-
 
 def build_html_email(
     brief: BriefContent,
