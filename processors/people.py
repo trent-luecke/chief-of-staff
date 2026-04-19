@@ -118,10 +118,10 @@ def _assess_with_claude(
         return {"touchpoint_assessments": [], "new_profiles": []}
 
     tp_list = []
-    for filepath, tps in touchpoints_by_file.items():
-        for tp in tps:
+    for i, (filepath, tps) in enumerate(touchpoints_by_file.items()):
+        for j, tp in enumerate(tps):
             tp_list.append({
-                "key": tp["subject"],
+                "key": f"{i}:{j}:{tp['subject']}",
                 "filepath": filepath,
                 "date": tp["date"],
                 "source": tp["source"],
@@ -163,26 +163,29 @@ Respond ONLY in JSON:
 
 Only include items where significant/worth_tracking is true. Empty arrays are fine."""
 
-    client = anthropic.Anthropic(api_key=api_key)
-    response = client.messages.create(
-        model=model,
-        max_tokens=1000,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    raw = response.content[0].text.strip()
-    m = re.search(r'```(?:json)?\n?(.*?)```', raw, re.DOTALL)
-    if m:
-        raw = m.group(1).strip()
     try:
+        client = anthropic.Anthropic(api_key=api_key)
+        response = client.messages.create(
+            model=model,
+            max_tokens=2048,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.content[0].text.strip()
+        m = re.search(r'```(?:json)?\n?(.*?)```', raw, re.DOTALL)
+        if m:
+            raw = m.group(1).strip()
         return json.loads(raw)
-    except json.JSONDecodeError:
+    except Exception:
         return {"touchpoint_assessments": [], "new_profiles": []}
 
 
 def _create_profile(profile_data: dict, people_dir: str) -> None:
     """Create a new contact file pre-populated with Slack data. Human sections left empty."""
-    filename = profile_data.get("suggested_filename", f"{profile_data.get('user_id', 'unknown')}.md")
+    filename = profile_data.get("suggested_filename") or f"{profile_data.get('user_id', 'unknown')}.md"
     filepath = Path(people_dir) / filename
+    # Reject any path that escapes people_dir (e.g. "../../../etc/passwd")
+    if not filepath.resolve().is_relative_to(Path(people_dir).resolve()):
+        return
     if filepath.exists():
         return
     display_name = profile_data.get("display_name", profile_data.get("user_id", "Unknown"))
@@ -255,9 +258,9 @@ def enrich_people(
     for hit in assessment.get("touchpoint_assessments", []):
         fp = hit.get("filepath", "")
         reason = hit.get("reason", "")
-        key = hit.get("key", "")
+        subject = hit.get("subject", "")
         for tp in new_touchpoints.get(fp, []):
-            if tp["subject"] == key:
+            if tp["subject"] == subject:
                 tp_str = f"{tp['date']} | {tp['source']} | \"{tp['subject']}\""
                 if reason:
                     tp_str += f" | {reason}"
@@ -268,27 +271,31 @@ def enrich_people(
     for filepath in matched_files:
         if not Path(filepath).exists():
             continue
-        existing = read_auto_section(filepath)
-        significant = list(existing["significant"]) + sig_by_file.get(filepath, [])
-        sig_subjects = sig_subjects_by_file.get(filepath, set())
-        routine_new = [
-            f"{tp['date']} | {tp['source']} | \"{tp['subject']}\""
-            for tp in new_touchpoints.get(filepath, [])
-            if tp["subject"] not in sig_subjects
-        ]
-        routine = (routine_new + existing["routine"])[:MAX_ROUTINE]
-        open_threads = new_open_threads.get(filepath, []) + [
-            t for t in existing["open_threads"]
-            if t not in new_open_threads.get(filepath, [])
-        ]
-        write_auto_section(filepath, significant, routine, open_threads)
+        try:
+            existing = read_auto_section(filepath)
+            significant = list(existing["significant"]) + sig_by_file.get(filepath, [])
+            sig_subjects = sig_subjects_by_file.get(filepath, set())
+            routine_new = [
+                f"{tp['date']} | {tp['source']} | \"{tp['subject']}\""
+                for tp in new_touchpoints.get(filepath, [])
+                if tp["subject"] not in sig_subjects
+            ]
+            routine = (routine_new + existing["routine"])[:MAX_ROUTINE]
+            open_threads = new_open_threads.get(filepath, []) + [
+                t for t in existing["open_threads"]
+                if t not in new_open_threads.get(filepath, [])
+            ]
+            write_auto_section(filepath, significant, routine, open_threads)
+        except Exception:
+            continue
 
     for profile_data in assessment.get("new_profiles", []):
         if profile_data.get("worth_tracking"):
             _create_profile(profile_data, people_dir)
-            new_path = str(Path(people_dir) / profile_data.get("suggested_filename", ""))
-            if Path(new_path).exists():
-                matched_files.add(new_path)
+            filename = profile_data.get("suggested_filename") or f"{profile_data.get('user_id', 'unknown')}.md"
+            new_path = Path(people_dir) / filename
+            if new_path.is_file():
+                matched_files.add(str(new_path))
 
     context_parts = []
     for filepath in sorted(matched_files):
