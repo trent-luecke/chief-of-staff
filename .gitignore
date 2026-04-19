@@ -3,7 +3,7 @@ credentials/token.json
 credentials/client_secret.json
 credentials/
 output/
-data/state/
+data/drafts/
 __pycache__/
 *.pyc
 .venv/

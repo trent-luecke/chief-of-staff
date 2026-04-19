@@ -5,12 +5,8 @@
   "calendar_ids": [
     "primary"
   ],
-  "gmail_profile": "work",
-  "include_personal_gmail": false,
   "unread_email_max": 15,
   "starred_email_max": 10,
-  "credentials_path": "credentials/client_secret.json",
-  "token_path": "credentials/token.json",
   "ai_model": "claude-sonnet-4-6",
   "state_dir": "data/state",
   "projects_file": "data/projects.md",
@@ -29,8 +25,6 @@
     "support",
     "support-tickets"
   ],
-  "personal_gmail_profile": "personal",
-  "personal_allowlist_file": "data/personal_allowlist.json",
   "meeting_index_file": "data/meeting_index.json",
   "issues_file": "data/issues.json",
   "pending_nudges_file": "data/pending_nudges.json",
