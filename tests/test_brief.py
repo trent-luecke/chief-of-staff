@@ -145,6 +145,45 @@ def test_people_context_appears_in_prompt():
     assert "People Context" in prompt
 
 
+def test_build_prompt_includes_memory_context():
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        open_issues=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        memory_context="## Cross-Day Memory\n\n**apex** Apex stuck 4 weeks.",
+    )
+    assert "Cross-Day Memory" in prompt
+    assert "apex" in prompt
+
+
+def test_build_prompt_omits_memory_section_when_empty():
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        open_issues=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        memory_context="",
+    )
+    assert "Cross-Day Memory" not in prompt
+
+
 @pytest.fixture
 def mock_anthropic():
     with patch("processors.brief.anthropic.Anthropic") as mock:
