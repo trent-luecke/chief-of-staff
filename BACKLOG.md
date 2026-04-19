@@ -20,6 +20,16 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
+## ✅ P0 — Cloud Hosting (complete)
+
+**Shipped 2026-04-19.** System moved from macOS launchd to GitHub Actions. Runs unconditionally at 7am CDT (cron `0 12 * * *`) without the local machine. Auth migrated from `gws` CLI subprocess calls to `google-api-python-client` with OAuth2 refresh token stored as `GOOGLE_OAUTH_JSON` GitHub Secret (service account was blocked by Workspace admin access). Personal Gmail removed — not accessible without domain-wide delegation; covered by quick capture or P4. `data/` committed back to repo after each run for state persistence.
+
+**Known gap — brief content volume.** The brief delivers too much information in its current form. Needs a content refinement pass to tighten signal-to-noise: reduce section length, increase prioritization, cut low-value fields. Tackle before or alongside P3.
+
+**GitHub Secrets required:** `GOOGLE_OAUTH_JSON`, `ANTHROPIC_API_KEY`, `SLACK_BOT_TOKEN`
+
+---
+
 ## P3 — Cross-Day Memory
 
 **The system resets each morning.** It knows today's calendar, today's inbox, today's issues — but accumulates nothing. The same problem surfacing every Monday for three weeks is treated as new each time.
