@@ -57,7 +57,7 @@ def run() -> None:
             f"<p>Reply to this email with your notes — what was covered, open items, "
             f"and any action items. I'll add them to the meeting log automatically.</p>"
         )
-        msg_id = send_brief_email(
+        msg_id, thread_id = send_brief_email(
             gmail_service=gmail,
             to_email=config["email"],
             subject=meeting_config.nudge_subject,
@@ -67,7 +67,7 @@ def run() -> None:
             "event_id": event.id,
             "meeting_name": event.summary,
             "memory_file": meeting_config.memory_file,
-            "thread_id": msg_id,
+            "thread_id": thread_id,
             "sent_at": now.isoformat(),
             "session_date": date.today().isoformat(),
         })

@@ -46,7 +46,7 @@ def send_brief_email(
     subject: str,
     html_body: str,
     plain_text: str = "Morning brief — view in an HTML-capable email client.",
-    thread_id: str = None,
+    thread_id: str | None = None,
 ) -> tuple[str, str]:
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject

@@ -64,7 +64,7 @@ def test_send_brief_email_encodes_html(mock_gmail_service):
         html_body="<p>Hello</p>",
     )
     call_args = mock_gmail_service.users().messages().send.call_args
-    body = call_args.kwargs.get("body") or call_args.args[0] if call_args.args else call_args.kwargs["body"]
+    body = call_args.kwargs["body"]
     assert "raw" in body
 
 
@@ -78,7 +78,7 @@ def test_send_brief_email_uses_thread_id_when_provided(mock_gmail_service):
         thread_id="thread_003",
     )
     call_args = mock_gmail_service.users().messages().send.call_args
-    body = call_args.kwargs.get("body") or (call_args.args[0] if call_args.args else call_args.kwargs["body"])
+    body = call_args.kwargs["body"]
     assert body.get("threadId") == "thread_003"
 
 
