@@ -1,6 +1,11 @@
 import pytest
 from pathlib import Path
-from processors.people import build_email_index, read_auto_section, write_auto_section, MARKER
+from unittest.mock import patch, MagicMock
+from datetime import datetime
+from collectors.calendar import CalendarEvent
+from collectors.gmail import EmailThread
+from collectors.slack import SlackDM
+from processors.people import build_email_index, read_auto_section, write_auto_section, MARKER, enrich_people, _extract_email
 
 
 @pytest.fixture
@@ -90,3 +95,156 @@ def test_read_auto_section_parses_written_data(people_dir):
     assert "Proposal" in result["significant"][0]
     assert len(result["routine"]) == 1
     assert len(result["open_threads"]) == 1
+
+
+# ---------------------------------------------------------------------------
+# Enrichment tests (Task 4)
+# ---------------------------------------------------------------------------
+
+def make_event(summary: str, attendees: list[str]) -> CalendarEvent:
+    return CalendarEvent(
+        id="evt1",
+        summary=summary,
+        start=datetime(2026, 4, 18, 9, 0),
+        end=datetime(2026, 4, 18, 10, 0),
+        description="",
+        attendees=attendees,
+    )
+
+
+def make_thread(subject: str, sender: str, needs_reply: bool = True) -> EmailThread:
+    return EmailThread(
+        id="t1", subject=subject, last_sender=sender,
+        snippet="", last_message_date=None, needs_reply=needs_reply,
+    )
+
+
+def make_dm(user_id: str, display_name: str, email: str, messages: list[str]) -> SlackDM:
+    return SlackDM(user_id=user_id, display_name=display_name, email=email,
+                   messages=messages, channel_id="D001")
+
+
+def test_extract_email_bare():
+    assert _extract_email("luke@example.com") == "luke@example.com"
+
+
+def test_extract_email_with_display_name():
+    assert _extract_email("Luke Martin <lmartin@teambuildr.com>") == "lmartin@teambuildr.com"
+
+
+def test_extract_email_returns_original_if_no_angle_brackets():
+    assert _extract_email("notanemail") == "notanemail"
+
+
+MOCK_CLAUDE_RESPONSE = """{
+  "touchpoint_assessments": [],
+  "new_profiles": []
+}"""
+
+
+def test_enrich_people_updates_routine_touchpoint(people_dir):
+    event = make_event("Rev Team Sync", ["lmartin@teambuildr.com"])
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=MOCK_CLAUDE_RESPONSE)]
+        )
+        enrich_people(
+            calendar_events=[event],
+            email_threads=[],
+            slack_dms=[],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    content = Path(people_dir, "luke-martin.md").read_text()
+    assert "Rev Team Sync" in content
+    assert MARKER in content
+
+
+def test_enrich_people_records_open_thread(people_dir):
+    thread = make_thread("CSM coverage Q2", "Luke Martin <lmartin@teambuildr.com>", needs_reply=True)
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=MOCK_CLAUDE_RESPONSE)]
+        )
+        enrich_people(
+            calendar_events=[],
+            email_threads=[thread],
+            slack_dms=[],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    content = Path(people_dir, "luke-martin.md").read_text()
+    assert "CSM coverage Q2" in content
+    assert "needs reply" in content
+
+
+def test_enrich_people_returns_context_string_for_matched_contacts(people_dir):
+    event = make_event("Rev Team Sync", ["lmartin@teambuildr.com"])
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=MOCK_CLAUDE_RESPONSE)]
+        )
+        context = enrich_people(
+            calendar_events=[event],
+            email_threads=[],
+            slack_dms=[],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    assert "Luke Martin" in context
+    assert "lmartin@teambuildr.com" in context
+
+
+def test_enrich_people_unmatched_email_skipped(people_dir):
+    thread = make_thread("Unknown subject", "nobody@external.com", needs_reply=True)
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=MOCK_CLAUDE_RESPONSE)]
+        )
+        context = enrich_people(
+            calendar_events=[],
+            email_threads=[thread],
+            slack_dms=[],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    assert "nobody@external.com" not in context
+
+
+MOCK_CLAUDE_NEW_PROFILE = """{
+  "touchpoint_assessments": [],
+  "new_profiles": [
+    {
+      "worth_tracking": true,
+      "suggested_filename": "james-new.md",
+      "display_name": "James New",
+      "email": "james@teambuildr.com",
+      "reason": "promised to send onboarding doc"
+    }
+  ]
+}"""
+
+
+def test_enrich_people_creates_new_profile_from_slack_dm(people_dir):
+    dm = make_dm("U999", "James New", "james@teambuildr.com", ["Can you send the onboarding doc?"])
+    with patch("processors.people.anthropic") as mock_anthropic:
+        mock_anthropic.Anthropic.return_value.messages.create.return_value = MagicMock(
+            content=[MagicMock(text=MOCK_CLAUDE_NEW_PROFILE)]
+        )
+        enrich_people(
+            calendar_events=[],
+            email_threads=[],
+            slack_dms=[dm],
+            people_dir=people_dir,
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+    new_file = Path(people_dir) / "james-new.md"
+    assert new_file.exists()
+    content = new_file.read_text()
+    assert "James New" in content
+    assert "james@teambuildr.com" in content
