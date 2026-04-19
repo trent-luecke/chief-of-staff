@@ -11,7 +11,8 @@ Runs daily at 7am CDT via GitHub Actions. Pulls calendar, Gmail, Slack DMs, Noti
 - **P0 (Cloud Hosting)** — complete. Runs in GitHub Actions, no local machine required.
 - **P1 (People Intelligence)** — complete. `data/people/` contact store with machine-written Activity sections.
 - **P2 (Pipeline Data)** — complete. Notion pipeline in `data/pipeline_cache.json` via MCP sync.
-- **P3 (Cross-Day Memory)** — next up. Design spec at `docs/superpowers/specs/2026-04-19-cross-day-memory-design.md`. Implementation plan at `docs/superpowers/plans/2026-04-19-p3-cross-day-memory.md`.
+- **P3 (Cross-Day Memory)** — complete. `processors/memory_observer.py`, `memory_synthesizer.py`, `memory_retriever.py`. Observations appended to `data/memory/observations.jsonl`, synthesized into `data/memory/*.md` with YAML frontmatter and 90-day TTL, injected into brief prompt (1500-token budget). PR #3.
+- **P4 (Two-Way Interface)** — next up. See `BACKLOG.md` for spec.
 
 ## Auth
 

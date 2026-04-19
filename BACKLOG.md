@@ -30,16 +30,12 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P3 — Cross-Day Memory
+## ✅ P3 — Cross-Day Memory (complete)
 
-**The system resets each morning.** It knows today's calendar, today's inbox, today's issues — but accumulates nothing. The same problem surfacing every Monday for three weeks is treated as new each time.
+**Shipped 2026-04-19.** Three-layer memory: `memory_observer` appends structured signals to `data/memory/observations.jsonl` each run; `memory_synthesizer` calls Claude after send to write/update `data/memory/*.md` files with YAML frontmatter and 90-day TTL; `memory_retriever` injects up to 1500 tokens of active memory into the brief prompt before generation. Cold-start banner shown for first 3 runs. Memory errors are non-fatal. PR #3.
 
-**What's needed:**
-- A persistent observations log that survives between runs
-- A synthesis layer that converts raw observations into durable memories (with decay)
-- Brief generator queries accumulated memory before composing sections
-
-**Inspired by:** Donovan Li's three-layer memory architecture (observations → synthesized memories → retrieval with decay).
+**Known gaps:**
+- `test_watcher.py` references stale API (`detect_flareups_from_gmail`, `is_business_hours`) — test is broken, watcher itself is fine. Delete or fix before next watcher change.
 
 ---
 
