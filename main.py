@@ -24,6 +24,7 @@ from processors.issues import get_open_issues, auto_resolve_issues
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event, load_last_session_summary
 from processors.drafts import generate_demo_followup, generate_trial_followup, save_draft, load_todays_drafts
 from processors.brief import generate_brief, BriefContent
+from processors.people import enrich_people
 from outputs.sender import build_gmail_service_from_config, build_html_email, send_brief_email
 from outputs.dashboard import write_dashboard
 
@@ -157,6 +158,25 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         if gym_scout_leads:
             print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
 
+    print("🧠  Enriching people store...")
+    slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
+    slack_dms = []
+    if slack_token:
+        from collectors.slack import fetch_dm_messages
+        slack_dms = fetch_dm_messages(token=slack_token, since_hours=24)
+
+    people_context = ""
+    people_dir = config.get("people_dir", "data/people")
+    if os.path.isdir(people_dir):
+        people_context = enrich_people(
+            calendar_events=today_events,
+            email_threads=email_threads,
+            slack_dms=slack_dms,
+            people_dir=people_dir,
+            api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+            model=config["ai_model"],
+        )
+
     todays_drafts = load_todays_drafts(config["drafts_dir"])
 
     print("🔄  Resolving open loops...")
@@ -196,6 +216,7 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             inbox_text=inbox_text,
             attention_leads=attention_leads,
             gym_scout_leads=gym_scout_leads,
+            people_context=people_context,
         )
     except Exception as e:
         print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)
