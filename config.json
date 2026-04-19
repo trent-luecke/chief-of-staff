@@ -29,6 +29,8 @@
   "issues_file": "data/issues.json",
   "pending_nudges_file": "data/pending_nudges.json",
   "drafts_dir": "data/drafts",
+  "captures_file": "data/captures.md",
+  "brief_feedback_file": "data/brief_feedback.md",
   "issue_auto_resolve_days": 3,
   "inbox_file": "",
   "pipeline": {
