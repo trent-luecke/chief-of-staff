@@ -274,28 +274,31 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     save_snapshot(snapshot, config["state_dir"])
 
     if memory_cfg.get("enabled"):
-        observe(
-            obs_file=memory_cfg["observations_file"],
-            decisions_file=memory_cfg["decisions_file"],
-            email_threads=email_threads,
-            still_open_ids=still_open if previous_state else {"email": [], "notion": []},
-            pipeline_leads=list(trial_leads) + list(attention_leads),
-            brief=brief,
-            issues=open_issues,
-        )
-        print("🧠  Observations captured.")
-        print("🔄  Running memory synthesis...")
-        synthesize(
-            obs_file=memory_cfg["observations_file"],
-            memory_dir=memory_cfg["dir"],
-            archive_dir=memory_cfg["archive_dir"],
-            api_key=api_key,
-            model=config["ai_model"],
-            lookback_days=memory_cfg.get("observation_lookback_days", 30),
-            default_ttl_days=memory_cfg.get("default_ttl_days", 90),
-            activity_extension_days=memory_cfg.get("activity_extension_days", 30),
-        )
-        print("✅  Memory synthesis complete.")
+        try:
+            observe(
+                obs_file=memory_cfg["observations_file"],
+                decisions_file=memory_cfg["decisions_file"],
+                email_threads=email_threads,
+                still_open_ids=still_open if previous_state else {"email": [], "notion": []},
+                pipeline_leads=list(trial_leads) + list(attention_leads),
+                brief=brief,
+                issues=open_issues,
+            )
+            print("🧠  Observations captured.")
+            print("🔄  Running memory synthesis...")
+            synthesize(
+                obs_file=memory_cfg["observations_file"],
+                memory_dir=memory_cfg["dir"],
+                archive_dir=memory_cfg["archive_dir"],
+                api_key=api_key,
+                model=config["ai_model"],
+                lookback_days=memory_cfg.get("observation_lookback_days", 30),
+                default_ttl_days=memory_cfg.get("default_ttl_days", 90),
+                activity_extension_days=memory_cfg.get("activity_extension_days", 30),
+            )
+            print("✅  Memory synthesis complete.")
+        except Exception as e:
+            print(f"⚠️  Memory pipeline error (non-fatal): {e}", file=sys.stderr)
 
     print("\n✅ Brief complete.")
     print(f"\nSummary: {brief.executive_summary}")
