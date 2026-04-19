@@ -41,6 +41,7 @@ def load_config(path: str = "config.json") -> dict:
 def _save_brief_message_id(config: dict, message_id: str, thread_id: str, subject: str) -> None:
     state_path = os.path.join(config["state_dir"], "brief_message_id.json")
     os.makedirs(config["state_dir"], exist_ok=True)
+    # Overwrites on same-day re-run; replies to earlier send will be missed.
     with open(state_path, "w") as f:
         json.dump({
             "message_id": message_id,
@@ -278,8 +279,11 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         subject = f"☀️ Morning Brief — {datetime.now().strftime('%A, %B %-d')}"
         html = build_html_email(brief, today_events, projects, due_tasks, loop_summary)
         msg_id, thread_id = send_brief_email(gmail, config["email"], subject, html)
-        print(f"   Sent: {msg_id}")
-        _save_brief_message_id(config, msg_id, thread_id, subject)
+        if not msg_id:
+            print("WARNING: send_brief_email returned empty message_id — state not saved.", file=sys.stderr)
+        else:
+            print(f"   Sent: {msg_id}")
+            _save_brief_message_id(config, msg_id, thread_id, subject)
     else:
         print("   (email skipped)")
 
