@@ -245,6 +245,8 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             gym_scout_leads=gym_scout_leads,
             people_context=people_context,
             memory_context=memory_context,
+            captures_context=captures_context,
+            brief_feedback_context=brief_feedback_context,
         )
     except Exception as e:
         print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)

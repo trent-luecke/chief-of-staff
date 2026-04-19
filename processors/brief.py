@@ -71,6 +71,8 @@ def _build_prompt(
     gym_scout_leads: list[GymScoutLead] = None,
     people_context: str = "",
     memory_context: str = "",
+    captures_context: str = "",
+    brief_feedback_context: str = "",
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -102,6 +104,12 @@ def _build_prompt(
         return f"  {name}{loc}{owner} — {confidence} ICP match, {g.category}"
 
     sections = []
+    if brief_feedback_context:
+        sections += [
+            "## Delivery Instructions (from your feedback — follow these when writing the brief)",
+            brief_feedback_context,
+            "",
+        ]
     if memory_context:
         sections += [memory_context, ""]
     sections += [
@@ -135,6 +143,9 @@ def _build_prompt(
         "## Quick Capture Inbox (raw notes from iPhone — categorize and surface)",
         inbox_text if inbox_text else "  (empty)",
         "",
+        "## Action Captures (logged via Telegram query channel — surface relevant items)",
+        captures_context if captures_context else "  (none)",
+        "",
         "## Open Loop Summary",
         f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} items",
         f"  Still open: {len(loop_summary.still_open_email_ids)} items",
@@ -165,6 +176,8 @@ def generate_brief(
     gym_scout_leads: list[GymScoutLead] = None,
     people_context: str = "",
     memory_context: str = "",
+    captures_context: str = "",
+    brief_feedback_context: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -178,6 +191,8 @@ def generate_brief(
         gym_scout_leads=gym_scout_leads or [],
         people_context=people_context,
         memory_context=memory_context,
+        captures_context=captures_context,
+        brief_feedback_context=brief_feedback_context,
     )
     response = client.messages.create(
         model=model,
