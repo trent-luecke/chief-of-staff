@@ -30,11 +30,25 @@ from outputs.dashboard import write_dashboard
 from processors.memory_observer import observe
 from processors.memory_synthesizer import synthesize
 from processors.memory_retriever import retrieve_memories, get_cold_start_message
+from lib.captures import load_recent_captures, load_brief_feedback
 
 
 def load_config(path: str = "config.json") -> dict:
     with open(path) as f:
         return json.load(f)
+
+
+def _save_brief_message_id(config: dict, message_id: str, thread_id: str, subject: str) -> None:
+    state_path = os.path.join(config["state_dir"], "brief_message_id.json")
+    os.makedirs(config["state_dir"], exist_ok=True)
+    with open(state_path, "w") as f:
+        json.dump({
+            "message_id": message_id,
+            "thread_id": thread_id,
+            "subject": subject,
+            "date": date.today().isoformat(),
+            "processed_reply_ids": [],
+        }, f)
 
 
 def build_meeting_prep(today_events, meeting_configs) -> list[str]:
@@ -208,6 +222,9 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
     loop_summary = build_loop_summary(email_threads, notion_items, resolved, still_open)
 
+    captures_context = load_recent_captures(config.get("captures_file", "data/captures.md"))
+    brief_feedback_context = load_brief_feedback(config.get("brief_feedback_file", "data/brief_feedback.md"))
+
     print("🤖  Generating brief with Claude...")
     try:
         brief = generate_brief(
@@ -260,8 +277,9 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         gmail = build_gmail_service(config["email"])
         subject = f"☀️ Morning Brief — {datetime.now().strftime('%A, %B %-d')}"
         html = build_html_email(brief, today_events, projects, due_tasks, loop_summary)
-        msg_id = send_brief_email(gmail, config["email"], subject, html)
+        msg_id, thread_id = send_brief_email(gmail, config["email"], subject, html)
         print(f"   Sent: {msg_id}")
+        _save_brief_message_id(config, msg_id, thread_id, subject)
     else:
         print("   (email skipped)")
 
