@@ -9,7 +9,8 @@ load_dotenv()
 
 from collectors.calendar import fetch_two_day_events
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event
-from outputs.sender import build_gmail_service_from_config, send_brief_email
+from lib.google_auth import build_gmail_service
+from outputs.sender import send_brief_email
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -37,11 +38,9 @@ def run() -> None:
     pending = load_pending_nudges(pending_file)
     already_nudged = {n["event_id"] for n in pending}
 
-    today_events, _ = fetch_two_day_events(
-        config["calendar_ids"], profile=config.get("gmail_profile")
-    )
+    today_events, _ = fetch_two_day_events(config["calendar_ids"])
     now = datetime.now()
-    gmail = build_gmail_service_from_config(config["credentials_path"], config["token_path"])
+    gmail = build_gmail_service(config["email"])
 
     for event in today_events:
         if event.id in already_nudged:
