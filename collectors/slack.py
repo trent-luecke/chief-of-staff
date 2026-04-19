@@ -15,6 +15,15 @@ class SlackMessage:
     reply_count: int
 
 
+@dataclass
+class SlackDM:
+    user_id: str
+    display_name: str
+    email: str
+    messages: list[str]
+    channel_id: str
+
+
 def fetch_channel_messages(
     token: str,
     channel_id: str,
@@ -58,3 +67,42 @@ def resolve_channel_ids(token: str, channel_names: list[str]) -> dict[str, str]:
     except SlackApiError:
         pass
     return result
+
+
+def fetch_dm_messages(token: str, since_hours: int = 24) -> list[SlackDM]:
+    client = WebClient(token=token)
+    try:
+        result = client.conversations_list(types="im", limit=200)
+    except SlackApiError:
+        return []
+
+    dms = []
+    for ch in result.get("channels", []):
+        if not ch.get("is_open"):
+            continue
+        user_id = ch.get("user")
+        if not user_id:
+            continue
+
+        messages = fetch_channel_messages(token, ch["id"], since_hours=since_hours)
+        if not messages:
+            continue
+
+        try:
+            user_info = client.users_info(user=user_id)
+            profile = user_info["user"]["profile"]
+            display_name = profile.get("real_name") or profile.get("display_name", user_id)
+            email = profile.get("email", "")
+        except (SlackApiError, KeyError, TypeError):
+            display_name = user_id
+            email = ""
+
+        dms.append(SlackDM(
+            user_id=user_id,
+            display_name=display_name,
+            email=email,
+            messages=[m.text for m in messages],
+            channel_id=ch["id"],
+        ))
+
+    return dms

@@ -16,12 +16,15 @@ from collectors.gmail import fetch_threads_needing_attention
 from collectors.gmail_personal import fetch_personal_emails
 from collectors.local_data import load_projects, load_due_recurring_tasks, read_inbox
 from collectors.notion_inbox import fetch_inbox_items
+from collectors.pipeline import fetch_pipeline_leads, PipelineLead
+from collectors.gym_scout import fetch_recent_leads, GymScoutLead
 from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_snapshots
 from processors.loops import build_loop_summary
 from processors.issues import get_open_issues, auto_resolve_issues
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event, load_last_session_summary
-from processors.drafts import generate_demo_followup, save_draft, load_todays_drafts
+from processors.drafts import generate_demo_followup, generate_trial_followup, save_draft, load_todays_drafts
 from processors.brief import generate_brief, BriefContent
+from processors.people import enrich_people
 from outputs.sender import build_gmail_service_from_config, build_html_email, send_brief_email
 from outputs.dashboard import write_dashboard
 
@@ -52,6 +55,21 @@ def build_meeting_prep(today_events, meeting_configs) -> list[str]:
         else:
             prep.append(f"{event.summary} ({event.start.strftime('%-I:%M%p')}) — No prior session notes")
     return prep
+
+
+def generate_pipeline_drafts(config: dict, trial_leads: list[PipelineLead]) -> None:
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    model = config["ai_model"]
+    drafts_dir = config["drafts_dir"]
+    for lead in trial_leads:
+        if not lead.email:
+            continue
+        days = lead.days_since_contact or 0
+        name = lead.contact or lead.name
+        draft = generate_trial_followup(api_key, model, name, lead.email, days)
+        if draft:
+            save_draft(draft, drafts_dir)
+            print(f"   Draft: trial follow-up for {lead.name} ({days}d since last contact)")
 
 
 def generate_daily_drafts(config: dict, today_events) -> None:
@@ -116,6 +134,54 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
     print("✍️  Generating demo follow-up drafts...")
     generate_daily_drafts(config, today_events)
+
+    trial_leads: list[PipelineLead] = []
+    attention_leads: list[PipelineLead] = []
+    if config.get("pipeline", {}).get("enabled"):
+        print("📈  Loading pipeline cache...")
+        trial_leads, attention_leads = fetch_pipeline_leads(
+            cache_path=config["pipeline"]["cache_path"],
+            trial_followup_after_days=config["pipeline"].get("trial_followup_after_days", 5),
+            stale_after_days=config["pipeline"].get("stale_after_days", 14),
+        )
+        print(f"   {len(trial_leads)} trial follow-up(s), {len(attention_leads)} stale opp(s)")
+        if trial_leads:
+            print("✍️  Generating trial follow-up drafts...")
+            generate_pipeline_drafts(config, trial_leads)
+
+    gym_scout_leads: list[GymScoutLead] = []
+    if config.get("gym_scout", {}).get("enabled"):
+        gym_scout_leads = fetch_recent_leads(
+            config["gym_scout"]["results_csv"],
+            lookback_days=config["gym_scout"].get("lookback_days", 7),
+        )
+        if gym_scout_leads:
+            print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
+
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
+        sys.exit(1)
+
+    print("🧠  Enriching people store...")
+    slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
+    slack_dms = []
+    if slack_token:
+        from collectors.slack import fetch_dm_messages
+        slack_dms = fetch_dm_messages(token=slack_token, since_hours=24)
+
+    people_context = ""
+    people_dir = config.get("people_dir", "data/people")
+    if os.path.isdir(people_dir):
+        people_context = enrich_people(
+            calendar_events=today_events,
+            email_threads=email_threads,
+            slack_dms=slack_dms,
+            people_dir=people_dir,
+            api_key=api_key,
+            model=config["ai_model"],
+        )
+
     todays_drafts = load_todays_drafts(config["drafts_dir"])
 
     print("🔄  Resolving open loops...")
@@ -131,11 +197,6 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
         still_open = {"email": [], "notion": []}
 
     loop_summary = build_loop_summary(email_threads, notion_items, resolved, still_open)
-
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
-        sys.exit(1)
 
     print("🤖  Generating brief with Claude...")
     try:
@@ -153,6 +214,9 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
             drafts=todays_drafts,
             meeting_prep=meeting_prep,
             inbox_text=inbox_text,
+            attention_leads=attention_leads,
+            gym_scout_leads=gym_scout_leads,
+            people_context=people_context,
         )
     except Exception as e:
         print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)

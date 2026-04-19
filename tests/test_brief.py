@@ -125,6 +125,27 @@ def test_generate_brief_prompt_includes_calendar_events(mock_anthropic):
     assert "Crossfit Box" in user_prompt
 
 
+def test_people_context_appears_in_prompt():
+    from processors.brief import _build_prompt
+
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=MagicMock(resolved_email_ids=[], still_open_email_ids=[]),
+        open_issues=[],
+        personal_emails=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        people_context="# Luke Martin\n**Email:** lmartin@teambuildr.com",
+    )
+    assert "Luke Martin" in prompt
+    assert "People Context" in prompt
+
+
 @pytest.fixture
 def mock_anthropic():
     with patch("processors.brief.anthropic.Anthropic") as mock:
