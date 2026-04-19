@@ -251,6 +251,7 @@ def enrich_people(
     assessment = _assess_with_claude(new_touchpoints, unmatched_dms, api_key, model)
 
     sig_by_file: dict[str, list[str]] = {}
+    sig_subjects_by_file: dict[str, set[str]] = {}
     for hit in assessment.get("touchpoint_assessments", []):
         fp = hit.get("filepath", "")
         reason = hit.get("reason", "")
@@ -261,6 +262,7 @@ def enrich_people(
                 if reason:
                     tp_str += f" | {reason}"
                 sig_by_file.setdefault(fp, []).append(tp_str)
+                sig_subjects_by_file.setdefault(fp, set()).add(tp["subject"])
                 break
 
     for filepath in matched_files:
@@ -268,7 +270,7 @@ def enrich_people(
             continue
         existing = read_auto_section(filepath)
         significant = list(existing["significant"]) + sig_by_file.get(filepath, [])
-        sig_subjects = {s.split('"')[1] for s in sig_by_file.get(filepath, []) if '"' in s}
+        sig_subjects = sig_subjects_by_file.get(filepath, set())
         routine_new = [
             f"{tp['date']} | {tp['source']} | \"{tp['subject']}\""
             for tp in new_touchpoints.get(filepath, [])
