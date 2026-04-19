@@ -70,7 +70,8 @@ def _load_local_context(config: dict) -> str:
     captures_file = config.get("captures_file", "data/captures.md")
     if os.path.exists(captures_file):
         try:
-            content = open(captures_file).read()
+            with open(captures_file) as f:
+                content = f.read()
             parts.append("## Recent Captures\n" + (content[-2000:] if len(content) > 2000 else content))
         except OSError:
             pass
@@ -110,7 +111,7 @@ Return exactly this JSON schema:
             messages=[{"role": "user", "content": f"Query: {query}"}],
         )
         return json.loads(message.content[0].text)
-    except (json.JSONDecodeError, IndexError, AttributeError, Exception):
+    except Exception:
         return {"needs_live_gmail": False, "needs_live_calendar": False,
                 "gmail_search_query": None, "calendar_date_range": None}
 
