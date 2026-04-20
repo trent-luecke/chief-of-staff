@@ -16,7 +16,7 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 **Shipped 2026-04-19.** Notion pipeline DB seeded into `data/pipeline_cache.json` via MCP. Watcher extended to classify all inbound email — pipeline lead contacts write to `data/pipeline_email_activity.json`, flare-ups route to `issues.json`. Manual sync on request: ask Claude Code to re-sync pipeline cache from Notion MCP. Cache staleness warning fires in the brief after 7 days.
 
-**Known gap — outbound email not tracked.** The watcher only captures inbound email (`last_sender` match). Outreach you send to leads requires a separate `from:me to:{email}` Gmail query. Not built yet — add when P4 (two-way interface) is tackled, as the infrastructure overlaps.
+**Known gap — outbound email not tracked.** The watcher only captures inbound email (`last_sender` match). Outreach you send to leads requires a separate `from:me to:{email}` Gmail query. Not built yet.
 
 ---
 
@@ -39,16 +39,13 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P4 — Two-Way Interface
+## ✅ P4 — Two-Way Interface (complete)
 
-**The system is output-only.** You receive a brief; you read it. There's no way to ask a question like "what's open on the Apex account?" and get an answer.
+**Shipped 2026-04-20.** Full Telegram bot interface operational. Cloudflare Worker validates webhook and dispatches to GitHub Actions (`ask.yml`). `processors/query.py` classifies intent, optionally fetches live Gmail/Calendar, and generates answers with JARVIS personality (dry, precise, occasional "sir"). Email replies to the morning brief are parsed and acted on via `reply-check.yml`. Task completion shipped: send "done with X" to remove items from `data/captures.md` or mark project next-actions complete in `data/projects.md`.
 
-**What's needed:**
-- An inbound channel — Signal bot, SMS, or simple CLI
-- Intent parsing: route natural language queries to the right collector/processor
-- Response generation for ad hoc lookups
-
-**Inspired by:** Donovan Li's Signal bot for natural language requests.
+**Known gaps:**
+- `reply-check.yml` runs Mon–Fri 8am–5pm CDT only — replies outside those hours are processed next business day
+- Outbound email not tracked (see P2 known gap)
 
 ---
 
@@ -94,7 +91,7 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 - Periodic pattern detection (daily brief or separate job): Claude scans captures for recurring themes and surfaces suggestions like "you have 5 todos around Apex onboarding — want me to create a project?"
 - Design decision: suggestions delivered inline in the brief, or proactively via Telegram so you can respond immediately
 
-**Depends on:** P7 (task completion) — now shipped.
+**Depends on:** Task completion (shipped in P4).
 
 ---
 
