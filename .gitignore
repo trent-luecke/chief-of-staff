@@ -12,6 +12,5 @@ __pycache__/
 logs/
 !data/logs/
 !data/logs/.gitkeep
-data/logs/*.jsonl
 *.log
 .worktrees/
