@@ -147,5 +147,27 @@ def test_synthesize_week_returns_weekly_synthesis(tmp_path):
 
     assert result.executive_summary == "Solid week with steady pipeline progress."
     assert result.patterns == ["Pipeline follow-ups dominating priorities"]
+    assert result.resolved_this_week == ["Apex contract sent"]
     assert result.carry_forwards == ["Trial conversion for ACME"]
     assert result.meta_observation == "Most priorities were carry-overs from prior week."
+
+
+def test_synthesize_week_raises_on_non_json_response(tmp_path):
+    obs_file = str(tmp_path / "obs.jsonl")
+    _write_obs(obs_file, [])
+
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text="not json at all")]
+
+    with patch("processors.weekly_synthesizer.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        with pytest.raises(ValueError):
+            synthesize_week(
+                api_key="test",
+                model="claude-sonnet-4-6",
+                obs_file=obs_file,
+                state_dir=str(tmp_path),
+                issues_file=str(tmp_path / "issues.json"),
+                captures_file=str(tmp_path / "captures.md"),
+                run_date=date.today(),
+            )

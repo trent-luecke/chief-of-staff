@@ -1,4 +1,5 @@
 import json
+import re
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
@@ -106,6 +107,9 @@ def _build_prompt(
                 if obs.get("context"):
                     lines.append(f"    → {obs['context']}")
 
+    if not grouped and not open_issue_titles and not (captures_text and captures_text.strip()):
+        lines.append("_No observations, issues, or captures recorded this week._")
+
     return "\n".join(lines)
 
 
@@ -118,7 +122,6 @@ def synthesize_week(
     captures_file: str,
     run_date: date | None = None,
 ) -> WeeklySynthesis:
-    import re
     from processors.issues import get_open_issues
     from lib.captures import load_recent_captures
 
