@@ -152,16 +152,9 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P12 — Observability
+## ✅ P12 — Observability (complete)
 
-**Currently flying blind on cost and silent failures.** No visibility into per-run token usage, API costs, or which runs failed without an error surface.
-
-**What's needed:**
-- Add a run log: after each `main.py` run, append a JSON line to `data/logs/run_log.jsonl` with timestamp, tokens used (from `response.usage`), model, and any errors
-- Expose it in the weekly synthesis (P5) as a cost-per-week figure
-- Optional stretch: Langfuse free tier for LLM tracing if cost explodes and you need to diagnose which call is responsible
-
-**Why now:** As more Claude calls get added (P5 synthesis, P9 tool use), cost can drift silently. A run log costs nothing to add and prevents surprises.
+**Shipped 2026-04-20.** Per-call Claude API usage logged to `data/logs/run_log.jsonl` as JSONL. Each entry captures timestamp, run_type, caller, model, input_tokens, output_tokens, and estimated_cost_usd. All 8 Claude call sites instrumented via `lib/llm_logger.log_usage()`. All 4 entry points flush via try/finally on exit. Weekly synthesis reads the 7-day window and prepends a cost summary line to the synthesis prompt. Langfuse skipped — local log is sufficient.
 
 ---
 
