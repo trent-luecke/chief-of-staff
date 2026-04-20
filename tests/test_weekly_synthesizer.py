@@ -61,3 +61,19 @@ def test_load_week_state_delta_no_snapshots(tmp_path):
     resolved, still_open = _load_week_state_delta(str(tmp_path), run_date=date.today())
     assert resolved == 0
     assert still_open == 0
+
+
+def test_load_week_state_delta_corrupt_snapshot_returns_zero(tmp_path):
+    state_dir = str(tmp_path)
+    today = date.today()
+    week_ago = today - timedelta(days=7)
+    # write a corrupt end snapshot
+    with open(os.path.join(state_dir, f"state_{today.isoformat()}.json"), "w") as f:
+        f.write("not valid json{{{")
+    # valid start snapshot
+    start = {"date": week_ago.isoformat(), "open_email_thread_ids": ["a"], "open_notion_item_ids": []}
+    with open(os.path.join(state_dir, f"state_{week_ago.isoformat()}.json"), "w") as f:
+        json.dump(start, f)
+    resolved, still_open = _load_week_state_delta(state_dir, run_date=today)
+    assert resolved == 0
+    assert still_open == 0

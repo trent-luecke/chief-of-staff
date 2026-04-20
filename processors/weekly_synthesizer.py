@@ -26,7 +26,7 @@ def _load_week_observations(obs_file: str, run_date: date) -> list[dict]:
                 try:
                     obs = json.loads(line)
                     obs_date = date.fromisoformat(obs.get("date", "2000-01-01"))
-                    if cutoff <= obs_date <= run_date:
+                    if cutoff <= obs_date <= run_date:  # upper bound excludes future-dated observations
                         observations.append(obs)
                 except (json.JSONDecodeError, ValueError):
                     continue
