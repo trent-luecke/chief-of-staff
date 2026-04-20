@@ -47,10 +47,13 @@ def send_brief_email(
     html_body: str,
     plain_text: str = "Morning brief — view in an HTML-capable email client.",
     thread_id: str | None = None,
+    is_ack: bool = False,
 ) -> tuple[str, str]:
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["To"] = to_email
+    if is_ack:
+        msg["X-CoS-Type"] = "ack"
     msg.attach(MIMEText(plain_text, "plain"))
     msg.attach(MIMEText(html_body, "html"))
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()

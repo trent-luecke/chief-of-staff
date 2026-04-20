@@ -79,7 +79,7 @@ def main() -> None:
     try:
         thread_data = gmail.users().threads().get(
             userId="me", id=thread_id, format="metadata",
-            metadataHeaders=["Subject", "From", "Date"],
+            metadataHeaders=["Subject", "From", "Date", "X-CoS-Type"],
         ).execute()
     except Exception as e:
         print(f"WARNING: Could not fetch brief thread: {e}", file=sys.stderr)
@@ -98,12 +98,19 @@ def main() -> None:
             continue
         if found_original and msg["id"] not in processed_ids:
             headers = msg.get("payload", {}).get("headers", [])
+            cos_type = next((h["value"] for h in headers if h["name"].lower() == "x-cos-type"), "")
+            if cos_type == "ack":
+                processed_ids.add(msg["id"])
+                continue
             from_header = next((h["value"] for h in headers if h["name"].lower() == "from"), "")
             if user_email.lower() in from_header.lower():
                 replies.append(msg)
 
     if not replies:
         print("No new replies found.")
+        if processed_ids != set(state.get("processed_reply_ids", [])):
+            state["processed_reply_ids"] = list(processed_ids)
+            save_brief_state(config["state_dir"], state)
         return
 
     brief_subject = state.get("subject", "Morning Brief")
@@ -138,14 +145,17 @@ def main() -> None:
         try:
             # Threads via Gmail's threadId; standard In-Reply-To/References headers not set.
             # Some non-Gmail clients may display ack emails outside the brief thread.
-            _, _ = send_brief_email(
+            ack_msg_id, _ = send_brief_email(
                 gmail_service=gmail,
                 to_email=user_email,
                 subject=f"Re: {brief_subject}",
                 html_body=f"<p>{ack}</p>",
                 thread_id=thread_id,
+                is_ack=True,
             )
             print(f"Acknowledged: {ack}")
+            if ack_msg_id:
+                processed_ids.add(ack_msg_id)
         except Exception as e:
             print(f"WARNING: Could not send acknowledgment: {e}", file=sys.stderr)
 
