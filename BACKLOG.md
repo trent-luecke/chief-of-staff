@@ -85,7 +85,20 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P8 — Claude Tool Use (Deferred)
+## P8 — Project Intelligence (Deferred)
+
+**Captures accumulate but patterns go unnoticed.** No mechanism exists to suggest project structure from recurring themes in todos and captures, or to create new projects via Telegram.
+
+**What's needed:**
+- Natural language project creation via Telegram: "new project: X" writes a structured entry to `data/projects.md`
+- Periodic pattern detection (daily brief or separate job): Claude scans captures for recurring themes and surfaces suggestions like "you have 5 todos around Apex onboarding — want me to create a project?"
+- Design decision: suggestions delivered inline in the brief, or proactively via Telegram so you can respond immediately
+
+**Depends on:** P7 (task completion) — now shipped.
+
+---
+
+## P9 — Claude Tool Use (Deferred)
 
 **Currently Claude has no internet access.** All data is pre-fetched by Python and passed as context. Adding tool use would let Claude decide what to fetch on demand, rather than always getting everything upfront.
 
