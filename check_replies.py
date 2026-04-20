@@ -117,51 +117,55 @@ def main() -> None:
     captures_file = config.get("captures_file", "data/captures.md")
     feedback_file = config.get("brief_feedback_file", "data/brief_feedback.md")
 
-    for reply in replies:
-        snippet = reply.get("snippet", "")
-        reply_body = _get_message_body(gmail, reply["id"], snippet)
-        print(f"Processing reply: {reply_body[:80]}...")
+    from lib.llm_logger import flush
+    try:
+        for reply in replies:
+            snippet = reply.get("snippet", "")
+            reply_body = _get_message_body(gmail, reply["id"], snippet)
+            print(f"Processing reply: {reply_body[:80]}...")
 
-        result = classify_feedback(
-            api_key=api_key,
-            model=config["ai_model"],
-            reply_body=reply_body,
-            brief_subject=brief_subject,
-        )
-
-        if result.classification == "action_signal" and result.capture_content:
-            append_capture(captures_file, result.capture_type or "flag",
-                           result.capture_target, result.capture_content)
-            ack = f"Got it — logged as [{result.capture_type or 'flag'}]: {result.capture_content}"
-        elif result.classification == "delivery_note" and result.delivery_note:
-            append_brief_feedback(feedback_file, result.delivery_note)
-            ack = f"Got it — noted for future briefs: {result.delivery_note}"
-        elif result.classification in ("action_signal", "delivery_note"):
-            print(f"WARNING: classifier returned {result.classification} with no content — asking for clarification.", file=sys.stderr)
-            ack = "I understood the intent but couldn't extract the specific action. Could you rephrase?"
-        else:
-            ack = result.clarification_question or "Received — could you clarify what you'd like me to do?"
-
-        try:
-            # Threads via Gmail's threadId; standard In-Reply-To/References headers not set.
-            # Some non-Gmail clients may display ack emails outside the brief thread.
-            ack_msg_id, _ = send_brief_email(
-                gmail_service=gmail,
-                to_email=user_email,
-                subject=f"Re: {brief_subject}",
-                html_body=f"<p>{ack}</p>",
-                thread_id=thread_id,
-                is_ack=True,
+            result = classify_feedback(
+                api_key=api_key,
+                model=config["ai_model"],
+                reply_body=reply_body,
+                brief_subject=brief_subject,
             )
-            print(f"Acknowledged: {ack}")
-            if ack_msg_id:
-                processed_ids.add(ack_msg_id)
-        except Exception as e:
-            print(f"WARNING: Could not send acknowledgment: {e}", file=sys.stderr)
 
-        processed_ids.add(reply["id"])
-        state["processed_reply_ids"] = list(processed_ids)
-        save_brief_state(config["state_dir"], state)
+            if result.classification == "action_signal" and result.capture_content:
+                append_capture(captures_file, result.capture_type or "flag",
+                               result.capture_target, result.capture_content)
+                ack = f"Got it — logged as [{result.capture_type or 'flag'}]: {result.capture_content}"
+            elif result.classification == "delivery_note" and result.delivery_note:
+                append_brief_feedback(feedback_file, result.delivery_note)
+                ack = f"Got it — noted for future briefs: {result.delivery_note}"
+            elif result.classification in ("action_signal", "delivery_note"):
+                print(f"WARNING: classifier returned {result.classification} with no content — asking for clarification.", file=sys.stderr)
+                ack = "I understood the intent but couldn't extract the specific action. Could you rephrase?"
+            else:
+                ack = result.clarification_question or "Received — could you clarify what you'd like me to do?"
+
+            try:
+                # Threads via Gmail's threadId; standard In-Reply-To/References headers not set.
+                # Some non-Gmail clients may display ack emails outside the brief thread.
+                ack_msg_id, _ = send_brief_email(
+                    gmail_service=gmail,
+                    to_email=user_email,
+                    subject=f"Re: {brief_subject}",
+                    html_body=f"<p>{ack}</p>",
+                    thread_id=thread_id,
+                    is_ack=True,
+                )
+                print(f"Acknowledged: {ack}")
+                if ack_msg_id:
+                    processed_ids.add(ack_msg_id)
+            except Exception as e:
+                print(f"WARNING: Could not send acknowledgment: {e}", file=sys.stderr)
+
+            processed_ids.add(reply["id"])
+            state["processed_reply_ids"] = list(processed_ids)
+            save_brief_state(config["state_dir"], state)
+    finally:
+        flush("email_reply", config.get("logs_file", "data/logs/run_log.jsonl"))
 
 
 if __name__ == "__main__":

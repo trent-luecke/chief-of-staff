@@ -40,27 +40,31 @@ def main() -> None:
             send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
         sys.exit(1)
 
+    from lib.llm_logger import flush
     try:
-        result = answer_query(api_key=api_key, model=config["ai_model"], query=query, config=config)
-    except Exception as e:
-        print(f"Query error: {e}", file=sys.stderr)
+        try:
+            result = answer_query(api_key=api_key, model=config["ai_model"], query=query, config=config)
+        except Exception as e:
+            print(f"Query error: {e}", file=sys.stderr)
+            if bot_token:
+                send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
+            sys.exit(1)
+
         if bot_token:
-            send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
-        sys.exit(1)
+            send_message(bot_token, chat_id, result.answer)
 
-    if bot_token:
-        send_message(bot_token, chat_id, result.answer)
-
-    captures_file = config.get("captures_file", "data/captures.md")
-    projects_file = config.get("projects_file", "data/projects.md")
-    for capture in result.captures:
-        if capture.type == "complete":
-            hit_capture = complete_capture(captures_file, capture.content)
-            hit_project = complete_project_next(projects_file, capture.content)
-            print(f"Completed: {capture.content} (captures={hit_capture}, projects={hit_project})")
-        else:
-            append_capture(captures_file, capture.type, capture.target, capture.content)
-            print(f"Captured [{capture.type}]: {capture.content}")
+        captures_file = config.get("captures_file", "data/captures.md")
+        projects_file = config.get("projects_file", "data/projects.md")
+        for capture in result.captures:
+            if capture.type == "complete":
+                hit_capture = complete_capture(captures_file, capture.content)
+                hit_project = complete_project_next(projects_file, capture.content)
+                print(f"Completed: {capture.content} (captures={hit_capture}, projects={hit_project})")
+            else:
+                append_capture(captures_file, capture.type, capture.target, capture.content)
+                print(f"Captured [{capture.type}]: {capture.content}")
+    finally:
+        flush("telegram_query", config.get("logs_file", "data/logs/run_log.jsonl"))
 
 
 if __name__ == "__main__":

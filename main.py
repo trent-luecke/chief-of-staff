@@ -95,6 +95,14 @@ def generate_daily_drafts(config: dict, today_events) -> None:
 
 
 def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
+    from lib.llm_logger import flush
+    try:
+        _run_inner(config, dry_run=dry_run, no_email=no_email)
+    finally:
+        flush("daily_brief", config.get("logs_file", "data/logs/run_log.jsonl"))
+
+
+def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     print("🗓  Fetching calendar...")
     today_events, tomorrow_events = fetch_two_day_events(
         config["calendar_ids"], user_email=config["email"]

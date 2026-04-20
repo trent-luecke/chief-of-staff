@@ -56,5 +56,6 @@
     "activity_extension_days": 30,
     "cold_start_days": 3,
     "retrieval_token_budget": 550
-  }
+  },
+  "logs_file": "data/logs/run_log.jsonl"
 }

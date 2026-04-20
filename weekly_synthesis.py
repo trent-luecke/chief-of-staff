@@ -72,47 +72,52 @@ def main() -> None:
         print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
         sys.exit(1)
 
+    from lib.llm_logger import flush
     run_date = date.today()
     memory_cfg = config.get("memory", {})
 
-    print("Generating weekly synthesis...")
     try:
-        synthesis = synthesize_week(
-            api_key=api_key,
-            model=config["ai_model"],
-            obs_file=memory_cfg.get("observations_file", "data/memory/observations.jsonl"),
-            state_dir=config["state_dir"],
-            issues_file=config["issues_file"],
-            captures_file=config.get("captures_file", "data/captures.md"),
-            run_date=run_date,
-        )
-    except Exception as e:
-        print(f"ERROR: synthesis failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        print("Generating weekly synthesis...")
+        try:
+            synthesis = synthesize_week(
+                api_key=api_key,
+                model=config["ai_model"],
+                obs_file=memory_cfg.get("observations_file", "data/memory/observations.jsonl"),
+                state_dir=config["state_dir"],
+                issues_file=config["issues_file"],
+                captures_file=config.get("captures_file", "data/captures.md"),
+                run_date=run_date,
+                log_file=config.get("logs_file"),
+            )
+        except Exception as e:
+            print(f"ERROR: synthesis failed: {e}", file=sys.stderr)
+            sys.exit(1)
 
-    _save_synthesis(synthesis, "data/weekly", run_date)
+        _save_synthesis(synthesis, "data/weekly", run_date)
 
-    gmail = build_gmail_service(config["email"])
-    subject = f"📊 Weekly Synthesis — week ending {run_date.isoformat()}"
-    html = _render_html(synthesis, run_date.isoformat())
+        gmail = build_gmail_service(config["email"])
+        subject = f"📊 Weekly Synthesis — week ending {run_date.isoformat()}"
+        html = _render_html(synthesis, run_date.isoformat())
 
-    try:
-        msg_id, _ = send_brief_email(
-            gmail_service=gmail,
-            to_email=config["email"],
-            subject=subject,
-            html_body=html,
-            plain_text="Weekly synthesis — view in an HTML-capable email client.",
-        )
-        print(f"Sent: {msg_id}")
-    except Exception as e:
-        print(f"WARNING: could not send email: {e}", file=sys.stderr)
+        try:
+            msg_id, _ = send_brief_email(
+                gmail_service=gmail,
+                to_email=config["email"],
+                subject=subject,
+                html_body=html,
+                plain_text="Weekly synthesis — view in an HTML-capable email client.",
+            )
+            print(f"Sent: {msg_id}")
+        except Exception as e:
+            print(f"WARNING: could not send email: {e}", file=sys.stderr)
 
-    print(f"\nSummary: {synthesis.executive_summary}")
-    if synthesis.carry_forwards:
-        print("\nCarry-Forwards:")
-        for item in synthesis.carry_forwards:
-            print(f"  → {item}")
+        print(f"\nSummary: {synthesis.executive_summary}")
+        if synthesis.carry_forwards:
+            print("\nCarry-Forwards:")
+            for item in synthesis.carry_forwards:
+                print(f"  → {item}")
+    finally:
+        flush("weekly_synthesis", config.get("logs_file", "data/logs/run_log.jsonl"))
 
 
 if __name__ == "__main__":

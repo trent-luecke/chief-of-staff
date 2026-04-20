@@ -10,5 +10,8 @@ __pycache__/
 *.egg-info/
 .DS_Store
 logs/
+!data/logs/
+!data/logs/.gitkeep
+data/logs/*.jsonl
 *.log
 .worktrees/
