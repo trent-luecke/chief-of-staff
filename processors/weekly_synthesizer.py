@@ -65,7 +65,7 @@ def _load_week_costs(log_file: str, run_date: date) -> dict:
                 try:
                     entry = json.loads(line)
                     entry_date = date.fromisoformat(entry.get("timestamp", "")[:10])
-                    if cutoff <= entry_date <= run_date:
+                    if cutoff <= entry_date <= run_date:  # upper bound excludes future-dated entries
                         call_count += 1
                         total_cost += entry.get("estimated_cost_usd", 0.0)
                 except (json.JSONDecodeError, ValueError):

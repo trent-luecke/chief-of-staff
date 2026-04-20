@@ -3,12 +3,16 @@ import os
 import tempfile
 from datetime import date, timedelta
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from processors.weekly_synthesizer import (
+    _load_week_costs,
     _load_week_observations,
     _load_week_state_delta,
+    _build_prompt,
+    synthesize_week,
     WeeklySynthesis,
 )
 
@@ -77,10 +81,6 @@ def test_load_week_state_delta_corrupt_snapshot_returns_zero(tmp_path):
     resolved, still_open = _load_week_state_delta(state_dir, run_date=today)
     assert resolved == 0
     assert still_open == 0
-
-
-from unittest.mock import MagicMock, patch
-from processors.weekly_synthesizer import _build_prompt, synthesize_week
 
 
 def test_build_prompt_includes_observation_content():
@@ -174,10 +174,6 @@ def test_synthesize_week_raises_on_non_json_response(tmp_path):
 
 
 def test_load_week_costs_sums_7_days(tmp_path):
-    import json
-    from datetime import date
-    from processors.weekly_synthesizer import _load_week_costs
-
     log_file = tmp_path / "run_log.jsonl"
     run_date = date(2026, 4, 20)
     entries = [
@@ -196,18 +192,11 @@ def test_load_week_costs_sums_7_days(tmp_path):
 
 
 def test_load_week_costs_missing_file(tmp_path):
-    from datetime import date
-    from processors.weekly_synthesizer import _load_week_costs
-
     result = _load_week_costs(str(tmp_path / "nonexistent.jsonl"), date(2026, 4, 20))
     assert result == {"call_count": 0, "total_cost_usd": 0.0}
 
 
 def test_load_week_costs_corrupt_lines(tmp_path):
-    import json
-    from datetime import date
-    from processors.weekly_synthesizer import _load_week_costs
-
     log_file = tmp_path / "run_log.jsonl"
     with open(log_file, "w") as f:
         f.write("not json at all\n")
