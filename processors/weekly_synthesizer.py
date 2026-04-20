@@ -112,7 +112,7 @@ def _build_prompt(
 
     if costs and costs.get("call_count", 0) > 0:
         lines += [
-            f"**This week:** {costs['call_count']} Claude calls, ~${costs['total_cost_usd']:.2f}",
+            f"**This week:** {costs['call_count']} Claude calls, ~${costs['total_cost_usd']:.4f}",
             "",
         ]
 
