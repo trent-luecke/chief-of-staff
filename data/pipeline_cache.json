@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-04-19T00:00:00Z",
+  "synced_at": "2026-04-20T12:00:00.000000Z",
   "leads": [
     {
       "name": "Ubuntu MVMNT",
@@ -20,7 +20,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 40,
+      "days_since_contact": 41,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -32,7 +32,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-11",
-      "days_since_contact": 39,
+      "days_since_contact": 40,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -44,7 +44,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -92,7 +92,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": "Other",
       "stale": true
@@ -104,7 +104,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -128,7 +128,7 @@
       "status": "Demo Scheduled",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -140,7 +140,7 @@
       "status": "No Trial / Post Demo",
       "priority": null,
       "last_contacted": "2025-11-06",
-      "days_since_contact": 164,
+      "days_since_contact": 165,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -152,7 +152,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 40,
+      "days_since_contact": 41,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -176,7 +176,7 @@
       "status": "Demo Scheduled",
       "priority": "Medium",
       "last_contacted": "2026-03-02",
-      "days_since_contact": 48,
+      "days_since_contact": 49,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -188,9 +188,21 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-04",
-      "days_since_contact": 46,
+      "days_since_contact": 47,
       "estimated_value": null,
       "source": "Trial Sign-Up",
+      "stale": true
+    },
+    {
+      "name": "Emma Hicks — For Fitness & Athletics",
+      "contact": "Emma Hicks",
+      "email": "emmahicks@forfitnessandathletics.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "Medium",
+      "last_contacted": "2026-03-05",
+      "days_since_contact": 46,
+      "estimated_value": null,
+      "source": "Marketing",
       "stale": true
     },
     {
@@ -200,7 +212,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-02",
-      "days_since_contact": 291,
+      "days_since_contact": 292,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -212,7 +224,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 278,
+      "days_since_contact": 279,
       "estimated_value": 2000,
       "source": null,
       "stale": true
@@ -224,7 +236,7 @@
       "status": "Closed",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -236,7 +248,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 278,
+      "days_since_contact": 279,
       "estimated_value": 2000,
       "source": null,
       "stale": true
@@ -260,7 +272,7 @@
       "status": "Lost",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 38,
+      "days_since_contact": 39,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -272,7 +284,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-08-06",
-      "days_since_contact": 256,
+      "days_since_contact": 257,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -284,7 +296,19 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-11-07",
-      "days_since_contact": 163,
+      "days_since_contact": 164,
+      "estimated_value": null,
+      "source": null,
+      "stale": true
+    },
+    {
+      "name": "Mark Graham",
+      "contact": "Mark Graham",
+      "email": "markgrahamperform@gmail.com",
+      "status": "Lost",
+      "priority": null,
+      "last_contacted": "2025-10-07",
+      "days_since_contact": 195,
       "estimated_value": null,
       "source": null,
       "stale": true
