@@ -4,3 +4,4 @@
 ## 2026-04-19 19:17 — [todo] Cook breakfast casserole
 ## 2026-04-19 19:17 — [todo] Cook meals for the week
 ## 2026-04-19 19:17 — [todo] Pack for Nashville (Tue–Thu trip) — check weather forecast before packing
+## 2026-04-20 16:07 — [idea] Create a Chief of Staff AI presentation for non-AI-savvy salespeople — address security concerns and practical benefits; use Claude to build the deck
