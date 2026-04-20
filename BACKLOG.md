@@ -68,9 +68,9 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P5 — Weekly Synthesis
+## ✅ P5 — Weekly Synthesis (complete)
 
-**Daily briefs are operational. Weekly synthesis is strategic.** A Friday or Sunday evening synthesis — what closed, what carried over, what patterns emerged — is what separates a briefing tool from a chief of staff that helps you operate at a higher level.
+**Shipped 2026-04-20.** Sunday 12pm CDT synthesis via `weekly.yml` GitHub Actions workflow. `processors/weekly_synthesizer.py` loads 7-day observations, state deltas, open issues, and captures — calls Claude for a narrative summary with patterns, carry-forwards, and a meta observation. Output emailed to trent@teambuildr.com and saved to `data/weekly/YYYY-MM-DD.md`. Trigger: `weekly.yml` cron `0 17 * * 0` + `workflow_dispatch`.
 
 **What's needed:**
 - A `weekly_synthesis` processor that aggregates the week's briefs and signals
