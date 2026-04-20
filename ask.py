@@ -18,6 +18,36 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
+def _main_inner(query: str, chat_id: str, bot_token: str, config: dict) -> None:
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        if bot_token:
+            send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
+        sys.exit(1)
+
+    try:
+        result = answer_query(api_key=api_key, model=config["ai_model"], query=query, config=config)
+    except Exception as e:
+        print(f"Query error: {e}", file=sys.stderr)
+        if bot_token:
+            send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
+        sys.exit(1)
+
+    if bot_token:
+        send_message(bot_token, chat_id, result.answer)
+
+    captures_file = config.get("captures_file", "data/captures.md")
+    projects_file = config.get("projects_file", "data/projects.md")
+    for capture in result.captures:
+        if capture.type == "complete":
+            hit_capture = complete_capture(captures_file, capture.content)
+            hit_project = complete_project_next(projects_file, capture.content)
+            print(f"Completed: {capture.content} (captures={hit_capture}, projects={hit_project})")
+        else:
+            append_capture(captures_file, capture.type, capture.target, capture.content)
+            print(f"Captured [{capture.type}]: {capture.content}")
+
+
 def main() -> None:
     query = os.environ.get("QUERY_TEXT", "").strip()
     chat_id = os.environ.get("QUERY_CHAT_ID", "").strip()
@@ -33,36 +63,10 @@ def main() -> None:
         sys.exit(0)
 
     config = load_config()
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-
-    if not api_key:
-        if bot_token:
-            send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
-        sys.exit(1)
 
     from lib.llm_logger import flush
     try:
-        try:
-            result = answer_query(api_key=api_key, model=config["ai_model"], query=query, config=config)
-        except Exception as e:
-            print(f"Query error: {e}", file=sys.stderr)
-            if bot_token:
-                send_message(bot_token, chat_id, "Something went wrong — check Actions logs.")
-            sys.exit(1)
-
-        if bot_token:
-            send_message(bot_token, chat_id, result.answer)
-
-        captures_file = config.get("captures_file", "data/captures.md")
-        projects_file = config.get("projects_file", "data/projects.md")
-        for capture in result.captures:
-            if capture.type == "complete":
-                hit_capture = complete_capture(captures_file, capture.content)
-                hit_project = complete_project_next(projects_file, capture.content)
-                print(f"Completed: {capture.content} (captures={hit_capture}, projects={hit_project})")
-            else:
-                append_capture(captures_file, capture.type, capture.target, capture.content)
-                print(f"Captured [{capture.type}]: {capture.content}")
+        _main_inner(query, chat_id, bot_token, config)
     finally:
         flush("telegram_query", config.get("logs_file", "data/logs/run_log.jsonl"))
 
