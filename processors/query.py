@@ -58,6 +58,15 @@ def _load_local_context(config: dict) -> str:
         if memory_context:
             parts.append(f"## Memory\n{memory_context}")
 
+    # Projects
+    projects_file = config.get("projects_file", "data/projects.md")
+    if os.path.exists(projects_file):
+        try:
+            with open(projects_file) as f:
+                parts.append("## Projects\n" + f.read())
+        except OSError:
+            pass
+
     # Open issues
     try:
         with open(config["issues_file"]) as f:
@@ -186,7 +195,7 @@ Your tone is dry, precise, and occasionally wry. You use "sir" naturally but not
 
 Answer concisely and directly.
 If the query requests an action or capture, include it in the captures list.
-Capture types: todo (action item), idea (thought to explore), note (info to remember), flag (priority signal).
+Capture types: todo (action item), idea (thought to explore), note (info to remember), flag (priority signal), complete (mark a capture or project next-action as done — content should be the exact or close text of the item to remove).
 Respond with JSON only, no other text.
 
 Schema:

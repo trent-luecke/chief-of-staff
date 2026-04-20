@@ -10,7 +10,7 @@ load_dotenv()
 
 from processors.query import answer_query
 from lib.telegram import send_message
-from lib.captures import append_capture
+from lib.captures import append_capture, complete_capture, complete_project_next
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -52,9 +52,15 @@ def main() -> None:
         send_message(bot_token, chat_id, result.answer)
 
     captures_file = config.get("captures_file", "data/captures.md")
+    projects_file = config.get("projects_file", "data/projects.md")
     for capture in result.captures:
-        append_capture(captures_file, capture.type, capture.target, capture.content)
-        print(f"Captured [{capture.type}]: {capture.content}")
+        if capture.type == "complete":
+            hit_capture = complete_capture(captures_file, capture.content)
+            hit_project = complete_project_next(projects_file, capture.content)
+            print(f"Completed: {capture.content} (captures={hit_capture}, projects={hit_project})")
+        else:
+            append_capture(captures_file, capture.type, capture.target, capture.content)
+            print(f"Captured [{capture.type}]: {capture.content}")
 
 
 if __name__ == "__main__":
