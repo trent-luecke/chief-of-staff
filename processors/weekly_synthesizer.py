@@ -2,8 +2,6 @@ import json
 from dataclasses import dataclass, field
 from datetime import date, timedelta
 
-import anthropic
-
 from processors.state import load_snapshot
 
 
