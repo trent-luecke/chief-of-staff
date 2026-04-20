@@ -45,6 +45,8 @@ Schema:
             system=system,
             messages=[{"role": "user", "content": f"Brief subject: {brief_subject}\n\nReply: {reply_body}"}],
         )
+        from lib.llm_logger import log_usage
+        log_usage("feedback", message.usage, model)
         raw = message.content[0].text.strip()
         m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
         data = json.loads(m.group(1).strip() if m else raw)

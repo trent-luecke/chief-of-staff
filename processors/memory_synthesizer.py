@@ -120,6 +120,8 @@ def synthesize(
         max_tokens=2000,
         messages=[{"role": "user", "content": prompt}],
     )
+    from lib.llm_logger import log_usage
+    log_usage("memory_synthesizer", response.usage, model)
 
     raw = response.content[0].text.strip()
     try:

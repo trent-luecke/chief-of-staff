@@ -197,6 +197,8 @@ def generate_brief(
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
     )
+    from lib.llm_logger import log_usage
+    log_usage("brief", response.usage, model)
     raw = response.content[0].text.strip()
     match = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
     if match:

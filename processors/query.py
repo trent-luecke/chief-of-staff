@@ -120,6 +120,8 @@ Return exactly this JSON schema:
             system=system,
             messages=[{"role": "user", "content": f"Query: {query}"}],
         )
+        from lib.llm_logger import log_usage
+        log_usage("query_classify", message.usage, model)
         raw = message.content[0].text.strip()
         m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
         return json.loads(m.group(1).strip() if m else raw)
@@ -216,6 +218,8 @@ Context:
             system=system,
             messages=[{"role": "user", "content": query}],
         )
+        from lib.llm_logger import log_usage
+        log_usage("query_answer", message.usage, model)
         raw = message.content[0].text.strip()
         m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
         data = json.loads(m.group(1).strip() if m else raw)

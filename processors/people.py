@@ -171,6 +171,8 @@ Only include items where significant/worth_tracking is true. Empty arrays are fi
             max_tokens=2048,
             messages=[{"role": "user", "content": prompt}],
         )
+        from lib.llm_logger import log_usage
+        log_usage("people", response.usage, model)
         raw = response.content[0].text.strip()
         m = re.search(r'```(?:json)?\n?(.*?)```', raw, re.DOTALL)
         if m:

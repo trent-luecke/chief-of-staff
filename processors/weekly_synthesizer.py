@@ -188,6 +188,8 @@ def synthesize_week(
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": prompt}],
     )
+    from lib.llm_logger import log_usage
+    log_usage("weekly_synthesizer", response.usage, model)
 
     raw = response.content[0].text.strip()
     match = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)

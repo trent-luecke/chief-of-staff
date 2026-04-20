@@ -25,6 +25,8 @@ def _call_claude(api_key: str, model: str, prompt: str, max_tokens: int = 500) -
         max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
+    from lib.llm_logger import log_usage
+    log_usage("drafts", response.usage, model)
     return response.content[0].text.strip()
 
 
