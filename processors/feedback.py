@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal, Optional
 import json
 import os
+import re
 from datetime import datetime
 import anthropic
 
@@ -44,7 +45,9 @@ Schema:
             system=system,
             messages=[{"role": "user", "content": f"Brief subject: {brief_subject}\n\nReply: {reply_body}"}],
         )
-        data = json.loads(message.content[0].text)
+        raw = message.content[0].text.strip()
+        m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
+        data = json.loads(m.group(1).strip() if m else raw)
         return FeedbackResult(
             classification=data.get("classification", "unclear"),
             capture_type=data.get("capture_type"),
