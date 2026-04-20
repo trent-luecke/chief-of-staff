@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 import json
 import os
+import re
 import anthropic
 
 from processors.memory_retriever import retrieve_memories
@@ -110,7 +111,9 @@ Return exactly this JSON schema:
             system=system,
             messages=[{"role": "user", "content": f"Query: {query}"}],
         )
-        return json.loads(message.content[0].text)
+        raw = message.content[0].text.strip()
+        m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
+        return json.loads(m.group(1).strip() if m else raw)
     except Exception:
         return {"needs_live_gmail": False, "needs_live_calendar": False,
                 "gmail_search_query": None, "calendar_date_range": None}
@@ -200,7 +203,9 @@ Context:
             system=system,
             messages=[{"role": "user", "content": query}],
         )
-        data = json.loads(message.content[0].text)
+        raw = message.content[0].text.strip()
+        m = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
+        data = json.loads(m.group(1).strip() if m else raw)
         captures = [
             Capture(type=c.get("type", "note"), target=c.get("target"), content=c.get("content", ""))
             for c in data.get("captures", [])
