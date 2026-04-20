@@ -74,6 +74,20 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
+## P7 — Claude Tool Use (Deferred)
+
+**Currently Claude has no internet access.** All data is pre-fetched by Python and passed as context. Adding tool use would let Claude decide what to fetch on demand, rather than always getting everything upfront.
+
+**What's needed:**
+- Define tools in `client.messages.create()` calls (e.g. `search_gmail`, `get_calendar_events`, `search_web`)
+- Add a tool execution loop in each processor: Claude responds → Python executes the tool call → result fed back to Claude → repeat until Claude produces a final text response
+- Most valuable in `processors/query.py` (Telegram queries), where Claude could fetch only what's relevant to the question rather than receiving all data blindly
+- Lower value in `processors/brief.py` — pre-fetching everything upfront is already the right pattern for a daily brief
+
+**Key constraint:** GitHub Actions runs are synchronous and single-use per Telegram message, but multi-turn tool loops work fine within a single run.
+
+---
+
 ## Core Principle (from research)
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
