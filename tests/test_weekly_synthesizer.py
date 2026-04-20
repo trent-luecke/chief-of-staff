@@ -77,3 +77,75 @@ def test_load_week_state_delta_corrupt_snapshot_returns_zero(tmp_path):
     resolved, still_open = _load_week_state_delta(state_dir, run_date=today)
     assert resolved == 0
     assert still_open == 0
+
+
+from unittest.mock import MagicMock, patch
+from processors.weekly_synthesizer import _build_prompt, synthesize_week
+
+
+def test_build_prompt_includes_observation_content():
+    observations = [
+        {"date": "2026-04-18", "type": "top_priority", "entity": "apex", "content": "Follow up Apex"},
+        {"date": "2026-04-18", "type": "pipeline_stale", "entity": "acme", "content": "Acme stale 14 days"},
+    ]
+    prompt = _build_prompt(
+        observations=observations,
+        resolved_count=3,
+        still_open_count=5,
+        open_issue_titles=["Slack outage 2d"],
+        captures_text="- flag: check Apex contract",
+        run_date=date(2026, 4, 20),
+    )
+    assert "Follow up Apex" in prompt
+    assert "Acme stale 14 days" in prompt
+    assert "resolved: 3" in prompt.lower()
+    assert "still open: 5" in prompt.lower()
+    assert "Slack outage 2d" in prompt
+    assert "check Apex contract" in prompt
+
+
+def test_build_prompt_handles_empty_inputs():
+    prompt = _build_prompt(
+        observations=[],
+        resolved_count=0,
+        still_open_count=0,
+        open_issue_titles=[],
+        captures_text="",
+        run_date=date(2026, 4, 20),
+    )
+    assert isinstance(prompt, str)
+    assert len(prompt) > 50
+
+
+def test_synthesize_week_returns_weekly_synthesis(tmp_path):
+    obs_file = str(tmp_path / "obs.jsonl")
+    state_dir = str(tmp_path)
+    _write_obs(obs_file, [
+        {"date": date.today().isoformat(), "type": "top_priority", "entity": "e", "content": "finish contracts"},
+    ])
+
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text=json.dumps({
+        "executive_summary": "Solid week with steady pipeline progress.",
+        "patterns": ["Pipeline follow-ups dominating priorities"],
+        "resolved_this_week": ["Apex contract sent"],
+        "carry_forwards": ["Trial conversion for ACME"],
+        "meta_observation": "Most priorities were carry-overs from prior week.",
+    }))]
+
+    with patch("processors.weekly_synthesizer.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        result = synthesize_week(
+            api_key="test",
+            model="claude-sonnet-4-6",
+            obs_file=obs_file,
+            state_dir=state_dir,
+            issues_file=str(tmp_path / "issues.json"),
+            captures_file=str(tmp_path / "captures.md"),
+            run_date=date.today(),
+        )
+
+    assert result.executive_summary == "Solid week with steady pipeline progress."
+    assert result.patterns == ["Pipeline follow-ups dominating priorities"]
+    assert result.carry_forwards == ["Trial conversion for ACME"]
+    assert result.meta_observation == "Most priorities were carry-overs from prior week."
