@@ -28,8 +28,8 @@ def fetch_today_events(
 ) -> list[CalendarEvent]:
     if target_date is None:
         target_date = date.today()
-    time_min = datetime.combine(target_date, datetime.min.time()).isoformat() + "Z"
-    time_max = datetime.combine(target_date + timedelta(days=1), datetime.min.time()).isoformat() + "Z"
+    time_min = datetime.combine(target_date, datetime.min.time()).astimezone().isoformat()
+    time_max = datetime.combine(target_date + timedelta(days=1), datetime.min.time()).astimezone().isoformat()
 
     try:
         service = _build_service(user_email)

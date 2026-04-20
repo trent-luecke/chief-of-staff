@@ -74,7 +74,18 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P7 — Claude Tool Use (Deferred)
+## P7 — Push Drafts to Gmail (Deferred)
+
+**Drafts are generated but only appear inline in the brief email.** They're saved to `data/drafts/` as local JSON files, gitignored, and gone after each run. You can't act on them directly.
+
+**What's needed:**
+- Call `users.drafts.create` via the Gmail API after each draft is generated (the OAuth credentials are already in place)
+- Drafts appear in your Gmail drafts inbox, ready to review and send
+- Small change — `save_draft()` in `processors/drafts.py` would get a second path that calls the Gmail service alongside the local file write
+
+---
+
+## P8 — Claude Tool Use (Deferred)
 
 **Currently Claude has no internet access.** All data is pre-fetched by Python and passed as context. Adding tool use would let Claude decide what to fetch on demand, rather than always getting everything upfront.
 
