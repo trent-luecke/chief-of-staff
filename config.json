@@ -55,6 +55,6 @@
     "default_ttl_days": 90,
     "activity_extension_days": 30,
     "cold_start_days": 3,
-    "retrieval_token_budget": 1500
+    "retrieval_token_budget": 550
   }
 }

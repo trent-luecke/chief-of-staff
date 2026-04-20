@@ -15,7 +15,7 @@ from processors.drafts import Draft
 SYSTEM_PROMPT = """\
 You are an AI Chief of Staff for Trent Luecke — VP of Sales at TeamBuildr OS (B2B SaaS for strength and conditioning coaches) and founder of Vero (gym AI side project). You also help with his personal life, LinkedIn content, and a weekly content podcast.
 
-Deliver an expansive, actionable morning brief. Be direct. No filler. Prioritize ruthlessly.
+Deliver a concise, actionable morning brief. Be direct. No filler. Prioritize ruthlessly. Omit sections with nothing meaningful to say.
 
 Rules:
 - Open issues from prior days appear in top_3_priorities with age and source: "[ISSUE: N days, Slack #channel] title"
@@ -103,7 +103,13 @@ def _build_prompt(
         confidence = "confirmed" if g.match == "yes" else "possible"
         return f"  {name}{loc}{owner} — {confidence} ICP match, {g.category}"
 
+    def section(header: str, lines: list[str]) -> list[str]:
+        if not lines:
+            return []
+        return [header, *lines, ""]
+
     sections = []
+
     if brief_feedback_context:
         sections += [
             "## Delivery Instructions (from your feedback — follow these when writing the brief)",
@@ -112,50 +118,41 @@ def _build_prompt(
         ]
     if memory_context:
         sections += [memory_context, ""]
-    sections += [
-        "## People Context (background — use to identify missed deliverables and add relationship context to existing sections, do not create a new section)",
-        people_context if people_context else "  (no contacts matched today)",
-        "",
-        "## Open Issues (surface in priorities with age and source)",
-        *([fmt_issue(i) for i in open_issues] or ["  (none)"]),
-        "",
-        "## Today's Calendar",
-        *([fmt_event(e) for e in today_events] or ["  (no events)"]),
-        "",
-        "## Tomorrow Preview",
-        *([fmt_event(e) for e in tomorrow_events] or ["  (no events)"]),
-        "",
-        "## Work Emails Needing Attention",
-        *([f"  {t.subject} from {t.last_sender}" for t in email_threads] or ["  (none)"]),
-        "",
-        "## Email Drafts Ready for Review",
-        *([fmt_draft(d) for d in drafts] or ["  (none)"]),
-        "",
-        "## Meeting Prep (internal meetings today)",
-        *([f"  {m}" for m in meeting_prep] or ["  (no tracked internal meetings today)"]),
-        "",
-        "## Active Projects",
-        *([f"  {p.name} [{p.status}] — Next: {p.next_step}" for p in projects] or ["  (none)"]),
-        "",
-        "## Recurring Tasks Due Today",
-        *([f"  {t.name} ({t.schedule})" for t in due_tasks] or ["  (none)"]),
-        "",
-        "## Quick Capture Inbox (raw notes from iPhone — categorize and surface)",
-        inbox_text if inbox_text else "  (empty)",
-        "",
-        "## Action Captures (logged via Telegram query channel — surface relevant items)",
-        captures_context if captures_context else "  (none)",
-        "",
-        "## Open Loop Summary",
-        f"  Resolved since yesterday: {len(loop_summary.resolved_email_ids)} items",
-        f"  Still open: {len(loop_summary.still_open_email_ids)} items",
-        "",
-        "## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
-        *([fmt_attention_lead(l) for l in (attention_leads or [])] or ["  (none)"]),
-        "",
-        "## Gym Scout — New Leads This Week (outreach reminder)",
-        *([fmt_gym_lead(g) for g in (gym_scout_leads or [])] or ["  (none this week)"]),
-    ]
+    if people_context:
+        sections += [
+            "## People Context (background — use to identify missed deliverables and add relationship context to existing sections, do not create a new section)",
+            people_context,
+            "",
+        ]
+
+    sections += section("## Open Issues (surface in priorities with age and source)",
+                        [fmt_issue(i) for i in open_issues])
+    sections += section("## Today's Calendar",
+                        [fmt_event(e) for e in today_events])
+    if tomorrow_events:
+        sections += section("## Tomorrow Preview",
+                            [fmt_event(e) for e in tomorrow_events])
+    sections += section("## Work Emails Needing Attention",
+                        [f"  {t.subject} from {t.last_sender}" for t in email_threads])
+    sections += section("## Email Drafts Ready for Review",
+                        [fmt_draft(d) for d in drafts])
+    sections += section("## Meeting Prep (internal meetings today)",
+                        [f"  {m}" for m in meeting_prep])
+    sections += section("## Active Projects",
+                        [f"  {p.name} [{p.status}] — Next: {p.next_step}" for p in projects[:7]])
+    sections += section("## Recurring Tasks Due Today",
+                        [f"  {t.name} ({t.schedule})" for t in due_tasks])
+    if inbox_text and inbox_text.strip():
+        sections += ["## Quick Capture Inbox (raw notes from iPhone — categorize and surface)",
+                     inbox_text, ""]
+    if captures_context and captures_context.strip():
+        sections += ["## Action Captures (logged via Telegram — surface relevant items)",
+                     captures_context, ""]
+    sections += section("## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
+                        [fmt_attention_lead(l) for l in (attention_leads or [])])
+    sections += section("## Gym Scout — New Leads This Week (outreach reminder)",
+                        [fmt_gym_lead(g) for g in (gym_scout_leads or [])])
+
     return "\n".join(sections)
 
 

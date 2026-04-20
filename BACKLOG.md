@@ -4,6 +4,25 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
+## ✅ Q1 — Memory Token Budget (complete)
+
+**Shipped 2026-04-20.** Reduced memory retrieval budget from 1500 → 550 tokens in `config.json` and `processors/memory_retriever.py`. Research finding (Doney Li): empirically derived sweet spot is 550 tokens — below 400 loses context, above 700 shows diminishing returns. At 1500 the system was injecting stale noise above the point where more context helps.
+
+---
+
+## ✅ Q2 — Brief Signal-to-Noise (complete)
+
+**Shipped 2026-04-20.** Three changes to `processors/brief.py`:
+1. Removed "expansive" from the system prompt (was directly contradicting "no filler")
+2. Empty sections are no longer passed to Claude — sections with no data are omitted entirely rather than sending `(none)` noise for every field
+3. Removed the "Open Loop Summary" section (resolved/still-open counts) — pure metadata, not actionable
+4. Active Projects capped at 7 — no value in surfacing all projects every day
+5. Tomorrow Preview suppressed when no events
+
+**Why it matters:** The research finding is "context beats prompt engineering" — meaning the data layer is what improves brief quality, not prompt tweaks. But that only holds if the context is signal, not noise. Cutting empty-section noise reduces token waste and reduces the chance Claude hedges on sections with nothing to say.
+
+---
+
 ## ✅ P1 — People Intelligence (complete)
 
 **Shipped 2026-04-18.** `data/people/` store with per-contact markdown files. Each file has a human-written section (role, relationship, notes — never touched by code) and a machine-written `## Activity` section updated on every run. Calendar events, Gmail threads, and Slack DMs are matched to contact files by email. One Claude call per run assesses touchpoint significance (persistent) vs routine (rolling 5) and auto-creates profiles for notable Slack DM contacts. People context is injected as ambient background into the brief prompt to surface missed deliverables and relationship context.
@@ -109,8 +128,66 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
+## P10 — Outbound Email Tracking (from P2 known gap)
+
+**Currently the watcher only tracks inbound email from pipeline leads.** If you send a follow-up to a prospect, the next brief has no record of it — the lead still shows as "no contact" until they reply.
+
+**What's needed:**
+- A second Gmail pass per watcher run: `from:me to:{email}` for each active lead in the pipeline index
+- Record sent emails in `data/pipeline_email_activity.json` the same way inbound contact is recorded today
+- Small addition to `watcher.py` — runs after the existing inbound scan, queries Sent mail only
+
+---
+
+## P11 — Meeting Transcript Integration
+
+**The biggest capability gap.** The system knows meetings happened (calendar) but has zero signal for what came out of them — no action items, no decisions, no follow-ups.
+
+**What's needed:**
+- Choose a transcript provider: Fireflies, Granola, or Fathom all offer webhooks or email delivery of meeting summaries
+- Ingest the transcript/summary into `data/memory/observations.jsonl` as a structured observation after each meeting
+- The memory synthesizer already picks these up — the gap is purely the ingestion path
+
+**Research note:** This is the gap every reference build flags as unsolved. The meeting itself is easy to detect; what came out of it requires either a transcript service or manual capture (current state via Telegram). A transcript webhook is the high-leverage path.
+
+---
+
+## P12 — Observability
+
+**Currently flying blind on cost and silent failures.** No visibility into per-run token usage, API costs, or which runs failed without an error surface.
+
+**What's needed:**
+- Add a run log: after each `main.py` run, append a JSON line to `data/logs/run_log.jsonl` with timestamp, tokens used (from `response.usage`), model, and any errors
+- Expose it in the weekly synthesis (P5) as a cost-per-week figure
+- Optional stretch: Langfuse free tier for LLM tracing if cost explodes and you need to diagnose which call is responsible
+
+**Why now:** As more Claude calls get added (P5 synthesis, P9 tool use), cost can drift silently. A run log costs nothing to add and prevents surprises.
+
+---
+
+## P13 — Graduated Memory Decay
+
+**Currently memory uses a binary 90-day TTL.** A synthesized memory from 89 days ago carries the same weight as one from yesterday. The research documents graduated decay rates that prevent stale memories from persisting alongside fresh ones.
+
+**What's needed:**
+- Three decay tiers in the memory synthesizer: recently accessed (extend TTL on read), normal (default 90 days), abandoned (flag for earlier expiry if no reads in 60+ days)
+- Pin flag already exists in the frontmatter schema — immune memories are already supported
+- Mostly a change to `processors/memory_synthesizer.py`: track `last_accessed` in frontmatter, adjust `expires` on synthesis based on activity
+
+**When to do it:** Only matters at 6+ months of memory accumulation. Not urgent today.
+
+---
+
 ## Core Principle (from research)
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
 
-Items 1 (people) and 3 (memory) are infrastructure that improves every brief. Everything else is features layered on top.
+**Priority order (2026-04-20 assessment):**
+1. ✅ Q1 Memory budget — shipped
+2. ✅ Q2 Signal-to-noise — shipped
+3. P5 Weekly synthesis — separates briefing tool from strategic CoS
+4. P7 Push drafts to Gmail — small change, high daily value
+5. P10 Outbound email tracking — closes P2 gap, completes pipeline coverage
+6. P11 Meeting transcript integration — highest capability gap
+7. P12 Observability — risk mitigation, cheap to add
+8. P13 Graduated memory decay — only relevant at 6+ months of data

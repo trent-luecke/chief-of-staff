@@ -34,7 +34,7 @@ def get_cold_start_message(obs_file: str, cold_start_days: int = 3) -> Optional[
     return f"Memory building — patterns will emerge after a few more runs (day {day_num} of {cold_start_days})"
 
 
-def retrieve_memories(memory_dir: str, token_budget: int = 1500) -> str:
+def retrieve_memories(memory_dir: str, token_budget: int = 550) -> str:
     today = date.today()
     pinned_sections = []
     regular_sections = []
