@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-19'
+activity_last_seen: '2026-04-20'
 created: '2026-04-19'
-expires: '2026-07-18'
-last_updated: '2026-04-19'
+expires: '2026-08-17'
+last_updated: '2026-04-20'
 pinned: false
 suppress: false
 topic: post-demo-pipeline-rescue
@@ -12,15 +12,15 @@ topic: post-demo-pipeline-rescue
 
 ## Synthesized Memory
 
-**Pattern:** Six stalled post-demo opportunities have no recent contact. Vincent Terry is critically stale at 164 days. Tzach Feinsilver is 38d stale with status 'Out of Demo / Need Update.' Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, and Daniel Chudleigh have zero contact dates logged — invisible pipeline risks. Several are estimated at ~$2K value each.
+**Pattern:** Vincent Terry is critically stale at 165d in "No Trial / Post Demo" status — no recent contact. Tzach Feinsilver is 39d stale in "Out of Demo / Need Update." Five additional post-demo opps (Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, Daniel Chudleigh) have zero contact dates logged, each estimated at ~$2K — described as "invisible risks."
 
-**Decision:** Draft re-engagement messages for at least top 3 by priority: Vincent Terry (164d, critical), Tzach Feinsilver (38d), then one of the $2K no-contact opps (Aaron Letinski or Cody Coley).
+**Decision:** Prioritized re-engagement order: (1) Vincent Terry (most critical by age), (2) Tzach Feinsilver, (3) top $2K no-contact opps (Aaron Letinski, Cody Coley first). Goal is to draft or send reactivation messages for at least top 3 in a single session.
 
-**Watch:** Zero-contact-date opps are a systemic blind spot — no logging means no visibility. Need a process to ensure contact dates are recorded at every touchpoint.
+**Watch:** Zero-contact-date opps are not surfacing in normal pipeline review — need a systematic audit or CRM tag to make them visible before they age further.
 
 **Decision Candidates (unconfirmed):**
-• Draft and send reactivation messages for Vincent Terry, Tzach Feinsilver, and one of Aaron Letinski or Cody Coley today
-• Establish a contact-date logging requirement for all post-demo pipeline entries
+• Draft reactivation messages for Vincent Terry, Tzach Feinsilver, and Aaron Letinski or Cody Coley as top 3 priority
+• Audit all zero-contact-date post-demo opps and add visibility tags in CRM
 
 
-_Last synthesized: 2026-04-19_
+_Last synthesized: 2026-04-20_

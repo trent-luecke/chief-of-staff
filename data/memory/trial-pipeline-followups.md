@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-19'
+activity_last_seen: '2026-04-20'
 created: '2026-04-19'
-expires: '2026-07-18'
-last_updated: '2026-04-19'
+expires: '2026-08-17'
+last_updated: '2026-04-20'
 pinned: false
 suppress: false
 topic: trial-pipeline-followups
@@ -12,15 +12,15 @@ topic: trial-pipeline-followups
 
 ## Synthesized Memory
 
-**Pattern:** Multiple in-trial/post-demo contacts have gone 38–46 days without follow-up. Seven draft follow-ups are queued but unsent. Duplicates exist in drafts_ready and need deduplication before sending. Rutvi Patel (MEDL Mobile, 46d) is highest churn risk. Patrick Labat (TGMC, 40d), Greg Hetherington (Youthlete Academy, 40d), Drew DeVine (39d), Tyler Landeck (ALA, 38d), and Mike Ruth (DAP, 38d) are also stale in-trial contacts.
+**Pattern:** Multiple trial accounts have gone 38–47 days stale in "In-Trial / Post Demo" status with no recent contact. Rutvi Patel (MEDL Mobile, 47d) is longest overdue and highest churn risk. Tyler Landeck (ALA, 39d) and Greg Hetherington (Youthlete Academy, 41d) were flagged high-priority via Telegram on 4/19–4/20. Patrick Labat (TGMC, 41d), Drew DeVine (40d), and Mike Ruth (DAP, 39d) are also stale. 7 follow-up drafts have been queued but not yet sent; duplicates in drafts_ready need deduplication before sending.
 
-**Decision:** Send all 7 staged trial follow-up drafts in a single daily trial lead block. Deduplicate first. Prioritize Rutvi at medlmobile.com as most overdue.
+**Decision:** Daily trial lead block established as the designated time to review and send staged drafts. Greg Hetherington's trial may be expired — reactivation angle recommended over standard follow-up.
 
-**Watch:** Stale trial contacts are recurring — a same-day follow-up cadence needs to be enforced to prevent 38–46d gaps from forming again.
+**Watch:** Any trial crossing 45d without contact should be treated as critical churn risk. Greg's expiration status needs confirmation before outreach framing is finalized.
 
 **Decision Candidates (unconfirmed):**
-• Deduplicate drafts_ready queue before sending trial follow-ups
-• Send all 7 trial follow-up drafts today during daily trial lead block, prioritizing Rutvi Patel (46d)
+• Send all 7 queued trial follow-up drafts today, deduplicate first
+• Use reactivation angle for Greg Hetherington (Youthlete Academy) if trial is expired
 
 
-_Last synthesized: 2026-04-19_
+_Last synthesized: 2026-04-20_
