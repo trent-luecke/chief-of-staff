@@ -1,8 +1,4 @@
 import json
-import sys
-from datetime import date
-
-import pytest
 
 
 def setup_function():
@@ -74,6 +70,8 @@ def test_flush_non_fatal_on_bad_path():
     llm_logger.log_usage("brief", FakeUsage(), "claude-sonnet-4-6")
     # Should not raise even though the directory doesn't exist and can't be created
     llm_logger.flush("daily_brief", "/nonexistent/dir/run_log.jsonl")
+    # Accumulator is cleared regardless of write success
+    assert llm_logger._calls == []
 
 
 def test_reset_clears_calls():
