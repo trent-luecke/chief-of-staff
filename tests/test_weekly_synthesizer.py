@@ -171,3 +171,49 @@ def test_synthesize_week_raises_on_non_json_response(tmp_path):
                 captures_file=str(tmp_path / "captures.md"),
                 run_date=date.today(),
             )
+
+
+def test_load_week_costs_sums_7_days(tmp_path):
+    import json
+    from datetime import date
+    from processors.weekly_synthesizer import _load_week_costs
+
+    log_file = tmp_path / "run_log.jsonl"
+    run_date = date(2026, 4, 20)
+    entries = [
+        {"timestamp": "2026-04-12T07:00:00Z", "estimated_cost_usd": 0.01},  # day 8 — excluded
+        {"timestamp": "2026-04-13T07:00:00Z", "estimated_cost_usd": 0.02},  # day 7 — included
+        {"timestamp": "2026-04-18T07:00:00Z", "estimated_cost_usd": 0.03},  # included
+        {"timestamp": "2026-04-20T07:00:00Z", "estimated_cost_usd": 0.04},  # run_date — included
+    ]
+    with open(log_file, "w") as f:
+        for e in entries:
+            f.write(json.dumps(e) + "\n")
+
+    result = _load_week_costs(str(log_file), run_date)
+    assert result["call_count"] == 3
+    assert abs(result["total_cost_usd"] - 0.09) < 1e-6
+
+
+def test_load_week_costs_missing_file(tmp_path):
+    from datetime import date
+    from processors.weekly_synthesizer import _load_week_costs
+
+    result = _load_week_costs(str(tmp_path / "nonexistent.jsonl"), date(2026, 4, 20))
+    assert result == {"call_count": 0, "total_cost_usd": 0.0}
+
+
+def test_load_week_costs_corrupt_lines(tmp_path):
+    import json
+    from datetime import date
+    from processors.weekly_synthesizer import _load_week_costs
+
+    log_file = tmp_path / "run_log.jsonl"
+    with open(log_file, "w") as f:
+        f.write("not json at all\n")
+        f.write(json.dumps({"timestamp": "2026-04-20T07:00:00Z", "estimated_cost_usd": 0.05}) + "\n")
+        f.write("{corrupt\n")
+
+    result = _load_week_costs(str(log_file), date(2026, 4, 20))
+    assert result["call_count"] == 1
+    assert abs(result["total_cost_usd"] - 0.05) < 1e-6

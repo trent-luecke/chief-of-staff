@@ -52,6 +52,29 @@ def _load_week_state_delta(state_dir: str, run_date: date) -> tuple[int, int]:
     return resolved_count, still_open_count
 
 
+def _load_week_costs(log_file: str, run_date: date) -> dict:
+    cutoff = run_date - timedelta(days=7)
+    call_count = 0
+    total_cost = 0.0
+    try:
+        with open(log_file, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    entry_date = date.fromisoformat(entry.get("timestamp", "")[:10])
+                    if cutoff <= entry_date <= run_date:
+                        call_count += 1
+                        total_cost += entry.get("estimated_cost_usd", 0.0)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+    except FileNotFoundError:
+        pass
+    return {"call_count": call_count, "total_cost_usd": round(total_cost, 6)}
+
+
 SYSTEM_PROMPT = """\
 You are an AI Chief of Staff for Trent Luecke — VP of Sales at TeamBuildr OS (B2B SaaS for strength and conditioning coaches).
 
@@ -75,6 +98,7 @@ def _build_prompt(
     open_issue_titles: list[str],
     captures_text: str,
     run_date: date,
+    costs: dict | None = None,
 ) -> str:
     week_start = (run_date - timedelta(days=7)).isoformat()
     week_end = run_date.isoformat()
@@ -84,7 +108,15 @@ def _build_prompt(
         obs_type = obs.get("type", "other")
         grouped.setdefault(obs_type, []).append(obs)
 
-    lines = [
+    lines = []
+
+    if costs and costs.get("call_count", 0) > 0:
+        lines += [
+            f"**This week:** {costs['call_count']} Claude calls, ~${costs['total_cost_usd']:.2f}",
+            "",
+        ]
+
+    lines += [
         f"## Week of {week_start} → {week_end}",
         "",
         f"**Email threads resolved: {resolved_count}**",
@@ -121,6 +153,7 @@ def synthesize_week(
     issues_file: str,
     captures_file: str,
     run_date: date | None = None,
+    log_file: str | None = None,
 ) -> WeeklySynthesis:
     from processors.issues import get_open_issues
     from lib.captures import load_recent_captures
@@ -136,6 +169,8 @@ def synthesize_week(
 
     captures_text = load_recent_captures(captures_file, max_chars=1500)
 
+    costs = _load_week_costs(log_file, run_date) if log_file else None
+
     prompt = _build_prompt(
         observations=observations,
         resolved_count=resolved_count,
@@ -143,6 +178,7 @@ def synthesize_week(
         open_issue_titles=open_issue_titles,
         captures_text=captures_text,
         run_date=run_date,
+        costs=costs,
     )
 
     client = anthropic.Anthropic(api_key=api_key)
