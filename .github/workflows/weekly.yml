@@ -1,0 +1,43 @@
+name: Weekly Synthesis
+
+on:
+  schedule:
+    # Sunday 12pm CDT (UTC-5, Apr-Oct). Change to "0 18 * * 0" in November for CST (UTC-6).
+    - cron: "0 17 * * 0"
+  workflow_dispatch:
+
+jobs:
+  weekly-synthesis:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: America/Chicago
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run weekly synthesis
+        env:
+          GOOGLE_OAUTH_JSON: ${{ secrets.GOOGLE_OAUTH_JSON }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python weekly_synthesis.py
+
+      - name: Persist data
+        run: |
+          git config user.name "chief-of-staff[bot]"
+          git config user.email "noreply@github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "chore: weekly synthesis $(date +%Y-%m-%d)"
+          git pull --rebase
+          git push
