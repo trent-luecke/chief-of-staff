@@ -9,8 +9,6 @@ __pycache__/
 .venv/
 *.egg-info/
 .DS_Store
-logs/
-!data/logs/
-!data/logs/.gitkeep
+/logs/
 *.log
 .worktrees/
