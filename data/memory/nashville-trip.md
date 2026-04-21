@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-20'
+activity_last_seen: '2026-04-21'
 created: '2026-04-20'
-expires: '2026-07-19'
-last_updated: '2026-04-20'
+expires: '2026-08-18'
+last_updated: '2026-04-21'
 pinned: false
 suppress: false
 topic: nashville-trip
@@ -12,14 +12,15 @@ topic: nashville-trip
 
 ## Synthesized Memory
 
-**Pattern:** Nashville trip confirmed for Tuesday–Thursday (flight BK935L via Southwest). Monday is the last full day at home — designated for packing and prep. Weather check captured as a reminder before packing.
+**Pattern:** Nashville trip confirmed Tue–Thu (Southwest confirmation BK935L). Monday 2026-04-21 is the last full day at home — designated for trial/pipeline sends, AI CoS presentation build, and packing.
 
-**Decision:** Review "TeamBuildr Practice Intro" thread from Melissa before the trip — flagged as potentially relevant context for Nashville conversations.
+**Decision:** Pack Monday; check weather before packing. Review 'TeamBuildr Practice Intro' thread from Melissa — flagged as potentially relevant context for Nashville conversations.
 
-**Watch:** No specific Nashville agenda items logged yet beyond the Melissa thread. Monday prep window is tight given trial and pipeline priorities also due that day.
+**Watch:** Trip compresses available outreach time. Any trial or pipeline tasks not completed Monday will be delayed 3+ days, increasing stale risk further for already-aging contacts.
 
 **Decision Candidates (unconfirmed):**
-• Pack on Monday, check weather first, review Melissa's TeamBuildr Practice Intro thread before departure
+• Complete all queued trial follow-ups and pipeline re-engagements on Monday 2026-04-21 before Nashville departure
+• Review TeamBuildr Practice Intro thread from Melissa before Nashville
 
 
-_Last synthesized: 2026-04-20_
+_Last synthesized: 2026-04-21_

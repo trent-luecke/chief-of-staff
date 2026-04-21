@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-20'
+activity_last_seen: '2026-04-21'
 created: '2026-04-20'
-expires: '2026-07-19'
-last_updated: '2026-04-20'
+expires: '2026-08-18'
+last_updated: '2026-04-21'
 pinned: false
 suppress: false
 topic: active-projects-momentum
@@ -12,15 +12,16 @@ topic: active-projects-momentum
 
 ## Synthesized Memory
 
-**Pattern:** On meeting-free days, three recurring project tracks compete for focus time: (a) LTV Lead Magnet calculator — UI design and input variable definition is next-step-blocked, (b) gym-ai / Vero folder review — current state unknown, next steps blocked pending review, (c) Content Generation Podcast research for next Tuesday's session. These appear repeatedly as "pick one" choices, suggesting they are all stalled and not getting dedicated time.
+**Pattern:** Three recurring project tracks are next-step-blocked and have been flagged across multiple days without resolution: (a) LTV Calculator UI — input variables undefined; (b) gym-ai / Vero current state — folder unreviewed; (c) Content Generation Podcast research for next Tuesday session.
 
-**Decision:** Commit to one project before noon on meeting-free days. LTV calculator and Vero review both explicitly flagged as "next-step-blocked" — higher urgency than podcast research.
+**Pattern:** On days with no meetings, these are the designated focus blocks, but commitment to a single track has not been recorded.
 
-**Watch:** Repeated deferral pattern across multiple days — none of the three have a logged completion or progress note yet.
+**Decision:** Pick one before noon on any no-meeting day. LTV calculator and gym-ai review are both explicitly labeled next-step-blocked; podcast research is time-sensitive if session is Tuesday.
+
+**Watch:** Repeated deferral is creating compounding block. Nashville trip further compresses the available pre-Tuesday window for podcast prep.
 
 **Decision Candidates (unconfirmed):**
-• Prioritize LTV calculator UI design or Vero/gym-ai review over podcast research on next available focus block
-• Set a hard noon commitment rule for project selection on meeting-free days
+• Commit to one project block before noon on 2026-04-21: LTV calculator UI input variables, gym-ai/Vero folder review, or Content Generation Podcast topic research
 
 
-_Last synthesized: 2026-04-20_
+_Last synthesized: 2026-04-21_

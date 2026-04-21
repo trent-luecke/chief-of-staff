@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-20'
+activity_last_seen: '2026-04-21'
 created: '2026-04-20'
-expires: '2026-07-19'
-last_updated: '2026-04-20'
+expires: '2026-08-18'
+last_updated: '2026-04-21'
 pinned: false
 suppress: false
 topic: payment-failures-audit
@@ -12,14 +12,14 @@ topic: payment-failures-audit
 
 ## Synthesized Memory
 
-**Pattern:** 9+ failed member payments detected hitting the TeamBuildr OS Demo account on or around 4/20. Named accounts include Stephen P, Ted Hitchcock, Alex Cooksey, Andrew Adams, Jake Dukey, Polina Vtorushina, Nicole Foley, and two "Future Pause" entries.
+**Pattern:** 9+ failed member payments detected on the TeamBuildr OS Demo account on 2026-04-20 — affected names include Stephen P, Ted Hitchcock, Alex Cooksey, Andrew Adams, Jake Dukey, Polina Vtorushina, Nicole Foley, and two 'Future Pause' entries.
 
-**Decision:** Determine whether these are test accounts, a Stripe configuration issue, or real trial users with billing problems. If customer-facing, escalate to Melissa or product team immediately.
+**Decision:** Determine if these are test accounts, a Stripe configuration issue, or real trial users with billing problems. Customer-facing if real — escalate to Melissa or product team if needed.
 
-**Watch:** Hitting the Demo account specifically may indicate a Stripe config or test environment bleed issue rather than live billing — but cannot be assumed. Escalation path to Melissa is pre-identified.
+**Watch:** Flagged same day as Nashville prep; risk of falling through the cracks during travel week. No follow-up status recorded as of 2026-04-21.
 
 **Decision Candidates (unconfirmed):**
-• Audit 9 failed payments: confirm test vs. real accounts before escalating to Melissa or product
+• Audit 9+ failed payments on TeamBuildr OS Demo account — classify as test vs. real users, check Stripe config, escalate to Melissa or product if customer-facing
 
 
-_Last synthesized: 2026-04-20_
+_Last synthesized: 2026-04-21_
