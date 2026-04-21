@@ -8,3 +8,4 @@
 ## 2026-04-20 16:09 — [note] Presentation brief — AI Chief of Staff for Sales: Sections cover daily utility, competitor tracking, content topics, gym software trends, general tech trends, security framing. Tone: skeptic-friendly, lead with time saved. Build deck in Claude.
 ## 2026-04-20 16:11 — [note] Presentation brief — AI Chief of Staff for Sales: Sections cover daily utility, competitor tracking, content topics, gym software trends, general tech trends, security framing. Tone: skeptic-friendly, lead with time saved. Build deck in Claude.
 ## 2026-04-20 16:11 — [todo] Build AI Chief of Staff for Sales deck in Claude — skeptic-friendly, lead with time saved, cover: daily utility, competitor tracking, content topics, gym software trends, general tech trends, security framing
+## 2026-04-20 20:44 — [flag] TOP PRIORITY TOMORROW — Customize CoS presentation: add individual slides covering AI Chief of Staff benefits tailored to each specific attendee
