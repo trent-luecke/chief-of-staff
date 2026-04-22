@@ -1,11 +1,21 @@
 """Tool definitions and executors for the P9 Claude tool use loop."""
 
+import json
 import os
 import re
 from datetime import date
 from typing import Any
 
 from lib.captures import append_capture, complete_capture, complete_project_next
+from processors.issues import load_issues, save_issues
+
+
+SAFE_CONFIG_KEYS = {
+    "issue_auto_resolve_days",
+    "pipeline.enabled",
+    "memory.retrieval_token_budget",
+    "unread_email_max",
+}
 
 
 def _tool_add_capture(capture_type: str, text: str, config: dict) -> str:
@@ -97,6 +107,62 @@ def _tool_create_project(name: str, description: str, next_action: str, config: 
     return f"Project '{name}' created with next action: {next_action}"
 
 
+def _tool_resolve_issue(title_fragment: str, config: dict) -> str:
+    issues_file = config.get("issues_file", "data/issues.json")
+    log = load_issues(issues_file)
+    fragment_lower = title_fragment.lower()
+    matches = [i for i in log.issues if fragment_lower in i.title.lower() and i.status == "open"]
+    if not matches:
+        return f"No open issue found matching '{title_fragment}'."
+    issue = matches[0]
+    issue.status = "resolved"
+    issue.resolved_date = date.today().isoformat()
+    save_issues(log, issues_file)
+    return f"Resolved issue: '{issue.title}'."
+
+
+def _tool_update_config(key: str, value, config: dict) -> str:
+    if key not in SAFE_CONFIG_KEYS:
+        allowed = ", ".join(sorted(SAFE_CONFIG_KEYS))
+        return f"Key '{key}' is not in the allowed list. Safe keys: {allowed}."
+    config_path = config.get("_config_path", "config.json")
+    try:
+        with open(config_path) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        return f"Could not read config: {e}"
+    parts = key.split(".")
+    node = data
+    for part in parts[:-1]:
+        if part not in node:
+            return f"Key path '{key}' not found in config."
+        node = node[part]
+    node[parts[-1]] = value
+    with open(config_path, "w") as f:
+        json.dump(data, f, indent=2)
+    return f"Updated config: {key} = {value}"
+
+
+def _tool_add_to_backlog(description: str, config: dict) -> str:
+    backlog_path = config.get("_backlog_path", "BACKLOG.md")
+    today = date.today().isoformat()
+    entry = f"- {today}: {description}\n"
+    try:
+        with open(backlog_path) as f:
+            content = f.read()
+    except FileNotFoundError:
+        content = "# Chief of Staff — Backlog\n"
+    inbox_header = "## 📥 Inbox\n"
+    if inbox_header in content:
+        idx = content.index(inbox_header) + len(inbox_header)
+        content = content[:idx] + entry + content[idx:]
+    else:
+        content = content.rstrip("\n") + f"\n\n{inbox_header}{entry}"
+    with open(backlog_path, "w") as f:
+        f.write(content)
+    return f"Added to backlog: {description}"
+
+
 def execute_tool(name: str, input_: dict, config: dict) -> str:
     """Dispatch a tool call by name. Always returns a string — errors included."""
     try:
@@ -110,6 +176,12 @@ def execute_tool(name: str, input_: dict, config: dict) -> str:
             return _tool_update_project_next_action(input_["project_name"], input_["next_action"], config)
         elif name == "create_project":
             return _tool_create_project(input_["name"], input_["description"], input_["next_action"], config)
+        elif name == "resolve_issue":
+            return _tool_resolve_issue(input_["title_fragment"], config)
+        elif name == "update_config":
+            return _tool_update_config(input_["key"], input_["value"], config)
+        elif name == "add_to_backlog":
+            return _tool_add_to_backlog(input_["description"], config)
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
