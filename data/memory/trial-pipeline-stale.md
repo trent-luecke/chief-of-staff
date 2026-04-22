@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-21'
+activity_last_seen: '2026-04-22'
 created: '2026-04-21'
-expires: '2026-07-20'
-last_updated: '2026-04-21'
+expires: '2026-08-19'
+last_updated: '2026-04-22'
 pinned: false
 suppress: false
 topic: trial-pipeline-stale
@@ -10,19 +10,12 @@ topic: trial-pipeline-stale
 
 ## Synthesized Memory
 
-## Synthesized Memory
+**Pattern:** Multiple In-Trial / Post Demo contacts have been stale 38–49 days with no meaningful outreach. Rutvi Patel (MEDL Mobile, 49d), Emma Hicks (For Fitness & Athletics, 48d), Greg Hetherington (Youthlete Academy, 43d), Patrick Labat (TGMC, 43d), Tyler Landeck (ALA, 41d), Mike Ruth (DAP, 41d), Drew DeVine (42d) are all flagged. Drafts are queued but unsent across multiple days.
 
-**Pattern:** Multiple In-Trial / Post Demo contacts have been stale 38–48 days with no meaningful outreach, accumulating daily. Rutvi Patel (MEDL Mobile, 48d), Emma Hicks (For Fitness & Athletics, 47d), Greg Hetherington (Youthlete Academy, 42d), Patrick Labat (TGMC, 42d), Tyler Landeck (ALA, 40d), Drew DeVine (41d), and Mike Ruth (DAP, 40d) are all in this cohort. Drafts have been queued but not consistently sent.
+**Pattern:** Tyler Landeck and Greg Hetherington have been explicitly flagged as highest-priority repeatedly (Apr 19–22) via Telegram. Greg's trial may already be expired — reactivation angle recommended.
 
-**Pattern:** Tyler Landeck and Greg Hetherington were flagged high-priority via Telegram on 2026-04-19 and remain unsent as of 2026-04-21. Greg's trial may already be expired — reactivation angle recommended.
+**Decision:** Send all queued trial follow-up drafts before Nashville departure (Apr 22). Prioritize Tyler Landeck and Greg Hetherington first, then Rutvi Patel as longest-aged churn risk.
 
-**Decision:** Rutvi Patel (medlmobile) is highest churn risk at 48d. Tyler Landeck and Greg Hetherington are named highest-priority for same-day send. Daily trial follow-up block is the designated time for these.
+**Watch:** Deduplication needed in drafts_ready before batch send. Emma Hicks appeared late (Apr 21) — ensure she's included in next send cycle.
 
-**Watch:** Duplicate drafts queued for same contacts — deduplicate before sending. Aging accelerates daily; each missed day increases churn probability.
-
-**Decision Candidates (unconfirmed):**
-• Send trial follow-up to Rutvi Patel (rutvi@medlmobile.com) today — highest churn risk at 48d stale
-• Send personalized drafts to Tyler Landeck (ALA) and Greg Hetherington (Youthlete Academy) today; use reactivation angle for Greg whose trial may be expired
-
-
-_Last synthesized: 2026-04-21_
+_Last synthesized: 2026-04-22_
