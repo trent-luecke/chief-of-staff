@@ -97,7 +97,7 @@ def save_pipeline_activity(activity_path: str, data: dict) -> None:
         json.dump(data, f, indent=2)
 
 
-def record_lead_contact(activity: dict, email: str, name: str, thread: EmailThread) -> bool:
+def record_lead_contact(activity: dict, email: str, name: str, thread: EmailThread, direction: str = "inbound") -> bool:
     """Update activity record if this thread is more recent than what's stored. Returns True if updated."""
     thread_date = thread.last_message_date.date().isoformat() if thread.last_message_date else None
     if not thread_date:
@@ -109,6 +109,7 @@ def record_lead_contact(activity: dict, email: str, name: str, thread: EmailThre
         "name": name,
         "last_email_date": thread_date,
         "last_subject": thread.subject[:120],
+        "direction": direction,
     }
     return True
 
@@ -173,13 +174,11 @@ def run() -> None:
     all_threads = fetch_threads_needing_attention(
         user_email=config["email"],
         max_results=50,
-        profile=config.get("gmail_profile"),
         query=all_query,
     )
     unread_threads = fetch_threads_needing_attention(
         user_email=config["email"],
         max_results=50,
-        profile=config.get("gmail_profile"),
         query=unread_query,
     )
     unread_ids = {t.id for t in unread_threads}
@@ -206,6 +205,24 @@ def run() -> None:
                 title=thread.subject[:120],
             )
             print(f"   Flare-up flagged: {thread.subject[:60]}")
+
+    # --- Sent mail scan (outbound pipeline tracking) ---
+    if lead_index:
+        sent_query = f"in:sent newer_than:{lookback_hours}h"
+        print(f"📤 Scanning sent mail for outbound pipeline contacts...")
+        sent_threads = fetch_threads_needing_attention(
+            user_email=config["email"],
+            max_results=50,
+            query=sent_query,
+        )
+        for thread in sent_threads:
+            recipient_email = _extract_email(thread.last_recipient)
+            if recipient_email in lead_index:
+                lead_name = lead_index[recipient_email]
+                updated = record_lead_contact(activity, recipient_email, lead_name, thread, direction="outbound")
+                if updated:
+                    print(f"   Outbound contact: {lead_name} — {thread.subject[:60]}")
+                    pipeline_updated = True
 
     if pipeline_updated:
         save_pipeline_activity(activity_path, activity)

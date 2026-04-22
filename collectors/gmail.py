@@ -14,6 +14,7 @@ class EmailThread:
     last_message_date: Optional[datetime]
     needs_reply: bool = True
     label: str = "unread"
+    last_recipient: str = ""
 
 
 def _build_service(user_email: str):
@@ -35,6 +36,7 @@ def _parse_thread(thread_data: dict, user_email: str) -> Optional[EmailThread]:
     headers = last_msg.get("payload", {}).get("headers", [])
     subject = _get_header(headers, "Subject") or "(no subject)"
     sender = _get_header(headers, "From")
+    recipient = _get_header(headers, "To")
     internal_date = last_msg.get("internalDate")
     date = None
     if internal_date:
@@ -50,6 +52,7 @@ def _parse_thread(thread_data: dict, user_email: str) -> Optional[EmailThread]:
         snippet=thread_data.get("snippet", ""),
         last_message_date=date,
         needs_reply=needs_reply,
+        last_recipient=recipient,
     )
 
 
@@ -74,7 +77,7 @@ def fetch_threads_needing_attention(
                 userId="me",
                 id=t["id"],
                 format="metadata",
-                metadataHeaders=["Subject", "From", "Date"],
+                metadataHeaders=["Subject", "From", "To", "Date"],
             ).execute()
         except Exception:
             continue

@@ -128,14 +128,11 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P10 — Outbound Email Tracking (from P2 known gap)
+## ✅ P10 — Outbound Email Tracking (complete)
 
-**Currently the watcher only tracks inbound email from pipeline leads.** If you send a follow-up to a prospect, the next brief has no record of it — the lead still shows as "no contact" until they reply.
+**Shipped 2026-04-22.** Third Gmail pass added to `watcher.py`: queries `in:sent newer_than:{lookback_hours}h`, matches `last_recipient` against the lead index, and records with `direction="outbound"` in `pipeline_email_activity.json`. `EmailThread` now carries `last_recipient` (populated from the `To` header via `metadataHeaders`). Activity records now include a `direction` field (`"inbound"` or `"outbound"`) so the brief can distinguish who reached out last.
 
-**What's needed:**
-- A second Gmail pass per watcher run: `from:me to:{email}` for each active lead in the pipeline index
-- Record sent emails in `data/pipeline_email_activity.json` the same way inbound contact is recorded today
-- Small addition to `watcher.py` — runs after the existing inbound scan, queries Sent mail only
+**Also fixed:** `watcher.py` had a latent `profile=` kwarg being passed to `fetch_threads_needing_attention()` — a remnant from the `gws` CLI era that caused a `TypeError` at the call site, silently breaking the Gmail scan on every watcher run since the API migration. All three call sites cleaned up.
 
 ---
 
