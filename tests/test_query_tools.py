@@ -215,3 +215,64 @@ def test_add_to_backlog_appends_to_existing_inbox():
         assert "Existing item" in content
         assert "New item" in content
         assert content.index("New item") < content.index("Existing item")
+
+
+from unittest.mock import patch, MagicMock
+
+
+def test_search_gmail_returns_thread_summaries():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        mock_thread = MagicMock()
+        mock_thread.last_sender = "john@apex.com"
+        mock_thread.subject = "Re: Onboarding questions"
+        mock_thread.snippet = "Quick question about the dashboard"
+        with patch("processors.query_tools.fetch_threads_needing_attention", return_value=[mock_thread]):
+            result = execute_tool("search_gmail", {"query": "from:john@apex.com", "max_results": 5}, config)
+        assert "Onboarding questions" in result
+        assert "john@apex.com" in result
+
+
+def test_search_gmail_returns_empty_message_when_no_results():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        with patch("processors.query_tools.fetch_threads_needing_attention", return_value=[]):
+            result = execute_tool("search_gmail", {"query": "from:nobody@nowhere.com"}, config)
+        assert "no" in result.lower() or "0" in result.lower()
+
+
+def test_get_pipeline_lead_returns_lead_data():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        leads = {"leads": [{"name": "Apex Fitness", "status": "In-Trial / Post Demo", "email": "john@apex.com",
+            "contact": "John", "priority": "High", "last_contacted": "2026-04-20",
+            "days_since_contact": 2, "estimated_value": 500.0, "source": "inbound", "stale": False}]}
+        with open(config["pipeline"]["cache_path"], "w") as f:
+            _json.dump(leads, f)
+        result = execute_tool("get_pipeline_lead", {"lead_name": "Apex"}, config)
+        assert "Apex Fitness" in result
+        assert "In-Trial" in result
+
+
+def test_get_pipeline_lead_returns_error_when_not_found():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        with open(config["pipeline"]["cache_path"], "w") as f:
+            _json.dump({"leads": []}, f)
+        result = execute_tool("get_pipeline_lead", {"lead_name": "Nobody"}, config)
+        assert "not found" in result.lower() or "no lead" in result.lower()
+
+
+def test_create_email_draft_calls_gmail_api():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        mock_service = MagicMock()
+        mock_service.users.return_value.drafts.return_value.create.return_value.execute.return_value = {"id": "draft123"}
+        with patch("processors.query_tools.build_gmail_service", return_value=mock_service):
+            result = execute_tool("create_email_draft", {
+                "to": "john@apex.com",
+                "subject": "Following up on demo",
+                "body": "Hi John, just wanted to follow up..."
+            }, config)
+        assert "draft" in result.lower()
+        assert mock_service.users.return_value.drafts.return_value.create.called

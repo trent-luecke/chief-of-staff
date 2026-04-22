@@ -1,12 +1,16 @@
 """Tool definitions and executors for the P9 Claude tool use loop."""
 
+import base64
 import json
 import os
 import re
 from datetime import date
+from email.mime.text import MIMEText
 from typing import Any
 
+from collectors.gmail import fetch_threads_needing_attention
 from lib.captures import append_capture, complete_capture, complete_project_next
+from lib.google_auth import build_gmail_service
 from processors.issues import load_issues, save_issues
 
 
@@ -163,6 +167,72 @@ def _tool_add_to_backlog(description: str, config: dict) -> str:
     return f"Added to backlog: {description}"
 
 
+def _tool_search_gmail(query: str, max_results: int, config: dict) -> str:
+    try:
+        threads = fetch_threads_needing_attention(
+            user_email=config.get("email", ""),
+            max_results=max_results,
+            query=query,
+        )
+    except Exception as e:
+        return f"Gmail search failed: {e}"
+    if not threads:
+        return "No matching threads found."
+    lines = [f"- [{t.last_sender}] {t.subject} — {t.snippet[:120]}" for t in threads]
+    return "\n".join(lines)
+
+
+def _tool_get_calendar_events(days_ahead: int, config: dict) -> str:
+    from collectors.calendar import fetch_today_events
+    from datetime import timedelta
+    events = []
+    for i in range(days_ahead):
+        target = date.today() + timedelta(days=i)
+        for cal_id in config.get("calendar_ids", ["primary"]):
+            try:
+                day_events = fetch_today_events(cal_id, target_date=target, user_email=config.get("email", ""))
+                for e in day_events:
+                    events.append(f"- {target.isoformat()} {e.start.strftime('%H:%M')} {e.summary}")
+            except Exception:
+                pass
+    if not events:
+        return "No events found."
+    return "\n".join(events)
+
+
+def _tool_get_pipeline_lead(lead_name: str, config: dict) -> str:
+    cache_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
+    try:
+        with open(cache_path) as f:
+            cache = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return "Pipeline cache not available."
+    name_lower = lead_name.lower()
+    matches = [
+        lead for lead in cache.get("leads", [])
+        if name_lower in lead.get("name", "").lower()
+    ]
+    if not matches:
+        return f"No lead found matching '{lead_name}'."
+    return json.dumps(matches[0], indent=2)
+
+
+def _tool_create_email_draft(to: str, subject: str, body: str, config: dict) -> str:
+    try:
+        service = build_gmail_service()
+        msg = MIMEText(body)
+        msg["to"] = to
+        msg["subject"] = subject
+        raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+        service.users().drafts().create(
+            userId="me",
+            body={"message": {"raw": raw}},
+        ).execute()
+        return f"Draft created: '{subject}' to {to}. Review in Gmail drafts before sending."
+    except Exception as e:
+        return f"Failed to create draft: {e}"
+
+
 def execute_tool(name: str, input_: dict, config: dict) -> str:
     """Dispatch a tool call by name. Always returns a string — errors included."""
     try:
@@ -182,6 +252,14 @@ def execute_tool(name: str, input_: dict, config: dict) -> str:
             return _tool_update_config(input_["key"], input_["value"], config)
         elif name == "add_to_backlog":
             return _tool_add_to_backlog(input_["description"], config)
+        elif name == "search_gmail":
+            return _tool_search_gmail(input_["query"], input_.get("max_results", 5), config)
+        elif name == "get_calendar_events":
+            return _tool_get_calendar_events(input_.get("days_ahead", 7), config)
+        elif name == "get_pipeline_lead":
+            return _tool_get_pipeline_lead(input_["lead_name"], config)
+        elif name == "create_email_draft":
+            return _tool_create_email_draft(input_["to"], input_["subject"], input_["body"], config)
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
