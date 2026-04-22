@@ -114,17 +114,11 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P9 — Claude Tool Use (Deferred)
+## ✅ P9 — Tool Use & Action Execution (complete)
 
-**Currently Claude has no internet access.** All data is pre-fetched by Python and passed as context. Adding tool use would let Claude decide what to fetch on demand, rather than always getting everything upfront.
+**Shipped 2026-04-22.** Replaced `processors/query.py`'s intent classifier + two-pass fetch with a native Anthropic tool use loop. Claude now decides what to fetch and what to execute based on the query. 12 tools shipped across read (search_gmail, get_calendar_events, get_pipeline_lead) and write (add_capture, complete_task, create_email_draft, add_people_note, update_project_next_action, create_project, resolve_issue, update_config, add_to_backlog). Tool executors in `processors/query_tools.py`. `ask.py` simplified — no more JSON parsing or capture post-processing. Absorbs P7 (create_email_draft pushes Gmail draft) and P8 (create_project via natural language).
 
-**What's needed:**
-- Define tools in `client.messages.create()` calls (e.g. `search_gmail`, `get_calendar_events`, `search_web`)
-- Add a tool execution loop in each processor: Claude responds → Python executes the tool call → result fed back to Claude → repeat until Claude produces a final text response
-- Most valuable in `processors/query.py` (Telegram queries), where Claude could fetch only what's relevant to the question rather than receiving all data blindly
-- Lower value in `processors/brief.py` — pre-fetching everything upfront is already the right pattern for a daily brief
-
-**Key constraint:** GitHub Actions runs are synchronous and single-use per Telegram message, but multi-turn tool loops work fine within a single run.
+**Known gap:** Notion write access deferred — updating pipeline lead fields (status, last_contacted, notes) from Telegram requires a Notion API key with workspace admin access, which is not currently available.
 
 ---
 
@@ -165,6 +159,12 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 - Mostly a change to `processors/memory_synthesizer.py`: track `last_accessed` in frontmatter, adjust `expires` on synthesis based on activity
 
 **When to do it:** Only matters at 6+ months of memory accumulation. Not urgent today.
+
+---
+
+## 📥 Inbox
+
+- 2026-04-22: Notion write access via API — update pipeline lead fields (status, last_contacted, notes) from Telegram. Blocked on Notion API key (requires workspace admin access).
 
 ---
 
