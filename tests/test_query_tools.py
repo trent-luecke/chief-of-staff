@@ -63,3 +63,54 @@ def test_execute_tool_missing_key_returns_clear_message():
         config = _config(tmp)
         result = execute_tool("add_capture", {}, config)  # missing capture_type and text
         assert "missing" in result.lower() and "field" in result.lower()
+
+
+def test_add_people_note_appends_to_file():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        os.makedirs(config["people_dir"])
+        with open(os.path.join(config["people_dir"], "ryan_smith.md"), "w") as f:
+            f.write("# Ryan Smith\n## Activity\n- Called 2026-04-01\n")
+        result = execute_tool("add_people_note", {"person_name": "Ryan", "note": "Going on vacation for 2 weeks"}, config)
+        assert "ryan" in result.lower() or "added" in result.lower() or "noted" in result.lower()
+        with open(os.path.join(config["people_dir"], "ryan_smith.md")) as f:
+            content = f.read()
+        assert "Going on vacation for 2 weeks" in content
+
+
+def test_add_people_note_returns_error_when_not_found():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        os.makedirs(config["people_dir"])
+        result = execute_tool("add_people_note", {"person_name": "Nobody", "note": "test"}, config)
+        assert "not found" in result.lower() or "no file" in result.lower() or "no match" in result.lower()
+
+
+def test_update_project_next_action():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        with open(config["projects_file"], "w") as f:
+            f.write("## Project: LTV Lead Magnet\n**Status:** In Progress\n**Next:** Old action\n**Notes:** some notes\n")
+        result = execute_tool("update_project_next_action", {"project_name": "LTV", "next_action": "Ship MVP by Friday"}, config)
+        assert "updated" in result.lower() or "ltv" in result.lower()
+        with open(config["projects_file"]) as f:
+            content = f.read()
+        assert "Ship MVP by Friday" in content
+        assert "Old action" not in content
+
+
+def test_create_project_appends_to_file():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        with open(config["projects_file"], "w") as f:
+            f.write("## Project: Existing\n**Status:** Active\n**Next:** Do thing\n**Notes:** notes\n")
+        result = execute_tool("create_project", {
+            "name": "New Campaign",
+            "description": "Q3 outreach campaign",
+            "next_action": "Draft list of targets"
+        }, config)
+        assert "created" in result.lower() or "new campaign" in result.lower()
+        with open(config["projects_file"]) as f:
+            content = f.read()
+        assert "New Campaign" in content
+        assert "Draft list of targets" in content
