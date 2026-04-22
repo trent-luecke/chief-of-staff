@@ -276,3 +276,51 @@ def test_create_email_draft_calls_gmail_api():
             }, config)
         assert "draft" in result.lower()
         assert mock_service.users.return_value.drafts.return_value.create.called
+
+
+from processors.query_tools import TOOL_SCHEMAS
+
+
+def test_tool_schemas_are_valid_anthropic_format():
+    assert isinstance(TOOL_SCHEMAS, list)
+    assert len(TOOL_SCHEMAS) > 0
+    for schema in TOOL_SCHEMAS:
+        assert "name" in schema, f"Schema missing 'name': {schema}"
+        assert "description" in schema, f"Schema missing 'description': {schema}"
+        assert "input_schema" in schema, f"Schema missing 'input_schema': {schema}"
+        assert schema["input_schema"]["type"] == "object"
+        assert "properties" in schema["input_schema"]
+
+
+def test_tool_schemas_cover_all_expected_tools():
+    names = {s["name"] for s in TOOL_SCHEMAS}
+    expected = {
+        "add_capture", "complete_task", "add_people_note",
+        "update_project_next_action", "create_project", "resolve_issue",
+        "update_config", "add_to_backlog", "search_gmail",
+        "get_calendar_events", "get_pipeline_lead", "create_email_draft",
+    }
+    assert names == expected
+
+
+def test_tool_schemas_required_fields_match_executor_params():
+    schema_map = {s["name"]: s for s in TOOL_SCHEMAS}
+
+    # add_capture requires capture_type and text
+    ac = schema_map["add_capture"]
+    assert "capture_type" in ac["input_schema"]["required"]
+    assert "text" in ac["input_schema"]["required"]
+
+    # complete_task requires description
+    ct = schema_map["complete_task"]
+    assert "description" in ct["input_schema"]["required"]
+
+    # create_email_draft requires to, subject, body
+    ced = schema_map["create_email_draft"]
+    assert "to" in ced["input_schema"]["required"]
+    assert "subject" in ced["input_schema"]["required"]
+    assert "body" in ced["input_schema"]["required"]
+
+    # get_calendar_events has no required fields (days_ahead has default)
+    gce = schema_map["get_calendar_events"]
+    assert gce["input_schema"].get("required", []) == []

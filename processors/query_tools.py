@@ -266,3 +266,152 @@ def execute_tool(name: str, input_: dict, config: dict) -> str:
         return f"Tool '{name}' failed: missing required field {e}."
     except Exception as e:
         return f"Tool '{name}' failed: {e}"
+
+
+# ---------------------------------------------------------------------------
+# Tool schemas (Anthropic API format)
+# ---------------------------------------------------------------------------
+
+TOOL_SCHEMAS = [
+    {
+        "name": "add_capture",
+        "description": "Add a todo, idea, note, or flag to the captures file.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "capture_type": {"type": "string", "enum": ["todo", "idea", "note", "flag"], "description": "Type of capture"},
+                "text": {"type": "string", "description": "Content of the capture"},
+            },
+            "required": ["capture_type", "text"],
+        },
+    },
+    {
+        "name": "complete_task",
+        "description": "Mark a capture or project next-action as complete and remove it.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string", "description": "Exact or approximate text of the item to complete"},
+            },
+            "required": ["description"],
+        },
+    },
+    {
+        "name": "add_people_note",
+        "description": "Add a note to a contact's people profile file.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "person_name": {"type": "string", "description": "Name or partial name of the contact"},
+                "note": {"type": "string", "description": "Note to append to their profile"},
+            },
+            "required": ["person_name", "note"],
+        },
+    },
+    {
+        "name": "update_project_next_action",
+        "description": "Update the next action field for a project in projects.md.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "project_name": {"type": "string", "description": "Name or partial name of the project"},
+                "next_action": {"type": "string", "description": "New next action text"},
+            },
+            "required": ["project_name", "next_action"],
+        },
+    },
+    {
+        "name": "create_project",
+        "description": "Create a new project entry in projects.md.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Project name"},
+                "description": {"type": "string", "description": "Brief description of the project"},
+                "next_action": {"type": "string", "description": "First next action"},
+            },
+            "required": ["name", "description", "next_action"],
+        },
+    },
+    {
+        "name": "resolve_issue",
+        "description": "Mark an open issue as resolved in the issues log.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title_fragment": {"type": "string", "description": "Partial text of the issue title to resolve"},
+            },
+            "required": ["title_fragment"],
+        },
+    },
+    {
+        "name": "update_config",
+        "description": "Update a system configuration value. Only safe keys are allowed: issue_auto_resolve_days, pipeline.enabled, memory.retrieval_token_budget, unread_email_max.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "key": {"type": "string", "description": "Config key (dot notation for nested, e.g. memory.retrieval_token_budget)"},
+                "value": {"description": "New value"},
+            },
+            "required": ["key", "value"],
+        },
+    },
+    {
+        "name": "add_to_backlog",
+        "description": "Add an item to the chief-of-staff backlog inbox for future consideration.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "description": {"type": "string", "description": "Description of the backlog item"},
+            },
+            "required": ["description"],
+        },
+    },
+    {
+        "name": "search_gmail",
+        "description": "Search Gmail threads using a Gmail search query string.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Gmail search query (e.g. 'from:john@apex.com', 'subject:onboarding newer_than:7d')"},
+                "max_results": {"type": "integer", "description": "Maximum threads to return (default 5)", "default": 5},
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "get_calendar_events",
+        "description": "Fetch upcoming calendar events.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "days_ahead": {"type": "integer", "description": "Number of days ahead to fetch (default 7)", "default": 7},
+            },
+            "required": [],
+        },
+    },
+    {
+        "name": "get_pipeline_lead",
+        "description": "Look up a pipeline lead by name and return their full record from the pipeline cache.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "lead_name": {"type": "string", "description": "Name or partial name of the lead/company"},
+            },
+            "required": ["lead_name"],
+        },
+    },
+    {
+        "name": "create_email_draft",
+        "description": "Create a draft email in Gmail. The draft is saved but NOT sent — review and send from Gmail.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "to": {"type": "string", "description": "Recipient email address"},
+                "subject": {"type": "string", "description": "Email subject"},
+                "body": {"type": "string", "description": "Plain text email body"},
+            },
+            "required": ["to", "subject", "body"],
+        },
+    },
+]
