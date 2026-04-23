@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-22'
+activity_last_seen: '2026-04-23'
 created: '2026-04-19'
-expires: '2026-10-16'
-last_updated: '2026-04-22'
+expires: '2026-11-15'
+last_updated: '2026-04-23'
 pinned: false
 suppress: false
 topic: post-demo-pipeline-rescue
@@ -10,18 +10,17 @@ topic: post-demo-pipeline-rescue
 
 ## Synthesized Memory
 
-**Pattern:** Vincent Terry has been stale 167 days (No Trial / Post Demo) — flagged as critical repeatedly but no re-engagement sent. Tzach Feinsilver is 41 days stale (Out of Demo / Need Update) — flagged since Apr 19 with no action confirmed as of Apr 22.
+**Pattern:** Vincent Terry (168d stale, No Trial / Post Demo) and Tzach Feinsilver (42d stale, Out of Demo / Need Update) have been flagged daily Apr 19–23 with no confirmed reactivation message sent for either.
 
-**Pattern:** Multiple $2K estimated-value opps (Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, Daniel Chudleigh) have zero contact dates logged — invisible pipeline risk flagged Apr 19–21 with no resolution noted.
+**Pattern:** Five zero-contact-date opps — Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, Daniel Chudleigh — represent ~$8,750 estimated pipeline with no logged outreach. Flagged as 'invisible risks' since Apr 19 with no action confirmed by Apr 23.
 
-**Watch:** Tzach Feinsilver is the highest-urgency stale opp with a known last-contact date. Vincent Terry at 167d may be near-dead but was explicitly flagged as critical. Pre-Nashville window is closing.
+**Decision:** Tzach Feinsilver explicitly called out Apr 23 as 'send today — draft is in your head, just send it' after 4 days of repeated flagging.
 
-**Decision:** Send Tzach Feinsilver short reactivation note Apr 22 before travel. Draft re-engagement for Vincent Terry. Audit zero-contact-date opps to assign outreach order.
+**Watch:** Zero-contact opps are accumulating without outreach order assignment or contact date logging — these will continue to be invisible without a dedicated audit session.
 
 **Decision Candidates (unconfirmed):**
-• Send Tzach Feinsilver short reactivation note today (Apr 22) before Nashville
-• Draft re-engagement message for Vincent Terry (167d stale, critical)
-• Audit Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, Daniel Chudleigh — assign contact dates and outreach priority
+• Send Tzach Feinsilver reactivation note immediately — flagged 4 consecutive days with no confirmed send
+• Audit zero-contact-date opps (Aaron Letinski, William Schlee, Jack Dustin, Cody Coley, Daniel Chudleigh) and assign outreach order
 
 
-_Last synthesized: 2026-04-22_
+_Last synthesized: 2026-04-23_

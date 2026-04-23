@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-22'
+activity_last_seen: '2026-04-23'
 created: '2026-04-21'
-expires: '2026-08-19'
-last_updated: '2026-04-22'
+expires: '2026-09-18'
+last_updated: '2026-04-23'
 pinned: false
 suppress: false
 topic: trial-pipeline-stale
@@ -10,18 +10,12 @@ topic: trial-pipeline-stale
 
 ## Synthesized Memory
 
-**Pattern:** Six In-Trial/Post Demo contacts have been stale 38–49 days with no action taken despite daily priority flags. Rutvi Patel (MEDL Mobile, 49d), Emma Hicks (For Fitness & Athletics, 48d), Patrick Labat (TGMC, 43d), Greg Hetherington (Youthlete Academy, 43d), Drew DeVine (42d), Tyler Landeck (ALA, 41d), Mike Ruth (DAP, 41d). Drafts reportedly queued for Tyler and Greg but not yet sent as of 2026-04-22.
+**Pattern:** Multiple In-Trial / Post Demo contacts have been stale 38–50+ days with no confirmed outreach sent despite drafts being queued daily. Recurring priority flags (Apr 19–23) show no resolution. Key accounts: Rutvi Patel / MEDL Mobile (50d, highest churn risk), Emma Hicks / For Fitness & Athletics (49d), Patrick Labat / TGMC (44d), Greg Hetherington / Youthlete Academy (44d, trial likely expired), Tyler Landeck / ALA (42d), Drew DeVine (43d), Mike Ruth / DAP (42d).
 
-**Pattern:** Tyler Landeck and Greg Hetherington have been flagged as named high-priority via Telegram since 2026-04-19 (3+ days) with no send confirmation. Greg's trial may already be expired — reactivation angle recommended.
+**Pattern:** Draft follow-ups are consistently queued but not sent — the bottleneck is review/send action, not draft creation. Duplicates in drafts_ready need deduplication.
 
-**Watch:** Rutvi Patel at 49d is highest churn risk. Emma Hicks at 48d appeared late (Apr 21) and is escalating fast. Drafts deduplication needed before batch send.
+**Decision:** Tyler Landeck and Greg Hetherington were explicitly flagged high-priority via Telegram on Apr 19; neither had confirmed send as of Apr 23.
 
-**Decision:** Send Tyler Landeck and Greg Hetherington follow-ups before Nashville trip (Apr 22–24). Reactivation framing for Greg.
+**Watch:** Trial expirations are imminent or past for Greg Hetherington and possibly others — reactivation angle needed, not standard follow-up.
 
-**Decision Candidates (unconfirmed):**
-• Send Tyler Landeck (ALA) trial follow-up draft before Nashville departure
-• Send Greg Hetherington (Youthlete Academy) reactivation-angled follow-up before Nashville departure
-• Send Rutvi Patel (MEDL Mobile) follow-up — highest churn risk at 49d stale
-
-
-_Last synthesized: 2026-04-22_
+_Last synthesized: 2026-04-23_
