@@ -27,6 +27,7 @@ Rules:
 - inbox contains raw quick-capture notes from iPhone — surface urgent items in top_3_priorities, map ideas to active projects where relevant, flag anything actionable today
 - pipeline_attention lists open opportunities that have gone cold or need a nudge — surface the highest-priority ones; trial follow-up drafts appear in drafts_ready
 - gym_scout_leads lists new gym leads found this week — remind to check and send outreach drafts from the Gym Scout email
+- emails lists recent work threads with snippets; threads marked [AWAITING REPLY] are ones where you sent last — surface only if the silence looks meaningful (stale lead, pending decision, someone who owes you a response); unmarked threads need a reply from you — surface only if a response or action is actually required, otherwise omit
 
 Respond ONLY in JSON with these exact keys:
 {
@@ -132,8 +133,13 @@ def _build_prompt(
     if tomorrow_events:
         sections += section("## Tomorrow Preview",
                             [fmt_event(e) for e in tomorrow_events])
-    sections += section("## Work Emails Needing Attention",
-                        [f"  {t.subject} from {t.last_sender}" for t in email_threads])
+    def fmt_email(t: EmailThread) -> str:
+        prefix = "[AWAITING REPLY] " if not t.needs_reply else ""
+        snippet = f" — {t.snippet[:120]}" if t.snippet else ""
+        return f"  {prefix}{t.subject} from {t.last_sender}{snippet}"
+
+    sections += section("## Work Emails (last 24h)",
+                        [fmt_email(t) for t in email_threads])
     sections += section("## Email Drafts Ready for Review",
                         [fmt_draft(d) for d in drafts])
     sections += section("## Meeting Prep (internal meetings today)",

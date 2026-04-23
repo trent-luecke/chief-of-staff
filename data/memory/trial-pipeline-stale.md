@@ -10,12 +10,18 @@ topic: trial-pipeline-stale
 
 ## Synthesized Memory
 
-**Pattern:** Multiple In-Trial / Post Demo contacts have been stale 38–49 days with no meaningful outreach. Rutvi Patel (MEDL Mobile, 49d), Emma Hicks (For Fitness & Athletics, 48d), Greg Hetherington (Youthlete Academy, 43d), Patrick Labat (TGMC, 43d), Tyler Landeck (ALA, 41d), Mike Ruth (DAP, 41d), Drew DeVine (42d) are all flagged. Drafts are queued but unsent across multiple days.
+**Pattern:** Six In-Trial/Post Demo contacts have been stale 38–49 days with no action taken despite daily priority flags. Rutvi Patel (MEDL Mobile, 49d), Emma Hicks (For Fitness & Athletics, 48d), Patrick Labat (TGMC, 43d), Greg Hetherington (Youthlete Academy, 43d), Drew DeVine (42d), Tyler Landeck (ALA, 41d), Mike Ruth (DAP, 41d). Drafts reportedly queued for Tyler and Greg but not yet sent as of 2026-04-22.
 
-**Pattern:** Tyler Landeck and Greg Hetherington have been explicitly flagged as highest-priority repeatedly (Apr 19–22) via Telegram. Greg's trial may already be expired — reactivation angle recommended.
+**Pattern:** Tyler Landeck and Greg Hetherington have been flagged as named high-priority via Telegram since 2026-04-19 (3+ days) with no send confirmation. Greg's trial may already be expired — reactivation angle recommended.
 
-**Decision:** Send all queued trial follow-up drafts before Nashville departure (Apr 22). Prioritize Tyler Landeck and Greg Hetherington first, then Rutvi Patel as longest-aged churn risk.
+**Watch:** Rutvi Patel at 49d is highest churn risk. Emma Hicks at 48d appeared late (Apr 21) and is escalating fast. Drafts deduplication needed before batch send.
 
-**Watch:** Deduplication needed in drafts_ready before batch send. Emma Hicks appeared late (Apr 21) — ensure she's included in next send cycle.
+**Decision:** Send Tyler Landeck and Greg Hetherington follow-ups before Nashville trip (Apr 22–24). Reactivation framing for Greg.
+
+**Decision Candidates (unconfirmed):**
+• Send Tyler Landeck (ALA) trial follow-up draft before Nashville departure
+• Send Greg Hetherington (Youthlete Academy) reactivation-angled follow-up before Nashville departure
+• Send Rutvi Patel (MEDL Mobile) follow-up — highest churn risk at 49d stale
+
 
 _Last synthesized: 2026-04-22_

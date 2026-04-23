@@ -59,7 +59,7 @@ def _parse_thread(thread_data: dict, user_email: str) -> Optional[EmailThread]:
 def fetch_threads_needing_attention(
     user_email: str,
     max_results: int = 15,
-    query: str = "is:unread OR is:starred -in:sent",
+    query: str = "(is:unread newer_than:24h OR is:starred) -in:sent -category:promotions -category:updates -category:social",
 ) -> list[EmailThread]:
     try:
         service = _build_service(user_email)

@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-21'
+activity_last_seen: '2026-04-22'
 created: '2026-04-20'
-expires: '2026-08-18'
-last_updated: '2026-04-21'
+expires: '2026-09-17'
+last_updated: '2026-04-22'
 pinned: false
 suppress: false
 topic: active-projects-momentum
@@ -10,18 +10,18 @@ topic: active-projects-momentum
 
 ## Synthesized Memory
 
-## Synthesized Memory
+**Pattern:** Three active project workstreams have been flagged on no-meeting days (Apr 19–21) but no completion or progress is confirmed across any: (a) LTV calculator UI — define input variables for LTV Lead Magnet, (b) gym-ai folder review — establish Vero current state, (c) Content Generation Podcast research for next Tuesday's session.
 
-**Pattern:** Three recurring project tracks are next-step-blocked and have been flagged across multiple days without resolution: (a) LTV Calculator UI — input variables undefined; (b) gym-ai / Vero current state — folder unreviewed; (c) Content Generation Podcast research for next Tuesday session.
+**Pattern:** Both LTV calculator and gym-ai/Vero review are described as 'next-step-blocked,' suggesting dependencies or unclear ownership are stalling progress.
 
-**Pattern:** On days with no meetings, these are the designated focus blocks, but commitment to a single track has not been recorded.
+**Watch:** Nashville trip Apr 22–24 eliminates work blocks for those days. If none of these were started Apr 19–21, the earliest realistic slot is post-Nashville (Apr 25+).
 
-**Decision:** Pick one before noon on any no-meeting day. LTV calculator and gym-ai review are both explicitly labeled next-step-blocked; podcast research is time-sensitive if session is Tuesday.
-
-**Watch:** Repeated deferral is creating compounding block. Nashville trip further compresses the available pre-Tuesday window for podcast prep.
+**Decision:** Pick one project to commit to before noon on available work-block days. LTV calculator and Vero review are both next-step-blocked — clarify what the actual blocker is for each.
 
 **Decision Candidates (unconfirmed):**
-• Commit to one project block before noon on 2026-04-21: LTV calculator UI input variables, gym-ai/Vero folder review, or Content Generation Podcast topic research
+• Define LTV input variables for calculator UI (LTV Lead Magnet project)
+• Review gym-ai folder to establish Vero current state
+• Research topics for next Tuesday's Content Generation Podcast session
 
 
-_Last synthesized: 2026-04-21_
+_Last synthesized: 2026-04-22_

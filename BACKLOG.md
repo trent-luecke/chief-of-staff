@@ -35,8 +35,6 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 **Shipped 2026-04-19.** Notion pipeline DB seeded into `data/pipeline_cache.json` via MCP. Watcher extended to classify all inbound email — pipeline lead contacts write to `data/pipeline_email_activity.json`, flare-ups route to `issues.json`. Manual sync on request: ask Claude Code to re-sync pipeline cache from Notion MCP. Cache staleness warning fires in the brief after 7 days.
 
-**Known gap — outbound email not tracked.** The watcher only captures inbound email (`last_sender` match). Outreach you send to leads requires a separate `from:me to:{email}` Gmail query. Not built yet.
-
 ---
 
 ## ✅ P0 — Cloud Hosting (complete)
@@ -62,20 +60,13 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 **Shipped 2026-04-20.** Full Telegram bot interface operational. Cloudflare Worker validates webhook and dispatches to GitHub Actions (`ask.yml`). `processors/query.py` classifies intent, optionally fetches live Gmail/Calendar, and generates answers with JARVIS personality (dry, precise, occasional "sir"). Email replies to the morning brief are parsed and acted on via `reply-check.yml`. Task completion shipped: send "done with X" to remove items from `data/captures.md` or mark project next-actions complete in `data/projects.md`.
 
-**Known gaps:**
-- `reply-check.yml` runs Mon–Fri 8am–5pm CDT only — replies outside those hours are processed next business day
-- Outbound email not tracked (see P2 known gap)
+**Known gap:** `reply-check.yml` runs Mon–Fri 8am–5pm CDT only — replies outside those hours are processed next business day.
 
 ---
 
 ## ✅ P5 — Weekly Synthesis (complete)
 
 **Shipped 2026-04-20.** Sunday 12pm CDT synthesis via `weekly.yml` GitHub Actions workflow. `processors/weekly_synthesizer.py` loads 7-day observations, state deltas, open issues, and captures — calls Claude for a narrative summary with patterns, carry-forwards, and a meta observation. Output emailed to trent@teambuildr.com and saved to `data/weekly/YYYY-MM-DD.md`. Trigger: `weekly.yml` cron `0 17 * * 0` + `workflow_dispatch`.
-
-**What's needed:**
-- A `weekly_synthesis` processor that aggregates the week's briefs and signals
-- Scheduled trigger: Friday EOD or Sunday evening
-- Output: narrative summary focused on patterns and carry-forwards, not a list of events
 
 ---
 
@@ -90,27 +81,15 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P7 — Push Drafts to Gmail (Deferred)
+## ✅ P7 — Push Drafts to Gmail (absorbed by P9)
 
-**Drafts are generated but only appear inline in the brief email.** They're saved to `data/drafts/` as local JSON files, gitignored, and gone after each run. You can't act on them directly.
-
-**What's needed:**
-- Call `users.drafts.create` via the Gmail API after each draft is generated (the OAuth credentials are already in place)
-- Drafts appear in your Gmail drafts inbox, ready to review and send
-- Small change — `save_draft()` in `processors/drafts.py` would get a second path that calls the Gmail service alongside the local file write
+**Absorbed 2026-04-22.** The `create_email_draft` tool in P9 pushes drafts to Gmail via `users.drafts.create` on demand from Telegram. No longer needs a separate implementation path.
 
 ---
 
-## P8 — Project Intelligence (Deferred)
+## ✅ P8 — Project Intelligence (absorbed by P9)
 
-**Captures accumulate but patterns go unnoticed.** No mechanism exists to suggest project structure from recurring themes in todos and captures, or to create new projects via Telegram.
-
-**What's needed:**
-- Natural language project creation via Telegram: "new project: X" writes a structured entry to `data/projects.md`
-- Periodic pattern detection (daily brief or separate job): Claude scans captures for recurring themes and surfaces suggestions like "you have 5 todos around Apex onboarding — want me to create a project?"
-- Design decision: suggestions delivered inline in the brief, or proactively via Telegram so you can respond immediately
-
-**Depends on:** Task completion (shipped in P4).
+**Absorbed 2026-04-22.** The `create_project` tool in P9 handles natural language project creation via Telegram. Pattern detection suggestions remain a future possibility but are not blocking.
 
 ---
 
@@ -165,6 +144,7 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 ## 📥 Inbox
 
 - 2026-04-22: Notion write access via API — update pipeline lead fields (status, last_contacted, notes) from Telegram. Blocked on Notion API key (requires workspace admin access).
+- 2026-04-23: Idempotency guard added to `main.py` — if `brief_message_id.json` exists with today's date, skip send. Fixes duplicate morning brief caused by launchd + GitHub Actions both firing at 7am CDT.
 
 ---
 
@@ -172,12 +152,9 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
 
-**Priority order (2026-04-20 assessment):**
-1. ✅ Q1 Memory budget — shipped
-2. ✅ Q2 Signal-to-noise — shipped
-3. P5 Weekly synthesis — separates briefing tool from strategic CoS
-4. P7 Push drafts to Gmail — small change, high daily value
-5. P10 Outbound email tracking — closes P2 gap, completes pipeline coverage
-6. P11 Meeting transcript integration — highest capability gap
-7. P12 Observability — risk mitigation, cheap to add
-8. P13 Graduated memory decay — only relevant at 6+ months of data
+**Status as of 2026-04-23:** Q1, Q2, P0–P5, P7–P10, P12 all shipped. Open items:
+
+1. P11 Meeting transcript integration — highest capability gap remaining
+2. P6 Dashboard — deferred, not blocking daily use
+3. P13 Graduated memory decay — only relevant at 6+ months of data
+4. Notion write access — blocked on API key (workspace admin required)

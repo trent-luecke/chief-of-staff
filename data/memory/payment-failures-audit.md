@@ -10,14 +10,15 @@ topic: payment-failures-audit
 
 ## Synthesized Memory
 
-**Pattern:** 9+ failed member payments detected on the TeamBuildr OS Demo account (Apr 20): Stephen P, Ted Hitchcock, Alex Cooksey, Andrew Adams, Jake Dukey, Polina Vtorushina, Nicole Foley, and two 'Future Pause' entries.
+**Pattern:** 9+ failed member payments detected on TeamBuildr OS Demo account as of Apr 20: Stephen P, Ted Hitchcock, Alex Cooksey, Andrew Adams, Jake Dukey, Polina Vtorushina, Nicole Foley, plus two 'Future Pause' entries.
 
-**Decision:** Determine if these are test accounts, Stripe config issue, or real trial users with billing problems. Escalate to Melissa or product team if customer-facing.
+**Watch:** Unknown whether these are test accounts, a Stripe configuration issue, or real trial users with billing problems. If real users, this is customer-facing and requires escalation to Melissa or product team.
 
-**Watch:** No follow-up confirmed after Apr 20 flag — status unknown. Prioritize triage before or immediately after Nashville.
+**Decision:** Audit payment failures — determine test vs. real accounts. Escalate to Melissa or product if Stripe config issue or real trial users affected. Flagged Apr 20 with no resolution confirmed.
 
 **Decision Candidates (unconfirmed):**
-• Escalate payment failures to Melissa or product if accounts are customer-facing
+• Audit 9+ failed payments on TeamBuildr OS Demo account — determine if test accounts, Stripe config issue, or real trial users
+• Escalate to Melissa or product team if payment failures affect real trial users
 
 
 _Last synthesized: 2026-04-22_

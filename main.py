@@ -284,6 +284,13 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     )
 
     if not dry_run and not no_email:
+        state_path = os.path.join(config["state_dir"], "brief_message_id.json")
+        if os.path.exists(state_path):
+            with open(state_path) as f:
+                _prev = json.load(f)
+            if _prev.get("date") == date.today().isoformat():
+                print(f"   Brief already sent today ({_prev.get('message_id')}) — skipping.")
+                return
         print("📤  Sending brief email...")
         gmail = build_gmail_service(config["email"])
         subject = f"☀️ Morning Brief — {datetime.now().strftime('%A, %B %-d')}"
