@@ -334,6 +334,8 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 lookback_days=memory_cfg.get("observation_lookback_days", 30),
                 default_ttl_days=memory_cfg.get("default_ttl_days", 90),
                 activity_extension_days=memory_cfg.get("activity_extension_days", 30),
+                abandon_threshold_days=memory_cfg.get("abandon_threshold_days", 60),
+                abandon_ttl_days=memory_cfg.get("abandon_ttl_days", 14),
             )
             print("✅  Memory synthesis complete.")
         except Exception as e:

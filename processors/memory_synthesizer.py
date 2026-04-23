@@ -140,11 +140,14 @@ def synthesize(
     lookback_days: int = 30,
     default_ttl_days: int = 90,
     activity_extension_days: int = 30,
+    abandon_threshold_days: int = 60,
+    abandon_ttl_days: int = 14,
 ) -> None:
     observations = _load_recent_observations(obs_file, lookback_days)
     if not observations:
         return
 
+    _apply_abandonment_decay(memory_dir, abandon_threshold_days, abandon_ttl_days)
     _archive_expired_files(memory_dir, archive_dir)
 
     prompt = _build_synthesis_prompt(observations)
