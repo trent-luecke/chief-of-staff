@@ -47,6 +47,40 @@ def _archive_expired_files(memory_dir: str, archive_dir: str) -> None:
             continue
 
 
+def _apply_abandonment_decay(
+    memory_dir: str,
+    abandon_threshold_days: int,
+    abandon_ttl_days: int,
+) -> None:
+    cutoff = date.today() - timedelta(days=abandon_threshold_days)
+    new_expires = (date.today() + timedelta(days=abandon_ttl_days)).isoformat()
+
+    for path in Path(memory_dir).glob("*.md"):
+        try:
+            post = frontmatter.load(str(path))
+            if post.get("pinned", False):
+                continue
+            activity_str = str(post.get("activity_last_seen", ""))
+            if not activity_str:
+                continue
+            try:
+                if date.fromisoformat(activity_str) >= cutoff:
+                    continue
+            except ValueError:
+                continue
+            current_expires = str(post.get("expires", ""))
+            try:
+                if date.fromisoformat(current_expires) <= date.fromisoformat(new_expires):
+                    continue
+            except ValueError:
+                pass
+            post["expires"] = new_expires
+            with open(path, "wb") as f:
+                frontmatter.dump(post, f)
+        except Exception:
+            continue
+
+
 def _load_existing_human_section(memory_file: Path) -> str:
     if not memory_file.exists():
         return ""

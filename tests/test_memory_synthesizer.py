@@ -12,6 +12,7 @@ from processors.memory_synthesizer import (
     _load_recent_observations,
     _is_expired,
     _archive_expired_files,
+    _apply_abandonment_decay,
 )
 
 
@@ -105,3 +106,100 @@ def test_synthesize_creates_memory_file(obs_file, memory_dir):
     content = memory_file.read_text()
     assert "## Synthesized Memory" in content
     assert "Apex appearing repeatedly" in content
+
+
+def test_apply_abandonment_decay_shortens_expired_ttl(memory_dir):
+    import frontmatter as fm
+    old_date = (date.today() - timedelta(days=70)).isoformat()
+    far_expires = (date.today() + timedelta(days=80)).isoformat()
+    memory_file = memory_dir / "stale-topic.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nSome old content",
+        topic="stale-topic",
+        created=old_date,
+        last_updated=old_date,
+        expires=far_expires,
+        activity_last_seen=old_date,
+        pinned=False,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    expected_expires = (date.today() + timedelta(days=14)).isoformat()
+    assert str(updated["expires"]) == expected_expires
+
+
+def test_apply_abandonment_decay_skips_pinned(memory_dir):
+    import frontmatter as fm
+    old_date = (date.today() - timedelta(days=70)).isoformat()
+    far_expires = (date.today() + timedelta(days=80)).isoformat()
+    memory_file = memory_dir / "pinned-topic.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nPinned content",
+        topic="pinned-topic",
+        created=old_date,
+        last_updated=old_date,
+        expires=far_expires,
+        activity_last_seen=old_date,
+        pinned=True,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    assert str(updated["expires"]) == far_expires
+
+
+def test_apply_abandonment_decay_skips_recent_file(memory_dir):
+    import frontmatter as fm
+    recent_date = (date.today() - timedelta(days=10)).isoformat()
+    far_expires = (date.today() + timedelta(days=80)).isoformat()
+    memory_file = memory_dir / "active-topic.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nRecent content",
+        topic="active-topic",
+        created=recent_date,
+        last_updated=recent_date,
+        expires=far_expires,
+        activity_last_seen=recent_date,
+        pinned=False,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    assert str(updated["expires"]) == far_expires
+
+
+def test_apply_abandonment_decay_skips_already_short_ttl(memory_dir):
+    import frontmatter as fm
+    old_date = (date.today() - timedelta(days=70)).isoformat()
+    soon_expires = (date.today() + timedelta(days=5)).isoformat()
+    memory_file = memory_dir / "nearly-dead.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nAlmost gone",
+        topic="nearly-dead",
+        created=old_date,
+        last_updated=old_date,
+        expires=soon_expires,
+        activity_last_seen=old_date,
+        pinned=False,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    assert str(updated["expires"]) == soon_expires
