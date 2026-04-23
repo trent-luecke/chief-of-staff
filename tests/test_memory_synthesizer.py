@@ -203,3 +203,49 @@ def test_apply_abandonment_decay_skips_already_short_ttl(memory_dir):
 
     updated = fm.load(str(memory_file))
     assert str(updated["expires"]) == soon_expires
+
+
+def test_apply_abandonment_decay_applies_ttl_when_expires_missing(memory_dir):
+    import frontmatter as fm
+    old_date = (date.today() - timedelta(days=70)).isoformat()
+    memory_file = memory_dir / "no-expires.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nNo expiry set",
+        topic="no-expires",
+        created=old_date,
+        last_updated=old_date,
+        activity_last_seen=old_date,
+        pinned=False,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    expected_expires = (date.today() + timedelta(days=14)).isoformat()
+    assert str(updated["expires"]) == expected_expires
+
+
+def test_apply_abandonment_decay_skips_missing_activity_last_seen(memory_dir):
+    import frontmatter as fm
+    old_date = (date.today() - timedelta(days=70)).isoformat()
+    far_expires = (date.today() + timedelta(days=80)).isoformat()
+    memory_file = memory_dir / "no-activity.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nNo activity date",
+        topic="no-activity",
+        created=old_date,
+        last_updated=old_date,
+        expires=far_expires,
+        pinned=False,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    _apply_abandonment_decay(str(memory_dir), abandon_threshold_days=60, abandon_ttl_days=14)
+
+    updated = fm.load(str(memory_file))
+    assert str(updated["expires"]) == far_expires
