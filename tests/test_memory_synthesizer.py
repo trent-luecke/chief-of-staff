@@ -228,6 +228,50 @@ def test_apply_abandonment_decay_applies_ttl_when_expires_missing(memory_dir):
     assert str(updated["expires"]) == expected_expires
 
 
+def test_synthesize_preserves_pinned_flag(obs_file, memory_dir):
+    import frontmatter as fm
+    today = date.today().isoformat()
+
+    memory_file = memory_dir / "apex.md"
+    post = fm.Post(
+        "## Synthesized Memory\n\nExisting content",
+        topic="apex",
+        created=today,
+        last_updated=today,
+        expires=(date.today() + timedelta(days=90)).isoformat(),
+        activity_last_seen=today,
+        pinned=True,
+        suppress=False,
+    )
+    with open(memory_file, "wb") as f:
+        fm.dump(post, f)
+
+    write_obs(obs_file, [
+        {"date": today, "type": "top_priority", "entity": "apex", "content": "Follow up Apex"},
+    ])
+
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text=json.dumps([{
+        "topic": "apex",
+        "filename": "apex.md",
+        "synthesized_memory": "**Pattern:** Apex updated.",
+        "decision_candidates": [],
+    }]))]
+
+    with patch("processors.memory_synthesizer.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        synthesize(
+            obs_file=obs_file,
+            memory_dir=str(memory_dir),
+            archive_dir=str(memory_dir / "archive"),
+            api_key="test-key",
+            model="claude-sonnet-4-6",
+        )
+
+    updated = fm.load(str(memory_file))
+    assert updated["pinned"] is True
+
+
 def test_apply_abandonment_decay_skips_missing_activity_last_seen(memory_dir):
     import frontmatter as fm
     old_date = (date.today() - timedelta(days=70)).isoformat()

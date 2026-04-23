@@ -194,10 +194,14 @@ def synthesize(
 
         created = today
         file_expires = expires
+        existing_pinned = False
+        existing_suppress = False
         if memory_path.exists():
             try:
                 existing = frontmatter.load(str(memory_path))
                 created = str(existing.get("created", today))
+                existing_pinned = bool(existing.get("pinned", False))
+                existing_suppress = bool(existing.get("suppress", False))
                 existing_expires = str(existing.get("expires", ""))
                 try:
                     ext_date = date.fromisoformat(existing_expires) + timedelta(days=activity_extension_days)
@@ -217,8 +221,8 @@ def synthesize(
             last_updated=today,
             expires=file_expires,
             activity_last_seen=today,
-            pinned=False,
-            suppress=False,
+            pinned=existing_pinned,
+            suppress=existing_suppress,
         )
         with open(memory_path, "wb") as f:
             frontmatter.dump(post, f)
