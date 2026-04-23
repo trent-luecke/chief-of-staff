@@ -128,16 +128,9 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
-## P13 — Graduated Memory Decay
+## ✅ P13 — Graduated Memory Decay (complete)
 
-**Currently memory uses a binary 90-day TTL.** A synthesized memory from 89 days ago carries the same weight as one from yesterday. The research documents graduated decay rates that prevent stale memories from persisting alongside fresh ones.
-
-**What's needed:**
-- Three decay tiers in the memory synthesizer: recently accessed (extend TTL on read), normal (default 90 days), abandoned (flag for earlier expiry if no reads in 60+ days)
-- Pin flag already exists in the frontmatter schema — immune memories are already supported
-- Mostly a change to `processors/memory_synthesizer.py`: track `last_accessed` in frontmatter, adjust `expires` on synthesis based on activity
-
-**When to do it:** Only matters at 6+ months of memory accumulation. Not urgent today.
+**Shipped 2026-04-23.** Abandonment-based TTL shortening in `memory_synthesizer.py`. Files with no new observations for 60+ days have their expiry shortened to today + 14 days. Pinned memories are immune. Also fixed a bug where synthesis was hardcoding `pinned=False` and `suppress=False` on every write. Config params: `abandon_threshold_days` (default 60), `abandon_ttl_days` (default 14). Will produce visible effects from ~mid-June onward.
 
 ---
 
@@ -152,7 +145,7 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
 
-**Status as of 2026-04-23:** Q1, Q2, P0–P5, P7–P10, P12 all shipped. Open items:
+**Status as of 2026-04-23:** Q1, Q2, P0–P5, P7–P10, P12–P13 all shipped. Open items:
 
 1. P11 Meeting transcript integration — highest capability gap remaining
 2. P6 Dashboard — deferred, not blocking daily use
