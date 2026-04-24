@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-19'
+activity_last_seen: '2026-04-24'
 created: '2026-04-19'
-expires: '2026-07-18'
-last_updated: '2026-04-19'
+expires: '2026-08-17'
+last_updated: '2026-04-24'
 pinned: false
 suppress: false
 topic: pipeline-stale-in-trial
@@ -10,16 +10,12 @@ topic: pipeline-stale-in-trial
 
 ## Synthesized Memory
 
-## Synthesized Memory
+**Pattern:** Six In-Trial / Post Demo contacts have been stale 38–51 days with no confirmed outreach sent despite daily flagging Apr 19–24. Rutvi Patel (MEDL Mobile, 51d), Emma Hicks (For Fitness & Athletics, 50d), Patrick Labat (TGMC, 45d), Greg Hetherington (Youthlete Academy, 45d), Drew DeVine (44d), Tyler Landeck (ALA, 43d), Mike Ruth (DAP, 43d). Tyler and Greg flagged high-priority via Telegram since Apr 19 with drafts queued but not confirmed sent.
 
-**Pattern:** Multiple In-Trial / Post Demo accounts have gone stale with no follow-up: Patrick Labat — TGMC (40d), Drew DeVine (39d), Tyler Landeck — ALA (38d), Mike Ruth — DAP (38d), Greg Hetherington — Youthlete Academy (40d), Rutvi Patel — MEDL Mobile (46d). All 6 are in the same pipeline stage and have 7 drafts queued.
+**Pattern:** Duplicates appearing in daily stale alerts (same contact logged twice on same date) — deduplication needed before sending.
 
-**Decision:** Prioritize sending all trial follow-up drafts during the daily trial lead block today. Rutvi Patel (rutvi@medlmobile.com, 46d) is most overdue and should be sent first.
+**Decision:** Greg Hetherington's trial likely expired — lead with reactivation angle, not standard follow-up.
 
-**Watch:** Staleness is clustering at 38–46 days in the In-Trial stage — indicates a systemic gap in trial follow-up cadence. Monitor whether drafts are actually sent and track responses to identify conversion patterns.
+**Watch:** Each day without outreach increases churn risk significantly past 40d. These are recurring and stacking — systemic send block, not awareness block.
 
-**Decision Candidates (unconfirmed):**
-• Send all 7 queued trial follow-up drafts today, prioritizing Rutvi Patel — MEDL Mobile at 46 days overdue
-
-
-_Last synthesized: 2026-04-19_
+_Last synthesized: 2026-04-24_

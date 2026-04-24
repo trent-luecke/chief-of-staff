@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-23'
+activity_last_seen: '2026-04-24'
 created: '2026-04-23'
-expires: '2026-07-22'
-last_updated: '2026-04-23'
+expires: '2026-08-21'
+last_updated: '2026-04-24'
 pinned: false
 suppress: false
 topic: email-threads-unresolved
@@ -11,14 +11,16 @@ topic: email-threads-unresolved
 ## Synthesized Memory
 
 **Pattern:** Three email threads flagged open with no reply as of Apr 22–23:
-1. 'Grace Stiles and 5 others made updates in TeamBuildr' — likely a product/notification digest, no action taken.
-2. 'Do Gym Owners Really Need a Business Mentor?' — newsletter/content thread, no reply.
-3. 'Re: Baba Martin and Trent Luecke' — operational thread; Baba Martin found setup link tied to Gmail, requesting all accounts consolidated to same email address.
+1. 'Grace Stiles and 5 others made updates in TeamBuildr' — likely a platform notification digest, low urgency but unreviewed.
+2. 'Do Gym Owners Really Need a Business Mentor?' — newsletter/content email, no action needed unless for research.
+3. 'Re: Baba Martin and Trent Luecke' — Baba Martin found the link, set it up via Gmail, asking Trent to ensure everything is tied to the same email account.
 
-**Watch:** Baba Martin thread requires a response — account setup/email consolidation is a customer-facing action item. The other two threads may be low-priority digests but should be triaged.
+**Decision:** Baba Martin / Trent Luecke thread requires account consolidation check — confirm all TeamBuildr access is unified under one email.
+
+**Watch:** Email inbox unattended during Nashville travel — flag time-sensitive threads before departing.
 
 **Decision Candidates (unconfirmed):**
-• Reply to Baba Martin / Trent Luecke thread — confirm email/account consolidation is handled
+• Confirm Baba Martin's TeamBuildr account is consolidated under one email address
 
 
-_Last synthesized: 2026-04-23_
+_Last synthesized: 2026-04-24_

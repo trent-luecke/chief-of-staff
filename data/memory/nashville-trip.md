@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-23'
+activity_last_seen: '2026-04-24'
 created: '2026-04-20'
-expires: '2026-10-17'
-last_updated: '2026-04-23'
+expires: '2026-11-16'
+last_updated: '2026-04-24'
 pinned: false
 suppress: false
 topic: nashville-trip
@@ -10,14 +10,15 @@ topic: nashville-trip
 
 ## Synthesized Memory
 
-**Pattern:** Nashville trip confirmed Tue–Thu (BK935L Southwest). Monday Apr 21 was last full day at home — used for AI CoS presentation prep and pre-trip trial follow-ups.
+**Pattern:** Nashville trip confirmed Tue–Thu (Southwest confirmation BK935L). Monday Apr 21 was last full day at home — used for AI CoS presentation prep and pre-trip outreach.
 
-**Decision:** AI CoS presentation flagged top priority Apr 21–22: customize deck in Claude with attendee-specific slides, skeptic-friendly tone, lead with time saved, cover daily utility, competitor tracking, content topics, gym software/tech trends, security framing.
+**Decision:** AI CoS presentation to be customized in Claude with attendee-specific slides; skeptic-friendly tone leading with time saved, covering daily utility, competitor tracking, content topics, gym software trends, security framing. Flagged top priority Apr 21–22.
 
-**Watch:** Review 'TeamBuildr Practice Intro' thread from Melissa for Nashville context. Trial follow-ups for Tyler Landeck and Greg Hetherington were flagged to send before leaving — confirm sent status.
+**Watch:** Review 'TeamBuildr Practice Intro' thread from Melissa for Nashville context. Weather check before packing noted. Any unresolved pipeline outreach (Tzach, zero-contact opps) must be done before boarding Tuesday.
 
 **Decision Candidates (unconfirmed):**
-• Customize AI CoS presentation deck with individual attendee slides before Nashville meetings
+• Customize AI CoS deck in Claude with individual attendee slides before Nashville
+• Review TeamBuildr Practice Intro thread from Melissa before Nashville conversations
 
 
-_Last synthesized: 2026-04-23_
+_Last synthesized: 2026-04-24_

@@ -1,8 +1,8 @@
 ---
-activity_last_seen: '2026-04-22'
+activity_last_seen: '2026-04-24'
 created: '2026-04-20'
-expires: '2026-09-17'
-last_updated: '2026-04-22'
+expires: '2026-10-17'
+last_updated: '2026-04-24'
 pinned: false
 suppress: false
 topic: active-projects-momentum
@@ -10,18 +10,10 @@ topic: active-projects-momentum
 
 ## Synthesized Memory
 
-**Pattern:** Three active project workstreams have been flagged on no-meeting days (Apr 19–21) but no completion or progress is confirmed across any: (a) LTV calculator UI — define input variables for LTV Lead Magnet, (b) gym-ai folder review — establish Vero current state, (c) Content Generation Podcast research for next Tuesday's session.
+**Pattern:** Three recurring project tracks flagged as next-step-blocked across Apr 19–21 with no confirmed progress logged: (a) LTV calculator UI — input variables need definition; (b) gym-ai folder review to establish Vero current state; (c) Content Generation Podcast research for next Tuesday's session.
 
-**Pattern:** Both LTV calculator and gym-ai/Vero review are described as 'next-step-blocked,' suggesting dependencies or unclear ownership are stalling progress.
+**Pattern:** Daily priority lists consistently include one of these as item 3, but execution is deferred in favor of pipeline and travel prep.
 
-**Watch:** Nashville trip Apr 22–24 eliminates work blocks for those days. If none of these were started Apr 19–21, the earliest realistic slot is post-Nashville (Apr 25+).
+**Watch:** LTV Lead Magnet and Vero current state are both blocked on a single focused work session. Nashville week further compresses available deep-work time.
 
-**Decision:** Pick one project to commit to before noon on available work-block days. LTV calculator and Vero review are both next-step-blocked — clarify what the actual blocker is for each.
-
-**Decision Candidates (unconfirmed):**
-• Define LTV input variables for calculator UI (LTV Lead Magnet project)
-• Review gym-ai folder to establish Vero current state
-• Research topics for next Tuesday's Content Generation Podcast session
-
-
-_Last synthesized: 2026-04-22_
+_Last synthesized: 2026-04-24_
