@@ -1,18 +1,6 @@
 {
-  "synced_at": "2026-04-20T12:00:00.000000Z",
+  "synced_at": "2026-04-25T12:00:00.000000Z",
   "leads": [
-    {
-      "name": "Ubuntu MVMNT",
-      "contact": "Mike Alfaro",
-      "email": "ubuntumvmnt@gmail.com",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": null,
-      "days_since_contact": null,
-      "estimated_value": 2000,
-      "source": null,
-      "stale": false
-    },
     {
       "name": "Patrick Labat — TGMC",
       "contact": "Patrick Labat",
@@ -20,7 +8,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 41,
+      "days_since_contact": 46,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -32,9 +20,21 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-11",
-      "days_since_contact": 40,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Calendly Demo",
+      "stale": true
+    },
+    {
+      "name": "Tyler Landeck — ALA",
+      "contact": "Tyler Landeck",
+      "email": "tyler.landeck@alaschools.org",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-03-12",
+      "days_since_contact": 44,
+      "estimated_value": null,
+      "source": "Other",
       "stale": true
     },
     {
@@ -44,7 +44,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
+      "days_since_contact": 44,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -86,30 +86,6 @@
       "stale": false
     },
     {
-      "name": "Tyler Landeck — ALA",
-      "contact": "Tyler Landeck",
-      "email": "tyler.landeck@alaschools.org",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
-      "estimated_value": null,
-      "source": "Other",
-      "stale": true
-    },
-    {
-      "name": "Mike Ruth — DAP",
-      "contact": "Mike Ruth",
-      "email": "mike@dappowered.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
-      "estimated_value": null,
-      "source": "Trial Sign-Up",
-      "stale": true
-    },
-    {
       "name": "Cody Coley",
       "contact": "Cody Coley",
       "email": "ccoley@cbhs.org",
@@ -120,42 +96,6 @@
       "estimated_value": 2000,
       "source": null,
       "stale": false
-    },
-    {
-      "name": "okonji",
-      "contact": "okonji",
-      "email": "chrisjeremey@gmail.com",
-      "status": "Demo Scheduled",
-      "priority": "Medium",
-      "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
-      "estimated_value": null,
-      "source": null,
-      "stale": true
-    },
-    {
-      "name": "Vincent Terry",
-      "contact": "Vincent Terry",
-      "email": "vince@completegameofpa.com",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2025-11-06",
-      "days_since_contact": 165,
-      "estimated_value": null,
-      "source": null,
-      "stale": true
-    },
-    {
-      "name": "Greg Hetherington — Youthlete Academy",
-      "contact": "Greg Hetherington",
-      "email": "getmoving@youthleteacademy.ca",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-03-10",
-      "days_since_contact": 41,
-      "estimated_value": null,
-      "source": "Trial Sign-Up",
-      "stale": true
     },
     {
       "name": "Gameready Performance",
@@ -173,36 +113,96 @@
       "name": "Mike Woodby — Apex Holland",
       "contact": "Mike Woodby",
       "email": "mike@apexholland.co",
-      "status": "Demo Scheduled",
+      "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-02",
-      "days_since_contact": 49,
+      "days_since_contact": 54,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
     },
     {
-      "name": "Rutvi Patel — MEDL Mobile",
-      "contact": "Rutvi Patel",
-      "email": "rutvi@medlmobile.com",
-      "status": "In-Trial / Post Demo",
+      "name": "okonji",
+      "contact": "okonji",
+      "email": "chrisjeremey@gmail.com",
+      "status": "On-Hold",
       "priority": "Medium",
-      "last_contacted": "2026-03-04",
-      "days_since_contact": 47,
+      "last_contacted": "2026-03-12",
+      "days_since_contact": 44,
       "estimated_value": null,
-      "source": "Trial Sign-Up",
+      "source": null,
       "stale": true
     },
     {
       "name": "Emma Hicks — For Fitness & Athletics",
       "contact": "Emma Hicks",
       "email": "emmahicks@forfitnessandathletics.com",
-      "status": "In-Trial / Post Demo",
+      "status": "On-Hold",
       "priority": "Medium",
       "last_contacted": "2026-03-05",
-      "days_since_contact": 46,
+      "days_since_contact": 51,
       "estimated_value": null,
       "source": "Marketing",
+      "stale": true
+    },
+    {
+      "name": "Graham Aird",
+      "contact": "Graham Aird",
+      "email": "gaird@greycliffcap.com",
+      "status": "On-Hold",
+      "priority": null,
+      "last_contacted": "2026-01-29",
+      "days_since_contact": 86,
+      "estimated_value": null,
+      "source": null,
+      "stale": true
+    },
+    {
+      "name": "Ubuntu MVMNT",
+      "contact": "Mike Alfaro",
+      "email": "ubuntumvmnt@gmail.com",
+      "status": "Closed",
+      "priority": null,
+      "last_contacted": null,
+      "days_since_contact": null,
+      "estimated_value": 2000,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Mike Ruth — DAP",
+      "contact": "Mike Ruth",
+      "email": "mike@dappowered.com",
+      "status": "Closed",
+      "priority": "High",
+      "last_contacted": "2026-03-12",
+      "days_since_contact": 44,
+      "estimated_value": null,
+      "source": "Trial Sign-Up",
+      "stale": true
+    },
+    {
+      "name": "Greg Hetherington — Youthlete Academy",
+      "contact": "Greg Hetherington",
+      "email": "getmoving@youthleteacademy.ca",
+      "status": "Closed",
+      "priority": "High",
+      "last_contacted": "2026-03-10",
+      "days_since_contact": 46,
+      "estimated_value": null,
+      "source": "Trial Sign-Up",
+      "stale": true
+    },
+    {
+      "name": "Sarah — Strength House",
+      "contact": "Sarah",
+      "email": "strengthhouseinc@gmail.com",
+      "status": "Closed",
+      "priority": "High",
+      "last_contacted": "2026-03-12",
+      "days_since_contact": 44,
+      "estimated_value": null,
+      "source": "Trial Sign-Up",
       "stale": true
     },
     {
@@ -212,7 +212,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-02",
-      "days_since_contact": 292,
+      "days_since_contact": 297,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -224,21 +224,9 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 279,
+      "days_since_contact": 284,
       "estimated_value": 2000,
       "source": null,
-      "stale": true
-    },
-    {
-      "name": "Sarah — Strength House",
-      "contact": "Sarah",
-      "email": "strengthhouseinc@gmail.com",
-      "status": "Closed",
-      "priority": "High",
-      "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
-      "estimated_value": null,
-      "source": "Trial Sign-Up",
       "stale": true
     },
     {
@@ -248,7 +236,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 279,
+      "days_since_contact": 284,
       "estimated_value": 2000,
       "source": null,
       "stale": true
@@ -272,9 +260,21 @@
       "status": "Lost",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 39,
+      "days_since_contact": 44,
       "estimated_value": null,
       "source": "Calendly Demo",
+      "stale": true
+    },
+    {
+      "name": "Vincent Terry",
+      "contact": "Vincent Terry",
+      "email": "vince@completegameofpa.com",
+      "status": "Lost",
+      "priority": null,
+      "last_contacted": "2025-11-06",
+      "days_since_contact": 170,
+      "estimated_value": null,
+      "source": null,
       "stale": true
     },
     {
@@ -284,7 +284,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-08-06",
-      "days_since_contact": 257,
+      "days_since_contact": 262,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -296,7 +296,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-11-07",
-      "days_since_contact": 164,
+      "days_since_contact": 169,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -308,9 +308,33 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-10-07",
-      "days_since_contact": 195,
+      "days_since_contact": 200,
       "estimated_value": null,
       "source": null,
+      "stale": true
+    },
+    {
+      "name": "Mike Hall",
+      "contact": "Mike Hall",
+      "email": "mike.hall@athletixperformance.com",
+      "status": "Lost",
+      "priority": null,
+      "last_contacted": "2025-11-10",
+      "days_since_contact": 166,
+      "estimated_value": null,
+      "source": null,
+      "stale": true
+    },
+    {
+      "name": "Mark DiNardo",
+      "contact": "Mark DiNardo",
+      "email": "mark@dinardosports.com",
+      "status": "Lost",
+      "priority": null,
+      "last_contacted": "2026-03-02",
+      "days_since_contact": 54,
+      "estimated_value": null,
+      "source": "Inbound Email",
       "stale": true
     }
   ]
