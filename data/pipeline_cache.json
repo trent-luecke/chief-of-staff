@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-04-25T12:00:00.000000Z",
+  "synced_at": "2026-04-26T23:29:26.600509Z",
   "leads": [
     {
       "name": "Patrick Labat — TGMC",
@@ -8,7 +8,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 46,
+      "days_since_contact": 47,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -20,7 +20,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-11",
-      "days_since_contact": 45,
+      "days_since_contact": 46,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -32,7 +32,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Other",
       "stale": true
@@ -44,7 +44,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -116,7 +116,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-02",
-      "days_since_contact": 54,
+      "days_since_contact": 55,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -128,7 +128,7 @@
       "status": "On-Hold",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -140,7 +140,7 @@
       "status": "On-Hold",
       "priority": "Medium",
       "last_contacted": "2026-03-05",
-      "days_since_contact": 51,
+      "days_since_contact": 52,
       "estimated_value": null,
       "source": "Marketing",
       "stale": true
@@ -152,7 +152,7 @@
       "status": "On-Hold",
       "priority": null,
       "last_contacted": "2026-01-29",
-      "days_since_contact": 86,
+      "days_since_contact": 87,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -176,7 +176,7 @@
       "status": "Closed",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -188,7 +188,7 @@
       "status": "Closed",
       "priority": "High",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 46,
+      "days_since_contact": 47,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -200,7 +200,7 @@
       "status": "Closed",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Trial Sign-Up",
       "stale": true
@@ -212,7 +212,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-02",
-      "days_since_contact": 297,
+      "days_since_contact": 298,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -224,7 +224,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 284,
+      "days_since_contact": 285,
       "estimated_value": 2000,
       "source": null,
       "stale": true
@@ -236,7 +236,7 @@
       "status": "Closed",
       "priority": null,
       "last_contacted": "2025-07-15",
-      "days_since_contact": 284,
+      "days_since_contact": 285,
       "estimated_value": 2000,
       "source": null,
       "stale": true
@@ -260,7 +260,7 @@
       "status": "Lost",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 44,
+      "days_since_contact": 45,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -272,7 +272,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-11-06",
-      "days_since_contact": 170,
+      "days_since_contact": 171,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -284,7 +284,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-08-06",
-      "days_since_contact": 262,
+      "days_since_contact": 263,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -296,7 +296,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-11-07",
-      "days_since_contact": 169,
+      "days_since_contact": 170,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -308,7 +308,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-10-07",
-      "days_since_contact": 200,
+      "days_since_contact": 201,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -320,7 +320,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2025-11-10",
-      "days_since_contact": 166,
+      "days_since_contact": 167,
       "estimated_value": null,
       "source": null,
       "stale": true
@@ -332,7 +332,7 @@
       "status": "Lost",
       "priority": null,
       "last_contacted": "2026-03-02",
-      "days_since_contact": 54,
+      "days_since_contact": 55,
       "estimated_value": null,
       "source": "Inbound Email",
       "stale": true
