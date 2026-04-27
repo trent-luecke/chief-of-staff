@@ -12,6 +12,7 @@ from market_intel import (
     save_seen_urls,
     load_competitors,
     load_queries,
+    deduplicate_items,
 )
 
 
@@ -111,3 +112,28 @@ def test_load_queries_has_key_terms():
     queries = load_queries()
     assert "gym management software" in queries
     assert "fitness AI software" in queries
+
+
+def test_deduplicate_items_filters_seen():
+    seen = {"http://already.com"}
+    items = [
+        {"url": "http://already.com", "title": "Old"},
+        {"url": "http://new.com", "title": "New"},
+    ]
+    new_items, updated = deduplicate_items(items, seen)
+    assert len(new_items) == 1
+    assert new_items[0]["url"] == "http://new.com"
+    assert "http://new.com" in updated
+    assert "http://already.com" in updated
+
+
+def test_deduplicate_items_no_duplicates_within_batch():
+    seen = set()
+    items = [
+        {"url": "http://a.com", "title": "A"},
+        {"url": "http://a.com", "title": "A duplicate"},
+        {"url": "http://b.com", "title": "B"},
+    ]
+    new_items, updated = deduplicate_items(items, seen)
+    assert len(new_items) == 2
+    assert len(updated) == 2

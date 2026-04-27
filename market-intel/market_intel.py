@@ -679,7 +679,18 @@ def run_weekly(dry_run: bool = False):
 
     if not dry_run:
         send_email(subject, body)
-        git_commit_push(1, {"weekly_digest": 1})
+        git_run("add", ".")
+        code, _, stderr = git_run("commit", "-m", f"weekly digest {today}: brief saved to briefs/{today}.md")
+        if code != 0:
+            log.error(f"git commit failed: {stderr}")
+        else:
+            remote_url = os.getenv("GITHUB_REMOTE_URL", "")
+            if remote_url:
+                push_code, _, push_err = git_run("push", "origin", "main")
+                if push_code != 0:
+                    log.error(f"git push failed: {push_err}")
+                else:
+                    log.info("git push successful")
     else:
         log.info("[dry-run] Skipping email and git push")
 
