@@ -588,3 +588,121 @@ def save_weekly_brief(body: str, date_str: str):
     filepath = BRIEFS_DIR / f"{date_str}.md"
     filepath.write_text(body, encoding="utf-8")
     log.info(f"Saved weekly brief: briefs/{date_str}.md")
+
+
+# ── Main pipelines ─────────────────────────────────────────────────────────
+
+def run_daily(dry_run: bool = False):
+    """Daily pipeline: fetch → dedup → classify → store → email → git."""
+    log.info(f"=== Daily market intel run (dry_run={dry_run}) ===")
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    queries = load_queries()
+    competitors = load_competitors()
+    seen = load_seen_urls()
+    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+
+    log.info("Fetching Google News RSS...")
+    rss_items = fetch_all_rss(queries)
+
+    log.info("Fetching competitor blog feeds...")
+    blog_items = fetch_competitor_feeds(competitors)
+
+    all_items = rss_items + blog_items
+    log.info(f"Total raw items: {len(all_items)}")
+
+    new_items, updated_seen = deduplicate_items(all_items, seen)
+    log.info(f"New items after dedup: {len(new_items)}")
+
+    stored_records = []
+    breakdown: dict = {}
+
+    log.info("Classifying with Claude...")
+    for item in new_items:
+        classification = classify_article(client, item)
+        if classification is None:
+            continue
+
+        score = int(classification.get("relevance_score") or 0)
+        category = classification.get("category", "noise")
+
+        if score < MIN_RELEVANCE_SCORE or category == "noise":
+            log.info(f"  Skip (score={score}, cat={category}): {item['title'][:50]}")
+            continue
+
+        record = {
+            "date_found": today,
+            "category": category,
+            "competitor": classification.get("competitor"),
+            "relevance_score": score,
+            "action_flag": classification.get("action_flag", False),
+            "summary": classification.get("summary", ""),
+            "title": item["title"],
+            "url": item["url"],
+            "source": item.get("source", ""),
+        }
+
+        append_to_csv(record)
+        write_markdown_file(record)
+        append_competitor_file(record)
+
+        stored_records.append(record)
+        breakdown[category] = breakdown.get(category, 0) + 1
+
+    save_seen_urls(updated_seen)
+    log.info(f"Stored {len(stored_records)} records. Breakdown: {breakdown}")
+
+    if stored_records and not dry_run:
+        subject, body = format_daily_email(stored_records, today)
+        send_email(subject, body)
+
+    if not dry_run:
+        git_commit_push(len(stored_records), breakdown)
+    else:
+        log.info("[dry-run] Skipping email and git push")
+
+    log.info("=== Daily run complete ===")
+    return stored_records
+
+
+def run_weekly(dry_run: bool = False):
+    """Weekly pipeline: read last 7 days of CSV → format digest → email → save → git."""
+    log.info(f"=== Weekly digest run (dry_run={dry_run}) ===")
+    today = datetime.now().strftime("%Y-%m-%d")
+    week_start = (datetime.now() - timedelta(days=6)).strftime("%Y-%m-%d")
+
+    records = load_recent_csv_records(days=7)
+    log.info(f"Found {len(records)} records from last 7 days")
+
+    subject, body = format_weekly_digest(records, week_start)
+    save_weekly_brief(body, today)
+
+    if not dry_run:
+        send_email(subject, body)
+        git_commit_push(1, {"weekly_digest": 1})
+    else:
+        log.info("[dry-run] Skipping email and git push")
+
+    log.info("=== Weekly digest complete ===")
+
+
+# ── CLI ────────────────────────────────────────────────────────────────────
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Market Intel — gym software competitive intelligence scraper"
+    )
+    parser.add_argument("--weekly", action="store_true", help="Run weekly digest instead of daily run")
+    parser.add_argument("--dry-run", action="store_true", help="Skip email and git push; write files locally")
+    args = parser.parse_args()
+
+    ensure_git_repo()
+
+    if args.weekly:
+        run_weekly(dry_run=args.dry_run)
+    else:
+        run_daily(dry_run=args.dry_run)
+
+
+if __name__ == "__main__":
+    main()
