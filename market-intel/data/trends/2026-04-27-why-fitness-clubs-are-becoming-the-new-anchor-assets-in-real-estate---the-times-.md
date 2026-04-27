@@ -1,0 +1,11 @@
+---
+date: 2026-04-27
+category: industry_trend
+competitor: N/A
+relevance_score: 3
+action_flag: false
+source: The Times of India
+url: https://news.google.com/rss/articles/CBMi3wFBVV95cUxOOFU1YnpNZFZkMTRScFc4UkhOR2dsYjRCSnd0UTgzWWhhNUFGX2YzRl93cUxFSG1nUHlrRThacU5BLTcyOE5kWnd0c1NSb2NfQ2ZlTWRTZk5xYXVlV3FsTGNaQTUzUTFZLXRHMGxjdkQ4dGlsdlZTalg2bVMxOXgxbFloX051THZYOUFYOFFINTJTQl9PZmVIUGg0bUlZbG04OUJsZk84TU5OX1Q1YXdER2F1VDNWOGU3ZGxxc0U3Z3Z2ZndsbXZaVEp2c0NCU1gzOXFBeFlWU3ItS3JCbXFj0gHkAUFVX3lxTE5lTTItSEZ4aW5CcEFTWDZVR0pJLTZiclUzVVZFX0p6TFVhZGlCZ1pMNFlQWURsOVREX3RGaXlGV0o5Rmk4NHZWSlgxM0RHVGRMdmlreHJLOHJnSHdTa0RzdzZqVW9DT0d4cFdhWFhXVzdjNGJLc1JtcVd5eHQtTDVESTVPQ1NxbDRnTjY3ZWhOWlVoS3owSmh1Y3M2WTlKS1JMc1B3N3QyYjF5NXRheURMeWc3NHlHSm4tTmxpZkRwZnVPa2NpTW5zUEZnbVFKa0ZMTUUtOWJsci1jSDdkWUpmeTBGQg?oc=5
+---
+
+The article discusses how fitness clubs are increasingly becoming anchor tenants in real estate developments, similar to traditional retail anchors. This trend indicates the growing importance and stability of the fitness industry in commercial real estate, which could benefit independent gym owners by providing more location opportunities and potentially better lease terms.
