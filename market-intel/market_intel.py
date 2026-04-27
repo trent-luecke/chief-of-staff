@@ -94,3 +94,24 @@ def parse_classification(raw: str) -> dict | None:
         return json.loads(text)
     except (json.JSONDecodeError, ValueError):
         return None
+
+
+# ── Config loading ─────────────────────────────────────────────────────────
+
+def load_seen_urls(path: Path = SEEN_URLS_FILE) -> set:
+    if not path.exists():
+        return set()
+    data = json.loads(path.read_text())
+    return set(data.get("seen", []))
+
+
+def save_seen_urls(seen: set, path: Path = SEEN_URLS_FILE):
+    path.write_text(json.dumps({"seen": sorted(seen)}, indent=2))
+
+
+def load_competitors() -> list:
+    return json.loads(COMPETITORS_FILE.read_text())
+
+
+def load_queries() -> list:
+    return json.loads(QUERIES_FILE.read_text())

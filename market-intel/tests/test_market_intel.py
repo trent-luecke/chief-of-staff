@@ -1,8 +1,18 @@
+import json
 import sys
 import os
+from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from market_intel import slugify, build_rss_url, parse_classification
+from market_intel import (
+    slugify,
+    build_rss_url,
+    parse_classification,
+    load_seen_urls,
+    save_seen_urls,
+    load_competitors,
+    load_queries,
+)
 
 
 def test_slugify_basic():
@@ -53,3 +63,51 @@ def test_parse_classification_strips_markdown_fences():
 def test_parse_classification_invalid_returns_none():
     result = parse_classification("not json at all")
     assert result is None
+
+
+def test_load_seen_urls_empty(tmp_path):
+    f = tmp_path / "seen_urls.json"
+    f.write_text('{"seen": []}')
+    result = load_seen_urls(f)
+    assert result == set()
+
+
+def test_load_seen_urls_with_entries(tmp_path):
+    f = tmp_path / "seen_urls.json"
+    f.write_text('{"seen": ["http://a.com", "http://b.com"]}')
+    result = load_seen_urls(f)
+    assert "http://a.com" in result
+    assert len(result) == 2
+
+
+def test_save_and_reload_seen_urls(tmp_path):
+    f = tmp_path / "seen_urls.json"
+    urls = {"http://x.com", "http://y.com"}
+    save_seen_urls(urls, f)
+    data = json.loads(f.read_text())
+    assert set(data["seen"]) == urls
+
+
+def test_load_competitors_count():
+    competitors = load_competitors()
+    assert len(competitors) == 20
+
+
+def test_load_competitors_has_required_fields():
+    competitors = load_competitors()
+    for c in competitors:
+        assert "name" in c
+        assert "website" in c
+        assert "blog_url" in c
+    assert any(c["name"] == "PushPress" for c in competitors)
+
+
+def test_load_queries_count():
+    queries = load_queries()
+    assert len(queries) == 20
+
+
+def test_load_queries_has_key_terms():
+    queries = load_queries()
+    assert "gym management software" in queries
+    assert "fitness AI software" in queries
