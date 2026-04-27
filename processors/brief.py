@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import date
 import anthropic
 from dataclasses import dataclass, field
 from collectors.calendar import CalendarEvent
@@ -109,7 +110,7 @@ def _build_prompt(
             return []
         return [header, *lines, ""]
 
-    sections = []
+    sections = [f"## Today's Date\n{date.today().strftime('%A, %B %-d, %Y')} (use this as the authoritative date — any memory referencing past dates is historical context, not upcoming)\n"]
 
     if brief_feedback_context:
         sections += [

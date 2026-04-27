@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from collectors.slack import fetch_channel_messages, resolve_channel_ids, SlackMessage
-from collectors.gmail import fetch_threads_needing_attention, EmailThread
+from collectors.gmail import fetch_threads_needing_attention, filter_automated_threads, EmailThread
 from processors.issues import add_or_update_issue, auto_resolve_issues
 
 
@@ -164,11 +164,13 @@ def run() -> None:
     activity = load_pipeline_activity(activity_path)
     pipeline_updated = False
 
+    automation_filters = config.get("email_automation_filters", {})
+
     # --- Gmail scan ---
     # Two passes: all recent threads for pipeline matching, unread-only for flare-ups.
     # Split because leads are expected to be read; unread filter would miss them.
     all_query = f"newer_than:{lookback_hours}h -in:sent"
-    unread_query = f"is:unread newer_than:{lookback_hours}h"
+    unread_query = f"is:unread newer_than:{lookback_hours}h -category:promotions -category:updates -category:social -category:forums"
 
     print(f"📧 Scanning Gmail (last {lookback_hours}h)...")
     all_threads = fetch_threads_needing_attention(
@@ -176,10 +178,13 @@ def run() -> None:
         max_results=50,
         query=all_query,
     )
-    unread_threads = fetch_threads_needing_attention(
-        user_email=config["email"],
-        max_results=50,
-        query=unread_query,
+    unread_threads = filter_automated_threads(
+        fetch_threads_needing_attention(
+            user_email=config["email"],
+            max_results=50,
+            query=unread_query,
+        ),
+        automation_filters,
     )
     unread_ids = {t.id for t in unread_threads}
     print(f"   {len(all_threads)} total thread(s), {len(unread_ids)} unread")

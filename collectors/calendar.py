@@ -25,6 +25,7 @@ def fetch_today_events(
     calendar_id: str = "primary",
     target_date: Optional[date] = None,
     user_email: str = "",
+    _return_error: bool = False,
 ) -> list[CalendarEvent]:
     if target_date is None:
         target_date = date.today()
@@ -42,6 +43,8 @@ def fetch_today_events(
         ).execute()
     except Exception as e:
         print(f"WARNING: Calendar fetch failed: {e}", flush=True)
+        if _return_error:
+            return e
         return []
 
     events = []
@@ -70,13 +73,20 @@ def fetch_today_events(
 def fetch_two_day_events(
     calendar_ids: list[str],
     user_email: str = "",
-) -> tuple[list[CalendarEvent], list[CalendarEvent]]:
+) -> tuple[list[CalendarEvent], list[CalendarEvent], bool]:
     today = date.today()
     tomorrow = today + timedelta(days=1)
     today_events, tomorrow_events = [], []
+    calendar_failed = False
     for cal_id in calendar_ids:
-        today_events.extend(fetch_today_events(cal_id, today, user_email))
-        tomorrow_events.extend(fetch_today_events(cal_id, tomorrow, user_email))
+        result = fetch_today_events(cal_id, today, user_email, _return_error=True)
+        if isinstance(result, Exception):
+            calendar_failed = True
+        else:
+            today_events.extend(result)
+        result = fetch_today_events(cal_id, tomorrow, user_email, _return_error=True)
+        if not isinstance(result, Exception):
+            tomorrow_events.extend(result)
     today_events.sort(key=lambda e: e.start)
     tomorrow_events.sort(key=lambda e: e.start)
-    return today_events, tomorrow_events
+    return today_events, tomorrow_events, calendar_failed

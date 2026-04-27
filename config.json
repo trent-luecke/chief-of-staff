@@ -59,5 +59,22 @@
     "abandon_threshold_days": 60,
     "abandon_ttl_days": 14
   },
-  "logs_file": "data/logs/run_log.jsonl"
+  "logs_file": "data/logs/run_log.jsonl",
+  "email_automation_filters": {
+    "exclude_sender_patterns": [
+      "noreply@",
+      "no-reply@",
+      "donotreply@",
+      "notifications@",
+      "alerts@",
+      "mailer@",
+      "accounts.google.com",
+      "support@github.com",
+      "noreply-demo@gymstudio.com"
+    ],
+    "exclude_subject_patterns": [
+      "Member payment failed:",
+      "Your export "
+    ]
+  }
 }

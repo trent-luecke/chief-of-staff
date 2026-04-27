@@ -10,12 +10,18 @@ topic: trial-pipeline-stale
 
 ## Synthesized Memory
 
-**Pattern:** Multiple In-Trial / Post Demo contacts have been stale 38–50+ days with no confirmed outreach sent despite drafts being queued daily. Recurring priority flags (Apr 19–23) show no resolution. Key accounts: Rutvi Patel / MEDL Mobile (50d, highest churn risk), Emma Hicks / For Fitness & Athletics (49d), Patrick Labat / TGMC (44d), Greg Hetherington / Youthlete Academy (44d, trial likely expired), Tyler Landeck / ALA (42d), Drew DeVine (43d), Mike Ruth / DAP (42d).
+**Pattern:** Multiple trial leads have gone 38–50+ days without meaningful contact while remaining in 'In-Trial / Post Demo' status. Rutvi Patel (MEDL Mobile, 50d), Emma Hicks (For Fitness & Athletics, 49d), Greg Hetherington (Youthlete Academy, 44d), Patrick Labat (TGMC, 44d), Tyler Landeck (ALA, 42d), Drew DeVine (43d), and Mike Ruth (DAP, 42d) are all stale. Follow-up drafts have been queued for most but sends are unconfirmed across multiple days.
 
-**Pattern:** Draft follow-ups are consistently queued but not sent — the bottleneck is review/send action, not draft creation. Duplicates in drafts_ready need deduplication.
+**Pattern:** Tyler Landeck and Greg Hetherington have been flagged high-priority since Apr 19 with no confirmed send as of Apr 23. Greg's trial likely expired — reactivation framing needed.
 
-**Decision:** Tyler Landeck and Greg Hetherington were explicitly flagged high-priority via Telegram on Apr 19; neither had confirmed send as of Apr 23.
+**Decision:** Rutvi Patel and Emma Hicks are highest churn risk (50d and 49d); send these first. Tyler and Greg second. All drafts ready — deduplication needed before batch send.
 
-**Watch:** Trial expirations are imminent or past for Greg Hetherington and possibly others — reactivation angle needed, not standard follow-up.
+**Watch:** Recurring daily stale alerts are noise if sends aren't confirmed. Need a 'sent' log or status update to stop re-flagging same contacts.
+
+**Decision Candidates (unconfirmed):**
+• Send Rutvi Patel and Emma Hicks trial follow-ups immediately — highest churn risk, drafts ready
+• Send Tyler Landeck (ALA) and Greg Hetherington (Youthlete Academy) follow-ups using reactivation framing for Greg whose trial likely expired
+• Deduplicate drafts_ready queue before batch sending trial follow-ups
+
 
 _Last synthesized: 2026-04-23_

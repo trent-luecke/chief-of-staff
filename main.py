@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from collectors.calendar import fetch_two_day_events
-from collectors.gmail import fetch_threads_needing_attention
+from collectors.gmail import fetch_threads_needing_attention, filter_automated_threads
 from collectors.local_data import load_projects, load_due_recurring_tasks, read_inbox
 from collectors.notion_inbox import fetch_inbox_items
 from collectors.pipeline import fetch_pipeline_leads, PipelineLead
@@ -104,14 +104,19 @@ def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
 
 def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
     print("🗓  Fetching calendar...")
-    today_events, tomorrow_events = fetch_two_day_events(
+    today_events, tomorrow_events, calendar_failed = fetch_two_day_events(
         config["calendar_ids"], user_email=config["email"]
     )
+    if calendar_failed:
+        print("WARNING: Calendar API unavailable — schedule data missing from brief.", flush=True)
 
     print("📧  Fetching Gmail (work)...")
-    email_threads = fetch_threads_needing_attention(
-        user_email=config["email"],
-        max_results=config.get("unread_email_max", 15),
+    email_threads = filter_automated_threads(
+        fetch_threads_needing_attention(
+            user_email=config["email"],
+            max_results=config.get("unread_email_max", 15),
+        ),
+        config.get("email_automation_filters", {}),
     )
 
     print("📋  Loading projects and recurring tasks...")
@@ -266,6 +271,9 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
 
     if memory_cold_start_msg:
         brief.watch_outs = [memory_cold_start_msg] + (brief.watch_outs or [])
+
+    if calendar_failed:
+        brief.watch_outs = ["⚠️ Calendar API unavailable — schedule data is missing. Enable Google Calendar API at console.cloud.google.com for project 859502323558."] + (brief.watch_outs or [])
 
     pipeline_stale_days = config.get("pipeline", {}).get("cache_stale_warn_days", 7)
     if pipeline_cache_age_days is not None and pipeline_cache_age_days >= pipeline_stale_days:

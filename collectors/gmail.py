@@ -56,6 +56,23 @@ def _parse_thread(thread_data: dict, user_email: str) -> Optional[EmailThread]:
     )
 
 
+def filter_automated_threads(
+    threads: list["EmailThread"],
+    filters: dict,
+) -> list["EmailThread"]:
+    sender_patterns = [p.lower() for p in filters.get("exclude_sender_patterns", [])]
+    subject_patterns = [p.lower() for p in filters.get("exclude_subject_patterns", [])]
+    if not sender_patterns and not subject_patterns:
+        return threads
+
+    def _is_automated(t: "EmailThread") -> bool:
+        sender = t.last_sender.lower()
+        subject = t.subject.lower()
+        return any(p in sender for p in sender_patterns) or any(p in subject for p in subject_patterns)
+
+    return [t for t in threads if not _is_automated(t)]
+
+
 def fetch_threads_needing_attention(
     user_email: str,
     max_results: int = 15,
