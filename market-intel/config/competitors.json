@@ -1,0 +1,142 @@
+[
+  {
+    "name": "PushPress",
+    "website": "https://pushpress.com",
+    "blog_url": "https://pushpress.com/blog",
+    "changelog_url": null,
+    "description": "Gym management for class-based gyms, free tier, strong in CrossFit/group training"
+  },
+  {
+    "name": "Mindbody",
+    "website": "https://www.mindbodyonline.com",
+    "blog_url": "https://www.mindbodyonline.com/business/education",
+    "changelog_url": null,
+    "description": "Largest platform, strong in boutique/wellness, marketplace model"
+  },
+  {
+    "name": "ABC Glofox",
+    "website": "https://www.abcglofox.com",
+    "blog_url": "https://www.abcglofox.com/blog",
+    "changelog_url": null,
+    "description": "Acquired by ABC Fitness, good UX, branded apps, growing fast"
+  },
+  {
+    "name": "ABC Fitness",
+    "website": "https://www.abcfitness.com",
+    "blog_url": "https://www.abcfitness.com/blog",
+    "changelog_url": null,
+    "description": "Enterprise/legacy, 40+ years, 9300+ locations"
+  },
+  {
+    "name": "Gymdesk",
+    "website": "https://gymdesk.com",
+    "blog_url": "https://gymdesk.com/blog",
+    "changelog_url": null,
+    "description": "Popular with martial arts gyms, strong CRM"
+  },
+  {
+    "name": "Wodify",
+    "website": "https://www.wodify.com",
+    "blog_url": "https://www.wodify.com/blog",
+    "changelog_url": null,
+    "description": "CrossFit and performance gym focused"
+  },
+  {
+    "name": "Zen Planner",
+    "website": "https://zenplanner.com",
+    "blog_url": "https://zenplanner.com/blog",
+    "changelog_url": null,
+    "description": "Appointment-based gyms, martial arts, key fob access"
+  },
+  {
+    "name": "ClubOS",
+    "website": "https://www.club-os.com",
+    "blog_url": "https://www.club-os.com/blog",
+    "changelog_url": null,
+    "description": "Sales CRM for gym chains, recently launched ClubOS ONE as all-in-one"
+  },
+  {
+    "name": "Exercise.com",
+    "website": "https://www.exercise.com",
+    "blog_url": "https://www.exercise.com/learn",
+    "changelog_url": null,
+    "description": "Coaching + fitness + retail blend, API-heavy"
+  },
+  {
+    "name": "GymMaster",
+    "website": "https://www.gymmaster.com",
+    "blog_url": "https://www.gymmaster.com/blog",
+    "changelog_url": null,
+    "description": "Strong access control, 24/7 gym focus"
+  },
+  {
+    "name": "Wellyx",
+    "website": "https://wellyx.com",
+    "blog_url": "https://wellyx.com/blog",
+    "changelog_url": null,
+    "description": "Newer all-in-one, aggressive content marketing"
+  },
+  {
+    "name": "Kilo",
+    "website": "https://getkilo.com",
+    "blog_url": "https://getkilo.com/blog",
+    "changelog_url": null,
+    "description": "Gym owners getting more members, retention focused"
+  },
+  {
+    "name": "TeamUp",
+    "website": "https://www.goteamup.com",
+    "blog_url": "https://www.goteamup.com/resources",
+    "changelog_url": null,
+    "description": "Group training and fitness studios"
+  },
+  {
+    "name": "Woven",
+    "website": "https://startwoven.com",
+    "blog_url": "https://startwoven.com/blog",
+    "changelog_url": null,
+    "description": "Enterprise maintenance/operations layer"
+  },
+  {
+    "name": "Club Ready",
+    "website": "https://www.clubready.com",
+    "blog_url": "https://www.clubready.com/blog",
+    "changelog_url": null,
+    "description": "Large gyms, staff management, lead tracking"
+  },
+  {
+    "name": "SHC",
+    "website": "https://smarthealthclubs.com",
+    "blog_url": "https://smarthealthclubs.com/blog",
+    "changelog_url": null,
+    "description": "Full-service clubs, family/aquatics/multi-department"
+  },
+  {
+    "name": "1club",
+    "website": "https://1club.ai",
+    "blog_url": "https://1club.ai/blog",
+    "changelog_url": null,
+    "description": "AI-first gym management, newer entrant"
+  },
+  {
+    "name": "Virtuagym",
+    "website": "https://virtuagym.com",
+    "blog_url": "https://virtuagym.com/blog",
+    "changelog_url": null,
+    "description": "Member engagement beyond workouts, coaching content"
+  },
+  {
+    "name": "Upper Hand",
+    "website": "https://www.upperhand.com",
+    "blog_url": "https://www.upperhand.com/blog",
+    "changelog_url": null,
+    "description": "Sports facilities, equipment/event management"
+  },
+  {
+    "name": "EZFacility",
+    "website": "https://www.ezfacility.com",
+    "blog_url": "https://www.ezfacility.com/blog",
+    "changelog_url": null,
+    "description": "Schools, sports centers, municipal gyms"
+  }
+]
