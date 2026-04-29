@@ -151,10 +151,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "5000145e",
@@ -164,10 +164,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "cf7a551e",
@@ -177,10 +177,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "c3ea3dea",
@@ -190,10 +190,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "40dc3141",
@@ -203,10 +203,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "c2023b47",
@@ -216,10 +216,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "e2fbbc81",
@@ -229,10 +229,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "7295274e",
@@ -242,10 +242,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "970152d9",
@@ -255,10 +255,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "ee693156",
@@ -268,10 +268,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     },
     {
       "id": "0fa94532",
@@ -281,10 +281,10 @@
       "channel": "gmail",
       "created_date": "2026-04-24",
       "last_seen_date": "2026-04-24",
-      "status": "open",
+      "status": "resolved",
       "actions_needed": [],
       "outside_parties": [],
-      "resolved_date": null
+      "resolved_date": "2026-04-29"
     }
   ]
 }
