@@ -63,7 +63,7 @@ def prepare_observation_records(
                 obs_date = obs.get("date", "unknown")
                 obs_type = obs.get("type", "unknown")
                 entity = obs.get("entity", "unknown")
-                vector_id = f"{obs_date}:{obs_type}:{entity}"
+                vector_id = f"{obs_date}:{obs_type}:{entity}:{i}"
                 records.append({
                     "id": vector_id,
                     "text": build_observation_text(obs),
@@ -225,6 +225,7 @@ def ingest(
         )
         print(f"   Upserted {obs_count} observation vectors.")
         state.last_obs_line = obs_records[-1]["line_number"] + 1
+        save_ingest_state(state, state_file)
 
     # Embed and upsert memories
     if mem_records:

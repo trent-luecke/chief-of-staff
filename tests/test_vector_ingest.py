@@ -2,8 +2,6 @@
 import json
 import os
 import tempfile
-from datetime import date
-from unittest.mock import patch, MagicMock, call
 
 import pytest
 
