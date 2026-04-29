@@ -9,3 +9,5 @@ python-dateutil>=2.8.2
 python-dotenv>=1.0.0
 slack-sdk>=3.27.0
 python-frontmatter>=1.0.0
+pinecone>=5.0.0
+voyageai>=0.2.4

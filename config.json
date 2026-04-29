@@ -76,5 +76,14 @@
       "Member payment failed:",
       "Your export "
     ]
+  },
+  "vector": {
+    "enabled": true,
+    "index_name": "chief-of-staff",
+    "embedding_model": "voyage-3-lite",
+    "embedding_dimension": 512,
+    "observations_namespace": "observations",
+    "memories_namespace": "memories",
+    "ingest_state_file": "data/vector_ingest_state.json"
   }
 }
