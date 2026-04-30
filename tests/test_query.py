@@ -110,6 +110,89 @@ def test_answer_query_with_tools_executes_tool_then_returns_answer():
             assert "Call Marcus" in f.read()
 
 
+def test_load_local_context_accepts_query_param_without_breaking():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _make_config(tmp)
+        context = _load_local_context(config, query="what's fallen through the cracks?")
+        assert isinstance(context, str)
+        assert "Apex Fitness" in context
+
+
+def _make_vector_config(tmp_dir: str) -> dict:
+    config = _make_config(tmp_dir)
+    memory_dir = os.path.join(tmp_dir, "memory")
+    os.makedirs(memory_dir, exist_ok=True)
+    config["memory"] = {
+        "enabled": True,
+        "dir": memory_dir,
+        "retrieval_token_budget": 550,
+    }
+    config["vector"] = {
+        "enabled": True,
+        "index_name": "chief-of-staff",
+        "embedding_model": "voyage-3-lite",
+        "observations_namespace": "observations",
+        "memories_namespace": "memories",
+        "retrieval_mode": "auto",
+    }
+    return config
+
+
+def test_load_local_context_passes_query_as_raw_query_when_vector_configured():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _make_vector_config(tmp)
+
+        with patch("processors.query.retrieve_memories", return_value="") as mock_rm:
+            with patch.dict(os.environ, {"PINECONE_API_KEY": "pk-test", "VOYAGE_API_KEY": "vk-test"}):
+                _load_local_context(config, query="what's fallen through the cracks?")
+
+        mock_rm.assert_called_once()
+        _, kwargs = mock_rm.call_args
+        assert kwargs["query_signals"] == {"raw_query": "what's fallen through the cracks?"}
+        assert kwargs["pinecone_config"] is not None
+        assert kwargs["pinecone_config"]["api_key"] == "pk-test"
+
+
+def test_load_local_context_skips_vector_when_env_keys_missing():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _make_vector_config(tmp)
+
+        env_without_keys = {k: v for k, v in os.environ.items()
+                            if k not in ("PINECONE_API_KEY", "VOYAGE_API_KEY")}
+        with patch("processors.query.retrieve_memories", return_value="") as mock_rm:
+            with patch.dict(os.environ, env_without_keys, clear=True):
+                _load_local_context(config, query="any question")
+
+        _, kwargs = mock_rm.call_args
+        assert kwargs["pinecone_config"] is None
+
+
+def test_answer_query_with_tools_passes_query_to_load_local_context():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _make_config(tmp)
+
+        text_block = MagicMock()
+        text_block.type = "text"
+        text_block.text = "Nothing fell through the cracks, sir."
+
+        response = MagicMock()
+        response.stop_reason = "end_turn"
+        response.content = [text_block]
+        response.usage = MagicMock(input_tokens=100, output_tokens=50)
+
+        with patch("processors.query.anthropic.Anthropic") as mock_cls:
+            with patch("processors.query._load_local_context", return_value="ctx") as mock_llc:
+                mock_client = MagicMock()
+                mock_client.messages.create.return_value = response
+                mock_cls.return_value = mock_client
+                answer_query_with_tools(
+                    "fake-key", "claude-sonnet-4-6",
+                    "what's fallen through the cracks?", config,
+                )
+
+        mock_llc.assert_called_once_with(config, query="what's fallen through the cracks?")
+
+
 def test_answer_query_with_tools_caps_at_10_iterations():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_config(tmp)

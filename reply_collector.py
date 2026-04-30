@@ -75,14 +75,20 @@ def run() -> None:
         if sent_at < cutoff:
             continue
 
-        count = get_thread_message_count(nudge["thread_id"], profile)
+        thread_id = nudge.get("thread_id")
+        memory_file = nudge.get("memory_file")
+        if not thread_id or not memory_file:
+            still_pending.append(nudge)
+            continue
+
+        count = get_thread_message_count(thread_id, profile)
         if count < 2:
             still_pending.append(nudge)
             continue
 
-        reply_text = get_latest_reply_text(nudge["thread_id"], profile)
+        reply_text = get_latest_reply_text(thread_id, profile)
         if reply_text.strip():
-            append_session_notes(nudge["memory_file"], nudge["session_date"], reply_text)
+            append_session_notes(memory_file, nudge["session_date"], reply_text)
             print(f"  Captured notes for: {nudge['meeting_name']}")
         else:
             still_pending.append(nudge)

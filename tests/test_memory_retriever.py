@@ -153,6 +153,28 @@ def test_build_query_string_handles_non_string_items_gracefully():
     assert result == "Real event"
 
 
+def test_build_query_string_uses_raw_query_when_present():
+    signals = {
+        "raw_query": "what's fallen through the cracks?",
+        "calendar_events": ["Team standup"],
+        "pipeline_lead_names": ["Apex Gym"],
+    }
+    result = build_query_string(signals)
+    assert result == "what's fallen through the cracks?"
+
+
+def test_build_query_string_does_not_short_circuit_when_raw_query_is_empty():
+    signals = {
+        "raw_query": "",
+        "calendar_events": ["Team standup"],
+        "pipeline_lead_names": [],
+        "issue_titles": [],
+        "email_subjects": [],
+    }
+    result = build_query_string(signals)
+    assert result == "Team standup"
+
+
 # --- helpers for semantic tests ---
 
 def make_match(match_id: str, metadata: dict):

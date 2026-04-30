@@ -6,7 +6,7 @@ import anthropic
 from processors.memory_retriever import retrieve_memories
 
 
-def _load_local_context(config: dict) -> str:
+def _load_local_context(config: dict, query: str = "") -> str:
     parts = []
 
     try:
@@ -33,9 +33,25 @@ def _load_local_context(config: dict) -> str:
 
     memory_cfg = config.get("memory", {})
     if memory_cfg.get("enabled"):
+        vector_cfg = config.get("vector", {})
+        pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+        voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+        _pinecone_cfg = None
+        if vector_cfg.get("enabled") and pinecone_key and voyage_key:
+            _pinecone_cfg = {
+                "api_key": pinecone_key,
+                "voyage_api_key": voyage_key,
+                "index_name": vector_cfg["index_name"],
+                "embedding_model": vector_cfg["embedding_model"],
+                "observations_namespace": vector_cfg.get("observations_namespace", "observations"),
+                "memories_namespace": vector_cfg.get("memories_namespace", "memories"),
+                "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
+            }
         memory_context = retrieve_memories(
             memory_dir=memory_cfg["dir"],
             token_budget=memory_cfg.get("retrieval_token_budget", 550),
+            pinecone_config=_pinecone_cfg,
+            query_signals={"raw_query": query},
         )
         if memory_context:
             parts.append(f"## Memory\n{memory_context}")
@@ -83,7 +99,7 @@ def answer_query_with_tools(api_key: str, model: str, query: str, config: dict) 
     from lib.llm_logger import log_usage
 
     client = anthropic.Anthropic(api_key=api_key)
-    local_context = _load_local_context(config)
+    local_context = _load_local_context(config, query=query)
     system = _SYSTEM_PROMPT.format(local_context=local_context)
     messages = [{"role": "user", "content": query}]
 
