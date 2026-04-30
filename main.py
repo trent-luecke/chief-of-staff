@@ -209,9 +209,30 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     memory_cold_start_msg = None
     memory_cfg = config.get("memory", {})
     if memory_cfg.get("enabled"):
+        _vector_cfg = config.get("vector", {})
+        _pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+        _voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+        _pinecone_cfg = None
+        if _vector_cfg.get("enabled") and _pinecone_key and _voyage_key:
+            _pinecone_cfg = {
+                "api_key": _pinecone_key,
+                "voyage_api_key": _voyage_key,
+                "index_name": _vector_cfg["index_name"],
+                "embedding_model": _vector_cfg["embedding_model"],
+                "observations_namespace": _vector_cfg.get("observations_namespace", "observations"),
+                "memories_namespace": _vector_cfg.get("memories_namespace", "memories"),
+                "retrieval_mode": _vector_cfg.get("retrieval_mode", "auto"),
+            }
         memory_context = retrieve_memories(
             memory_dir=memory_cfg["dir"],
             token_budget=memory_cfg.get("retrieval_token_budget", 1500),
+            pinecone_config=_pinecone_cfg,
+            query_signals={
+                "calendar_events": [e.summary for e in today_events + tomorrow_events],
+                "email_subjects": [t.subject for t in email_threads[:10]],
+                "pipeline_lead_names": [l.name for l in trial_leads + attention_leads],
+                "issue_titles": [i.title for i in open_issues],
+            },
         )
         memory_cold_start_msg = get_cold_start_message(
             obs_file=memory_cfg["observations_file"],

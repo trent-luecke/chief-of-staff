@@ -39,7 +39,9 @@ Observations and synthesized memory files are embedded into a Pinecone serverles
 
 Ingest is non-fatal — if Pinecone or Voyage is unreachable, the system continues with file-based memory. Ingest state tracked in `data/vector_ingest_state.json` (committed to repo on each Actions run).
 
-Phase 1 (current): ingest only. Phase 2: semantic retrieval replaces recency-based memory retriever. Phase 3: semantic Telegram queries.
+Phase 1 (complete): ingest only. Phase 2 (complete): semantic retrieval replaces recency-based memory retriever — brief context split into `### Context` (ranked synthesized memories) and `### Recent Signals` (ranked raw observations). Phase 3: semantic Telegram queries.
+
+`config.json` vector block: `retrieval_mode` controls retrieval strategy — `"auto"` (Pinecone with file-based fallback), `"semantic"` (Pinecone, raises on error), `"file"` (always file-based). Default: `"auto"`.
 
 GitHub Secrets required: `PINECONE_API_KEY`, `VOYAGE_API_KEY`
 
