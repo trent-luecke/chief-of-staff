@@ -35,6 +35,11 @@ def save_ingest_state(state: IngestState, path: str) -> None:
         json.dump(asdict(state), f, indent=2)
 
 
+def _sanitize_id(raw: str) -> str:
+    """Replace non-ASCII characters so Pinecone vector IDs are always valid ASCII."""
+    return raw.encode("ascii", errors="replace").decode("ascii")
+
+
 def build_observation_text(obs: dict) -> str:
     """Build the text string to embed for a single observation."""
     parts = [f"{obs.get('type', 'unknown')}: {obs.get('content', '')}"]
@@ -63,7 +68,7 @@ def prepare_observation_records(
                 obs_date = obs.get("date", "unknown")
                 obs_type = obs.get("type", "unknown")
                 entity = obs.get("entity", "unknown")
-                vector_id = f"{obs_date}:{obs_type}:{entity}:{i}"
+                vector_id = _sanitize_id(f"{obs_date}:{obs_type}:{entity}:{i}")
                 records.append({
                     "id": vector_id,
                     "text": build_observation_text(obs),
