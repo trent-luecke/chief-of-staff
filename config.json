@@ -25,9 +25,9 @@
     "support",
     "support-tickets"
   ],
-  "meeting_index_file": "data/meeting_index.json",
-  "issues_file": "data/issues.json",
+  "nudge_minutes_after": 5,
   "pending_nudges_file": "data/pending_nudges.json",
+  "issues_file": "data/issues.json",
   "drafts_dir": "data/drafts",
   "captures_file": "data/captures.md",
   "brief_feedback_file": "data/brief_feedback.md",
@@ -60,6 +60,7 @@
     "abandon_ttl_days": 14
   },
   "logs_file": "data/logs/run_log.jsonl",
+  "brief_scores_file": "data/state/brief_scores.jsonl",
   "email_automation_filters": {
     "exclude_sender_patterns": [
       "noreply@",
@@ -85,6 +86,7 @@
     "observations_namespace": "observations",
     "memories_namespace": "memories",
     "ingest_state_file": "data/vector_ingest_state.json",
-    "retrieval_mode": "auto"
+    "retrieval_mode": "auto",
+    "retrieval_log_file": "data/state/retrieval_log.jsonl"
   }
 }

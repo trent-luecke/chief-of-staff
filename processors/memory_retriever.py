@@ -10,6 +10,10 @@ import frontmatter
 
 def build_query_string(query_signals: dict) -> str:
     """Build a Voyage AI query string from today's collected signals."""
+    raw = query_signals.get("raw_query", "")
+    if isinstance(raw, str) and raw.strip():
+        return raw.strip()
+
     parts = []
     parts.extend(query_signals.get("calendar_events", []))
     parts.extend(query_signals.get("email_subjects", [])[:10])
@@ -190,18 +194,61 @@ def _retrieve_memories_file_based(memory_dir: str, token_budget: int = 550) -> s
     return "\n\n".join(output_parts)
 
 
+def _maybe_log_retrieval(
+    log_file: Optional[str],
+    run_date: str,
+    trigger: str,
+    query_text: str,
+    retrieval_mode: str,
+    log_pinned: list[dict],
+    log_memory: list[dict],
+    log_obs: list[dict],
+    token_budget: int,
+    pinecone_config: dict,
+) -> None:
+    if not log_file:
+        return
+    try:
+        from processors.retrieval_logger import log_retrieval
+        log_retrieval(
+            log_file=log_file,
+            date_str=run_date,
+            trigger=trigger,
+            query_text=query_text,
+            retrieval_mode=retrieval_mode,
+            pinned_memories=log_pinned,
+            memory_results=log_memory,
+            observation_results=log_obs,
+            token_budget=token_budget,
+            config_snapshot={
+                "retrieval_mode": pinecone_config.get("retrieval_mode", "auto"),
+                "top_k": pinecone_config.get("top_k", 20),
+                "memory_budget_pct": pinecone_config.get("memory_budget_pct", 0.6),
+                "observation_budget_pct": pinecone_config.get("observation_budget_pct", 0.4),
+                "score_threshold": pinecone_config.get("score_threshold"),
+            },
+        )
+    except Exception as exc:
+        print(f"WARNING: retrieval logging failed: {exc}", file=sys.stderr)
+
+
 def _retrieve_memories_semantic(
     memory_dir: str,
     token_budget: int,
     pinecone_config: dict,
     query_signals: dict,
+    log_file: Optional[str] = None,
+    trigger: str = "brief",
+    run_date: Optional[str] = None,
 ) -> str:
     today = date.today()
+    _run_date = run_date or today.isoformat()
     char_budget = token_budget * 4
 
     # 1. Load pinned memories from files — always included, bypass ranking
     pinned_sections: list[str] = []
     pinned_ids: set[str] = set()
+    log_pinned: list[dict] = []
     for path in sorted(Path(memory_dir).glob("*.md")):
         try:
             post = frontmatter.load(str(path))
@@ -219,8 +266,14 @@ def _retrieve_memories_semantic(
         else:
             synthesized = content.strip()
         if synthesized:
-            pinned_sections.append(f"**{topic}** (updated: {last_updated})\n{synthesized}")
+            section = f"**{topic}** (updated: {last_updated})\n{synthesized}"
+            pinned_sections.append(section)
             pinned_ids.add(f"mem:{path.name}")
+            log_pinned.append({
+                "file": path.name,
+                "topic": topic,
+                "tokens": len(section) // 4,
+            })
 
     # 2. Build query — fall back to file-based if no usable signals
     query_string = build_query_string(query_signals)
@@ -230,68 +283,150 @@ def _retrieve_memories_semantic(
     # 3. Query Pinecone
     mem_matches, obs_matches = query_pinecone(pinecone_config, query_string)
 
-    # 4. Post-filter and load memory results (skip pinned — already loaded above)
-    context_sections: list[str] = []
-    for match in mem_matches:
-        if match.id in pinned_ids:
-            continue  # deduplicate: pinned already included
-        metadata = match.metadata or {}
-        expires_str = str(metadata.get("expires", ""))
-        try:
-            if expires_str and date.fromisoformat(expires_str) < today:
-                continue
-        except ValueError:
-            pass
-        section = _load_memory_section(memory_dir, match.id)
-        if section:
-            context_sections.append(section)
-
-    # 5. Format observation lines from metadata
-    obs_lines: list[str] = []
-    for match in obs_matches:
-        metadata = match.metadata or {}
-        obs_date = metadata.get("date", "")
-        obs_type = metadata.get("type", "")
-        preview = metadata.get("content_preview", "")
-        if preview:
-            obs_lines.append(f"[{obs_date}] {obs_type}: {preview}")
-
-    # 6. Nothing to show
-    if not pinned_sections and not context_sections and not obs_lines:
-        return ""
-
-    # 7. Build output within token budget
-    # Pinned sections are always included (no budget cap)
+    # 4. Compute budget split (pinned always included, non-capped)
     pinned_chars = sum(len(s) for s in pinned_sections)
     header = "## Cross-Day Memory"
     remaining = char_budget - len(header) - pinned_chars
     mem_budget = int(remaining * 0.6)
     obs_budget = remaining - mem_budget
 
-    trimmed_context: list[str] = []
-    used = 0
-    for section in context_sections:
-        if used + len(section) > mem_budget:
-            break
-        trimmed_context.append(section)
-        used += len(section)
+    # 5. Process memory results with inline budget tracking
+    context_sections: list[str] = []
+    log_memory: list[dict] = []
+    mem_used = 0
+    for match in mem_matches:
+        meta = match.metadata or {}
+        score = getattr(match, "score", None)
+        match_id = match.id
 
-    trimmed_obs: list[str] = []
-    used = 0
-    for line in obs_lines:
-        if used + len(line) > obs_budget:
-            break
-        trimmed_obs.append(line)
-        used += len(line)
+        if match_id in pinned_ids:
+            log_memory.append({
+                "id": match_id,
+                "namespace": "memories",
+                "score": score,
+                "included": False,
+                "excluded_reason": "duplicate_of_pinned",
+            })
+            continue
+
+        expires_str = str(meta.get("expires", ""))
+        try:
+            if expires_str and date.fromisoformat(expires_str) < today:
+                log_memory.append({
+                    "id": match_id,
+                    "namespace": "memories",
+                    "score": score,
+                    "included": False,
+                    "excluded_reason": "expired",
+                })
+                continue
+        except ValueError:
+            pass
+
+        section = _load_memory_section(memory_dir, match_id)
+        if section is None:
+            log_memory.append({
+                "id": match_id,
+                "namespace": "memories",
+                "score": score,
+                "included": False,
+                "excluded_reason": "suppressed",
+            })
+            continue
+
+        if mem_used + len(section) > mem_budget:
+            log_memory.append({
+                "id": match_id,
+                "namespace": "memories",
+                "score": score,
+                "content_preview": section[:80],
+                "included": False,
+                "excluded_reason": "budget_exhausted",
+            })
+            continue
+
+        tokens = len(section) // 4
+        topic_val = str(meta.get("topic", match_id[4:].replace(".md", "") if match_id.startswith("mem:") else match_id))
+        log_memory.append({
+            "id": match_id,
+            "namespace": "memories",
+            "score": score,
+            "topic": topic_val,
+            "content_preview": section[:80],
+            "included": True,
+            "tokens": tokens,
+        })
+        context_sections.append(section)
+        mem_used += len(section)
+
+    # 6. Process observation results with inline budget tracking
+    obs_lines: list[str] = []
+    log_obs: list[dict] = []
+    obs_used = 0
+    for match in obs_matches:
+        meta = match.metadata or {}
+        score = getattr(match, "score", None)
+        obs_date = meta.get("date", "")
+        obs_type = meta.get("type", "")
+        entity = meta.get("entity", "")
+        preview = meta.get("content_preview", "")
+
+        if not preview:
+            continue
+
+        line = f"[{obs_date}] {obs_type}: {preview}"
+
+        if obs_used + len(line) > obs_budget:
+            log_obs.append({
+                "id": match.id,
+                "namespace": "observations",
+                "score": score,
+                "type": obs_type,
+                "entity": entity,
+                "content_preview": preview[:80],
+                "included": False,
+                "excluded_reason": "budget_exhausted",
+            })
+            continue
+
+        tokens = len(line) // 4
+        log_obs.append({
+            "id": match.id,
+            "namespace": "observations",
+            "score": score,
+            "type": obs_type,
+            "entity": entity,
+            "content_preview": preview[:80],
+            "included": True,
+            "tokens": tokens,
+        })
+        obs_lines.append(line)
+        obs_used += len(line)
+
+    # 7. Build output
+    if not pinned_sections and not context_sections and not obs_lines:
+        _maybe_log_retrieval(
+            log_file, _run_date, trigger, query_string, "semantic",
+            log_pinned, log_memory, log_obs, token_budget, pinecone_config,
+        )
+        return ""
 
     output_parts = [header]
-    all_context = pinned_sections + trimmed_context
+    all_context = pinned_sections + context_sections
     if all_context:
         output_parts.append("### Context\n\n" + "\n\n".join(all_context))
-    if trimmed_obs:
-        output_parts.append("### Recent Signals\n\n" + "\n".join(trimmed_obs))
+    if obs_lines:
+        output_parts.append("### Recent Signals\n\n" + "\n".join(obs_lines))
 
-    return "\n\n".join(output_parts)
+    result = "\n\n".join(output_parts)
+
+    # 8. Log (non-fatal)
+    _maybe_log_retrieval(
+        log_file, _run_date, trigger, query_string, "semantic",
+        log_pinned, log_memory, log_obs, token_budget, pinecone_config,
+    )
+
+    return result
 
 
 def retrieve_memories(
@@ -299,6 +434,9 @@ def retrieve_memories(
     token_budget: int = 550,
     pinecone_config: Optional[dict] = None,
     query_signals: Optional[dict] = None,
+    log_file: Optional[str] = None,
+    trigger: str = "brief",
+    run_date: Optional[str] = None,
 ) -> str:
     """Retrieve cross-day memory context for the brief.
 
@@ -315,7 +453,8 @@ def retrieve_memories(
 
     try:
         return _retrieve_memories_semantic(
-            memory_dir, token_budget, pinecone_config, query_signals or {}
+            memory_dir, token_budget, pinecone_config, query_signals or {},
+            log_file=log_file, trigger=trigger, run_date=run_date,
         )
     except Exception as exc:
         if mode == "semantic":
@@ -323,5 +462,9 @@ def retrieve_memories(
         print(
             f"WARNING: Pinecone retrieval failed ({exc}), falling back to file-based.",
             file=sys.stderr,
+        )
+        _maybe_log_retrieval(
+            log_file, run_date or date.today().isoformat(), trigger,
+            "", "file_fallback", [], [], [], token_budget, pinecone_config,
         )
         return _retrieve_memories_file_based(memory_dir, token_budget)

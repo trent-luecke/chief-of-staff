@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from processors.query import answer_query_with_tools
+from processors.brief_scorer import handle_score_command
 from lib.telegram import send_message
 
 
@@ -18,6 +19,14 @@ def load_config(path: str = "config.json") -> dict:
 
 
 def _main_inner(query: str, chat_id: str, bot_token: str, config: dict) -> None:
+    # /brief score commands are handled locally — no Claude call, no API cost
+    scores_file = config.get("brief_scores_file", "data/state/brief_scores.jsonl")
+    score_response = handle_score_command(query, scores_file=scores_file)
+    if score_response is not None:
+        if bot_token:
+            send_message(bot_token, chat_id, score_response)
+        return
+
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         if bot_token:

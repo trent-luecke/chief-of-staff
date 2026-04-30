@@ -10,8 +10,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from lib.google_auth import build_gmail_service
+from lib.telegram import send_message
 from outputs.sender import send_brief_email
 from processors.weekly_synthesizer import synthesize_week, WeeklySynthesis
+from processors.retrieval_digest import generate_digest
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -106,6 +108,32 @@ def _main_inner(config: dict, run_date) -> None:
         print(f"Sent: {msg_id}")
     except Exception as e:
         print(f"WARNING: could not send email: {e}", file=sys.stderr)
+
+    # Retrieval digest — sent via Telegram alongside the weekly synthesis
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
+    if bot_token and chat_id:
+        try:
+            vector_cfg = config.get("vector", {})
+            digest = generate_digest(
+                api_key=api_key,
+                model=config["ai_model"],
+                scores_file=config.get("brief_scores_file", "data/state/brief_scores.jsonl"),
+                retrieval_log_file=vector_cfg.get("retrieval_log_file", "data/state/retrieval_log.jsonl"),
+                config_snapshot={
+                    "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
+                    "top_k": vector_cfg.get("top_k", 20),
+                    "memory_budget_pct": vector_cfg.get("memory_budget_pct", 0.6),
+                    "observation_budget_pct": vector_cfg.get("observation_budget_pct", 0.4),
+                    "score_threshold": vector_cfg.get("score_threshold"),
+                },
+                run_date=run_date,
+            )
+            header = f"Brief Scores — week ending {run_date.isoformat()}\n\n"
+            send_message(bot_token, chat_id, header + digest)
+            print("Retrieval digest sent via Telegram.")
+        except Exception as e:
+            print(f"WARNING: retrieval digest failed: {e}", file=sys.stderr)
 
     print(f"\nSummary: {synthesis.executive_summary}")
     if synthesis.carry_forwards:

@@ -233,6 +233,9 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 "pipeline_lead_names": [l.name for l in trial_leads + attention_leads],
                 "issue_titles": [i.title for i in open_issues],
             },
+            log_file=_vector_cfg.get("retrieval_log_file"),
+            trigger="brief",
+            run_date=date.today().isoformat(),
         )
         memory_cold_start_msg = get_cold_start_message(
             obs_file=memory_cfg["observations_file"],
