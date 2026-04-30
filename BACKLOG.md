@@ -134,6 +134,14 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 ---
 
+## ✅ P14 — Vector Memory Layer — Phase 1 (complete)
+
+**Shipped 2026-04-30.** Pinecone serverless index (`chief-of-staff`) with two namespaces: `observations` and `memories`. `processors/vector_ingest.py` embeds new observations and updated memory files after each daily run using Voyage AI (`voyage-3-lite`, 512 dims). Non-fatal — Pinecone errors don't block the brief. Backfill script in `scripts/backfill_vectors.py` populated the index with all historical data. State tracked in `data/vector_ingest_state.json`.
+
+**Next:** Phase 2 — replace `memory_retriever.py` with semantic search against Pinecone.
+
+---
+
 ## 📥 Inbox
 
 - 2026-04-22: Notion write access via API — update pipeline lead fields (status, last_contacted, notes) from Telegram. Blocked on Notion API key (requires workspace admin access).
@@ -145,9 +153,11 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
 
-**Status as of 2026-04-23:** Q1, Q2, P0–P5, P7–P10, P12–P13 all shipped. Open items:
+**Status as of 2026-04-30:** Q1, Q2, P0–P5, P7–P10, P12–P14 all shipped. Open items:
 
 1. P11 Meeting transcript integration — highest capability gap remaining
-2. P6 Dashboard — deferred, not blocking daily use
-3. P13 Graduated memory decay — only relevant at 6+ months of data
-4. Notion write access — blocked on API key (workspace admin required)
+2. P14 Phase 2 — Semantic retrieval (replaces recency-based memory retriever)
+3. P14 Phase 3 — Semantic Telegram queries
+4. P14 Phase 4 — Proactive pattern detection
+5. P6 Dashboard — deferred, not blocking daily use
+6. Notion write access — blocked on API key (workspace admin required)
