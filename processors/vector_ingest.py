@@ -36,8 +36,11 @@ def save_ingest_state(state: IngestState, path: str) -> None:
 
 
 def _sanitize_id(raw: str) -> str:
-    """Replace non-ASCII characters so Pinecone vector IDs are always valid ASCII."""
-    return raw.encode("ascii", errors="replace").decode("ascii")
+    """Transliterate non-ASCII characters to ASCII for Pinecone vector IDs."""
+    import unicodedata, re
+    normalized = unicodedata.normalize("NFKD", raw)
+    ascii_only = normalized.encode("ascii", errors="ignore").decode("ascii")
+    return re.sub(r"-{2,}", "-", ascii_only)
 
 
 def build_observation_text(obs: dict) -> str:
@@ -131,7 +134,7 @@ def prepare_memory_records(
 
         topic = str(post.get("topic", path.stem))
         records.append({
-            "id": f"mem:{fname}",
+            "id": _sanitize_id(f"mem:{fname}"),
             "text": text,
             "metadata": {
                 "topic": topic,

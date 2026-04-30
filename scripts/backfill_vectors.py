@@ -9,6 +9,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 _ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(_ROOT))
 load_dotenv(_ROOT / ".env")
 
 import voyageai
