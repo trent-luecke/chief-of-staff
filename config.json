@@ -69,13 +69,25 @@
       "notifications@",
       "alerts@",
       "mailer@",
+      "calendar-notification@google.com",
       "accounts.google.com",
       "support@github.com",
-      "noreply-demo@gymstudio.com"
+      "noreply-demo@gymstudio.com",
+      "wanderingbearcoffee.com"
     ],
     "exclude_subject_patterns": [
       "Member payment failed:",
-      "Your export "
+      "Your export ",
+      "Invitation: ",
+      "Updated invitation: ",
+      "Canceled: ",
+      "Cancelled: ",
+      "Your order",
+      "Your delivery",
+      "Your shipment",
+      "has been delivered",
+      "is on its way",
+      "unsubscribe"
     ]
   },
   "vector": {

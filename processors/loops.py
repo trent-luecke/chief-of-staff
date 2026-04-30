@@ -30,7 +30,7 @@ def build_loop_summary(
             "snippet": t.snippet,
         }
         for t in email_threads
-        if t.id not in still_open_email_set
+        if t.needs_reply and t.id not in still_open_email_set
     ]
     new_notion_loops = [
         {

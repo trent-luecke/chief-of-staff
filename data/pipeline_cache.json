@@ -2,7 +2,7 @@
   "synced_at": "2026-04-30T12:00:00.000000Z",
   "leads": [
     {
-      "name": "Tyler Landeck — ALA",
+      "name": "Tyler Landeck \u2014 ALA",
       "contact": "Tyler Landeck",
       "email": "tyler.landeck@alaschools.org",
       "status": "In-Trial / Post Demo",
@@ -26,7 +26,7 @@
       "stale": true
     },
     {
-      "name": "Patrick Labat — TGMC",
+      "name": "Patrick Labat \u2014 TGMC",
       "contact": "Patrick Labat",
       "email": "patrick.labat@tgmc.com",
       "status": "In-Trial / Post Demo",
@@ -50,19 +50,7 @@
       "stale": false
     },
     {
-      "name": "Tzach Feinsilver",
-      "contact": "Tzach Feinsilver",
-      "email": "tzach1968@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": "2026-03-12",
-      "days_since_contact": 49,
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": true
-    },
-    {
-      "name": "Mike Woodby — Apex Holland",
+      "name": "Mike Woodby \u2014 Apex Holland",
       "contact": "Mike Woodby",
       "email": "mike@apexholland.co",
       "status": "Out of Demo / Need Upate",
@@ -122,7 +110,7 @@
       "stale": false
     },
     {
-      "name": "Emma Hicks — For Fitness & Athletics",
+      "name": "Emma Hicks \u2014 For Fitness & Athletics",
       "contact": "Emma Hicks",
       "email": "emmahicks@forfitnessandathletics.com",
       "status": "On-Hold",

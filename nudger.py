@@ -68,7 +68,7 @@ def run() -> None:
     already_nudged = {n["event_id"] for n in pending}
 
     today_events, _, _ = fetch_two_day_events(config["calendar_ids"])
-    now = datetime.now()
+    now = datetime.now().astimezone()
 
     for event in today_events:
         if event.id in already_nudged:
