@@ -17,3 +17,4 @@
 ## 2026-04-30 18:47 — [note] Luke / Trent — Standing Agenda Item (every other meeting, starting May 14):
 **Mid-period check-in** — review pipeline health, follow-up status, and any mid-month flags.
 Schedule: May 14, May 28, Jun 11, etc.
+## 2026-04-30 18:55 — [todo] TOMORROW — Call to set up dentist appointments for Truman and Carter
