@@ -12,3 +12,4 @@
 ## 2026-04-26 21:42 — [todo] TOP PRIORITY — Research use cases for Claude Code and Claude Chat for sales process evaluation and tracking
 ## 2026-04-26 21:42 — [todo] Look into novel / innovative sales processes for B2B SaaS
 ## 2026-04-30 18:35 — [note] OS Summer Campaign — going with a retro Miami Vice aesthetic across all content for the campaign. Discussed, direction confirmed.
+## 2026-04-30 18:36 — [todo] Dante onboarding — initiate Gold + OS bundle setup by June 1 (facility opening July 1)
