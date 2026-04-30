@@ -346,6 +346,28 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 abandon_ttl_days=memory_cfg.get("abandon_ttl_days", 14),
             )
             print("✅  Memory synthesis complete.")
+            # Vector ingest — embed new observations and updated memories into Pinecone
+            vector_cfg = config.get("vector", {})
+            pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+            voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+            if vector_cfg.get("enabled") and pinecone_key and voyage_key:
+                try:
+                    from processors.vector_ingest import ingest as vector_ingest
+                    print("📡  Ingesting vectors into Pinecone...")
+                    vector_ingest(
+                        obs_file=memory_cfg["observations_file"],
+                        memory_dir=memory_cfg["dir"],
+                        pinecone_api_key=pinecone_key,
+                        voyage_api_key=voyage_key,
+                        index_name=vector_cfg["index_name"],
+                        embedding_model=vector_cfg["embedding_model"],
+                        obs_namespace=vector_cfg.get("observations_namespace", "observations"),
+                        mem_namespace=vector_cfg.get("memories_namespace", "memories"),
+                        state_file=vector_cfg.get("ingest_state_file", "data/vector_ingest_state.json"),
+                    )
+                    print("✅  Vector ingest complete.")
+                except Exception as e:
+                    print(f"⚠️  Vector ingest error (non-fatal): {e}", file=sys.stderr)
         except Exception as e:
             print(f"⚠️  Memory pipeline error (non-fatal): {e}", file=sys.stderr)
 
