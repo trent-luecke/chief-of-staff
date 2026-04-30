@@ -17,7 +17,7 @@ def build_query_string(query_signals: dict) -> str:
     seen: set[str] = set()
     unique: list[str] = []
     for p in parts:
-        if not p:
+        if not isinstance(p, str) or not p.strip():
             continue
         key = p.lower().strip()
         if key not in seen:

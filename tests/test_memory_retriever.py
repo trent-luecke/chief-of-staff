@@ -142,3 +142,14 @@ def test_build_query_string_skips_empty_strings_in_signals():
     }
     result = build_query_string(signals)
     assert result == "Real event"
+
+
+def test_build_query_string_handles_non_string_items_gracefully():
+    signals = {
+        "calendar_events": ["Real event", None, 42],
+        "email_subjects": [],
+        "pipeline_lead_names": [],
+        "issue_titles": [],
+    }
+    result = build_query_string(signals)
+    assert result == "Real event"
