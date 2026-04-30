@@ -138,7 +138,13 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 **Shipped 2026-04-30.** Pinecone serverless index (`chief-of-staff`) with two namespaces: `observations` and `memories`. `processors/vector_ingest.py` embeds new observations and updated memory files after each daily run using Voyage AI (`voyage-3-lite`, 512 dims). Non-fatal — Pinecone errors don't block the brief. Backfill script in `scripts/backfill_vectors.py` populated the index with all historical data. State tracked in `data/vector_ingest_state.json`.
 
-**Next:** Phase 2 — replace `memory_retriever.py` with semantic search against Pinecone.
+---
+
+## ✅ P14 Phase 2 — Semantic Retrieval (complete)
+
+**Shipped 2026-04-30.** `memory_retriever.py` now queries Pinecone instead of loading `.md` files by recency. Query built from today's calendar events, email subjects, active pipeline lead names, and open issue titles. Output split into `### Context` (synthesized memories, 60% of token budget) and `### Recent Signals` (raw observations, 40%). Pinned memories bypass ranking and always appear first. Expired memories filtered post-query in Python. Falls back to file-based retrieval on any Pinecone error (`retrieval_mode="auto"`). `retrieval_mode` config field controls behavior.
+
+**Next:** Phase 3 — semantic Telegram queries (replace `_load_local_context` memory dump in `query.py` with vector retrieval using the user's query text as the embedding).
 
 ---
 
@@ -153,11 +159,10 @@ Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the re
 
 > **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
 
-**Status as of 2026-04-30:** Q1, Q2, P0–P5, P7–P10, P12–P14 all shipped. Open items:
+**Status as of 2026-04-30:** Q1, Q2, P0–P5, P7–P10, P12–P14 (Phase 1–2) all shipped. Open items:
 
 1. P11 Meeting transcript integration — highest capability gap remaining
-2. P14 Phase 2 — Semantic retrieval (replaces recency-based memory retriever)
-3. P14 Phase 3 — Semantic Telegram queries
-4. P14 Phase 4 — Proactive pattern detection
-5. P6 Dashboard — deferred, not blocking daily use
-6. Notion write access — blocked on API key (workspace admin required)
+2. P14 Phase 3 — Semantic Telegram queries
+3. P14 Phase 4 — Proactive pattern detection
+4. P6 Dashboard — deferred, not blocking daily use
+5. Notion write access — blocked on API key (workspace admin required)
