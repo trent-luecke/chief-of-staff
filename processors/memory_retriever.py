@@ -6,6 +6,27 @@ from typing import Optional
 import frontmatter
 
 
+def build_query_string(query_signals: dict) -> str:
+    """Build a Voyage AI query string from today's collected signals."""
+    parts = []
+    parts.extend(query_signals.get("calendar_events", []))
+    parts.extend(query_signals.get("email_subjects", [])[:10])
+    parts.extend(query_signals.get("pipeline_lead_names", []))
+    parts.extend(query_signals.get("issue_titles", []))
+
+    seen: set[str] = set()
+    unique: list[str] = []
+    for p in parts:
+        if not p:
+            continue
+        key = p.lower().strip()
+        if key not in seen:
+            seen.add(key)
+            unique.append(p.strip())
+
+    return " | ".join(unique)
+
+
 def _count_distinct_days(obs_file: str) -> int:
     days = set()
     try:

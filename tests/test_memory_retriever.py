@@ -82,3 +82,63 @@ def test_get_cold_start_message_none_after_threshold(memory_dir, tmp_path):
             f.write(f'{{"date": "{d}", "type": "top_priority", "entity": "x", "content": "x"}}\n')
     msg = get_cold_start_message(obs_file, cold_start_days=3)
     assert msg is None
+
+
+from processors.memory_retriever import build_query_string
+
+
+def test_build_query_string_combines_all_signal_types():
+    signals = {
+        "calendar_events": ["Team standup", "Demo with Apex"],
+        "email_subjects": ["Contract renewal"],
+        "pipeline_lead_names": ["Apex Gym", "TGMC"],
+        "issue_titles": ["Follow up on stale leads"],
+    }
+    result = build_query_string(signals)
+    assert "Team standup" in result
+    assert "Demo with Apex" in result
+    assert "Contract renewal" in result
+    assert "Apex Gym" in result
+    assert "TGMC" in result
+    assert "Follow up on stale leads" in result
+
+
+def test_build_query_string_deduplicates_case_insensitively():
+    signals = {
+        "calendar_events": ["Apex Gym"],
+        "email_subjects": ["apex gym"],  # same name, different case
+        "pipeline_lead_names": ["Apex Gym"],
+        "issue_titles": [],
+    }
+    result = build_query_string(signals)
+    # "Apex Gym" should appear only once
+    assert result.count("Apex Gym") + result.count("apex gym") == 1
+
+
+def test_build_query_string_limits_email_subjects_to_ten():
+    signals = {
+        "calendar_events": [],
+        "email_subjects": [f"Subject {i}" for i in range(15)],
+        "pipeline_lead_names": [],
+        "issue_titles": [],
+    }
+    result = build_query_string(signals)
+    # Only first 10 email subjects should be included
+    assert "Subject 9" in result
+    assert "Subject 10" not in result
+
+
+def test_build_query_string_returns_empty_string_for_empty_signals():
+    result = build_query_string({})
+    assert result == ""
+
+
+def test_build_query_string_skips_empty_strings_in_signals():
+    signals = {
+        "calendar_events": ["", "Real event"],
+        "email_subjects": [],
+        "pipeline_lead_names": [],
+        "issue_titles": [],
+    }
+    result = build_query_string(signals)
+    assert result == "Real event"
