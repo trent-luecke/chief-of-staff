@@ -14,3 +14,6 @@
 ## 2026-04-30 18:35 — [note] OS Summer Campaign — going with a retro Miami Vice aesthetic across all content for the campaign. Discussed, direction confirmed.
 ## 2026-04-30 18:36 — [todo] Dante onboarding — initiate Gold + OS bundle setup by June 1 (facility opening July 1)
 ## 2026-04-30 18:38 — [note] April demo count — only 8 tracked automatically; Luke M manually found 5–6 more. Total ~13–14 for the month, still concerning. New Calendly link routing all leads to Strength sales team may be cannibalizing OS demo volume. Need to monitor May closely and consider whether OS needs a dedicated booking path.
+## 2026-04-30 18:47 — [note] Luke / Trent — Standing Agenda Item (every other meeting, starting May 14):
+**Mid-period check-in** — review pipeline health, follow-up status, and any mid-month flags.
+Schedule: May 14, May 28, Jun 11, etc.
