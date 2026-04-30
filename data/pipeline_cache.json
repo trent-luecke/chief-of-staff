@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-04-27T12:00:00.000000Z",
+  "synced_at": "2026-04-30T12:00:00.000000Z",
   "leads": [
     {
       "name": "Tyler Landeck — ALA",
@@ -8,7 +8,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 46,
+      "days_since_contact": 49,
       "estimated_value": null,
       "source": "Other",
       "stale": true
@@ -20,7 +20,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-11",
-      "days_since_contact": 47,
+      "days_since_contact": 50,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -32,7 +32,7 @@
       "status": "In-Trial / Post Demo",
       "priority": "Medium",
       "last_contacted": "2026-03-10",
-      "days_since_contact": 48,
+      "days_since_contact": 51,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -56,7 +56,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 46,
+      "days_since_contact": 49,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -68,7 +68,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": "2026-03-02",
-      "days_since_contact": 56,
+      "days_since_contact": 59,
       "estimated_value": null,
       "source": "Calendly Demo",
       "stale": true
@@ -128,7 +128,7 @@
       "status": "On-Hold",
       "priority": "Medium",
       "last_contacted": "2026-03-05",
-      "days_since_contact": 53,
+      "days_since_contact": 56,
       "estimated_value": null,
       "source": "Marketing",
       "stale": true
@@ -140,7 +140,7 @@
       "status": "On-Hold",
       "priority": "Medium",
       "last_contacted": "2026-03-12",
-      "days_since_contact": 46,
+      "days_since_contact": 49,
       "estimated_value": null,
       "source": null,
       "stale": true
