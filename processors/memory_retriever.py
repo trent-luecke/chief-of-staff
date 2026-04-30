@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Optional
 
 import frontmatter
-import voyageai
-from pinecone import Pinecone
 
 
 def build_query_string(query_signals: dict) -> str:
@@ -81,6 +79,8 @@ def query_pinecone(
 
     Returns (memory_matches, observation_matches).
     """
+    import voyageai
+    from pinecone import Pinecone
     vo = voyageai.Client(api_key=pinecone_config["voyage_api_key"])
     result = vo.embed([query_string], model=pinecone_config["embedding_model"], input_type="query")
     query_vector = result.embeddings[0]

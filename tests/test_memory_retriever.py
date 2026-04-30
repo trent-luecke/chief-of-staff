@@ -1,10 +1,11 @@
 from datetime import date, timedelta
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import frontmatter
 import pytest
 
-from processors.memory_retriever import retrieve_memories, get_cold_start_message
+from processors.memory_retriever import retrieve_memories, get_cold_start_message, build_query_string
 
 
 def write_memory(memory_dir, filename, topic, synthesized, suppress=False, expires_days=90, pinned=False):
@@ -84,9 +85,6 @@ def test_get_cold_start_message_none_after_threshold(memory_dir, tmp_path):
     assert msg is None
 
 
-from processors.memory_retriever import build_query_string
-
-
 def test_build_query_string_combines_all_signal_types():
     signals = {
         "calendar_events": ["Team standup", "Demo with Apex"],
@@ -153,10 +151,6 @@ def test_build_query_string_handles_non_string_items_gracefully():
     }
     result = build_query_string(signals)
     assert result == "Real event"
-
-
-import sys
-from unittest.mock import patch, MagicMock
 
 
 # --- helpers for semantic tests ---
