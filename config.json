@@ -84,6 +84,7 @@
     "embedding_dimension": 512,
     "observations_namespace": "observations",
     "memories_namespace": "memories",
-    "ingest_state_file": "data/vector_ingest_state.json"
+    "ingest_state_file": "data/vector_ingest_state.json",
+    "retrieval_mode": "auto"
   }
 }
