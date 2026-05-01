@@ -30,7 +30,7 @@ def fetch_sales_mtd(service, spreadsheet_id: str, tab_label: str) -> dict:
     try:
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=f"'{tab_label}'!A1:F60",
+            range=f"'{tab_label}'!A1:F200",
         ).execute()
     except Exception:
         return {"count": 0, "revenue": 0.0, "entries": []}
@@ -40,8 +40,8 @@ def fetch_sales_mtd(service, spreadsheet_id: str, tab_label: str) -> dict:
     for row in rows:
         if not row:
             continue
-        date_val = row[0] if len(row) > 0 else ""
-        if "/" not in str(date_val):
+        date_val = row[0]
+        if not re.match(r"\d+/\d+", str(date_val)):
             continue
         total = _parse_dollar(row[3]) if len(row) > 3 else 0.0
         entries.append({
@@ -61,7 +61,7 @@ def fetch_demos_mtd(service, spreadsheet_id: str, tab_label: str) -> dict:
     try:
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
-            range=f"'{tab_label}'!A1:E60",
+            range=f"'{tab_label}'!A1:E200",
         ).execute()
     except Exception:
         return {"count": 0, "entries": []}
