@@ -45,3 +45,7 @@ def build_gmail_service(user_email: str = ""):
 
 def build_calendar_service(user_email: str = ""):
     return build("calendar", "v3", credentials=_get_credentials())
+
+
+def build_sheets_service(user_email: str = ""):
+    return build("sheets", "v4", credentials=_get_credentials())

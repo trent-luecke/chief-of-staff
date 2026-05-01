@@ -56,3 +56,75 @@ def test_dept_heads_takes_priority_over_external():
 
 def test_classify_external_by_keyword_no_attendees():
     assert classify_meeting(_event("Customer Demo"), BASE_CONFIG) == "external"
+
+
+from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
+from unittest.mock import MagicMock
+from datetime import date
+
+
+def test_month_label_current():
+    label = month_label(0)
+    today = date.today()
+    expected = today.strftime("%B %Y")
+    assert label == expected
+
+
+def test_month_label_prior():
+    label = month_label(-1)
+    today = date.today()
+    if today.month == 1:
+        expected_year = today.year - 1
+        expected_month = 12
+    else:
+        expected_year = today.year
+        expected_month = today.month - 1
+    from datetime import date as d
+    expected = d(expected_year, expected_month, 1).strftime("%B %Y")
+    assert label == expected
+
+
+def test_fetch_sales_mtd_parses_rows():
+    mock_service = MagicMock()
+    mock_service.spreadsheets().values().get().execute.return_value = {
+        "values": [
+            ["`"],
+            ["TeamBuildr OS Sales"],
+            ["Date", "Sales", "Type", "Total Sale", "Customer Name", "Salesperson"],
+            ["4/16/2026", "$200", "MONTHLY", "$1,800.00", "GRIT Athlete", "Trent"],
+            ["4/28/2026", "$2,150", "ANNUAL", "$2,150.00", "Alapa Performance", "Trent"],
+            [],
+        ]
+    }
+    result = fetch_sales_mtd(mock_service, "fake-id", "April 2026")
+    assert result["count"] == 2
+    assert result["revenue"] == 3950.0
+    assert result["entries"][0]["customer"] == "GRIT Athlete"
+
+
+def test_fetch_sales_mtd_missing_tab_returns_empty():
+    mock_service = MagicMock()
+    mock_service.spreadsheets().values().get().execute.side_effect = Exception("Tab not found")
+    result = fetch_sales_mtd(mock_service, "fake-id", "April 2026")
+    assert result == {"count": 0, "revenue": 0.0, "entries": []}
+
+
+def test_fetch_demos_mtd_parses_rows():
+    mock_service = MagicMock()
+    mock_service.spreadsheets().values().get().execute.return_value = {
+        "values": [
+            ["Event ID", "Date", "Event Title", "Salesperson", "Attendees"],
+            ["abc123", "2026-04-01", "Demo with Mike", "Trent", "mike@apex.co"],
+            ["def456", "2026-04-07", "Demo with Ben", "Luke Martin", "ben@adaptfs.com"],
+        ]
+    }
+    result = fetch_demos_mtd(mock_service, "fake-id", "April 2026")
+    assert result["count"] == 2
+    assert result["entries"][0]["salesperson"] == "Trent"
+
+
+def test_fetch_demos_mtd_missing_tab_returns_empty():
+    mock_service = MagicMock()
+    mock_service.spreadsheets().values().get().execute.side_effect = Exception("Tab not found")
+    result = fetch_demos_mtd(mock_service, "fake-id", "April 2026")
+    assert result == {"count": 0, "entries": []}
