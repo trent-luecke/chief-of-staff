@@ -73,3 +73,6 @@
 {"timestamp": "2026-05-01T18:27:45Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9410, "output_tokens": 129, "estimated_cost_usd": 0.030165}
 {"timestamp": "2026-05-01T18:29:17Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 8963, "output_tokens": 77, "estimated_cost_usd": 0.028044}
 {"timestamp": "2026-05-01T18:30:11Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 8748, "output_tokens": 27, "estimated_cost_usd": 0.026649}
+{"timestamp": "2026-05-01T18:40:06Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 8815, "output_tokens": 69, "estimated_cost_usd": 0.02748}
+{"timestamp": "2026-05-01T18:40:06Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 8921, "output_tokens": 87, "estimated_cost_usd": 0.028068}
+{"timestamp": "2026-05-01T18:40:06Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9041, "output_tokens": 10, "estimated_cost_usd": 0.027273}
