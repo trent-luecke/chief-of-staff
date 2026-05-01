@@ -42,3 +42,31 @@ def classify_meeting(event: CalendarEvent, config: dict) -> Optional[str]:
         return "external"
 
     return None
+
+
+def make_prep_key(event: CalendarEvent) -> str:
+    return f"{event.id}_{date.today().isoformat()}"
+
+
+def load_prep_state(path: str) -> set:
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        return set(data.get("sent_keys", []))
+    except (FileNotFoundError, json.JSONDecodeError):
+        return set()
+
+
+def save_prep_state(sent_keys: set, path: str) -> None:
+    cutoff = date.today() - timedelta(days=7)
+
+    def _key_date(k: str) -> date:
+        try:
+            return date.fromisoformat(k.rsplit("_", 1)[-1])
+        except ValueError:
+            return date.today()
+
+    recent = {k for k in sent_keys if _key_date(k) >= cutoff}
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path, "w") as f:
+        json.dump({"sent_keys": sorted(recent)}, f, indent=2)

@@ -128,3 +128,43 @@ def test_fetch_demos_mtd_missing_tab_returns_empty():
     mock_service.spreadsheets().values().get().execute.side_effect = Exception("Tab not found")
     result = fetch_demos_mtd(mock_service, "fake-id", "April 2026")
     assert result == {"count": 0, "entries": []}
+
+
+import json as _json_module
+from datetime import date as _date_module, timedelta
+from processors.meeting_prep import make_prep_key, load_prep_state, save_prep_state
+
+
+def test_make_prep_key():
+    event = _event("Luke / Trent")
+    event.id = "abc123"
+    key = make_prep_key(event)
+    assert key == f"abc123_{_date_module.today().isoformat()}"
+
+
+def test_load_prep_state_missing_file():
+    assert load_prep_state("/nonexistent/path.json") == set()
+
+
+def test_load_prep_state_corrupt_file(tmp_path):
+    p = tmp_path / "preps.json"
+    p.write_text("not json")
+    assert load_prep_state(str(p)) == set()
+
+
+def test_save_and_load_roundtrip(tmp_path):
+    p = str(tmp_path / "preps.json")
+    keys = {f"event1_{_date_module.today().isoformat()}", f"event2_{_date_module.today().isoformat()}"}
+    save_prep_state(keys, p)
+    assert load_prep_state(p) == keys
+
+
+def test_save_prunes_old_keys(tmp_path):
+    p = str(tmp_path / "preps.json")
+    old_date = (_date_module.today() - timedelta(days=8)).isoformat()
+    old_key = f"old_event_{old_date}"
+    today_key = f"new_event_{_date_module.today().isoformat()}"
+    save_prep_state({old_key, today_key}, p)
+    loaded = load_prep_state(p)
+    assert today_key in loaded
+    assert old_key not in loaded
