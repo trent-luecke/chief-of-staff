@@ -40,7 +40,6 @@ def load_wanderer_memories(memory_dir: str, limit: int = 5) -> list[dict]:
     return results[:limit]
 
 
-# Stubs — will be replaced in later tasks
 def parse_final_response(text: str) -> dict:
     """Extract JSON from Claude's final response. Falls back to raw text as telegram."""
     # Try ```json ... ``` fence first
@@ -339,14 +338,15 @@ def run_tool_loop(
             if tool_call_count >= max_tool_calls:
                 hit_limit = True
 
+        if hit_limit:
+            tool_results.append({
+                "type": "text",
+                "text": "You've reached your query limit. Write your final JSON response now — no more tool calls.",
+            })
+
         messages.append({"role": "user", "content": tool_results})
 
         if hit_limit:
-            # One final call without tools to force conclusion
-            messages.append({
-                "role": "user",
-                "content": "You've reached your query limit. Write your final JSON response now — no more tool calls.",
-            })
             final = anthropic_client.messages.create(
                 model=model,
                 max_tokens=2048,
