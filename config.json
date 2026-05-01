@@ -99,7 +99,8 @@
     "memories_namespace": "memories",
     "ingest_state_file": "data/vector_ingest_state.json",
     "retrieval_mode": "auto",
-    "retrieval_log_file": "data/state/retrieval_log.jsonl"
+    "retrieval_log_file": "data/state/retrieval_log.jsonl",
+    "raw_data_namespace": "raw_data"
   },
   "meeting_prep": {
     "enabled": true,
@@ -111,5 +112,9 @@
       "sales_spreadsheet_id": "1pOUxLMX2H48miMvEbgqOXq1C0VHkGm-XXW2VCodQfU0",
       "demos_spreadsheet_id": "1iaMVUEuslDLVBqUIydPna-LjKOaDpqdDn5O0oLT1HjQ"
     }
+  },
+  "sheets": {
+    "cancellations_spreadsheet_id": "1BYMMVKw19Y9pwp7oFYMvUC4Webk-NI-Y-kevj7CX6D4",
+    "cancellations_tab_name": "MONTHLY Cancellations"
   }
 }

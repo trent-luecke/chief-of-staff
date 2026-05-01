@@ -1,7 +1,9 @@
 """Vector ingest: embed observations and memory files into Pinecone via Voyage AI."""
 
+import hashlib
 import json
 import os
+import re
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -15,6 +17,7 @@ from pinecone import Pinecone
 class IngestState:
     last_obs_line: int = 0
     memory_mtimes: dict = field(default_factory=dict)
+    raw_record_ids: dict = field(default_factory=dict)
 
 
 def load_ingest_state(path: str) -> IngestState:
@@ -24,6 +27,7 @@ def load_ingest_state(path: str) -> IngestState:
         return IngestState(
             last_obs_line=data.get("last_obs_line", 0),
             memory_mtimes=data.get("memory_mtimes", {}),
+            raw_record_ids=data.get("raw_record_ids", {}),
         )
     except (FileNotFoundError, json.JSONDecodeError):
         return IngestState()
@@ -37,7 +41,7 @@ def save_ingest_state(state: IngestState, path: str) -> None:
 
 def _sanitize_id(raw: str) -> str:
     """Transliterate non-ASCII characters to ASCII for Pinecone vector IDs."""
-    import unicodedata, re
+    import unicodedata
     normalized = unicodedata.normalize("NFKD", raw)
     ascii_only = normalized.encode("ascii", errors="ignore").decode("ascii")
     return re.sub(r"-{2,}", "-", ascii_only)
@@ -149,6 +153,223 @@ def prepare_memory_records(
     return records, new_mtimes
 
 
+def _raw_slug(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", text.lower().strip())[:40].strip("-")
+
+
+def _content_hash(values: list) -> str:
+    combined = "|".join(str(v) for v in values)
+    return hashlib.md5(combined.encode()).hexdigest()[:12]
+
+
+def _lead_records(pipeline_leads: list, previous_ids: dict) -> tuple[list, dict]:
+    records = []
+    new_ids = {}
+    for lead in pipeline_leads:
+        page_id = lead.get("page_id", "")
+        if not page_id:
+            continue
+        record_id = f"lead:{page_id}"
+        status = lead.get("status", "")
+        days = lead.get("days_since_contact") or 0
+        priority = lead.get("priority", "")
+        fingerprint = f"{status}:{days}:{priority}"
+        if previous_ids.get(record_id) == fingerprint:
+            new_ids[record_id] = fingerprint
+            continue
+        stale_str = " | stale" if lead.get("stale") else ""
+        text = (
+            f"Pipeline lead: {lead.get('name', '')} | "
+            f"status: {status} | "
+            f"source: {lead.get('source', '')} | "
+            f"priority: {priority} | "
+            f"{days} days since contact{stale_str}"
+        )
+        records.append({
+            "id": _sanitize_id(record_id),
+            "text": text,
+            "metadata": {
+                "name": lead.get("name", ""),
+                "status": status,
+                "source": lead.get("source", ""),
+                "priority": priority,
+                "days_since_contact": days,
+                "stale": bool(lead.get("stale", False)),
+                "email": lead.get("email", ""),
+            },
+        })
+        new_ids[record_id] = fingerprint
+    return records, new_ids
+
+
+def _bug_records(bugs: list, previous_ids: dict) -> tuple[list, dict]:
+    records = []
+    new_ids = {}
+    for bug in bugs:
+        bug_id = bug.get("id", "")
+        if not bug_id:
+            continue
+        record_id = f"bug:{bug_id}"
+        last_updated = bug.get("last_updated", "")
+        fingerprint = last_updated
+        if previous_ids.get(record_id) == fingerprint:
+            new_ids[record_id] = fingerprint
+            continue
+        title = bug.get("title", "")
+        status = bug.get("status", "")
+        priority = bug.get("priority_level", "")
+        areas = bug.get("technical_areas", [])
+        days_open = bug.get("days_open", 0)
+        areas_str = ", ".join(areas) if areas else "untagged"
+        text = (
+            f"Bug: {title} | "
+            f"status: {status} | "
+            f"priority: {priority} | "
+            f"areas: {areas_str} | "
+            f"{days_open} days open"
+        )
+        records.append({
+            "id": _sanitize_id(record_id),
+            "text": text,
+            "metadata": {
+                "title": title,
+                "status": status,
+                "priority_level": priority,
+                "technical_areas": areas,
+                "date_created": bug.get("date_created", ""),
+                "days_open": days_open,
+                "shortcut_url": bug.get("shortcut_url", ""),
+            },
+        })
+        new_ids[record_id] = fingerprint
+    return records, new_ids
+
+
+def _cancellation_records(cancellations: dict, previous_ids: dict) -> tuple[list, dict]:
+    records = []
+    new_ids = {}
+    for entry in (cancellations or {}).get("entries", []):
+        date_str = entry.get("date", "")
+        account = entry.get("account_name", "")
+        if not date_str or not account:
+            continue
+        record_id = f"cancel:{_raw_slug(date_str)}:{_raw_slug(account)}"
+        fingerprint = _content_hash([
+            date_str, account, entry.get("reason", ""), entry.get("monetary_value", "")
+        ])
+        if previous_ids.get(record_id) == fingerprint:
+            new_ids[record_id] = fingerprint
+            continue
+
+        reason = entry.get("reason", "")
+        base_plan = entry.get("base_plan", "")
+        monetary_value = entry.get("monetary_value", "")
+        customer_note = entry.get("customer_note", "")
+
+        parts = [f"Cancellation: {account} on {date_str}"]
+        if reason:
+            parts.append(f"reason: {reason}")
+        if base_plan:
+            parts.append(f"base plan: {base_plan}")
+        if monetary_value:
+            parts.append(f"monetary value: {monetary_value}")
+        if customer_note:
+            parts.append(f"customer note: {customer_note}")
+        text = " | ".join(parts)
+
+        records.append({
+            "id": _sanitize_id(record_id),
+            "text": text,
+            "metadata": {
+                "date": date_str,
+                "account_name": account,
+                "reason": reason,
+                "base_plan": base_plan,
+                "monetary_value": monetary_value,
+                "customer_returned": entry.get("customer_returned", ""),
+                "lifetime_value": entry.get("lifetime_value", ""),
+            },
+        })
+        new_ids[record_id] = fingerprint
+    return records, new_ids
+
+
+def _sale_records(sales_entries: list, previous_ids: dict) -> tuple[list, dict]:
+    records = []
+    new_ids = {}
+    for entry in (sales_entries or []):
+        date_str = entry.get("date", "")
+        customer = entry.get("customer", "")
+        if not date_str or not customer:
+            continue
+        record_id = f"sale:{_raw_slug(date_str)}:{_raw_slug(customer)}"
+        fingerprint = _content_hash([
+            date_str, customer, str(entry.get("total", "")), entry.get("sale_type", "")
+        ])
+        if previous_ids.get(record_id) == fingerprint:
+            new_ids[record_id] = fingerprint
+            continue
+
+        total = entry.get("total", 0.0)
+        sale_type = entry.get("sale_type", "")
+        salesperson = entry.get("salesperson", "")
+
+        try:
+            total_fmt = f"${float(total):,.0f}"
+        except (TypeError, ValueError):
+            total_fmt = str(total)
+
+        text = (
+            f"Sale: {customer} on {date_str} | "
+            f"{total_fmt} | "
+            f"type: {sale_type} | "
+            f"salesperson: {salesperson}"
+        )
+        records.append({
+            "id": _sanitize_id(record_id),
+            "text": text,
+            "metadata": {
+                "date": date_str,
+                "customer": customer,
+                "total": total,
+                "sale_type": sale_type,
+                "salesperson": salesperson,
+            },
+        })
+        new_ids[record_id] = fingerprint
+    return records, new_ids
+
+
+def prepare_raw_records(
+    pipeline_leads: list,
+    bugs: list,
+    cancellations: dict,
+    sales_entries: list,
+    previous_ids: dict,
+) -> tuple[list, dict]:
+    """Build raw_data records for all KPI sources. Returns (records_to_upsert, new_id_state)."""
+    all_records = []
+    new_ids = dict(previous_ids)
+
+    lead_recs, lead_ids = _lead_records(pipeline_leads or [], previous_ids)
+    all_records.extend(lead_recs)
+    new_ids.update(lead_ids)
+
+    bug_recs, bug_ids = _bug_records(bugs or [], previous_ids)
+    all_records.extend(bug_recs)
+    new_ids.update(bug_ids)
+
+    cancel_recs, cancel_ids = _cancellation_records(cancellations or {}, previous_ids)
+    all_records.extend(cancel_recs)
+    new_ids.update(cancel_ids)
+
+    sale_recs, sale_ids = _sale_records(sales_entries or [], previous_ids)
+    all_records.extend(sale_recs)
+    new_ids.update(sale_ids)
+
+    return all_records, new_ids
+
+
 def _embed_texts(
     voyage_client: voyageai.Client,
     texts: list[str],
@@ -209,15 +430,27 @@ def ingest(
     obs_namespace: str = "observations",
     mem_namespace: str = "memories",
     state_file: str = "data/vector_ingest_state.json",
+    raw_namespace: str = "raw_data",
+    pipeline_leads: list | None = None,
+    bugs: list | None = None,
+    cancellations: dict | None = None,
+    sales_entries: list | None = None,
 ) -> None:
-    """Run the full ingest pipeline: embed new observations + updated memories."""
+    """Run the full ingest pipeline: embed new observations + updated memories + raw KPI records."""
     state = load_ingest_state(state_file)
 
-    # Prepare records
+    # Prepare all records before deciding whether to initialize clients
     obs_records = prepare_observation_records(obs_file, start_line=state.last_obs_line)
     mem_records, new_mtimes = prepare_memory_records(memory_dir, state.memory_mtimes)
+    raw_records, new_raw_ids = prepare_raw_records(
+        pipeline_leads=pipeline_leads or [],
+        bugs=bugs or [],
+        cancellations=cancellations or {},
+        sales_entries=sales_entries or [],
+        previous_ids=state.raw_record_ids,
+    )
 
-    if not obs_records and not mem_records:
+    if not obs_records and not mem_records and not raw_records:
         print("   No new data to ingest.")
         return
 
@@ -242,5 +475,13 @@ def ingest(
         )
         print(f"   Upserted {mem_count} memory vectors.")
         state.memory_mtimes = new_mtimes
+
+    # Embed and upsert raw records
+    if raw_records:
+        raw_count = _embed_and_upsert(
+            vo, pc_index, raw_namespace, embedding_model, raw_records
+        )
+        print(f"   Upserted {raw_count} raw_data vectors.")
+        state.raw_record_ids = new_raw_ids
 
     save_ingest_state(state, state_file)

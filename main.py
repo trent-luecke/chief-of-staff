@@ -2,6 +2,7 @@
 """AI Chief of Staff — Morning Brief Orchestrator."""
 
 import argparse
+import dataclasses
 import json
 import os
 import sys
@@ -126,10 +127,10 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     print("📝  Reading inbox...")
     inbox_text = read_inbox(config.get("inbox_file", ""))
 
+    notion_token = os.environ.get("NOTION_TOKEN", "")
     notion_items = []
     if config.get("notion", {}).get("enabled"):
         print("🔔  Fetching Notion inbox...")
-        notion_token = os.environ.get("NOTION_TOKEN", "")
         if notion_token:
             notion_items = fetch_inbox_items(
                 token=notion_token,
@@ -151,6 +152,7 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     trial_leads: list[PipelineLead] = []
     attention_leads: list[PipelineLead] = []
     pipeline_cache_age_days: int | None = None
+    all_pipeline_leads = []
     if config.get("pipeline", {}).get("enabled"):
         print("📈  Loading pipeline cache...")
         cache_path = config["pipeline"]["cache_path"]
@@ -161,10 +163,12 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
         )
         try:
             with open(cache_path) as f:
-                synced_at = json.load(f).get("synced_at", "")
+                _cache = json.load(f)
+            synced_at = _cache.get("synced_at", "")
             if synced_at:
                 synced_date = date.fromisoformat(synced_at[:10])
                 pipeline_cache_age_days = (date.today() - synced_date).days
+            all_pipeline_leads = _cache.get("leads", [])
         except (FileNotFoundError, json.JSONDecodeError, ValueError):
             pass
         print(f"   {len(trial_leads)} trial follow-up(s), {len(attention_leads)} stale opp(s)")
@@ -180,6 +184,45 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
         )
         if gym_scout_leads:
             print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
+
+    bugs = []
+    if notion_token:
+        try:
+            from collectors.notion_bugs import fetch_bugs
+            print("🪲  Fetching bug tracker...")
+            bugs = fetch_bugs(notion_token)
+            if bugs:
+                open_bugs = [b for b in bugs if b.status != "Done"]
+                print(f"   {len(open_bugs)} open bug(s) ({len(bugs)} total)")
+        except Exception as e:
+            print(f"⚠️  Bug tracker fetch error (non-fatal): {e}", file=sys.stderr)
+
+    sales_data: dict | None = None
+    demos_data: dict | None = None
+    cancellations = {"count": 0, "entries": []}
+    sheets_cfg = config.get("sheets", {})
+    cancel_sheet_id = sheets_cfg.get("cancellations_spreadsheet_id", "")
+    cancel_tab = sheets_cfg.get("cancellations_tab_name", "MONTHLY Cancellations")
+    _mp_sheets = config.get("meeting_prep", {}).get("sheets", {})
+    sales_sheet_id = _mp_sheets.get("sales_spreadsheet_id", "")
+    demos_sheet_id = _mp_sheets.get("demos_spreadsheet_id", "")
+    if cancel_sheet_id or sales_sheet_id or demos_sheet_id:
+        try:
+            from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, month_label
+            from lib.google_auth import build_sheets_service
+            sheets_svc = build_sheets_service()
+            if cancel_sheet_id:
+                print("📉  Fetching cancellations...")
+                cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
+                print(f"   {cancellations['count']} cancellation(s) this month")
+            if sales_sheet_id:
+                sales_data = fetch_sales_mtd(sheets_svc, sales_sheet_id, month_label(0))
+                print(f"   Sales MTD: {sales_data['count']} deals, ${sales_data['revenue']:,.0f}")
+            if demos_sheet_id:
+                demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
+                print(f"   Demos MTD: {demos_data['count']}")
+        except Exception as e:
+            print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -354,6 +397,10 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 pipeline_leads=list(trial_leads) + list(attention_leads),
                 brief=brief,
                 issues=open_issues,
+                sales_data=sales_data,
+                demos_data=demos_data,
+                bugs=bugs if bugs else None,
+                cancellations=cancellations if cancellations.get("count", 0) > 0 else None,
             )
             print("🧠  Observations captured.")
             print("🔄  Running memory synthesis...")
@@ -388,6 +435,11 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                         obs_namespace=vector_cfg.get("observations_namespace", "observations"),
                         mem_namespace=vector_cfg.get("memories_namespace", "memories"),
                         state_file=vector_cfg.get("ingest_state_file", "data/vector_ingest_state.json"),
+                        raw_namespace=vector_cfg.get("raw_data_namespace", "raw_data"),
+                        pipeline_leads=all_pipeline_leads,
+                        bugs=[dataclasses.asdict(b) for b in bugs] if bugs else [],
+                        cancellations=cancellations,
+                        sales_entries=sales_data.get("entries", []) if sales_data else [],
                     )
                     print("✅  Vector ingest complete.")
                 except Exception as e:
