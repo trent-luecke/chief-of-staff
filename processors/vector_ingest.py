@@ -170,18 +170,19 @@ def _lead_records(pipeline_leads: list, previous_ids: dict) -> tuple[list, dict]
         if not page_id:
             continue
         record_id = f"lead:{page_id}"
-        status = lead.get("status", "")
+        status = lead.get("status") or ""
         days = lead.get("days_since_contact") or 0
-        priority = lead.get("priority", "")
+        priority = lead.get("priority") or ""
         fingerprint = f"{status}:{days}:{priority}"
         if previous_ids.get(record_id) == fingerprint:
             new_ids[record_id] = fingerprint
             continue
+        source = lead.get("source") or ""
         stale_str = " | stale" if lead.get("stale") else ""
         text = (
-            f"Pipeline lead: {lead.get('name', '')} | "
+            f"Pipeline lead: {lead.get('name') or ''} | "
             f"status: {status} | "
-            f"source: {lead.get('source', '')} | "
+            f"source: {source} | "
             f"priority: {priority} | "
             f"{days} days since contact{stale_str}"
         )
@@ -189,13 +190,13 @@ def _lead_records(pipeline_leads: list, previous_ids: dict) -> tuple[list, dict]
             "id": _sanitize_id(record_id),
             "text": text,
             "metadata": {
-                "name": lead.get("name", ""),
+                "name": lead.get("name") or "",
                 "status": status,
-                "source": lead.get("source", ""),
+                "source": source,
                 "priority": priority,
                 "days_since_contact": days,
                 "stale": bool(lead.get("stale", False)),
-                "email": lead.get("email", ""),
+                "email": lead.get("email") or "",
             },
         })
         new_ids[record_id] = fingerprint
@@ -210,16 +211,16 @@ def _bug_records(bugs: list, previous_ids: dict) -> tuple[list, dict]:
         if not bug_id:
             continue
         record_id = f"bug:{bug_id}"
-        last_updated = bug.get("last_updated", "")
+        last_updated = bug.get("last_updated") or ""
         fingerprint = last_updated
         if previous_ids.get(record_id) == fingerprint:
             new_ids[record_id] = fingerprint
             continue
-        title = bug.get("title", "")
-        status = bug.get("status", "")
-        priority = bug.get("priority_level", "")
-        areas = bug.get("technical_areas", [])
-        days_open = bug.get("days_open", 0)
+        title = bug.get("title") or ""
+        status = bug.get("status") or ""
+        priority = bug.get("priority_level") or ""
+        areas = bug.get("technical_areas") or []
+        days_open = bug.get("days_open") or 0
         areas_str = ", ".join(areas) if areas else "untagged"
         text = (
             f"Bug: {title} | "
@@ -236,9 +237,9 @@ def _bug_records(bugs: list, previous_ids: dict) -> tuple[list, dict]:
                 "status": status,
                 "priority_level": priority,
                 "technical_areas": areas,
-                "date_created": bug.get("date_created", ""),
+                "date_created": bug.get("date_created") or "",
                 "days_open": days_open,
-                "shortcut_url": bug.get("shortcut_url", ""),
+                "shortcut_url": bug.get("shortcut_url") or "",
             },
         })
         new_ids[record_id] = fingerprint
