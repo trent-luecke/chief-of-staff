@@ -104,6 +104,50 @@ def write_wanderer_memory(memory_dir: str, memory: dict, today: str) -> str:
 # Normalized dummy vector for metadata-only filter queries (cosine-safe with voyage-3-lite 512 dims)
 _DUMMY_VECTOR = [1.0 / math.sqrt(512)] * 512
 
+TOOLS = [
+    {
+        "name": "query_semantic",
+        "description": (
+            "Embed a natural language query and search a Pinecone namespace for semantically similar records. "
+            "Use this to find patterns, trends, or specific record types by describing what you're looking for."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Natural language query string."},
+                "namespace": {
+                    "type": "string",
+                    "enum": ["observations", "memories", "raw_data"],
+                    "description": "Pinecone namespace to search.",
+                },
+                "top_k": {"type": "integer", "description": "Number of results (default: 10).", "default": 10},
+            },
+            "required": ["query", "namespace"],
+        },
+    },
+    {
+        "name": "filter_records",
+        "description": (
+            "Query a Pinecone namespace using metadata filters without embedding. "
+            "Use for structured lookups: all High-priority bugs, cancellations by reason, stale leads, etc. "
+            'Filter syntax: {"field": {"$eq": "value"}}, {"field": {"$in": ["a","b"]}}, {"field": {"$gt": 7}}, {"field": {"$eq": true}}.'
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "namespace": {
+                    "type": "string",
+                    "enum": ["observations", "memories", "raw_data"],
+                    "description": "Pinecone namespace to filter.",
+                },
+                "filters": {"type": "object", "description": "Pinecone metadata filter dict."},
+                "top_k": {"type": "integer", "description": "Max results (default: 20).", "default": 20},
+            },
+            "required": ["namespace", "filters"],
+        },
+    },
+]
+
 
 def _format_matches(matches: list) -> str:
     """Format Pinecone query results as a readable string for Claude."""
@@ -313,3 +357,114 @@ def run_tool_loop(
                 if getattr(block, "type", None) == "text":
                     return block.text
             return ""
+
+
+def make_tool_executor(voyage_client, pc_index, embedding_model: str = "voyage-3-lite"):
+    """Return a callable that dispatches tool calls to the appropriate executor."""
+    def executor(tool_name: str, tool_input: dict) -> str:
+        if tool_name == "query_semantic":
+            return execute_query_semantic(
+                voyage_client,
+                pc_index,
+                query=tool_input["query"],
+                namespace=tool_input["namespace"],
+                top_k=tool_input.get("top_k", 10),
+                embedding_model=embedding_model,
+            )
+        elif tool_name == "filter_records":
+            return execute_filter_records(
+                pc_index,
+                namespace=tool_input["namespace"],
+                filters=tool_input["filters"],
+                top_k=tool_input.get("top_k", 20),
+            )
+        else:
+            return f"Unknown tool: {tool_name}"
+    return executor
+
+
+def main() -> None:
+    from dotenv import load_dotenv
+    load_dotenv(_ROOT / ".env")
+
+    import anthropic
+    import voyageai
+    from pinecone import Pinecone
+    from lib.telegram import send_message
+
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+    voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    telegram_chat = os.environ.get("TELEGRAM_CHAT_ID", "")
+
+    for name, val in [
+        ("ANTHROPIC_API_KEY", anthropic_key),
+        ("PINECONE_API_KEY", pinecone_key),
+        ("VOYAGE_API_KEY", voyage_key),
+        ("TELEGRAM_BOT_TOKEN", telegram_token),
+        ("TELEGRAM_CHAT_ID", telegram_chat),
+    ]:
+        if not val:
+            print(f"ERROR: {name} not set — wanderer cannot run.", file=sys.stderr)
+            return
+
+    memory_dir = str(_ROOT / "data" / "memory")
+    today = date.today().isoformat()
+    embedding_model = "voyage-3-lite"
+    index_name = "chief-of-staff"
+
+    # Load recent wanderer memories for context seeding
+    wanderer_memories = load_wanderer_memories(memory_dir)
+    print(f"   Loaded {len(wanderer_memories)} recent wanderer memories.")
+
+    # Initialize clients
+    vo = voyageai.Client(api_key=voyage_key)
+    pc = Pinecone(api_key=pinecone_key)
+    pc_index = pc.Index(index_name)
+    ac = anthropic.Anthropic(api_key=anthropic_key)
+
+    # Build system prompt and tool executor
+    system_prompt = build_system_prompt(today, wanderer_memories)
+    tool_executor = make_tool_executor(vo, pc_index, embedding_model)
+
+    # Run the loop
+    print("   Starting wanderer tool-use loop...")
+    raw_response = run_tool_loop(
+        ac, system_prompt, TOOLS, tool_executor,
+        model="claude-sonnet-4-6",
+        max_tool_calls=20,
+    )
+
+    # Parse response
+    parsed = parse_final_response(raw_response)
+    telegram_text = parsed.get("telegram", "").strip()
+    memory_data = parsed.get("memory")
+
+    # Send Telegram
+    if telegram_text:
+        try:
+            send_message(telegram_token, telegram_chat, telegram_text)
+            print("   Telegram message sent.")
+        except Exception as exc:
+            print(f"WARNING: Telegram send failed: {exc}", file=sys.stderr)
+    else:
+        print("WARNING: No telegram text in response.", file=sys.stderr)
+
+    # Write memory if present
+    if memory_data and isinstance(memory_data, dict) and memory_data.get("content"):
+        try:
+            path = write_wanderer_memory(memory_dir, memory_data, today)
+            print(f"   Memory written: {path}")
+        except Exception as exc:
+            print(f"WARNING: Memory write failed: {exc}", file=sys.stderr)
+    else:
+        print("   No memory to write.")
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as exc:
+        print(f"ERROR: Wanderer failed: {exc}", file=sys.stderr)
+        sys.exit(0)  # Non-fatal — don't fail the GitHub Actions job
