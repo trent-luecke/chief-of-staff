@@ -62,15 +62,44 @@ def run() -> None:
     config = load_config()
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     nudge_delay = config.get("nudge_minutes_after", 5)
     pending_file = config["pending_nudges_file"]
     pending = load_pending_nudges(pending_file)
     already_nudged = {n["event_id"] for n in pending}
 
+    prep_config = config.get("meeting_prep", {})
+    prep_enabled = prep_config.get("enabled", False)
+    prep_window = prep_config.get("prep_window_minutes", 20)
+    prep_state_file = prep_config.get("preps_state_file", "data/meeting_preps.json")
+
     today_events, _, _ = fetch_two_day_events(config["calendar_ids"])
     now = datetime.now().astimezone()
 
+    from processors.meeting_prep import (
+        classify_meeting, build_prep_message,
+        load_prep_state, save_prep_state, make_prep_key,
+    )
+    sent_preps = load_prep_state(prep_state_file) if prep_enabled else set()
+
     for event in today_events:
+        # ── Pre-meeting prep ────────────────────────────────────────────
+        if prep_enabled and api_key and bot_token and chat_id:
+            prep_key = make_prep_key(event)
+            if prep_key not in sent_preps:
+                meeting_type = classify_meeting(event, config)
+                if meeting_type:
+                    prep_start = event.start - timedelta(minutes=prep_window)
+                    if prep_start <= now <= event.start:
+                        try:
+                            message = build_prep_message(event, meeting_type, config, api_key)
+                            send_message(bot_token, chat_id, message)
+                            sent_preps.add(prep_key)
+                            print(f"  Prep sent for: {event.summary} ({meeting_type})")
+                        except Exception as e:
+                            print(f"  WARNING: Prep failed for {event.summary}: {e}")
+
+        # ── Post-meeting nudge ───────────────────────────────────────────
         if event.id in already_nudged:
             continue
         if not is_work_meeting(event):
@@ -94,6 +123,8 @@ def run() -> None:
         })
 
     save_pending_nudges(pending, pending_file)
+    if prep_enabled:
+        save_prep_state(sent_preps, prep_state_file)
     print("✅ Nudger run complete.")
 
 
