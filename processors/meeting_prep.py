@@ -35,12 +35,10 @@ def classify_meeting(event: CalendarEvent, config: dict) -> Optional[str]:
 
     has_external_keyword = any(kw in title for kw in EXTERNAL_KEYWORDS)
     has_external_attendee = any(
-        "teambuildr.com" not in a.lower() for a in event.attendees
+        "@teambuildr.com" not in a.lower() for a in event.attendees
     )
 
-    if event.attendees and (has_external_keyword or has_external_attendee):
-        return "external"
-    if not event.attendees and has_external_keyword:
+    if has_external_keyword or (event.attendees and has_external_attendee):
         return "external"
 
     return None

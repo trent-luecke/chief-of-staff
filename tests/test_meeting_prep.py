@@ -53,3 +53,6 @@ def test_classify_skips_generic_internal():
 
 def test_dept_heads_takes_priority_over_external():
     assert classify_meeting(_event("Department Heads Demo Review"), BASE_CONFIG) == "dept_heads"
+
+def test_classify_external_by_keyword_no_attendees():
+    assert classify_meeting(_event("Customer Demo"), BASE_CONFIG) == "external"
