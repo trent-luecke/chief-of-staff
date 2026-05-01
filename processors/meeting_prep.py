@@ -73,6 +73,8 @@ def save_prep_state(sent_keys: set, path: str) -> None:
 
 
 def _name_tokens(text: str) -> list[str]:
+    if not text or not isinstance(text, str):
+        return []
     parts = re.split(r"[-_.\s@:|/]", text.lower())
     return [p for p in parts if len(p) >= 3]
 
@@ -93,7 +95,7 @@ def _find_pipeline_lead(pipeline_path: str, tokens: list[str]) -> Optional[dict]
     try:
         with open(pipeline_path) as f:
             cache = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError):
         return None
     for lead in cache.get("leads", []):
         lead_text = (lead.get("name", "") + " " + lead.get("contact", "") + " " + lead.get("email", "")).lower()
@@ -110,11 +112,14 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
                 line = line.strip()
                 if not line:
                     continue
-                obs = json.loads(line)
+                try:
+                    obs = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
                 content = obs.get("content", "")
                 if any(t in content.lower() for t in tokens):
                     lines.append(f"{obs.get('date', '?')}: {content}")
-    except (FileNotFoundError, json.JSONDecodeError):
+    except (FileNotFoundError, PermissionError):
         pass
     return lines[-limit:]
 
