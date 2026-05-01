@@ -62,3 +62,5 @@
 {"timestamp": "2026-05-01T19:21:10Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9339, "output_tokens": 107, "estimated_cost_usd": 0.029622}
 {"timestamp": "2026-05-01T19:22:54Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9091, "output_tokens": 169, "estimated_cost_usd": 0.029808}
 {"timestamp": "2026-05-01T19:22:54Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9313, "output_tokens": 14, "estimated_cost_usd": 0.028149}
+{"timestamp": "2026-05-01T21:17:44Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9094, "output_tokens": 139, "estimated_cost_usd": 0.029367}
+{"timestamp": "2026-05-01T21:17:44Z", "run_type": "telegram_query", "caller": "query_tool_loop", "model": "claude-sonnet-4-6", "input_tokens": 9343, "output_tokens": 39, "estimated_cost_usd": 0.028614}

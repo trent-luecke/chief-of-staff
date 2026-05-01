@@ -9,7 +9,7 @@
 **Status:** Active
 **Priority:** Medium
 **Tier:** evergreen
-**Next:** Batch content block Friday morning
+**Next:** ~~Batch content block Friday morning~~ ✓
 **Notes:** Managed in Notion LinkedIn Content database; chief of staff audits weekly for post gaps and suggests topics
 
 ## Project: Vero
