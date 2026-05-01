@@ -151,6 +151,7 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     trial_leads: list[PipelineLead] = []
     attention_leads: list[PipelineLead] = []
     pipeline_cache_age_days: int | None = None
+    all_pipeline_leads = []
     if config.get("pipeline", {}).get("enabled"):
         print("📈  Loading pipeline cache...")
         cache_path = config["pipeline"]["cache_path"]
@@ -167,6 +168,12 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 pipeline_cache_age_days = (date.today() - synced_date).days
         except (FileNotFoundError, json.JSONDecodeError, ValueError):
             pass
+        all_pipeline_leads = []
+        try:
+            with open(cache_path) as f:
+                all_pipeline_leads = json.load(f).get("leads", [])
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
         print(f"   {len(trial_leads)} trial follow-up(s), {len(attention_leads)} stale opp(s)")
         if trial_leads:
             print("✍️  Generating trial follow-up drafts...")
@@ -180,6 +187,34 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
         )
         if gym_scout_leads:
             print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
+
+    bugs = []
+    notion_token = os.environ.get("NOTION_TOKEN", "")
+    if notion_token:
+        try:
+            from collectors.notion_bugs import fetch_bugs
+            print("🪲  Fetching bug tracker...")
+            bugs = fetch_bugs(notion_token)
+            if bugs:
+                open_bugs = [b for b in bugs if b.status != "Done"]
+                print(f"   {len(open_bugs)} open bug(s) ({len(bugs)} total)")
+        except Exception as e:
+            print(f"⚠️  Bug tracker fetch error (non-fatal): {e}", file=sys.stderr)
+
+    cancellations = {"count": 0, "entries": []}
+    sheets_cfg = config.get("sheets", {})
+    cancel_sheet_id = sheets_cfg.get("cancellations_spreadsheet_id", "")
+    cancel_tab = sheets_cfg.get("cancellations_tab_name", "MONTHLY Cancellations")
+    if cancel_sheet_id:
+        try:
+            from collectors.sheets import fetch_cancellations_mtd
+            from lib.google_auth import build_sheets_service
+            print("📉  Fetching cancellations...")
+            sheets_svc = build_sheets_service()
+            cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
+            print(f"   {cancellations['count']} cancellation(s) this month")
+        except Exception as e:
+            print(f"⚠️  Cancellations fetch error (non-fatal): {e}", file=sys.stderr)
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -354,6 +389,10 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 pipeline_leads=list(trial_leads) + list(attention_leads),
                 brief=brief,
                 issues=open_issues,
+                sales_data=None,
+                demos_data=None,
+                bugs=bugs if bugs else None,
+                cancellations=cancellations if cancellations.get("count", 0) > 0 else None,
             )
             print("🧠  Observations captured.")
             print("🔄  Running memory synthesis...")
@@ -376,6 +415,7 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
             voyage_key = os.environ.get("VOYAGE_API_KEY", "")
             if vector_cfg.get("enabled") and pinecone_key and voyage_key:
                 try:
+                    import dataclasses
                     from processors.vector_ingest import ingest as vector_ingest
                     print("📡  Ingesting vectors into Pinecone...")
                     vector_ingest(
@@ -388,6 +428,11 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                         obs_namespace=vector_cfg.get("observations_namespace", "observations"),
                         mem_namespace=vector_cfg.get("memories_namespace", "memories"),
                         state_file=vector_cfg.get("ingest_state_file", "data/vector_ingest_state.json"),
+                        raw_namespace=vector_cfg.get("raw_data_namespace", "raw_data"),
+                        pipeline_leads=all_pipeline_leads,
+                        bugs=[dataclasses.asdict(b) for b in bugs] if bugs else [],
+                        cancellations=cancellations,
+                        sales_entries=[],
                     )
                     print("✅  Vector ingest complete.")
                 except Exception as e:
