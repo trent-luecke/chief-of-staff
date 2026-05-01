@@ -168,3 +168,47 @@ def test_save_prunes_old_keys(tmp_path):
     loaded = load_prep_state(p)
     assert today_key in loaded
     assert old_key not in loaded
+
+
+import os as _os_module, json as _json_module
+from processors.meeting_prep import build_external_context
+
+
+def test_build_external_context_people_match(tmp_path):
+    people_dir = tmp_path / "people"
+    people_dir.mkdir()
+    (people_dir / "mike-woodby.md").write_text("Mike Woodby — Apex Holland coach.")
+    config = {
+        "people_dir": str(people_dir),
+        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    event = _event("Mike Woodby: OS Demo", attendees=["mike@apexholland.co"])
+    result = build_external_context(event, config)
+    assert "Mike Woodby" in result
+    assert "Apex Holland" in result
+
+
+def test_build_external_context_pipeline_match(tmp_path):
+    pipeline = {"leads": [{"name": "Apex Holland", "status": "In-Trial", "contact": "Mike Woodby", "email": "mike@apexholland.co", "days_since_contact": 10, "estimated_value": 2000, "stale": False, "priority": "High", "last_contacted": "2026-04-20", "source": None}]}
+    pipeline_path = tmp_path / "pipeline.json"
+    pipeline_path.write_text(_json_module.dumps(pipeline))
+    config = {
+        "people_dir": str(tmp_path / "people"),
+        "pipeline": {"cache_path": str(pipeline_path)},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    event = _event("Apex Holland Demo", attendees=["mike@apexholland.co"])
+    result = build_external_context(event, config)
+    assert "In-Trial" in result or "Apex Holland" in result
+
+
+def test_build_external_context_empty_when_no_data(tmp_path):
+    config = {
+        "people_dir": str(tmp_path / "people"),
+        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    event = _event("Unknown Person Demo")
+    result = build_external_context(event, config)
+    assert isinstance(result, str)
