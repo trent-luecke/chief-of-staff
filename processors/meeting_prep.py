@@ -53,7 +53,7 @@ def load_prep_state(path: str) -> set:
         with open(path) as f:
             data = json.load(f)
         return set(data.get("sent_keys", []))
-    except (FileNotFoundError, json.JSONDecodeError):
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError):
         return set()
 
 
@@ -64,7 +64,7 @@ def save_prep_state(sent_keys: set, path: str) -> None:
         try:
             return date.fromisoformat(k.rsplit("_", 1)[-1])
         except ValueError:
-            return date.today()
+            return date.min  # prune malformed keys immediately
 
     recent = {k for k in sent_keys if _key_date(k) >= cutoff}
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
