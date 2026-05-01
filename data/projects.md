@@ -32,3 +32,10 @@
 **Tier:** recurring
 **Next:** Research topics for next Tuesday session
 **Notes:** Weekly Tuesday podcast with mentor; research and talking points needed before each session
+
+## Project: Connor — Platinum + OS Deal
+**Status:** In Progress
+**Priority:** Medium
+**Tier:** core
+**Next:** Wed 5/6 follow-up meeting — walk through Zapier automations, confirm OS fit
+**Notes:** Prospect evaluating OS as replacement for EZ Facility. Quoted Platinum + OS. Annual payment cycle in July. Excited about Zapier integrations.
