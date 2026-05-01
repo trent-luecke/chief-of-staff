@@ -205,3 +205,34 @@ def test_execute_filter_records_calls_pinecone_with_filter():
     assert call_kwargs["top_k"] == 10
     assert call_kwargs["include_metadata"] is True
     assert "bug:001" in result
+
+
+def test_build_system_prompt_contains_today():
+    prompt = build_system_prompt("2026-05-01", [], "")
+    assert "2026-05-01" in prompt
+
+
+def test_build_system_prompt_no_memories_section():
+    prompt = build_system_prompt("2026-05-01", [], "")
+    assert "No previous findings" in prompt
+
+
+def test_build_system_prompt_includes_memories():
+    memories = [
+        {"topic": "Cancellation Clustering", "last_updated": "2026-04-30", "content": "Business Changes is dominant."},
+    ]
+    prompt = build_system_prompt("2026-05-01", memories, "")
+    assert "Cancellation Clustering" in prompt
+    assert "Business Changes is dominant" in prompt
+
+
+def test_build_system_prompt_contains_query_limit():
+    prompt = build_system_prompt("2026-05-01", [], "")
+    assert "15" in prompt
+    assert "20" in prompt
+
+
+def test_build_system_prompt_contains_json_instruction():
+    prompt = build_system_prompt("2026-05-01", [], "")
+    assert '"telegram"' in prompt
+    assert '"memory"' in prompt
