@@ -18,3 +18,5 @@
 **Mid-period check-in** — review pipeline health, follow-up status, and any mid-month flags.
 Schedule: May 14, May 28, Jun 11, etc.
 ## 2026-04-30 18:55 — [todo] TOMORROW — Call to set up dentist appointments for Truman and Carter
+## 2026-05-01 11:38 — [note] Mike Woodby — Apex Holland: Trent emailed 2026-05-01 (Re: TeamBuildr OS Follow-Up). Last contacted date is stale in pipeline — actual last contact was yesterday. Do not flag as stale in brief until no response after ~2 weeks from today.
+## 2026-05-01 11:38 — [note] Emma Hicks — For Fitness & Athletics: Confirmed On-Hold by Trent as of 2026-05-01. Not an active follow-up target. Suppress from brief's stale/action-needed pipeline section until status changes.
