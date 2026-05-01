@@ -319,6 +319,8 @@ def build_prep_message(
     config: dict,
     api_key: str,
 ) -> str:
+    if meeting_type not in _SYSTEM_PROMPTS:
+        raise ValueError(f"Unknown meeting_type: {meeting_type!r}. Must be one of: {list(_SYSTEM_PROMPTS)}")
     if meeting_type == "external":
         context = build_external_context(event, config)
     elif meeting_type == "dept_heads":
@@ -336,8 +338,13 @@ def build_prep_message(
         system=_SYSTEM_PROMPTS[meeting_type],
         messages=[{"role": "user", "content": user_content}],
     )
-    from lib.llm_logger import log_usage
-    log_usage("meeting_prep", response.usage, model)
+    try:
+        from lib.llm_logger import log_usage
+        log_usage("meeting_prep", response.usage, model)
+    except Exception:
+        pass
+    if not response.content:
+        raise ValueError(f"Claude returned empty content for meeting: {event.summary}")
     body = response.content[0].text.strip()
     emoji = _EMOJI.get(meeting_type, "📋")
     return f"{emoji} {event.summary}\n\n{body}"
