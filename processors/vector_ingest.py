@@ -433,14 +433,21 @@ def ingest(
     cancellations: dict | None = None,
     sales_entries: list | None = None,
 ) -> None:
-    """Run the full ingest pipeline: embed new observations + updated memories."""
+    """Run the full ingest pipeline: embed new observations + updated memories + raw KPI records."""
     state = load_ingest_state(state_file)
 
-    # Prepare records
+    # Prepare all records before deciding whether to initialize clients
     obs_records = prepare_observation_records(obs_file, start_line=state.last_obs_line)
     mem_records, new_mtimes = prepare_memory_records(memory_dir, state.memory_mtimes)
+    raw_records, new_raw_ids = prepare_raw_records(
+        pipeline_leads=pipeline_leads or [],
+        bugs=bugs or [],
+        cancellations=cancellations or {},
+        sales_entries=sales_entries or [],
+        previous_ids=state.raw_record_ids,
+    )
 
-    if not obs_records and not mem_records:
+    if not obs_records and not mem_records and not raw_records:
         print("   No new data to ingest.")
         return
 
@@ -467,13 +474,6 @@ def ingest(
         state.memory_mtimes = new_mtimes
 
     # Embed and upsert raw records
-    raw_records, new_raw_ids = prepare_raw_records(
-        pipeline_leads=pipeline_leads or [],
-        bugs=bugs or [],
-        cancellations=cancellations or {},
-        sales_entries=sales_entries or [],
-        previous_ids=state.raw_record_ids,
-    )
     if raw_records:
         raw_count = _embed_and_upsert(
             vo, pc_index, raw_namespace, embedding_model, raw_records
