@@ -164,3 +164,108 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
         parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
 
     return "\n\n".join(parts)
+
+
+def build_dept_heads_context(config: dict) -> str:
+    pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
+    projects_file = config.get("projects_file", "data/projects.md")
+    captures_file = config.get("captures_file", "data/captures.md")
+    sheets_cfg = config.get("meeting_prep", {}).get("sheets", {})
+    sales_sheet_id = sheets_cfg.get("sales_spreadsheet_id", "")
+    demos_sheet_id = sheets_cfg.get("demos_spreadsheet_id", "")
+    parts = []
+
+    try:
+        with open(pipeline_path) as f:
+            cache = json.load(f)
+        leads = cache.get("leads", [])
+        total = len(leads)
+        by_status: dict[str, list] = {}
+        for lead in leads:
+            by_status.setdefault(lead.get("status", "Unknown"), []).append(lead)
+        lines = [f"## Pipeline ({total} total)"]
+        for status, group in sorted(by_status.items()):
+            names = ", ".join(l.get("name", "?") for l in group[:3])
+            suffix = "..." if len(group) > 3 else ""
+            stale_count = sum(1 for l in group if l.get("stale"))
+            line = f"• {status} ({len(group)}): {names}{suffix}"
+            if stale_count:
+                line += f" [{stale_count} stale]"
+            lines.append(line)
+        parts.append("\n".join(lines))
+    except (FileNotFoundError, PermissionError, json.JSONDecodeError):
+        pass
+
+    if sales_sheet_id or demos_sheet_id:
+        try:
+            from lib.google_auth import build_sheets_service
+            from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
+            svc = build_sheets_service()
+            cur_label = month_label(0)
+            is_first_of_month = date.today().day <= 7
+
+            kpi_lines = [f"## Sales & Demos — {cur_label} MTD"]
+            if sales_sheet_id:
+                sales = fetch_sales_mtd(svc, sales_sheet_id, cur_label)
+                kpi_lines.append(f"• New Sales MTD: {sales['count']} deals, ${sales['revenue']:,.0f}")
+                if is_first_of_month:
+                    prior = fetch_sales_mtd(svc, sales_sheet_id, month_label(-1))
+                    kpi_lines.append(f"• {month_label(-1)} Final: {prior['count']} deals, ${prior['revenue']:,.0f}")
+            if demos_sheet_id:
+                demos = fetch_demos_mtd(svc, demos_sheet_id, cur_label)
+                kpi_lines.append(f"• Demos MTD: {demos['count']}")
+                if is_first_of_month:
+                    prior_demos = fetch_demos_mtd(svc, demos_sheet_id, month_label(-1))
+                    kpi_lines.append(f"• {month_label(-1)} Final Demos: {prior_demos['count']}")
+            parts.append("\n".join(kpi_lines))
+        except Exception as e:
+            parts.append(f"## Sales & Demos\n(unavailable: {e})")
+
+    if os.path.exists(projects_file):
+        try:
+            with open(projects_file) as f:
+                parts.append("## Active Projects\n" + f.read()[:2000])
+        except OSError:
+            pass
+
+    if os.path.exists(captures_file):
+        try:
+            with open(captures_file) as f:
+                content = f.read().strip()
+            if content:
+                parts.append("## Open Items & Flags\n" + content[:1000])
+        except OSError:
+            pass
+
+    return "\n\n".join(parts)
+
+
+def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
+    obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
+    projects_file = config.get("projects_file", "data/projects.md")
+    captures_file = config.get("captures_file", "data/captures.md")
+
+    tokens = _name_tokens(event.summary)
+    parts = []
+
+    obs = _find_observations(obs_path, tokens, limit=10)
+    if obs:
+        parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
+
+    if os.path.exists(projects_file):
+        try:
+            with open(projects_file) as f:
+                parts.append("## Active Projects\n" + f.read()[:2000])
+        except OSError:
+            pass
+
+    if os.path.exists(captures_file):
+        try:
+            with open(captures_file) as f:
+                content = f.read().strip()
+            if content:
+                parts.append("## Open Captures\n" + content[:1000])
+        except OSError:
+            pass
+
+    return "\n\n".join(parts)

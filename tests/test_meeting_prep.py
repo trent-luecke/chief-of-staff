@@ -212,3 +212,59 @@ def test_build_external_context_empty_when_no_data(tmp_path):
     event = _event("Unknown Person Demo")
     result = build_external_context(event, config)
     assert isinstance(result, str)
+
+
+from processors.meeting_prep import build_dept_heads_context, build_recurring_internal_context
+
+
+def test_build_dept_heads_context_pipeline_summary(tmp_path):
+    pipeline = {"leads": [
+        {"name": "Tyler Landeck", "status": "In-Trial / Post Demo", "estimated_value": 2000, "stale": True, "contact": "", "email": "", "days_since_contact": 40, "priority": "High", "last_contacted": "2026-03-20", "source": None},
+        {"name": "Mike Woodby", "status": "Out of Demo / Need Update", "estimated_value": None, "stale": False, "contact": "", "email": "", "days_since_contact": 5, "priority": "Medium", "last_contacted": "2026-04-25", "source": None},
+    ]}
+    pipeline_path = tmp_path / "pipeline.json"
+    pipeline_path.write_text(_json_module.dumps(pipeline))
+    config = {
+        "pipeline": {"cache_path": str(pipeline_path)},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    result = build_dept_heads_context(config)
+    assert "In-Trial" in result or "Tyler" in result
+    assert "Out of Demo" in result or "Mike" in result
+
+
+def test_build_dept_heads_context_no_crash_missing_files(tmp_path):
+    config = {
+        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    result = build_dept_heads_context(config)
+    assert isinstance(result, str)
+
+
+def test_build_recurring_internal_context_observations(tmp_path):
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(
+        _json_module.dumps({"date": "2026-04-28", "type": "top_priority", "entity": "priorities", "content": "Discussed LTV with Luke — he wants a demo next week", "source": "brief"}) + "\n"
+    )
+    projects_file = tmp_path / "projects.md"
+    projects_file.write_text("## Project: LTV Lead Magnet\n**Next:** Design UI\n")
+    config = {
+        "memory": {"observations_file": str(obs_path)},
+        "projects_file": str(projects_file),
+        "captures_file": str(tmp_path / "captures.md"),
+    }
+    event = _event("Luke / Trent")
+    result = build_recurring_internal_context(event, config)
+    assert "luke" in result.lower() or "LTV" in result
+
+
+def test_build_recurring_internal_context_no_crash_missing_files(tmp_path):
+    config = {
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+        "projects_file": str(tmp_path / "projects.md"),
+        "captures_file": str(tmp_path / "captures.md"),
+    }
+    event = _event("Luke / Trent")
+    result = build_recurring_internal_context(event, config)
+    assert isinstance(result, str)
