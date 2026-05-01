@@ -62,7 +62,7 @@ def test_fetch_today_events_handles_api_error():
 
 
 def test_fetch_two_day_events_returns_sorted_tuple(mock_calendar_service):
-    today_events, tomorrow_events = fetch_two_day_events(
+    today_events, tomorrow_events, _ = fetch_two_day_events(
         calendar_ids=["primary"], user_email="trent@teambuildr.com"
     )
     assert len(today_events) == 1
