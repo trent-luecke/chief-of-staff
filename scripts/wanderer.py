@@ -285,7 +285,7 @@ def run_tool_loop(
     max_tool_calls: int = 20,
 ) -> str:
     """Run Claude tool-use loop. Returns Claude's final text response."""
-    messages = []
+    messages = [{"role": "user", "content": "Begin your exploration. Use your tools to investigate the data and surface any interesting patterns or signals."}]
     tool_call_count = 0
 
     while True:
