@@ -101,5 +101,60 @@ def write_wanderer_memory(memory_dir: str, memory: dict, today: str) -> str:
     return path
 
 
-def _format_matches(matches: list) -> str: ...  # noqa: E704
+# Normalized dummy vector for metadata-only filter queries (cosine-safe with voyage-3-lite 512 dims)
+_DUMMY_VECTOR = [1.0 / math.sqrt(512)] * 512
+
+
+def _format_matches(matches: list) -> str:
+    """Format Pinecone query results as a readable string for Claude."""
+    if not matches:
+        return "No results found."
+    parts = []
+    for m in matches:
+        meta = m.metadata or {}
+        score = getattr(m, "score", None)
+        score_str = f" (score: {score:.3f})" if score is not None else ""
+        preview = meta.get("content_preview", "")
+        meta_str = json.dumps({k: v for k, v in meta.items() if k != "content_preview"}, default=str)
+        parts.append(f"ID: {m.id}{score_str}\nMetadata: {meta_str}\nPreview: {preview}")
+    return "\n\n".join(parts)
+
+
+def execute_query_semantic(
+    voyage_client,
+    pc_index,
+    query: str,
+    namespace: str,
+    top_k: int = 10,
+    embedding_model: str = "voyage-3-lite",
+) -> str:
+    """Embed query via Voyage and search Pinecone. Returns formatted result string."""
+    result = voyage_client.embed([query], model=embedding_model, input_type="query")
+    query_vector = result.embeddings[0]
+    response = pc_index.query(
+        vector=query_vector,
+        top_k=top_k,
+        namespace=namespace,
+        include_metadata=True,
+    )
+    return _format_matches(response.matches)
+
+
+def execute_filter_records(
+    pc_index,
+    namespace: str,
+    filters: dict,
+    top_k: int = 20,
+) -> str:
+    """Metadata filter query against Pinecone. Uses dummy vector (scores are irrelevant)."""
+    response = pc_index.query(
+        vector=_DUMMY_VECTOR,
+        top_k=top_k,
+        namespace=namespace,
+        filter=filters,
+        include_metadata=True,
+    )
+    return _format_matches(response.matches)
+
+
 def build_system_prompt(today: str, wanderer_memories: list, namespace_schema: str = "") -> str: ...  # noqa: E704

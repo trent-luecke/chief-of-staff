@@ -146,3 +146,62 @@ def test_write_wanderer_memory_slug_sanitized(tmp_path):
     memory = {"topic": "Bug Clusters: Mobile & Payments", "content": "c", "expires": "2026-05-15"}
     path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
     assert "wanderer_bug-clusters-mobile-payments_2026-05-01" in path
+
+
+def test_format_matches_empty():
+    assert _format_matches([]) == "No results found."
+
+
+def test_format_matches_formats_fields():
+    match = MagicMock()
+    match.id = "lead:abc123"
+    match.score = 0.87
+    match.metadata = {"name": "Tyler Landeck", "status": "In-Trial", "content_preview": "Pipeline lead: Tyler"}
+    result = _format_matches([match])
+    assert "lead:abc123" in result
+    assert "0.870" in result
+    assert "Tyler Landeck" in result
+    assert "Pipeline lead: Tyler" in result
+
+
+def test_execute_query_semantic_calls_voyage_and_pinecone():
+    mock_voyage = MagicMock()
+    mock_voyage.embed.return_value = MagicMock(embeddings=[[0.1] * 512])
+
+    match = MagicMock()
+    match.id = "bug:xyz"
+    match.score = 0.9
+    match.metadata = {"title": "Login crash", "content_preview": "Bug: Login crash"}
+    mock_index = MagicMock()
+    mock_index.query.return_value = MagicMock(matches=[match])
+
+    from scripts.wanderer import execute_query_semantic
+    result = execute_query_semantic(mock_voyage, mock_index, "login bugs", "raw_data", top_k=5)
+
+    mock_voyage.embed.assert_called_once_with(["login bugs"], model="voyage-3-lite", input_type="query")
+    mock_index.query.assert_called_once_with(
+        vector=[0.1] * 512,
+        top_k=5,
+        namespace="raw_data",
+        include_metadata=True,
+    )
+    assert "bug:xyz" in result
+
+
+def test_execute_filter_records_calls_pinecone_with_filter():
+    match = MagicMock()
+    match.id = "bug:001"
+    match.score = 0.0
+    match.metadata = {"priority_level": "High", "content_preview": "High priority bug"}
+    mock_index = MagicMock()
+    mock_index.query.return_value = MagicMock(matches=[match])
+
+    from scripts.wanderer import execute_filter_records
+    result = execute_filter_records(mock_index, "raw_data", {"priority_level": {"$eq": "High"}}, top_k=10)
+
+    call_kwargs = mock_index.query.call_args[1]
+    assert call_kwargs["namespace"] == "raw_data"
+    assert call_kwargs["filter"] == {"priority_level": {"$eq": "High"}}
+    assert call_kwargs["top_k"] == 10
+    assert call_kwargs["include_metadata"] is True
+    assert "bug:001" in result
