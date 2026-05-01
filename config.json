@@ -100,5 +100,16 @@
     "ingest_state_file": "data/vector_ingest_state.json",
     "retrieval_mode": "auto",
     "retrieval_log_file": "data/state/retrieval_log.jsonl"
+  },
+  "meeting_prep": {
+    "enabled": true,
+    "prep_window_minutes": 20,
+    "dept_heads_patterns": ["department heads", "dept heads"],
+    "recurring_internal_patterns": ["marketing sync", "os weekly", "luke / trent", "luke/trent"],
+    "preps_state_file": "data/meeting_preps.json",
+    "sheets": {
+      "sales_spreadsheet_id": "1pOUxLMX2H48miMvEbgqOXq1C0VHkGm-XXW2VCodQfU0",
+      "demos_spreadsheet_id": "1iaMVUEuslDLVBqUIydPna-LjKOaDpqdDn5O0oLT1HjQ"
+    }
   }
 }
