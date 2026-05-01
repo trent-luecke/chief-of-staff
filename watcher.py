@@ -6,8 +6,10 @@ import math
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
+
+import requests
 
 from dotenv import load_dotenv
 
@@ -76,6 +78,68 @@ def load_lead_email_index(cache_path: str) -> dict[str, str]:
         for r in data.get("leads", [])
         if r.get("email") and r.get("status") not in skip_statuses
     }
+
+
+def load_lead_page_index(cache_path: str) -> dict[str, str]:
+    """Returns {email_lower: page_id} for all leads that have a page_id."""
+    try:
+        with open(cache_path) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+    return {
+        r["email"].lower(): r["page_id"]
+        for r in data.get("leads", [])
+        if r.get("email") and r.get("page_id")
+    }
+
+
+def update_notion_last_contacted(page_id: str, contact_date: str) -> bool:
+    """Patches the Last Contacted date on a Notion page. Returns True on success."""
+    token = os.environ.get("NOTION_TOKEN", "")
+    if not token:
+        return False
+    url = f"https://api.notion.com/v1/pages/{page_id}"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+    }
+    body = {"properties": {"Last Contacted": {"date": {"start": contact_date}}}}
+    try:
+        resp = requests.patch(url, headers=headers, json=body, timeout=10)
+        return resp.status_code == 200
+    except Exception:
+        return False
+
+
+def patch_pipeline_cache_last_contacted(cache_path: str, email: str, contact_date: str) -> None:
+    """Updates last_contacted in the local pipeline cache for immediate brief accuracy."""
+    try:
+        with open(cache_path) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return
+    today = date.today()
+    changed = False
+    for lead in data.get("leads", []):
+        if lead.get("email", "").lower() != email:
+            continue
+        existing = lead.get("last_contacted", "")
+        if existing and existing >= contact_date:
+            break
+        lead["last_contacted"] = contact_date
+        try:
+            days = (today - date.fromisoformat(contact_date[:10])).days
+        except (ValueError, TypeError):
+            days = None
+        lead["days_since_contact"] = days
+        lead["stale"] = bool(days is not None and days >= 14)
+        changed = True
+        break
+    if changed:
+        with open(cache_path, "w") as f:
+            json.dump(data, f, indent=2)
 
 
 # ---------------------------------------------------------------------------
@@ -213,6 +277,7 @@ def run() -> None:
 
     # --- Sent mail scan (outbound pipeline tracking) ---
     if lead_index:
+        page_index = load_lead_page_index(cache_path)
         sent_query = f"in:sent newer_than:{lookback_hours}h"
         print(f"📤 Scanning sent mail for outbound pipeline contacts...")
         sent_threads = fetch_threads_needing_attention(
@@ -226,7 +291,17 @@ def run() -> None:
                 lead_name = lead_index[recipient_email]
                 updated = record_lead_contact(activity, recipient_email, lead_name, thread, direction="outbound")
                 if updated:
+                    contact_date = thread.last_message_date.date().isoformat()
                     print(f"   Outbound contact: {lead_name} — {thread.subject[:60]}")
+                    # Patch local cache immediately so next brief sees updated date
+                    patch_pipeline_cache_last_contacted(cache_path, recipient_email, contact_date)
+                    # Write back to Notion (non-fatal)
+                    page_id = page_index.get(recipient_email)
+                    if page_id:
+                        ok = update_notion_last_contacted(page_id, contact_date)
+                        print(f"   Notion updated for {lead_name}: {ok}")
+                    else:
+                        print(f"   WARNING: no page_id for {lead_name} — run pipeline sync to pick up page IDs")
                     pipeline_updated = True
 
     if pipeline_updated:

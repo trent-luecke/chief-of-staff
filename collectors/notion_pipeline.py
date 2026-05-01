@@ -123,6 +123,7 @@ def sync(token: str, cache_path: str) -> None:
         stale = stale_checkbox or (days_since is not None and days_since >= 14)
 
         leads.append({
+            "page_id": row["id"],
             "name": name,
             "contact": contact,
             "email": email,

@@ -28,6 +28,20 @@ _ATTENTION_STATUSES = {
 }
 
 
+def _load_activity_overrides(activity_path: str) -> dict[str, str]:
+    """Returns {email_lower: last_email_date} from the watcher's activity file."""
+    try:
+        with open(activity_path) as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+    return {
+        email: record["last_email_date"]
+        for email, record in data.get("leads", {}).items()
+        if record.get("last_email_date")
+    }
+
+
 def fetch_pipeline_leads(
     cache_path: str,
     trial_followup_after_days: int = 5,
@@ -48,6 +62,8 @@ def fetch_pipeline_leads(
         return [], []
 
     today = date.today()
+    activity_path = str(Path(cache_path).parent / "pipeline_email_activity.json")
+    activity_overrides = _load_activity_overrides(activity_path)
 
     def _days_since(iso: Optional[str]) -> Optional[int]:
         if not iso:
@@ -57,21 +73,35 @@ def fetch_pipeline_leads(
         except (ValueError, TypeError):
             return None
 
-    leads = [
-        PipelineLead(
+    leads = []
+    for r in data.get("leads", []):
+        email = r.get("email", "").lower()
+        # Use the more recent of Notion's last_contacted or watcher-detected activity
+        cache_date = r.get("last_contacted")
+        activity_date = activity_overrides.get(email)
+        effective_date = max(filter(None, [cache_date, activity_date])) if (cache_date or activity_date) else None
+
+        days = _days_since(effective_date)
+        # If activity data shows more recent contact than Notion, recompute stale from that.
+        # Otherwise trust whatever Notion's checkbox/calc says.
+        activity_is_newer = activity_date and (not cache_date or activity_date > cache_date)
+        if activity_is_newer:
+            stale = days is not None and days >= stale_after_days
+        else:
+            stale = bool(r.get("stale", False))
+
+        leads.append(PipelineLead(
             name=r.get("name", ""),
             contact=r.get("contact", ""),
-            email=r.get("email", ""),
+            email=email,
             status=r.get("status", ""),
             priority=r.get("priority", ""),
-            last_contacted=r.get("last_contacted"),
-            days_since_contact=_days_since(r.get("last_contacted")),
+            last_contacted=effective_date,
+            days_since_contact=days,
             estimated_value=r.get("estimated_value"),
             source=r.get("source", ""),
-            stale=bool(r.get("stale", False)),
-        )
-        for r in data.get("leads", [])
-    ]
+            stale=stale,
+        ))
 
     trial_leads = [
         l for l in leads
