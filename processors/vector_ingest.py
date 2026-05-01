@@ -1,7 +1,9 @@
 """Vector ingest: embed observations and memory files into Pinecone via Voyage AI."""
 
+import hashlib
 import json
 import os
+import re
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 
@@ -39,7 +41,7 @@ def save_ingest_state(state: IngestState, path: str) -> None:
 
 def _sanitize_id(raw: str) -> str:
     """Transliterate non-ASCII characters to ASCII for Pinecone vector IDs."""
-    import unicodedata, re
+    import unicodedata
     normalized = unicodedata.normalize("NFKD", raw)
     ascii_only = normalized.encode("ascii", errors="ignore").decode("ascii")
     return re.sub(r"-{2,}", "-", ascii_only)
@@ -151,17 +153,13 @@ def prepare_memory_records(
     return records, new_mtimes
 
 
-import hashlib as _hashlib
-
-
 def _raw_slug(text: str) -> str:
-    import re
     return re.sub(r"[^a-z0-9]+", "-", text.lower().strip())[:40].strip("-")
 
 
 def _content_hash(values: list) -> str:
     combined = "|".join(str(v) for v in values)
-    return _hashlib.md5(combined.encode()).hexdigest()[:12]
+    return hashlib.md5(combined.encode()).hexdigest()[:12]
 
 
 def _lead_records(pipeline_leads: list, previous_ids: dict) -> tuple[list, dict]:
@@ -316,9 +314,14 @@ def _sale_records(sales_entries: list, previous_ids: dict) -> tuple[list, dict]:
         sale_type = entry.get("sale_type", "")
         salesperson = entry.get("salesperson", "")
 
+        try:
+            total_fmt = f"${float(total):,.0f}"
+        except (TypeError, ValueError):
+            total_fmt = str(total)
+
         text = (
             f"Sale: {customer} on {date_str} | "
-            f"${total:,.0f} | "
+            f"{total_fmt} | "
             f"type: {sale_type} | "
             f"salesperson: {salesperson}"
         )
