@@ -98,11 +98,13 @@ def _build_kpi_snapshot(
         pipeline_str = "0 leads"
 
     # Bug breakdown by priority
-    open_bugs = [b for b in (bugs or []) if getattr(b, "status", "") != "Done"]
+    open_bugs = [b for b in (bugs or []) if (b.get("status") if isinstance(b, dict) else getattr(b, "status", "")) != "Done"]
     bug_count = len(open_bugs)
-    high = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "High")
-    moderate = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "Moderate")
-    low = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "Low")
+    def _priority(b):
+        return b.get("priority_level") if isinstance(b, dict) else getattr(b, "priority_level", "")
+    high = sum(1 for b in open_bugs if _priority(b) == "High")
+    moderate = sum(1 for b in open_bugs if _priority(b) == "Moderate")
+    low = sum(1 for b in open_bugs if _priority(b) == "Low")
 
     content = (
         f"KPI snapshot {today}: "
@@ -202,6 +204,7 @@ def observe(
     observations.extend(_read_decisions(decisions_file, known_decision_contents))
 
     # kpi_snapshot — written once per day
+    # None means "collector not configured"; [] or {"count":0} means "ran but found nothing" — both trigger snapshot
     has_kpi = any(p is not None for p in [sales_data, demos_data, bugs, cancellations])
     if has_kpi and not _kpi_snapshot_exists_today(obs_file):
         observations.append(_build_kpi_snapshot(

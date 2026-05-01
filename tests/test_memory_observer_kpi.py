@@ -1,6 +1,4 @@
 import json
-import tempfile
-import os
 from datetime import date
 
 import pytest
@@ -29,10 +27,7 @@ def test_kpi_snapshot_written_when_sales_data_provided(tmp_path):
     obs_file = _make_obs_file(tmp_path)
     decisions_file = _make_decisions_file(tmp_path)
 
-    from collectors.gmail import EmailThread
-    from collectors.pipeline import PipelineLead
     from processors.brief import BriefContent
-    from processors.issues import Issue
 
     observe(
         obs_file=obs_file,
@@ -67,7 +62,6 @@ def test_kpi_snapshot_not_duplicated_on_rerun(tmp_path):
     obs_file = _make_obs_file(tmp_path, lines=[existing])
     decisions_file = _make_decisions_file(tmp_path)
 
-    from collectors.gmail import EmailThread
     from processors.brief import BriefContent
 
     observe(
@@ -125,3 +119,61 @@ def test_kpi_snapshot_exists_today_detects_existing(tmp_path):
 def test_kpi_snapshot_exists_today_returns_false_when_absent(tmp_path):
     obs_file = _make_obs_file(tmp_path)
     assert _kpi_snapshot_exists_today(obs_file) is False
+
+
+def test_kpi_snapshot_yesterday_does_not_block_today(tmp_path):
+    from datetime import timedelta
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    obs_file = _make_obs_file(tmp_path, lines=[
+        {"date": yesterday, "type": "kpi_snapshot", "entity": "daily",
+         "content": "yesterday's snapshot", "source": "kpi"},
+    ])
+    decisions_file = _make_decisions_file(tmp_path)
+
+    from processors.brief import BriefContent
+
+    observe(
+        obs_file=obs_file,
+        decisions_file=decisions_file,
+        email_threads=[],
+        still_open_ids={},
+        pipeline_leads=[],
+        brief=BriefContent(executive_summary="test", top_3_priorities=[]),
+        issues=[],
+        sales_data={"count": 2, "revenue": 300.0, "entries": []},
+        demos_data={"count": 1, "entries": []},
+        bugs=[],
+        cancellations={"count": 0, "entries": []},
+    )
+
+    with open(obs_file) as f:
+        lines = [json.loads(l) for l in f if l.strip()]
+
+    today_snapshots = [l for l in lines if l["type"] == "kpi_snapshot" and l["date"] == date.today().isoformat()]
+    assert len(today_snapshots) == 1
+
+
+def test_kpi_snapshot_empty_list_bugs_triggers_snapshot(tmp_path):
+    obs_file = _make_obs_file(tmp_path)
+    decisions_file = _make_decisions_file(tmp_path)
+
+    from processors.brief import BriefContent
+
+    # bugs=[] (not None) should still trigger a snapshot
+    observe(
+        obs_file=obs_file,
+        decisions_file=decisions_file,
+        email_threads=[],
+        still_open_ids={},
+        pipeline_leads=[],
+        brief=BriefContent(executive_summary="test", top_3_priorities=[]),
+        issues=[],
+        bugs=[],
+    )
+
+    with open(obs_file) as f:
+        lines = [json.loads(l) for l in f if l.strip()]
+
+    snapshots = [l for l in lines if l["type"] == "kpi_snapshot"]
+    assert len(snapshots) == 1
+    assert "Open bugs: 0" in snapshots[0]["content"]
