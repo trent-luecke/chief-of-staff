@@ -52,6 +52,83 @@ def _read_decisions(decisions_file: str, known_contents: set[str]) -> list[dict]
     return observations
 
 
+def _kpi_snapshot_exists_today(obs_file: str) -> bool:
+    """Return True if a kpi_snapshot for today already exists in obs_file."""
+    today = date.today().isoformat()
+    try:
+        with open(obs_file, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obs = json.loads(line)
+                    if obs.get("type") == "kpi_snapshot" and obs.get("date") == today:
+                        return True
+                except json.JSONDecodeError:
+                    continue
+    except FileNotFoundError:
+        pass
+    return False
+
+
+def _build_kpi_snapshot(
+    pipeline_leads,
+    sales_data: dict,
+    demos_data: dict,
+    bugs: list,
+    cancellations: dict,
+) -> dict:
+    """Build a kpi_snapshot observation dict from collected KPI data."""
+    today = date.today().isoformat()
+
+    sales_revenue = sales_data.get("revenue", 0.0) if sales_data else 0.0
+    sales_count = sales_data.get("count", 0) if sales_data else 0
+    demo_count = demos_data.get("count", 0) if demos_data else 0
+    cancel_count = cancellations.get("count", 0) if cancellations else 0
+
+    # Pipeline breakdown by status
+    pipeline_by_status: dict[str, int] = {}
+    for lead in (pipeline_leads or []):
+        status = getattr(lead, "status", None) or lead.get("status", "Unknown") if isinstance(lead, dict) else getattr(lead, "status", "Unknown")
+        pipeline_by_status[status] = pipeline_by_status.get(status, 0) + 1
+
+    pipeline_str = ", ".join(f"{count} {status}" for status, count in pipeline_by_status.items())
+    if not pipeline_str:
+        pipeline_str = "0 leads"
+
+    # Bug breakdown by priority
+    open_bugs = [b for b in (bugs or []) if getattr(b, "status", "") != "Done"]
+    bug_count = len(open_bugs)
+    high = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "High")
+    moderate = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "Moderate")
+    low = sum(1 for b in open_bugs if getattr(b, "priority_level", "") == "Low")
+
+    content = (
+        f"KPI snapshot {today}: "
+        f"Sales MTD ${sales_revenue:,.0f} ({sales_count} deals). "
+        f"Demos MTD: {demo_count}. "
+        f"Pipeline: {pipeline_str}. "
+        f"Open bugs: {bug_count} ({high} High, {moderate} Moderate, {low} Low). "
+        f"Cancellations MTD: {cancel_count}."
+    )
+
+    context = (
+        f"sales_revenue={int(sales_revenue)} sales_count={sales_count} "
+        f"demos={demo_count} open_bugs={bug_count} bugs_high={high} "
+        f"cancellations_mtd={cancel_count}"
+    )
+
+    return {
+        "date": today,
+        "type": "kpi_snapshot",
+        "entity": "daily",
+        "content": content,
+        "source": "kpi",
+        "context": context,
+    }
+
+
 def observe(
     obs_file: str,
     decisions_file: str,
@@ -60,6 +137,10 @@ def observe(
     pipeline_leads: list[PipelineLead],
     brief: BriefContent,
     issues: list[Issue],
+    sales_data: dict | None = None,
+    demos_data: dict | None = None,
+    bugs: list | None = None,
+    cancellations: dict | None = None,
 ) -> None:
     today = date.today().isoformat()
     observations = []
@@ -119,6 +200,17 @@ def observe(
     # decisions from decisions.md (only new ones)
     known_decision_contents = _load_known_decision_dates(obs_file)
     observations.extend(_read_decisions(decisions_file, known_decision_contents))
+
+    # kpi_snapshot — written once per day
+    has_kpi = any(p is not None for p in [sales_data, demos_data, bugs, cancellations])
+    if has_kpi and not _kpi_snapshot_exists_today(obs_file):
+        observations.append(_build_kpi_snapshot(
+            pipeline_leads=pipeline_leads,
+            sales_data=sales_data or {},
+            demos_data=demos_data or {},
+            bugs=bugs or [],
+            cancellations=cancellations or {},
+        ))
 
     if not observations:
         return
