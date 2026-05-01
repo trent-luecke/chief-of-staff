@@ -61,6 +61,45 @@ def parse_final_response(text: str) -> dict:
 
     # Fallback: treat entire response as the telegram message
     return {"telegram": text}
-def write_wanderer_memory(memory_dir: str, memory: dict, today: str) -> str: ...  # noqa: E704
+
+
+def _topic_slug(topic: str) -> str:
+    """Convert topic to slug: lowercase, replace non-alphanumeric with hyphens, trim, limit 50 chars."""
+    return re.sub(r"[^a-z0-9]+", "-", topic.lower().strip()).strip("-")[:50]
+
+
+def write_wanderer_memory(memory_dir: str, memory: dict, today: str) -> str:
+    """Write a wanderer memory .md file. Returns the file path written."""
+    topic = memory.get("topic", "finding")
+    content = memory.get("content", "").strip()
+    expires = memory.get(
+        "expires",
+        (date.fromisoformat(today) + timedelta(days=14)).isoformat(),
+    )
+
+    slug = _topic_slug(topic)
+    display_topic = topic.replace("-", " ").title()
+    filename = f"wanderer_{slug}_{today}.md"
+    path = os.path.join(memory_dir, filename)
+
+    text = (
+        f"---\n"
+        f"topic: {display_topic}\n"
+        f"source: wanderer\n"
+        f"last_updated: {today}\n"
+        f"expires: {expires}\n"
+        f"pinned: false\n"
+        f"suppress: false\n"
+        f"---\n\n"
+        f"{content}\n"
+    )
+
+    os.makedirs(memory_dir, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+    return path
+
+
 def _format_matches(matches: list) -> str: ...  # noqa: E704
 def build_system_prompt(today: str, wanderer_memories: list, namespace_schema: str = "") -> str: ...  # noqa: E704

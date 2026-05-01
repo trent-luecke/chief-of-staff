@@ -3,6 +3,7 @@ import json
 import math
 import os
 import sys
+from datetime import date
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -104,3 +105,44 @@ def test_parse_final_response_no_memory_field():
     result = parse_final_response(text)
     assert result["telegram"] == "just a message"
     assert "memory" not in result
+
+
+def test_write_wanderer_memory_creates_file(tmp_path):
+    memory = {
+        "topic": "cancellation-reason-clustering",
+        "content": "Business Changes is the top cancellation reason this month.",
+        "expires": "2026-05-15",
+    }
+    path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
+    assert os.path.exists(path)
+    assert "wanderer_cancellation-reason-clustering_2026-05-01" in path
+
+
+def test_write_wanderer_memory_frontmatter(tmp_path):
+    memory = {"topic": "bug-clustering", "content": "Many bugs in mobile.", "expires": "2026-05-15"}
+    path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
+    post = frontmatter.load(path)
+    assert post["source"] == "wanderer"
+    assert post["last_updated"] == date(2026, 5, 1)
+    assert post["expires"] == date(2026, 5, 15)
+    assert post.content.strip() == "Many bugs in mobile."
+
+
+def test_write_wanderer_memory_default_expires(tmp_path):
+    memory = {"topic": "some-finding", "content": "content"}
+    path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
+    post = frontmatter.load(path)
+    assert post["expires"] == date(2026, 5, 15)  # 14 days from 2026-05-01
+
+
+def test_write_wanderer_memory_topic_display_name(tmp_path):
+    memory = {"topic": "stale-pipeline-leads", "content": "content", "expires": "2026-05-15"}
+    path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
+    post = frontmatter.load(path)
+    assert post["topic"] == "Stale Pipeline Leads"
+
+
+def test_write_wanderer_memory_slug_sanitized(tmp_path):
+    memory = {"topic": "Bug Clusters: Mobile & Payments", "content": "c", "expires": "2026-05-15"}
+    path = write_wanderer_memory(str(tmp_path), memory, "2026-05-01")
+    assert "wanderer_bug-clusters-mobile-payments_2026-05-01" in path
