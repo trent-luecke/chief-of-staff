@@ -60,7 +60,7 @@ def test_parse_bug_row_populates_all_fields():
     assert ticket.last_updated == "2026-04-28"
     assert ticket.date_completed is None
     assert ticket.shortcut_url == "https://app.shortcut.com/teambuildr/story/123"
-    assert ticket.days_open >= 0
+    assert ticket.days_open == 12
 
 
 def test_parse_bug_row_handles_missing_optional_fields():
