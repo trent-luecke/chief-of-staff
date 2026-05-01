@@ -197,20 +197,32 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
         except Exception as e:
             print(f"⚠️  Bug tracker fetch error (non-fatal): {e}", file=sys.stderr)
 
+    sales_data: dict | None = None
+    demos_data: dict | None = None
     cancellations = {"count": 0, "entries": []}
     sheets_cfg = config.get("sheets", {})
     cancel_sheet_id = sheets_cfg.get("cancellations_spreadsheet_id", "")
     cancel_tab = sheets_cfg.get("cancellations_tab_name", "MONTHLY Cancellations")
-    if cancel_sheet_id:
+    _mp_sheets = config.get("meeting_prep", {}).get("sheets", {})
+    sales_sheet_id = _mp_sheets.get("sales_spreadsheet_id", "")
+    demos_sheet_id = _mp_sheets.get("demos_spreadsheet_id", "")
+    if cancel_sheet_id or sales_sheet_id or demos_sheet_id:
         try:
-            from collectors.sheets import fetch_cancellations_mtd
+            from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, month_label
             from lib.google_auth import build_sheets_service
-            print("📉  Fetching cancellations...")
             sheets_svc = build_sheets_service()
-            cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
-            print(f"   {cancellations['count']} cancellation(s) this month")
+            if cancel_sheet_id:
+                print("📉  Fetching cancellations...")
+                cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
+                print(f"   {cancellations['count']} cancellation(s) this month")
+            if sales_sheet_id:
+                sales_data = fetch_sales_mtd(sheets_svc, sales_sheet_id, month_label(0))
+                print(f"   Sales MTD: {sales_data['count']} deals, ${sales_data['revenue']:,.0f}")
+            if demos_sheet_id:
+                demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
+                print(f"   Demos MTD: {demos_data['count']}")
         except Exception as e:
-            print(f"⚠️  Cancellations fetch error (non-fatal): {e}", file=sys.stderr)
+            print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
 
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -385,8 +397,8 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                 pipeline_leads=list(trial_leads) + list(attention_leads),
                 brief=brief,
                 issues=open_issues,
-                sales_data=None,
-                demos_data=None,
+                sales_data=sales_data,
+                demos_data=demos_data,
                 bugs=bugs if bugs else None,
                 cancellations=cancellations if cancellations.get("count", 0) > 0 else None,
             )
@@ -427,7 +439,7 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
                         pipeline_leads=all_pipeline_leads,
                         bugs=[dataclasses.asdict(b) for b in bugs] if bugs else [],
                         cancellations=cancellations,
-                        sales_entries=[],
+                        sales_entries=sales_data.get("entries", []) if sales_data else [],
                     )
                     print("✅  Vector ingest complete.")
                 except Exception as e:

@@ -15,7 +15,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(_ROOT))
 
 from collectors.notion_bugs import fetch_bugs
 from collectors.sheets import fetch_cancellations_mtd
@@ -31,9 +32,9 @@ from pinecone import Pinecone
 import voyageai
 
 
-CONFIG_PATH = "config.json"
-PIPELINE_CACHE = "data/pipeline_cache.json"
-STATE_FILE = "data/vector_ingest_state.json"
+CONFIG_PATH = _ROOT / "config.json"
+PIPELINE_CACHE = _ROOT / "data/pipeline_cache.json"
+STATE_FILE = str(_ROOT / "data/vector_ingest_state.json")
 
 
 def load_config():

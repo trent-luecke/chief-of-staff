@@ -9,11 +9,12 @@ import requests
 
 DATABASE_ID = "29d24bca36d78065b255cbb693a776da"
 
-_HEADERS = lambda token: {
-    "Authorization": f"Bearer {token}",
-    "Notion-Version": "2022-06-28",
-    "Content-Type": "application/json",
-}
+def _headers(token: str) -> dict:
+    return {
+        "Authorization": f"Bearer {token}",
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+    }
 
 
 @dataclass
@@ -62,7 +63,7 @@ def _query_all(token: str, database_id: str) -> list:
         body = {}
         if cursor:
             body["start_cursor"] = cursor
-        resp = requests.post(url, headers=_HEADERS(token), json=body)
+        resp = requests.post(url, headers=_headers(token), json=body)
         if resp.status_code != 200:
             print(f"Notion bug tracker API error {resp.status_code}: {resp.text}", file=sys.stderr)
             return []
