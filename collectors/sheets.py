@@ -89,9 +89,8 @@ def fetch_cancellations_mtd(
         month: Filter to this month number (1-12). Pass None to return all rows.
                Defaults to -1 which resolves to the current month.
     """
-    from datetime import date as _date
     if month == -1:
-        month = _date.today().month
+        month = date.today().month
 
     try:
         result = service.spreadsheets().values().get(
