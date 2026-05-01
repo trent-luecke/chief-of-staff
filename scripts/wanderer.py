@@ -231,3 +231,85 @@ Include "memory" only if the finding has cross-day significance worth surfacing 
 Omit "memory" for ephemeral or day-specific observations.
 If you include "memory", set "expires" to 14 days from today ({(date.fromisoformat(today) + timedelta(days=14)).isoformat()}) unless you have reason to choose differently.
 Keep the telegram message under 1500 characters — be editorial, surface the single most interesting thing."""
+
+
+def run_tool_loop(
+    anthropic_client,
+    system_prompt: str,
+    tools: list,
+    tool_executor,
+    model: str = "claude-sonnet-4-6",
+    max_tool_calls: int = 20,
+) -> str:
+    """Run Claude tool-use loop. Returns Claude's final text response."""
+    messages = []
+    tool_call_count = 0
+
+    while True:
+        response = anthropic_client.messages.create(
+            model=model,
+            max_tokens=4096,
+            system=system_prompt,
+            tools=tools,
+            messages=messages,
+        )
+
+        assistant_content = list(response.content)
+        messages.append({"role": "assistant", "content": assistant_content})
+
+        if response.stop_reason != "tool_use":
+            for block in assistant_content:
+                if getattr(block, "type", None) == "text":
+                    return block.text
+            return ""
+
+        # Execute tool calls; track count
+        tool_results = []
+        hit_limit = False
+
+        for block in assistant_content:
+            if getattr(block, "type", None) != "tool_use":
+                continue
+
+            tool_call_count += 1
+            if hit_limit or tool_call_count > max_tool_calls:
+                tool_results.append({
+                    "type": "tool_result",
+                    "tool_use_id": block.id,
+                    "content": "Query limit reached.",
+                })
+                hit_limit = True
+                continue
+
+            try:
+                result = tool_executor(block.name, block.input)
+            except Exception as exc:
+                result = f"Error executing {block.name}: {exc}"
+
+            tool_results.append({
+                "type": "tool_result",
+                "tool_use_id": block.id,
+                "content": result,
+            })
+
+            if tool_call_count >= max_tool_calls:
+                hit_limit = True
+
+        messages.append({"role": "user", "content": tool_results})
+
+        if hit_limit:
+            # One final call without tools to force conclusion
+            messages.append({
+                "role": "user",
+                "content": "You've reached your query limit. Write your final JSON response now — no more tool calls.",
+            })
+            final = anthropic_client.messages.create(
+                model=model,
+                max_tokens=2048,
+                system=system_prompt,
+                messages=messages,
+            )
+            for block in final.content:
+                if getattr(block, "type", None) == "text":
+                    return block.text
+            return ""

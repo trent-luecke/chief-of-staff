@@ -236,3 +236,81 @@ def test_build_system_prompt_contains_json_instruction():
     prompt = build_system_prompt("2026-05-01", [], "")
     assert '"telegram"' in prompt
     assert '"memory"' in prompt
+
+
+def _make_text_block(text):
+    block = MagicMock()
+    block.type = "text"
+    block.text = text
+    return block
+
+
+def _make_tool_use_block(tool_id, name, input_dict):
+    block = MagicMock()
+    block.type = "tool_use"
+    block.id = tool_id
+    block.name = name
+    block.input = input_dict
+    return block
+
+
+def _make_response(stop_reason, content_blocks):
+    resp = MagicMock()
+    resp.stop_reason = stop_reason
+    resp.content = content_blocks
+    return resp
+
+
+def test_run_tool_loop_end_turn_immediately():
+    from scripts.wanderer import run_tool_loop
+
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = _make_response(
+        "end_turn", [_make_text_block('{"telegram": "done"}')]
+    )
+
+    result = run_tool_loop(mock_client, "sys", [], lambda n, i: "result")
+    assert result == '{"telegram": "done"}'
+    assert mock_client.messages.create.call_count == 1
+
+
+def test_run_tool_loop_executes_tool_and_continues():
+    from scripts.wanderer import run_tool_loop
+
+    tool_block = _make_tool_use_block("tid1", "query_semantic", {"query": "bugs", "namespace": "raw_data"})
+    final_block = _make_text_block('{"telegram": "found bugs"}')
+
+    responses = [
+        _make_response("tool_use", [tool_block]),
+        _make_response("end_turn", [final_block]),
+    ]
+    mock_client = MagicMock()
+    mock_client.messages.create.side_effect = responses
+
+    calls = []
+    def executor(name, inp):
+        calls.append((name, inp))
+        return "Bug results here"
+
+    result = run_tool_loop(mock_client, "sys", [], executor)
+    assert result == '{"telegram": "found bugs"}'
+    assert calls == [("query_semantic", {"query": "bugs", "namespace": "raw_data"})]
+    assert mock_client.messages.create.call_count == 2
+
+
+def test_run_tool_loop_hard_stop_at_max():
+    from scripts.wanderer import run_tool_loop
+
+    # Claude keeps using one tool per turn — hard stop at max_tool_calls=3
+    tool_block = _make_tool_use_block("tid", "query_semantic", {"query": "x", "namespace": "raw_data"})
+    final_block = _make_text_block('{"telegram": "stopped"}')
+
+    # 3 tool-use responses then a final end_turn response
+    responses = [_make_response("tool_use", [tool_block])] * 3 + [_make_response("end_turn", [final_block])]
+    mock_client = MagicMock()
+    mock_client.messages.create.side_effect = responses
+
+    result = run_tool_loop(mock_client, "sys", [], lambda n, i: "result", max_tool_calls=3)
+    assert result == '{"telegram": "stopped"}'
+    # 3 tool-use turns + 1 final call (no tools) after hitting limit
+    assert mock_client.messages.create.call_count == 4
