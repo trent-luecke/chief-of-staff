@@ -71,3 +71,36 @@ def test_load_wanderer_memories_respects_limit(tmp_path):
 def test_load_wanderer_memories_missing_dir():
     result = load_wanderer_memories("/nonexistent/path/memory")
     assert result == []
+
+
+def test_parse_final_response_clean_json():
+    text = '{"telegram": "hello", "memory": {"topic": "foo", "content": "bar", "expires": "2026-05-15"}}'
+    result = parse_final_response(text)
+    assert result["telegram"] == "hello"
+    assert result["memory"]["topic"] == "foo"
+
+
+def test_parse_final_response_json_in_code_fence():
+    text = 'Some preamble\n```json\n{"telegram": "hello"}\n```\nsome trailing text'
+    result = parse_final_response(text)
+    assert result["telegram"] == "hello"
+
+
+def test_parse_final_response_json_embedded_in_text():
+    text = 'Here is my analysis:\n{"telegram": "finding", "memory": {"topic": "x", "content": "y", "expires": "2026-06-01"}}\nDone.'
+    result = parse_final_response(text)
+    assert result["telegram"] == "finding"
+
+
+def test_parse_final_response_malformed_json_falls_back():
+    text = "Claude said something but forgot JSON entirely"
+    result = parse_final_response(text)
+    assert result["telegram"] == text
+    assert "memory" not in result
+
+
+def test_parse_final_response_no_memory_field():
+    text = '{"telegram": "just a message"}'
+    result = parse_final_response(text)
+    assert result["telegram"] == "just a message"
+    assert "memory" not in result
