@@ -182,7 +182,7 @@ def build_dept_heads_context(config: dict) -> str:
         total = len(leads)
         by_status: dict[str, list] = {}
         for lead in leads:
-            by_status.setdefault(lead.get("status", "Unknown"), []).append(lead)
+            by_status.setdefault(lead.get("status") or "Unknown", []).append(lead)
         lines = [f"## Pipeline ({total} total)"]
         for status, group in sorted(by_status.items()):
             names = ", ".join(l.get("name", "?") for l in group[:3])
@@ -197,9 +197,9 @@ def build_dept_heads_context(config: dict) -> str:
         pass
 
     if sales_sheet_id or demos_sheet_id:
+        from lib.google_auth import build_sheets_service
+        from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
         try:
-            from lib.google_auth import build_sheets_service
-            from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
             svc = build_sheets_service()
             cur_label = month_label(0)
             is_first_of_month = date.today().day <= 7
@@ -241,6 +241,9 @@ def build_dept_heads_context(config: dict) -> str:
 
 
 def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
+    if not event.summary:
+        return ""
+
     obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
     projects_file = config.get("projects_file", "data/projects.md")
     captures_file = config.get("captures_file", "data/captures.md")
