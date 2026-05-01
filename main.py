@@ -2,6 +2,7 @@
 """AI Chief of Staff — Morning Brief Orchestrator."""
 
 import argparse
+import dataclasses
 import json
 import os
 import sys
@@ -126,10 +127,10 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
     print("📝  Reading inbox...")
     inbox_text = read_inbox(config.get("inbox_file", ""))
 
+    notion_token = os.environ.get("NOTION_TOKEN", "")
     notion_items = []
     if config.get("notion", {}).get("enabled"):
         print("🔔  Fetching Notion inbox...")
-        notion_token = os.environ.get("NOTION_TOKEN", "")
         if notion_token:
             notion_items = fetch_inbox_items(
                 token=notion_token,
@@ -162,17 +163,13 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
         )
         try:
             with open(cache_path) as f:
-                synced_at = json.load(f).get("synced_at", "")
+                _cache = json.load(f)
+            synced_at = _cache.get("synced_at", "")
             if synced_at:
                 synced_date = date.fromisoformat(synced_at[:10])
                 pipeline_cache_age_days = (date.today() - synced_date).days
+            all_pipeline_leads = _cache.get("leads", [])
         except (FileNotFoundError, json.JSONDecodeError, ValueError):
-            pass
-        all_pipeline_leads = []
-        try:
-            with open(cache_path) as f:
-                all_pipeline_leads = json.load(f).get("leads", [])
-        except (FileNotFoundError, json.JSONDecodeError):
             pass
         print(f"   {len(trial_leads)} trial follow-up(s), {len(attention_leads)} stale opp(s)")
         if trial_leads:
@@ -189,7 +186,6 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
             print(f"🏋️  Gym Scout: {len(gym_scout_leads)} new lead(s) this week")
 
     bugs = []
-    notion_token = os.environ.get("NOTION_TOKEN", "")
     if notion_token:
         try:
             from collectors.notion_bugs import fetch_bugs
@@ -415,7 +411,6 @@ def _run_inner(config: dict, dry_run: bool = False, no_email: bool = False) -> N
             voyage_key = os.environ.get("VOYAGE_API_KEY", "")
             if vector_cfg.get("enabled") and pinecone_key and voyage_key:
                 try:
-                    import dataclasses
                     from processors.vector_ingest import ingest as vector_ingest
                     print("📡  Ingesting vectors into Pinecone...")
                     vector_ingest(
