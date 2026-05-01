@@ -272,3 +272,72 @@ def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
             pass
 
     return "\n\n".join(parts)
+
+
+_SYSTEM_PROMPTS = {
+    "external": (
+        "You are Trent Luecke's AI Chief of Staff preparing him for an upcoming external meeting. "
+        "Generate a concise pre-meeting brief with exactly these 5 bullets:\n"
+        "• Who: [one sentence — who they are and where they're from]\n"
+        "• Context: [where they are in the sales process or last interaction]\n"
+        "• Open: [any unresolved item or thing they mentioned previously]\n"
+        "• Goal: [what a win looks like for this meeting]\n"
+        "• Opener: [a natural conversation starter]\n\n"
+        "Plain text only. Tight and scannable. No headers."
+    ),
+    "dept_heads": (
+        "You are Trent Luecke's AI Chief of Staff preparing him for the Department Heads meeting. "
+        "Trent is VP of Sales at TeamBuildr OS. "
+        "Generate a structured KPI prep brief with these sections:\n\n"
+        "**Pipeline**\n[Total count + breakdown by stage. Call out stale counts.]\n\n"
+        "**Sales & Demos**\n[MTD new sales count and revenue. MTD demos count. If prior month totals are provided, include them.]\n\n"
+        "**Active Projects**\n[2-3 most important active projects and their next actions]\n\n"
+        "**Bottlenecks / Cross-Department Needs**\n[Synthesize from open flags and items — anything blocked waiting on another team. If nothing clear, say 'None flagged'.]\n\n"
+        "Plain text only. No preamble."
+    ),
+    "recurring_internal": (
+        "You are Trent Luecke's AI Chief of Staff preparing him for a recurring internal meeting. "
+        "Generate a structured prep brief with these sections:\n\n"
+        "**Last Time**\n[Key things from the most recent prior context — what was discussed or decided]\n\n"
+        "**Open Items**\n[Unresolved threads or action items relevant to this meeting]\n\n"
+        "**Projects to Touch**\n[1-3 active projects most relevant to this person with their next actions]\n\n"
+        "**Suggested Focus**\n[1-2 sentence recommended agenda for this meeting]\n\n"
+        "Plain text only. No preamble."
+    ),
+}
+
+_EMOJI = {
+    "external": "🎯",
+    "dept_heads": "📊",
+    "recurring_internal": "📋",
+}
+
+
+def build_prep_message(
+    event: CalendarEvent,
+    meeting_type: str,
+    config: dict,
+    api_key: str,
+) -> str:
+    if meeting_type == "external":
+        context = build_external_context(event, config)
+    elif meeting_type == "dept_heads":
+        context = build_dept_heads_context(config)
+    else:
+        context = build_recurring_internal_context(event, config)
+
+    model = config.get("ai_model", "claude-sonnet-4-6")
+    user_content = f"Meeting: {event.summary}\n\n{context}" if context else f"Meeting: {event.summary}"
+
+    client = anthropic.Anthropic(api_key=api_key)
+    response = client.messages.create(
+        model=model,
+        max_tokens=600,
+        system=_SYSTEM_PROMPTS[meeting_type],
+        messages=[{"role": "user", "content": user_content}],
+    )
+    from lib.llm_logger import log_usage
+    log_usage("meeting_prep", response.usage, model)
+    body = response.content[0].text.strip()
+    emoji = _EMOJI.get(meeting_type, "📋")
+    return f"{emoji} {event.summary}\n\n{body}"

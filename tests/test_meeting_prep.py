@@ -268,3 +268,61 @@ def test_build_recurring_internal_context_no_crash_missing_files(tmp_path):
     event = _event("Luke / Trent")
     result = build_recurring_internal_context(event, config)
     assert isinstance(result, str)
+
+
+from unittest.mock import patch as _patch
+from processors.meeting_prep import build_prep_message
+
+
+@_patch("processors.meeting_prep.anthropic.Anthropic")
+def test_build_prep_message_external(mock_cls, tmp_path):
+    mock_client = mock_cls.return_value
+    mock_client.messages.create.return_value = type("R", (), {
+        "content": [type("C", (), {"text": "• Who: Mike\n• Context: Demo stage\n• Open: Contract\n• Goal: Close\n• Opener: How's Q2?"})()],
+        "usage": type("U", (), {"input_tokens": 100, "output_tokens": 50})(),
+    })()
+    config = {
+        "people_dir": str(tmp_path / "people"),
+        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    event = _event("Mike: OS Demo", attendees=["mike@apex.co"])
+    result = build_prep_message(event, "external", config, api_key="test-key")
+    assert "🎯" in result
+    assert "Mike: OS Demo" in result
+    assert "Who" in result
+
+
+@_patch("processors.meeting_prep.anthropic.Anthropic")
+def test_build_prep_message_dept_heads(mock_cls, tmp_path):
+    mock_client = mock_cls.return_value
+    mock_client.messages.create.return_value = type("R", (), {
+        "content": [type("C", (), {"text": "Pipeline: 3 in trial\nSignals: Q2 push\nTalking Points: Stale leads"})()],
+        "usage": type("U", (), {"input_tokens": 100, "output_tokens": 50})(),
+    })()
+    config = {
+        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+    }
+    event = _event("Department Heads Weekly")
+    result = build_prep_message(event, "dept_heads", config, api_key="test-key")
+    assert "📊" in result
+    assert "Department Heads" in result
+
+
+@_patch("processors.meeting_prep.anthropic.Anthropic")
+def test_build_prep_message_recurring_internal(mock_cls, tmp_path):
+    mock_client = mock_cls.return_value
+    mock_client.messages.create.return_value = type("R", (), {
+        "content": [type("C", (), {"text": "Last Time: Discussed LTV\nOpen Items: Follow up demo\nProjects: LTV magnet\nFocus: Push to close"})()],
+        "usage": type("U", (), {"input_tokens": 100, "output_tokens": 50})(),
+    })()
+    config = {
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+        "projects_file": str(tmp_path / "projects.md"),
+        "captures_file": str(tmp_path / "captures.md"),
+    }
+    event = _event("Luke / Trent")
+    result = build_prep_message(event, "recurring_internal", config, api_key="test-key")
+    assert "📋" in result
+    assert "Luke / Trent" in result
