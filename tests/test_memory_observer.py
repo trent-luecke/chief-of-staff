@@ -11,6 +11,7 @@ from collectors.gmail import EmailThread
 from collectors.pipeline import PipelineLead
 from processors.brief import BriefContent
 from processors.issues import Issue
+from lib.storage import LocalStorage
 
 
 def make_email_thread(id="t1", subject="Test", days_open=3) -> EmailThread:
@@ -43,9 +44,17 @@ def make_brief(priorities=None) -> BriefContent:
     )
 
 
+def _read_obs(tmp_path):
+    """Read observations written by LocalStorage (at memory/observations.jsonl)."""
+    obs_path = tmp_path / "memory" / "observations.jsonl"
+    if not obs_path.exists():
+        return []
+    return [json.loads(l) for l in obs_path.read_text().splitlines() if l.strip()]
+
+
 @pytest.fixture
-def obs_file(tmp_path):
-    return str(tmp_path / "observations.jsonl")
+def storage(tmp_path):
+    return LocalStorage(base_dir=str(tmp_path))
 
 
 @pytest.fixture
@@ -55,11 +64,11 @@ def decisions_file(tmp_path):
     return str(f)
 
 
-def test_observe_appends_email_loop(obs_file, decisions_file):
+def test_observe_appends_email_loop(storage, decisions_file, tmp_path):
     still_open = {"email": ["t1"], "notion": []}
     threads = [make_email_thread(id="t1", subject="Contract renewal")]
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=threads,
         still_open_ids=still_open,
@@ -67,16 +76,15 @@ def test_observe_appends_email_loop(obs_file, decisions_file):
         brief=make_brief(),
         issues=[],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     email_obs = [o for o in lines if o["type"] == "email_loop"]
     assert len(email_obs) == 1
     assert email_obs[0]["entity"] == "thread:Contract renewal"
 
 
-def test_observe_appends_pipeline_stale(obs_file, decisions_file):
+def test_observe_appends_pipeline_stale(storage, decisions_file, tmp_path):
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=[],
         still_open_ids={"email": [], "notion": []},
@@ -84,16 +92,15 @@ def test_observe_appends_pipeline_stale(obs_file, decisions_file):
         brief=make_brief(),
         issues=[],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     stale_obs = [o for o in lines if o["type"] == "pipeline_stale"]
     assert len(stale_obs) == 1
     assert "apex" in stale_obs[0]["entity"].lower()
 
 
-def test_observe_appends_top_priority(obs_file, decisions_file):
+def test_observe_appends_top_priority(storage, decisions_file, tmp_path):
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=[],
         still_open_ids={"email": [], "notion": []},
@@ -101,15 +108,14 @@ def test_observe_appends_top_priority(obs_file, decisions_file):
         brief=make_brief(priorities=["Follow up on Apex contract renewal"]),
         issues=[],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     priority_obs = [o for o in lines if o["type"] == "top_priority"]
     assert len(priority_obs) == 1
 
 
-def test_observe_appends_issue_pattern(obs_file, decisions_file):
+def test_observe_appends_issue_pattern(storage, decisions_file, tmp_path):
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=[],
         still_open_ids={"email": [], "notion": []},
@@ -117,19 +123,18 @@ def test_observe_appends_issue_pattern(obs_file, decisions_file):
         brief=make_brief(),
         issues=[make_issue(title="Payment processing down")],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     issue_obs = [o for o in lines if o["type"] == "issue_pattern"]
     assert len(issue_obs) == 1
     assert "Payment processing down" in issue_obs[0]["content"]
 
 
-def test_observe_emits_new_decisions(obs_file, tmp_path):
+def test_observe_emits_new_decisions(storage, tmp_path):
     decisions_file = str(tmp_path / "decisions.md")
     with open(decisions_file, "w") as f:
         f.write("# Decisions\n2026-04-19: Pausing Apex outreach\n")
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=[],
         still_open_ids={"email": [], "notion": []},
@@ -137,25 +142,23 @@ def test_observe_emits_new_decisions(obs_file, tmp_path):
         brief=make_brief(),
         issues=[],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     decision_obs = [o for o in lines if o["type"] == "decision"]
     assert len(decision_obs) == 1
     assert "Pausing Apex outreach" in decision_obs[0]["content"]
 
 
-def test_observe_does_not_emit_duplicate_decisions(obs_file, tmp_path):
+def test_observe_does_not_emit_duplicate_decisions(storage, tmp_path):
     decisions_file = str(tmp_path / "decisions.md")
     with open(decisions_file, "w") as f:
         f.write("# Decisions\n2026-04-19: Pausing Apex outreach\n")
     # Prepopulate obs with the same decision already recorded
-    with open(obs_file, "w") as f:
-        f.write(json.dumps({
-            "date": "2026-04-19", "type": "decision", "entity": "manual",
-            "content": "Pausing Apex outreach", "source": "manual"
-        }) + "\n")
+    storage.append_line("memory/observations.jsonl", json.dumps({
+        "date": "2026-04-19", "type": "decision", "entity": "manual",
+        "content": "Pausing Apex outreach", "source": "manual"
+    }))
     observe(
-        obs_file=obs_file,
+        storage=storage,
         decisions_file=decisions_file,
         email_threads=[],
         still_open_ids={"email": [], "notion": []},
@@ -163,7 +166,6 @@ def test_observe_does_not_emit_duplicate_decisions(obs_file, tmp_path):
         brief=make_brief(),
         issues=[],
     )
-    with open(obs_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    lines = _read_obs(tmp_path)
     decision_obs = [o for o in lines if o["type"] == "decision"]
     assert len(decision_obs) == 1  # not duplicated

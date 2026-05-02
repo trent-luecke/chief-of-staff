@@ -6,23 +6,23 @@ from collectors.pipeline import PipelineLead
 from processors.brief import BriefContent
 from processors.issues import Issue
 
+_OBS_KEY = "memory/observations.jsonl"
+_DECISIONS_FILE = "data/memory/decisions.md"  # human-authored, raw open()
 
-def _load_known_decision_dates(obs_file: str) -> set[str]:
+
+def _load_known_decision_dates(storage) -> set[str]:
     known = set()
-    try:
-        with open(obs_file, encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    obs = json.loads(line)
-                    if obs.get("type") == "decision":
-                        known.add(obs.get("content", "").strip())
-                except json.JSONDecodeError:
-                    continue
-    except FileNotFoundError:
-        pass
+    content = storage.read(_OBS_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obs = json.loads(line)
+            if obs.get("type") == "decision":
+                known.add(obs.get("content", "").strip())
+        except json.JSONDecodeError:
+            continue
     return known
 
 
@@ -52,23 +52,20 @@ def _read_decisions(decisions_file: str, known_contents: set[str]) -> list[dict]
     return observations
 
 
-def _kpi_snapshot_exists_today(obs_file: str) -> bool:
-    """Return True if a kpi_snapshot for today already exists in obs_file."""
+def _kpi_snapshot_exists_today(storage) -> bool:
+    """Return True if a kpi_snapshot for today already exists in storage."""
     today = date.today().isoformat()
-    try:
-        with open(obs_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    obs = json.loads(line)
-                    if obs.get("type") == "kpi_snapshot" and obs.get("date") == today:
-                        return True
-                except json.JSONDecodeError:
-                    continue
-    except FileNotFoundError:
-        pass
+    content = storage.read(_OBS_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obs = json.loads(line)
+            if obs.get("type") == "kpi_snapshot" and obs.get("date") == today:
+                return True
+        except json.JSONDecodeError:
+            continue
     return False
 
 
@@ -132,7 +129,7 @@ def _build_kpi_snapshot(
 
 
 def observe(
-    obs_file: str,
+    storage,
     decisions_file: str,
     email_threads: list[EmailThread],
     still_open_ids: dict,
@@ -200,13 +197,13 @@ def observe(
         })
 
     # decisions from decisions.md (only new ones)
-    known_decision_contents = _load_known_decision_dates(obs_file)
+    known_decision_contents = _load_known_decision_dates(storage)
     observations.extend(_read_decisions(decisions_file, known_decision_contents))
 
     # kpi_snapshot — written once per day
     # None means "collector not configured"; [] or {"count":0} means "ran but found nothing" — both trigger snapshot
     has_kpi = any(p is not None for p in [sales_data, demos_data, bugs, cancellations])
-    if has_kpi and not _kpi_snapshot_exists_today(obs_file):
+    if has_kpi and not _kpi_snapshot_exists_today(storage):
         observations.append(_build_kpi_snapshot(
             pipeline_leads=pipeline_leads,
             sales_data=sales_data or {},
@@ -218,6 +215,5 @@ def observe(
     if not observations:
         return
 
-    with open(obs_file, "a", encoding='utf-8') as f:
-        for obs in observations:
-            f.write(json.dumps(obs) + "\n")
+    for obs in observations:
+        storage.append_line(_OBS_KEY, json.dumps(obs))
