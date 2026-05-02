@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from lib.storage import LocalStorage
 from processors.weekly_synthesizer import (
     _load_week_costs,
     _load_week_observations,
@@ -17,68 +18,64 @@ from processors.weekly_synthesizer import (
 )
 
 
-def _write_obs(path, entries):
-    with open(path, "w") as f:
-        for e in entries:
-            f.write(json.dumps(e) + "\n")
+def _write_obs(storage, entries):
+    content = "\n".join(json.dumps(e) for e in entries) + "\n"
+    storage.write("memory/observations.jsonl", content)
 
 
 def test_load_week_observations_filters_to_7_days(tmp_path):
-    obs_file = str(tmp_path / "obs.jsonl")
+    storage = LocalStorage(base_dir=str(tmp_path))
     today = date.today()
     in_range = (today - timedelta(days=3)).isoformat()
     out_of_range = (today - timedelta(days=10)).isoformat()
-    _write_obs(obs_file, [
+    _write_obs(storage, [
         {"date": in_range, "type": "top_priority", "entity": "e", "content": "recent"},
         {"date": out_of_range, "type": "top_priority", "entity": "e", "content": "old"},
     ])
-    result = _load_week_observations(obs_file, run_date=today)
+    result = _load_week_observations(storage, run_date=today)
     assert len(result) == 1
     assert result[0]["content"] == "recent"
 
 
 def test_load_week_observations_empty_file(tmp_path):
-    obs_file = str(tmp_path / "missing.jsonl")
-    result = _load_week_observations(obs_file, run_date=date.today())
+    storage = LocalStorage(base_dir=str(tmp_path))
+    result = _load_week_observations(storage, run_date=date.today())
     assert result == []
 
 
 def test_load_week_state_delta_counts_resolved_and_open(tmp_path):
-    state_dir = str(tmp_path)
+    storage = LocalStorage(base_dir=str(tmp_path))
     today = date.today()
     week_ago = today - timedelta(days=7)
 
     start = {"date": week_ago.isoformat(), "open_email_thread_ids": ["a", "b", "c"], "open_notion_item_ids": []}
-    with open(os.path.join(state_dir, f"state_{week_ago.isoformat()}.json"), "w") as f:
-        json.dump(start, f)
+    storage.write_json(f"state/state_{week_ago.isoformat()}.json", start)
 
     end = {"date": today.isoformat(), "open_email_thread_ids": ["b", "c", "d"], "open_notion_item_ids": []}
-    with open(os.path.join(state_dir, f"state_{today.isoformat()}.json"), "w") as f:
-        json.dump(end, f)
+    storage.write_json(f"state/state_{today.isoformat()}.json", end)
 
-    resolved_count, still_open_count = _load_week_state_delta(state_dir, run_date=today)
+    resolved_count, still_open_count = _load_week_state_delta(storage, run_date=today)
     assert resolved_count == 1
     assert still_open_count == 2
 
 
 def test_load_week_state_delta_no_snapshots(tmp_path):
-    resolved, still_open = _load_week_state_delta(str(tmp_path), run_date=date.today())
+    storage = LocalStorage(base_dir=str(tmp_path))
+    resolved, still_open = _load_week_state_delta(storage, run_date=date.today())
     assert resolved == 0
     assert still_open == 0
 
 
 def test_load_week_state_delta_corrupt_snapshot_returns_zero(tmp_path):
-    state_dir = str(tmp_path)
+    storage = LocalStorage(base_dir=str(tmp_path))
     today = date.today()
     week_ago = today - timedelta(days=7)
     # write a corrupt end snapshot
-    with open(os.path.join(state_dir, f"state_{today.isoformat()}.json"), "w") as f:
-        f.write("not valid json{{{")
+    storage.write(f"state/state_{today.isoformat()}.json", "not valid json{{{")
     # valid start snapshot
     start = {"date": week_ago.isoformat(), "open_email_thread_ids": ["a"], "open_notion_item_ids": []}
-    with open(os.path.join(state_dir, f"state_{week_ago.isoformat()}.json"), "w") as f:
-        json.dump(start, f)
-    resolved, still_open = _load_week_state_delta(state_dir, run_date=today)
+    storage.write_json(f"state/state_{week_ago.isoformat()}.json", start)
+    resolved, still_open = _load_week_state_delta(storage, run_date=today)
     assert resolved == 0
     assert still_open == 0
 
@@ -118,9 +115,8 @@ def test_build_prompt_handles_empty_inputs():
 
 
 def test_synthesize_week_returns_weekly_synthesis(tmp_path):
-    obs_file = str(tmp_path / "obs.jsonl")
-    state_dir = str(tmp_path)
-    _write_obs(obs_file, [
+    storage = LocalStorage(base_dir=str(tmp_path))
+    _write_obs(storage, [
         {"date": date.today().isoformat(), "type": "top_priority", "entity": "e", "content": "finish contracts"},
     ])
 
@@ -136,12 +132,9 @@ def test_synthesize_week_returns_weekly_synthesis(tmp_path):
     with patch("processors.weekly_synthesizer.anthropic.Anthropic") as MockClient:
         MockClient.return_value.messages.create.return_value = mock_response
         result = synthesize_week(
+            storage=storage,
             api_key="test",
             model="claude-sonnet-4-6",
-            obs_file=obs_file,
-            state_dir=state_dir,
-            issues_file=str(tmp_path / "issues.json"),
-            captures_file=str(tmp_path / "captures.md"),
             run_date=date.today(),
         )
 
@@ -153,8 +146,8 @@ def test_synthesize_week_returns_weekly_synthesis(tmp_path):
 
 
 def test_synthesize_week_raises_on_non_json_response(tmp_path):
-    obs_file = str(tmp_path / "obs.jsonl")
-    _write_obs(obs_file, [])
+    storage = LocalStorage(base_dir=str(tmp_path))
+    _write_obs(storage, [])
 
     mock_response = MagicMock()
     mock_response.content = [MagicMock(text="not json at all")]
@@ -163,12 +156,9 @@ def test_synthesize_week_raises_on_non_json_response(tmp_path):
         MockClient.return_value.messages.create.return_value = mock_response
         with pytest.raises(ValueError):
             synthesize_week(
+                storage=storage,
                 api_key="test",
                 model="claude-sonnet-4-6",
-                obs_file=obs_file,
-                state_dir=str(tmp_path),
-                issues_file=str(tmp_path / "issues.json"),
-                captures_file=str(tmp_path / "captures.md"),
                 run_date=date.today(),
             )
 

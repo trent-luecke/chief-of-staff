@@ -1,6 +1,5 @@
 import json
 import os
-import tempfile
 
 import pytest
 
@@ -9,13 +8,17 @@ pytestmark = pytest.mark.skipif(
     reason="PINECONE_API_KEY and VOYAGE_API_KEY not set — skipping integration test",
 )
 
+from lib.storage import LocalStorage
 from processors.memory_retriever import retrieve_memories
 
 
 @pytest.fixture
-def memory_dir_with_file(tmp_path):
+def storage_with_file(tmp_path):
     import frontmatter
+    import io
     from datetime import date, timedelta
+
+    storage = LocalStorage(base_dir=str(tmp_path))
 
     content = "## Synthesized Memory\n\nApex Gym has been flagged stale for 8 days.\n\n_Last synthesized: 2026-04-29_"
     post = frontmatter.Post(
@@ -27,13 +30,13 @@ def memory_dir_with_file(tmp_path):
         pinned=False,
         suppress=False,
     )
-    path = tmp_path / "apex-stale.md"
-    with open(path, "wb") as f:
-        frontmatter.dump(post, f)
-    return str(tmp_path)
+    buf = io.BytesIO()
+    frontmatter.dump(post, buf)
+    storage.write("memory/apex-stale.md", buf.getvalue().decode("utf-8"))
+    return storage
 
 
-def test_semantic_retrieval_returns_non_empty_result(memory_dir_with_file):
+def test_semantic_retrieval_returns_non_empty_result(storage_with_file):
     with open("config.json") as f:
         cfg = json.load(f)
 
@@ -49,7 +52,7 @@ def test_semantic_retrieval_returns_non_empty_result(memory_dir_with_file):
     }
 
     result = retrieve_memories(
-        memory_dir=memory_dir_with_file,
+        storage=storage_with_file,
         token_budget=1500,
         pinecone_config=pinecone_cfg,
         query_signals={
@@ -68,6 +71,8 @@ def test_semantic_retrieval_returns_non_empty_result(memory_dir_with_file):
 
 def test_semantic_retrieval_auto_mode_does_not_crash(tmp_path):
     """With an empty local memory dir and real Pinecone, result is a string — no crash."""
+    storage = LocalStorage(base_dir=str(tmp_path))
+
     with open("config.json") as f:
         cfg = json.load(f)
 
@@ -83,7 +88,7 @@ def test_semantic_retrieval_auto_mode_does_not_crash(tmp_path):
     }
 
     result = retrieve_memories(
-        memory_dir=str(tmp_path),
+        storage=storage,
         token_budget=1500,
         pinecone_config=pinecone_cfg,
         query_signals={

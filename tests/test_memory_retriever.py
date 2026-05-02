@@ -5,10 +5,11 @@ from unittest.mock import patch, MagicMock
 import frontmatter
 import pytest
 
+from lib.storage import LocalStorage
 from processors.memory_retriever import retrieve_memories, get_cold_start_message, build_query_string
 
 
-def write_memory(memory_dir, filename, topic, synthesized, suppress=False, expires_days=90, pinned=False):
+def write_memory(storage, filename, topic, synthesized, suppress=False, expires_days=90, pinned=False):
     expires = (date.today() + timedelta(days=expires_days)).isoformat()
     content = f"## Synthesized Memory\n\n{synthesized}\n\n_Last synthesized: {date.today().isoformat()}_"
     post = frontmatter.Post(
@@ -21,67 +22,68 @@ def write_memory(memory_dir, filename, topic, synthesized, suppress=False, expir
         pinned=pinned,
         suppress=suppress,
     )
-    path = Path(memory_dir) / filename
-    with open(path, "wb") as f:
-        frontmatter.dump(post, f)
+    import io
+    buf = io.BytesIO()
+    frontmatter.dump(post, buf)
+    storage.write(f"memory/{filename}", buf.getvalue().decode("utf-8"))
 
 
 @pytest.fixture
-def memory_dir(tmp_path):
-    return tmp_path
+def storage(tmp_path):
+    return LocalStorage(base_dir=str(tmp_path))
 
 
-def test_retrieve_memories_returns_context_string(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "**Pattern:** Apex stuck 4 weeks.")
-    result = retrieve_memories(str(memory_dir), token_budget=1500)
+def test_retrieve_memories_returns_context_string(storage):
+    write_memory(storage, "apex.md", "apex", "**Pattern:** Apex stuck 4 weeks.")
+    result = retrieve_memories(storage, token_budget=1500)
     assert "apex" in result.lower()
     assert "Pattern" in result
 
 
-def test_retrieve_memories_excludes_suppressed(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Apex content", suppress=True)
-    result = retrieve_memories(str(memory_dir), token_budget=1500)
+def test_retrieve_memories_excludes_suppressed(storage):
+    write_memory(storage, "apex.md", "apex", "Apex content", suppress=True)
+    result = retrieve_memories(storage, token_budget=1500)
     assert "apex" not in result.lower()
 
 
-def test_retrieve_memories_excludes_expired(memory_dir):
-    write_memory(memory_dir, "old.md", "old-topic", "Old content", expires_days=-1)
-    result = retrieve_memories(str(memory_dir), token_budget=1500)
+def test_retrieve_memories_excludes_expired(storage):
+    write_memory(storage, "old.md", "old-topic", "Old content", expires_days=-1)
+    result = retrieve_memories(storage, token_budget=1500)
     assert "Old content" not in result
 
 
-def test_retrieve_memories_returns_empty_string_when_no_files(memory_dir):
-    result = retrieve_memories(str(memory_dir), token_budget=1500)
+def test_retrieve_memories_returns_empty_string_when_no_files(storage):
+    result = retrieve_memories(storage, token_budget=1500)
     assert result == ""
 
 
-def test_retrieve_memories_respects_token_budget(memory_dir):
+def test_retrieve_memories_respects_token_budget(storage):
     for i in range(20):
-        write_memory(memory_dir, f"topic-{i}.md", f"topic-{i}", "A" * 500)
-    result = retrieve_memories(str(memory_dir), token_budget=500)
+        write_memory(storage, f"topic-{i}.md", f"topic-{i}", "A" * 500)
+    result = retrieve_memories(storage, token_budget=500)
     assert len(result) < 20 * 500
 
 
-def test_retrieve_memories_never_truncates_pinned(memory_dir):
-    write_memory(memory_dir, "pinned.md", "pinned-topic", "Critical pinned memory", pinned=True)
+def test_retrieve_memories_never_truncates_pinned(storage):
+    write_memory(storage, "pinned.md", "pinned-topic", "Critical pinned memory", pinned=True)
     for i in range(20):
-        write_memory(memory_dir, f"topic-{i}.md", f"topic-{i}", "A" * 500)
-    result = retrieve_memories(str(memory_dir), token_budget=200)
+        write_memory(storage, f"topic-{i}.md", f"topic-{i}", "A" * 500)
+    result = retrieve_memories(storage, token_budget=200)
     assert "Critical pinned memory" in result
 
 
-def test_get_cold_start_message_day_one(memory_dir):
-    msg = get_cold_start_message(str(memory_dir / "observations.jsonl"), cold_start_days=3)
-    assert "day 1" in msg.lower()
+def test_get_cold_start_message_day_one(storage):
+    msg = get_cold_start_message(storage, cold_start_days=3)
+    assert "0 of 3" in msg
 
 
-def test_get_cold_start_message_none_after_threshold(memory_dir, tmp_path):
-    obs_file = str(tmp_path / "observations.jsonl")
-    with open(obs_file, "w") as f:
-        for i in range(4):
-            d = (date.today() - timedelta(days=i)).isoformat()
-            f.write(f'{{"date": "{d}", "type": "top_priority", "entity": "x", "content": "x"}}\n')
-    msg = get_cold_start_message(obs_file, cold_start_days=3)
+def test_get_cold_start_message_none_after_threshold(storage):
+    lines = []
+    for i in range(4):
+        d = (date.today() - timedelta(days=i)).isoformat()
+        lines.append(f'{{"date": "{d}", "type": "top_priority", "entity": "x", "content": "x"}}')
+    storage.write("memory/observations.jsonl", "\n".join(lines) + "\n")
+    msg = get_cold_start_message(storage, cold_start_days=3)
     assert msg is None
 
 
@@ -204,12 +206,12 @@ QUERY_SIGNALS = {
 
 # --- retrieval_mode="file" ---
 
-def test_retrieve_memories_file_mode_skips_pinecone(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Apex memory content.")
+def test_retrieve_memories_file_mode_skips_pinecone(storage):
+    write_memory(storage, "apex.md", "apex", "Apex memory content.")
 
     with patch("processors.memory_retriever.query_pinecone") as mock_qp:
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config={**PINECONE_CFG, "retrieval_mode": "file"},
             query_signals=QUERY_SIGNALS,
@@ -219,17 +221,17 @@ def test_retrieve_memories_file_mode_skips_pinecone(memory_dir):
     assert "Apex memory content." in result
 
 
-def test_retrieve_memories_no_pinecone_config_uses_file_path(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Apex file content.")
+def test_retrieve_memories_no_pinecone_config_uses_file_path(storage):
+    write_memory(storage, "apex.md", "apex", "Apex file content.")
 
-    result = retrieve_memories(str(memory_dir), token_budget=1500)
+    result = retrieve_memories(storage, token_budget=1500)
     assert "Apex file content." in result
 
 
 # --- semantic output format ---
 
-def test_retrieve_memories_semantic_output_has_context_and_signals_sections(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Apex has been stale 8 days.")
+def test_retrieve_memories_semantic_output_has_context_and_signals_sections(storage):
+    write_memory(storage, "apex.md", "apex", "Apex has been stale 8 days.")
 
     mem_match = make_match(
         "mem:apex.md",
@@ -246,7 +248,7 @@ def test_retrieve_memories_semantic_output_has_context_and_signals_sections(memo
 
     with patch("processors.memory_retriever.query_pinecone", return_value=([mem_match], [obs_match])):
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config=PINECONE_CFG,
             query_signals=QUERY_SIGNALS,
@@ -263,8 +265,8 @@ def test_retrieve_memories_semantic_output_has_context_and_signals_sections(memo
 
 # --- pinned deduplication ---
 
-def test_retrieve_memories_pinned_not_duplicated_when_in_vector_results(memory_dir):
-    write_memory(memory_dir, "critical.md", "critical-topic", "Critical context here.", pinned=True)
+def test_retrieve_memories_pinned_not_duplicated_when_in_vector_results(storage):
+    write_memory(storage, "critical.md", "critical-topic", "Critical context here.", pinned=True)
 
     # Pinned memory also returned by Pinecone — should be deduplicated
     mem_match = make_match(
@@ -274,7 +276,7 @@ def test_retrieve_memories_pinned_not_duplicated_when_in_vector_results(memory_d
 
     with patch("processors.memory_retriever.query_pinecone", return_value=([mem_match], [])):
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config=PINECONE_CFG,
             query_signals=QUERY_SIGNALS,
@@ -285,8 +287,8 @@ def test_retrieve_memories_pinned_not_duplicated_when_in_vector_results(memory_d
 
 # --- expiry filtering ---
 
-def test_retrieve_memories_semantic_filters_expired_memory_results(memory_dir):
-    write_memory(memory_dir, "expired.md", "expired-topic", "Expired content here.", expires_days=-1)
+def test_retrieve_memories_semantic_filters_expired_memory_results(storage):
+    write_memory(storage, "expired.md", "expired-topic", "Expired content here.", expires_days=-1)
 
     mem_match = make_match(
         "mem:expired.md",
@@ -295,7 +297,7 @@ def test_retrieve_memories_semantic_filters_expired_memory_results(memory_dir):
 
     with patch("processors.memory_retriever.query_pinecone", return_value=([mem_match], [])):
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config=PINECONE_CFG,
             query_signals=QUERY_SIGNALS,
@@ -306,12 +308,12 @@ def test_retrieve_memories_semantic_filters_expired_memory_results(memory_dir):
 
 # --- fallback ---
 
-def test_retrieve_memories_auto_mode_falls_back_on_pinecone_error(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Fallback file content.")
+def test_retrieve_memories_auto_mode_falls_back_on_pinecone_error(storage):
+    write_memory(storage, "apex.md", "apex", "Fallback file content.")
 
     with patch("processors.memory_retriever.query_pinecone", side_effect=Exception("connection refused")):
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config={**PINECONE_CFG, "retrieval_mode": "auto"},
             query_signals=QUERY_SIGNALS,
@@ -320,13 +322,13 @@ def test_retrieve_memories_auto_mode_falls_back_on_pinecone_error(memory_dir):
     assert "Fallback file content." in result
 
 
-def test_retrieve_memories_semantic_mode_raises_on_pinecone_error(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "Some content.")
+def test_retrieve_memories_semantic_mode_raises_on_pinecone_error(storage):
+    write_memory(storage, "apex.md", "apex", "Some content.")
 
     with patch("processors.memory_retriever.query_pinecone", side_effect=Exception("connection refused")):
         with pytest.raises(Exception, match="connection refused"):
             retrieve_memories(
-                str(memory_dir),
+                storage,
                 token_budget=1500,
                 pinecone_config={**PINECONE_CFG, "retrieval_mode": "semantic"},
                 query_signals=QUERY_SIGNALS,
@@ -335,12 +337,12 @@ def test_retrieve_memories_semantic_mode_raises_on_pinecone_error(memory_dir):
 
 # --- empty query fallback ---
 
-def test_retrieve_memories_falls_back_to_file_when_query_string_is_empty(memory_dir):
-    write_memory(memory_dir, "apex.md", "apex", "File path content.")
+def test_retrieve_memories_falls_back_to_file_when_query_string_is_empty(storage):
+    write_memory(storage, "apex.md", "apex", "File path content.")
 
     with patch("processors.memory_retriever.query_pinecone") as mock_qp:
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=1500,
             pinecone_config=PINECONE_CFG,
             query_signals={},  # no signals → empty query string
@@ -352,9 +354,9 @@ def test_retrieve_memories_falls_back_to_file_when_query_string_is_empty(memory_
 
 # --- token budget ---
 
-def test_retrieve_memories_semantic_respects_token_budget(memory_dir):
+def test_retrieve_memories_semantic_respects_token_budget(storage):
     for i in range(10):
-        write_memory(memory_dir, f"topic-{i}.md", f"topic-{i}", "X" * 400)
+        write_memory(storage, f"topic-{i}.md", f"topic-{i}", "X" * 400)
 
     mem_matches = [
         make_match(f"mem:topic-{i}.md", {"expires": "2026-12-31", "pinned": False})
@@ -369,7 +371,7 @@ def test_retrieve_memories_semantic_respects_token_budget(memory_dir):
 
     with patch("processors.memory_retriever.query_pinecone", return_value=(mem_matches, obs_matches)):
         result = retrieve_memories(
-            str(memory_dir),
+            storage,
             token_budget=300,
             pinecone_config=PINECONE_CFG,
             query_signals=QUERY_SIGNALS,

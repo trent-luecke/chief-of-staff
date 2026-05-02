@@ -7,6 +7,8 @@ from typing import Optional
 
 import frontmatter
 
+_OBS_KEY = "memory/observations.jsonl"
+
 
 def build_query_string(query_signals: dict) -> str:
     """Build a Voyage AI query string from today's collected signals."""
@@ -33,14 +35,17 @@ def build_query_string(query_signals: dict) -> str:
     return " | ".join(unique)
 
 
-def _load_memory_section(memory_dir: str, match_id: str) -> Optional[str]:
+def _load_memory_section(storage, match_id: str) -> Optional[str]:
     """Load and format a memory .md file by its Pinecone vector ID, or None if skipped."""
     if not match_id.startswith("mem:"):
         return None
     filename = match_id[4:]
-    path = os.path.join(memory_dir, filename)
+    key = f"memory/{filename}"
     try:
-        post = frontmatter.load(path)
+        content = storage.read(key)
+        if content is None:
+            return None
+        post = frontmatter.loads(content)
     except Exception:
         return None
 
@@ -56,16 +61,16 @@ def _load_memory_section(memory_dir: str, match_id: str) -> Optional[str]:
     except ValueError:
         pass
 
-    topic = str(post.get("topic", Path(path).stem))
+    topic = str(post.get("topic", Path(filename).stem))
     last_updated = str(post.get("last_updated", ""))
 
-    content = post.content
-    if "## Synthesized Memory" in content:
-        synthesized = content.split("## Synthesized Memory")[1].strip()
+    body = post.content
+    if "## Synthesized Memory" in body:
+        synthesized = body.split("## Synthesized Memory")[1].strip()
         lines = [ln for ln in synthesized.splitlines() if not ln.startswith("_Last synthesized")]
         synthesized = "\n".join(lines).strip()
     else:
-        synthesized = content.strip()
+        synthesized = body.strip()
 
     if not synthesized:
         return None
@@ -107,42 +112,31 @@ def query_pinecone(
     return mem_response.matches, obs_response.matches
 
 
-def _count_distinct_days(obs_file: str) -> int:
-    days = set()
-    try:
-        with open(obs_file, encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    obs = json.loads(line)
-                    days.add(obs.get("date", ""))
-                except Exception:
-                    continue
-    except FileNotFoundError:
-        pass
-    return len(days)
-
-
-def get_cold_start_message(obs_file: str, cold_start_days: int = 3) -> Optional[str]:
-    distinct_days = _count_distinct_days(obs_file)
-    if distinct_days >= cold_start_days:
+def get_cold_start_message(storage, cold_start_days: int = 3) -> Optional[str]:
+    content = storage.read(_OBS_KEY) or ""
+    lines = [l for l in content.splitlines() if l.strip()]
+    count = len(lines)
+    if count >= cold_start_days:
         return None
-    day_num = distinct_days + 1
-    if day_num == 1:
-        return f"Memory building — context improves with each run (day 1 of {cold_start_days})"
-    return f"Memory building — patterns will emerge after a few more runs (day {day_num} of {cold_start_days})"
+    return f"Memory system warming up — {count} of {cold_start_days} observations collected. Full context available soon."
 
 
-def _retrieve_memories_file_based(memory_dir: str, token_budget: int = 550) -> str:
+def _retrieve_memories_file_based(storage, token_budget: int = 550) -> str:
     today = date.today()
     pinned_sections = []
     regular_sections = []
 
-    for path in sorted(Path(memory_dir).glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True):
+    keys = [
+        key for key in storage.list_keys("memory")
+        if key.endswith(".md") and not key.startswith("memory/archive/")
+    ]
+
+    for key in sorted(keys):
         try:
-            post = frontmatter.load(str(path))
+            content = storage.read(key)
+            if content is None:
+                continue
+            post = frontmatter.loads(content)
         except Exception:
             continue
 
@@ -157,16 +151,17 @@ def _retrieve_memories_file_based(memory_dir: str, token_budget: int = 550) -> s
         except ValueError:
             pass
 
-        topic = post.get("topic", path.stem)
+        stem = Path(key).stem
+        topic = post.get("topic", stem)
         last_updated = post.get("last_updated", "")
 
-        content = post.content
-        if "## Synthesized Memory" in content:
-            synthesized = content.split("## Synthesized Memory")[1].strip()
+        body = post.content
+        if "## Synthesized Memory" in body:
+            synthesized = body.split("## Synthesized Memory")[1].strip()
             lines = [l for l in synthesized.splitlines() if not l.startswith("_Last synthesized")]
             synthesized = "\n".join(lines).strip()
         else:
-            synthesized = content.strip()
+            synthesized = body.strip()
 
         section = f"**{topic}** (updated: {last_updated})\n{synthesized}"
 
@@ -195,7 +190,7 @@ def _retrieve_memories_file_based(memory_dir: str, token_budget: int = 550) -> s
 
 
 def _maybe_log_retrieval(
-    log_file: Optional[str],
+    storage,
     run_date: str,
     trigger: str,
     query_text: str,
@@ -206,12 +201,12 @@ def _maybe_log_retrieval(
     token_budget: int,
     pinecone_config: dict,
 ) -> None:
-    if not log_file:
+    if storage is None:
         return
     try:
         from processors.retrieval_logger import log_retrieval
         log_retrieval(
-            log_file=log_file,
+            storage=storage,
             date_str=run_date,
             trigger=trigger,
             query_text=query_text,
@@ -233,11 +228,10 @@ def _maybe_log_retrieval(
 
 
 def _retrieve_memories_semantic(
-    memory_dir: str,
+    storage,
     token_budget: int,
     pinecone_config: dict,
     query_signals: dict,
-    log_file: Optional[str] = None,
     trigger: str = "brief",
     run_date: Optional[str] = None,
 ) -> str:
@@ -245,32 +239,43 @@ def _retrieve_memories_semantic(
     _run_date = run_date or today.isoformat()
     char_budget = token_budget * 4
 
-    # 1. Load pinned memories from files — always included, bypass ranking
+    # 1. Load pinned memories from storage — always included, bypass ranking
     pinned_sections: list[str] = []
     pinned_ids: set[str] = set()
     log_pinned: list[dict] = []
-    for path in sorted(Path(memory_dir).glob("*.md")):
+
+    keys = [
+        key for key in storage.list_keys("memory")
+        if key.endswith(".md") and not key.startswith("memory/archive/")
+    ]
+
+    for key in sorted(keys):
         try:
-            post = frontmatter.load(str(path))
+            content = storage.read(key)
+            if content is None:
+                continue
+            post = frontmatter.loads(content)
         except Exception:
             continue
         if not post.get("pinned", False) or post.get("suppress", False):
             continue
-        topic = str(post.get("topic", path.stem))
+        stem = Path(key).stem
+        topic = str(post.get("topic", stem))
         last_updated = str(post.get("last_updated", ""))
-        content = post.content
-        if "## Synthesized Memory" in content:
-            synthesized = content.split("## Synthesized Memory")[1].strip()
+        body = post.content
+        if "## Synthesized Memory" in body:
+            synthesized = body.split("## Synthesized Memory")[1].strip()
             lines = [ln for ln in synthesized.splitlines() if not ln.startswith("_Last synthesized")]
             synthesized = "\n".join(lines).strip()
         else:
-            synthesized = content.strip()
+            synthesized = body.strip()
         if synthesized:
             section = f"**{topic}** (updated: {last_updated})\n{synthesized}"
             pinned_sections.append(section)
-            pinned_ids.add(f"mem:{path.name}")
+            filename = Path(key).name
+            pinned_ids.add(f"mem:{filename}")
             log_pinned.append({
-                "file": path.name,
+                "file": filename,
                 "topic": topic,
                 "tokens": len(section) // 4,
             })
@@ -278,7 +283,7 @@ def _retrieve_memories_semantic(
     # 2. Build query — fall back to file-based if no usable signals
     query_string = build_query_string(query_signals)
     if not query_string:
-        return _retrieve_memories_file_based(memory_dir, token_budget)
+        return _retrieve_memories_file_based(storage, token_budget)
 
     # 3. Query Pinecone
     mem_matches, obs_matches = query_pinecone(pinecone_config, query_string)
@@ -323,7 +328,7 @@ def _retrieve_memories_semantic(
         except ValueError:
             pass
 
-        section = _load_memory_section(memory_dir, match_id)
+        section = _load_memory_section(storage, match_id)
         if section is None:
             log_memory.append({
                 "id": match_id,
@@ -406,7 +411,7 @@ def _retrieve_memories_semantic(
     # 7. Build output
     if not pinned_sections and not context_sections and not obs_lines:
         _maybe_log_retrieval(
-            log_file, _run_date, trigger, query_string, "semantic",
+            storage, _run_date, trigger, query_string, "semantic",
             log_pinned, log_memory, log_obs, token_budget, pinecone_config,
         )
         return ""
@@ -422,7 +427,7 @@ def _retrieve_memories_semantic(
 
     # 8. Log (non-fatal)
     _maybe_log_retrieval(
-        log_file, _run_date, trigger, query_string, "semantic",
+        storage, _run_date, trigger, query_string, "semantic",
         log_pinned, log_memory, log_obs, token_budget, pinecone_config,
     )
 
@@ -430,11 +435,10 @@ def _retrieve_memories_semantic(
 
 
 def retrieve_memories(
-    memory_dir: str,
+    storage,
     token_budget: int = 550,
     pinecone_config: Optional[dict] = None,
     query_signals: Optional[dict] = None,
-    log_file: Optional[str] = None,
     trigger: str = "brief",
     run_date: Optional[str] = None,
 ) -> str:
@@ -449,12 +453,12 @@ def retrieve_memories(
         mode = pinecone_config.get("retrieval_mode", "auto")
 
     if mode == "file" or not pinecone_config:
-        return _retrieve_memories_file_based(memory_dir, token_budget)
+        return _retrieve_memories_file_based(storage, token_budget)
 
     try:
         return _retrieve_memories_semantic(
-            memory_dir, token_budget, pinecone_config, query_signals or {},
-            log_file=log_file, trigger=trigger, run_date=run_date,
+            storage, token_budget, pinecone_config, query_signals or {},
+            trigger=trigger, run_date=run_date,
         )
     except Exception as exc:
         if mode == "semantic":
@@ -464,7 +468,7 @@ def retrieve_memories(
             file=sys.stderr,
         )
         _maybe_log_retrieval(
-            log_file, run_date or date.today().isoformat(), trigger,
+            storage, run_date or date.today().isoformat(), trigger,
             "", "file_fallback", [], [], [], token_budget, pinecone_config,
         )
-        return _retrieve_memories_file_based(memory_dir, token_budget)
+        return _retrieve_memories_file_based(storage, token_budget)

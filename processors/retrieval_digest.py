@@ -1,12 +1,14 @@
 """Weekly retrieval digest: analyze brief scores + retrieval logs via Claude."""
 
 import json
-import os
 from datetime import date, timedelta
 from typing import Optional
 
 import anthropic
 
+
+_SCORES_KEY = "state/brief_scores.jsonl"
+_RETRIEVAL_LOG_KEY = "state/retrieval_log.jsonl"
 
 _SYSTEM_PROMPT = """\
 You are analyzing the performance of a morning brief retrieval system. \
@@ -43,54 +45,54 @@ If no change is warranted, say "Hold steady — not enough data yet" and explain
 """
 
 
-def load_scores(scores_file: str, since: date) -> list[dict]:
+def load_scores(storage, since: date) -> list[dict]:
     """Load scores from since date onward. Last score per day wins."""
     daily: dict[str, dict] = {}
-    try:
-        with open(scores_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                entry = json.loads(line)
-                entry_date = date.fromisoformat(entry["date"])
-                if entry_date >= since:
-                    daily[entry["date"]] = entry
-    except FileNotFoundError:
-        pass
-    return sorted(daily.values(), key=lambda e: e["date"])
+    content = storage.read(_SCORES_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+            entry_date = date.fromisoformat(entry["date"])
+            if entry_date >= since:
+                daily[entry["date"]] = entry
+        except (json.JSONDecodeError, KeyError, ValueError):
+            continue
+    return sorted(daily.values(), key=lambda x: x["date"])
 
 
-def load_retrieval_logs(log_file: str, since: date) -> list[dict]:
+def load_retrieval_logs(storage, since: date) -> list[dict]:
     """Load retrieval log entries from since date onward, brief trigger only."""
-    entries = []
-    try:
-        with open(log_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                entry = json.loads(line)
-                entry_date = date.fromisoformat(entry["date"])
-                if entry_date >= since and entry.get("trigger") == "brief":
-                    entries.append(entry)
-    except FileNotFoundError:
-        pass
-    return entries
+    logs = []
+    content = storage.read(_RETRIEVAL_LOG_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            entry = json.loads(line)
+            entry_date = date.fromisoformat(entry["date"])
+            if entry_date >= since:
+                logs.append(entry)
+        except (json.JSONDecodeError, KeyError, ValueError):
+            continue
+    return logs
 
 
-def load_all_scores(scores_file: str) -> list[dict]:
+def load_all_scores(storage) -> list[dict]:
     """Load all historical scores for recurring pattern detection."""
     scores = []
-    try:
-        with open(scores_file, encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                scores.append(json.loads(line))
-    except FileNotFoundError:
-        pass
+    content = storage.read(_SCORES_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            scores.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
     return scores
 
 
@@ -117,30 +119,25 @@ def _build_user_message(
 
 
 def generate_digest(
+    storage,
     api_key: str,
     model: str,
-    scores_file: str,
-    retrieval_log_file: str,
     config_snapshot: dict,
-    run_date: Optional[date] = None,
+    run_date: date,
 ) -> str:
     """Generate the weekly retrieval digest via Claude. Returns formatted text."""
-    run_date = run_date or date.today()
-    week_start = run_date - timedelta(days=6)
+    since = run_date - timedelta(days=7)
+    scores = load_scores(storage, since)
+    logs = load_retrieval_logs(storage, since)
+    all_scores = load_all_scores(storage)
 
-    this_week_scores = load_scores(scores_file, since=week_start)
-    this_week_logs = load_retrieval_logs(retrieval_log_file, since=week_start)
-    all_scores = load_all_scores(scores_file)
-
-    if not this_week_scores:
+    if not scores:
         return (
             "No brief scores recorded this week. "
             "Score your briefs with: /brief score [1-5] [optional note]"
         )
 
-    user_message = _build_user_message(
-        this_week_scores, this_week_logs, all_scores, config_snapshot
-    )
+    user_message = _build_user_message(scores, logs, all_scores, config_snapshot)
 
     client = anthropic.Anthropic(api_key=api_key)
     response = client.messages.create(
