@@ -71,7 +71,9 @@ def test_generate_demo_followup_returns_none_on_bad_json(mock_anthropic):
 
 def test_save_and_load_draft_roundtrip(tmp_path):
     from processors.drafts import save_draft, load_todays_drafts
+    from lib.storage import LocalStorage
     from datetime import date
+    storage = LocalStorage(base_dir=str(tmp_path))
     draft = Draft(
         subject="Test subject",
         body="Test body",
@@ -80,8 +82,8 @@ def test_save_and_load_draft_roundtrip(tmp_path):
         context="Test context",
         created_date=date.today().isoformat(),
     )
-    save_draft(draft, str(tmp_path))
-    loaded = load_todays_drafts(str(tmp_path))
+    save_draft(draft, storage)
+    loaded = load_todays_drafts(storage)
     assert len(loaded) == 1
     assert loaded[0].subject == "Test subject"
     assert loaded[0].to == "test@example.com"
@@ -89,11 +91,14 @@ def test_save_and_load_draft_roundtrip(tmp_path):
 
 
 def test_load_todays_drafts_handles_corrupt_file(tmp_path):
-    from processors.drafts import load_todays_drafts
+    from processors.drafts import load_todays_drafts, _DRAFTS_PREFIX
+    from lib.storage import LocalStorage
     from datetime import date
-    corrupt_file = tmp_path / f"demo_followup_{date.today().isoformat()}_bad.json"
-    corrupt_file.write_text("not valid json")
-    drafts = load_todays_drafts(str(tmp_path))
+    storage = LocalStorage(base_dir=str(tmp_path))
+    today = date.today().isoformat().replace("-", "")
+    corrupt_key = f"{_DRAFTS_PREFIX}/demo_followup_{today}_bad.json"
+    storage.write(corrupt_key, "not valid json")
+    drafts = load_todays_drafts(storage)
     assert drafts == []
 
 

@@ -1,6 +1,5 @@
 import anthropic
 import json
-import os
 import re
 from dataclasses import dataclass, field
 from datetime import date, datetime
@@ -128,32 +127,34 @@ Respond with JSON only: {{"subject": "...", "body": "...", "to": "{lead_email}"}
     return _parse_draft(raw, lead_email, "trial_followup", context=f"{days_in_trial}d in trial")
 
 
-def save_draft(draft: Draft, drafts_dir: str) -> str:
-    os.makedirs(drafts_dir, exist_ok=True)
-    timestamp = datetime.now().strftime("%H%M%S")
-    filename = f"{draft.draft_type}_{date.today().isoformat()}_{timestamp}.json"
-    path = os.path.join(drafts_dir, filename)
-    with open(path, "w") as f:
-        json.dump({
-            "subject": draft.subject, "body": draft.body, "to": draft.to,
-            "draft_type": draft.draft_type, "context": draft.context,
-            "created_date": draft.created_date,
-        }, f, indent=2)
-    return path
+_DRAFTS_PREFIX = "drafts"
 
 
-def load_todays_drafts(drafts_dir: str) -> list[Draft]:
-    today = date.today().isoformat()
+def save_draft(draft: Draft, storage) -> str:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    key = f"{_DRAFTS_PREFIX}/{draft.draft_type}_{timestamp}.json"
+    storage.write_json(key, {
+        "subject": draft.subject,
+        "body": draft.body,
+        "to": draft.to,
+        "draft_type": draft.draft_type,
+        "context": draft.context,
+        "created_date": draft.created_date,
+    })
+    return key
+
+
+def load_todays_drafts(storage) -> list[Draft]:
+    today = date.today().isoformat().replace("-", "")
     drafts = []
-    try:
-        for filename in sorted(os.listdir(drafts_dir)):
-            if today in filename and filename.endswith(".json"):
-                try:
-                    with open(os.path.join(drafts_dir, filename)) as f:
-                        data = json.load(f)
-                    drafts.append(Draft(**data))
-                except (json.JSONDecodeError, TypeError):
-                    pass
-    except FileNotFoundError:
-        pass
+    for key in storage.list_keys(_DRAFTS_PREFIX):
+        if today not in key:
+            continue
+        data = storage.read_json(key)
+        if data is None:
+            continue
+        try:
+            drafts.append(Draft(**data))
+        except (TypeError, KeyError):
+            continue
     return drafts
