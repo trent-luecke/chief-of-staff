@@ -233,8 +233,8 @@ def _tool_create_email_draft(to: str, subject: str, body: str, config: dict) -> 
 def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
     """Dispatch a tool call by name. Always returns a string — errors included."""
     if storage is None:
-        from lib.storage import LocalStorage
-        storage = LocalStorage(base_dir=config.get("data_dir", "data"))
+        from lib.storage import build_storage
+        storage = build_storage(config)
     try:
         if name == "add_capture":
             return _tool_add_capture(input_["capture_type"], input_["text"], storage)
