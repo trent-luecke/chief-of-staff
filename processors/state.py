@@ -1,5 +1,3 @@
-import json
-import os
 from dataclasses import dataclass, field, asdict
 from datetime import date
 from typing import Optional
@@ -12,26 +10,19 @@ class StateSnapshot:
     open_notion_item_ids: list[str] = field(default_factory=list)
 
 
-def _snapshot_path(target_date: date, state_dir: str) -> str:
-    return os.path.join(state_dir, f"state_{target_date.isoformat()}.json")
+def save_snapshot(snapshot: StateSnapshot, storage) -> None:
+    key = f"state/state_{snapshot.date}.json"
+    storage.write_json(key, asdict(snapshot))
 
 
-def save_snapshot(snapshot: StateSnapshot, state_dir: str) -> None:
-    os.makedirs(state_dir, exist_ok=True)
-    path = _snapshot_path(date.fromisoformat(snapshot.date), state_dir)
-    with open(path, "w") as f:
-        json.dump(asdict(snapshot), f, indent=2)
-
-
-def load_snapshot(target_date: date, state_dir: str) -> Optional[StateSnapshot]:
-    path = _snapshot_path(target_date, state_dir)
-    if not os.path.exists(path):
+def load_snapshot(target_date: date, storage) -> Optional[StateSnapshot]:
+    key = f"state/state_{target_date.isoformat()}.json"
+    data = storage.read_json(key)
+    if data is None:
         return None
     try:
-        with open(path) as f:
-            data = json.load(f)
         return StateSnapshot(**data)
-    except (json.JSONDecodeError, TypeError, KeyError):
+    except (TypeError, KeyError):
         return None
 
 
