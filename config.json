@@ -116,5 +116,12 @@
   "sheets": {
     "cancellations_spreadsheet_id": "1BYMMVKw19Y9pwp7oFYMvUC4Webk-NI-Y-kevj7CX6D4",
     "cancellations_tab_name": "MONTHLY Cancellations"
+  },
+  "storage": {
+    "r2": {
+      "enabled": false,
+      "bucket": "chief-of-staff",
+      "account_id": "YOUR_CLOUDFLARE_ACCOUNT_ID"
+    }
   }
 }
