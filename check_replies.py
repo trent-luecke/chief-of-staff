@@ -38,29 +38,24 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
-def load_brief_state(state_dir: str) -> dict | None:
-    path = os.path.join(state_dir, "brief_message_id.json")
-    if not os.path.exists(path):
-        return None
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return None
+def load_brief_state(storage) -> dict | None:
+    return storage.read_json("state/brief_message_id.json")
 
 
-def save_brief_state(state_dir: str, state: dict) -> None:
-    path = os.path.join(state_dir, "brief_message_id.json")
-    with open(path, "w") as f:
-        json.dump(state, f)
+def save_brief_state(storage, state: dict) -> None:
+    storage.write_json("state/brief_message_id.json", state)
 
 
 def main() -> None:
     config = load_config()
+    from lib.storage import build_storage
+    from lib.llm_logger import flush
+    storage = build_storage(config)
+
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     user_email = config["email"]
 
-    state = load_brief_state(config["state_dir"])
+    state = load_brief_state(storage)
     if not state:
         print("No brief state found — skipping reply check.")
         return
@@ -110,14 +105,11 @@ def main() -> None:
         print("No new replies found.")
         if processed_ids != set(state.get("processed_reply_ids", [])):
             state["processed_reply_ids"] = list(processed_ids)
-            save_brief_state(config["state_dir"], state)
+            save_brief_state(storage, state)
         return
 
     brief_subject = state.get("subject", "Morning Brief")
-    captures_file = config.get("captures_file", "data/captures.md")
-    feedback_file = config.get("brief_feedback_file", "data/brief_feedback.md")
 
-    from lib.llm_logger import flush
     try:
         for reply in replies:
             snippet = reply.get("snippet", "")
@@ -132,11 +124,11 @@ def main() -> None:
             )
 
             if result.classification == "action_signal" and result.capture_content:
-                append_capture(captures_file, result.capture_type or "flag",
+                append_capture(storage, result.capture_type or "flag",
                                result.capture_target, result.capture_content)
                 ack = f"Got it — logged as [{result.capture_type or 'flag'}]: {result.capture_content}"
             elif result.classification == "delivery_note" and result.delivery_note:
-                append_brief_feedback(feedback_file, result.delivery_note)
+                append_brief_feedback(storage, result.delivery_note)
                 ack = f"Got it — noted for future briefs: {result.delivery_note}"
             elif result.classification in ("action_signal", "delivery_note"):
                 print(f"WARNING: classifier returned {result.classification} with no content — asking for clarification.", file=sys.stderr)
@@ -163,9 +155,9 @@ def main() -> None:
 
             processed_ids.add(reply["id"])
             state["processed_reply_ids"] = list(processed_ids)
-            save_brief_state(config["state_dir"], state)
+            save_brief_state(storage, state)
     finally:
-        flush("email_reply", config.get("logs_file", "data/logs/run_log.jsonl"))
+        flush("email_reply", storage)
 
 
 if __name__ == "__main__":

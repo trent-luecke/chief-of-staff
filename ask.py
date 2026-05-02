@@ -18,10 +18,9 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
-def _main_inner(query: str, chat_id: str, bot_token: str, config: dict) -> None:
+def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage) -> None:
     # /brief score commands are handled locally — no Claude call, no API cost
-    scores_file = config.get("brief_scores_file", "data/state/brief_scores.jsonl")
-    score_response = handle_score_command(query, scores_file=scores_file)
+    score_response = handle_score_command(query, storage=storage)
     if score_response is not None:
         if bot_token:
             send_message(bot_token, chat_id, score_response)
@@ -39,6 +38,7 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict) -> None:
             model=config["ai_model"],
             query=query,
             config=config,
+            storage=storage,
         )
     except Exception as e:
         print(f"Query error: {e}", file=sys.stderr)
@@ -65,12 +65,14 @@ def main() -> None:
         sys.exit(0)
 
     config = load_config()
-
+    from lib.storage import build_storage
     from lib.llm_logger import flush
+    storage = build_storage(config)
+
     try:
-        _main_inner(query, chat_id, bot_token, config)
+        _main_inner(query, chat_id, bot_token, config, storage)
     finally:
-        flush("telegram_query", config.get("logs_file", "data/logs/run_log.jsonl"))
+        flush("ask", storage)
 
 
 if __name__ == "__main__":

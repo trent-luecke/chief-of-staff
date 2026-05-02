@@ -94,7 +94,7 @@ Context:
 {local_context}"""
 
 
-def answer_query_with_tools(api_key: str, model: str, query: str, config: dict) -> str:
+def answer_query_with_tools(api_key: str, model: str, query: str, config: dict, storage=None) -> str:
     from processors.query_tools import TOOL_SCHEMAS, execute_tool
     from lib.llm_logger import log_usage
 
@@ -123,7 +123,7 @@ def answer_query_with_tools(api_key: str, model: str, query: str, config: dict) 
             tool_results = []
             for block in response.content:
                 if block.type == "tool_use":
-                    result = execute_tool(block.name, block.input, config)
+                    result = execute_tool(block.name, block.input, config, storage=storage)
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": block.id,
