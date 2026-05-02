@@ -60,6 +60,7 @@ def add_or_update_issue(
         for issue in log.issues:
             if issue.source_ref == source_ref:
                 issue.last_seen_date = date.today().isoformat()
+                break
         save_issues(log, storage)
         return
 
