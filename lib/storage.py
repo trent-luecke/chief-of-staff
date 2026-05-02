@@ -128,8 +128,10 @@ class R2Storage:
         try:
             self.s3.head_object(Bucket=self.bucket_name, Key=key)
             return True
-        except ClientError:
-            return False
+        except ClientError as e:
+            if e.response["Error"]["Code"] in ("NoSuchKey", "404"):
+                return False
+            raise
 
     def read_json(self, key: str, default: Any = None) -> Any:
         content = self.read(key)

@@ -113,3 +113,23 @@ def test_build_storage_returns_local_when_no_storage_config(tmp_path):
 def test_local_storage_base_dir_is_data_by_default():
     s = LocalStorage()
     assert str(s.base_dir) == "data"
+
+
+def test_r2_exists_propagates_non_404_errors():
+    """R2Storage.exists() must raise on non-404 ClientError (fatal contract)."""
+    from unittest.mock import MagicMock, patch
+    from botocore.exceptions import ClientError
+    from lib.storage import R2Storage
+
+    with patch("boto3.client") as mock_boto:
+        mock_s3 = MagicMock()
+        mock_boto.return_value = mock_s3
+
+        # Simulate an auth error (not 404)
+        error_response = {"Error": {"Code": "AccessDenied", "Message": "Access Denied"}}
+        mock_s3.head_object.side_effect = ClientError(error_response, "HeadObject")
+
+        storage = R2Storage("bucket", "acct", "key_id", "secret")
+
+        with pytest.raises(ClientError):
+            storage.exists("some/key.json")
