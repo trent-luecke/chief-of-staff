@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from typing import Literal, Optional
 import json
-import os
 import re
 from datetime import datetime
 import anthropic
@@ -69,11 +68,11 @@ Schema:
         )
 
 
-def append_brief_feedback(feedback_file: str, note: str) -> None:
-    timestamp = datetime.now().strftime("%Y-%m-%d")
-    line = f"## {timestamp} — {note}\n"
-    dir_ = os.path.dirname(feedback_file)
-    if dir_:
-        os.makedirs(dir_, exist_ok=True)
-    with open(feedback_file, "a") as f:
-        f.write(line)
+_FEEDBACK_KEY = "brief_feedback.md"
+
+
+def append_brief_feedback(storage, note: str) -> None:
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
+    line = f"\n## {timestamp}\n{note.strip()}\n"
+    existing = storage.read(_FEEDBACK_KEY) or ""
+    storage.write(_FEEDBACK_KEY, existing + line)

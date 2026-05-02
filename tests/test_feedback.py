@@ -1,7 +1,7 @@
-import os
-import tempfile
+import pytest
 from unittest.mock import patch, MagicMock
 
+from lib.storage import LocalStorage
 from processors.feedback import classify_feedback, append_brief_feedback, FeedbackResult
 
 
@@ -64,25 +64,17 @@ def test_classify_feedback_handles_malformed_json():
     assert result.clarification_question is not None
 
 
-def test_append_brief_feedback_writes_timestamped_line():
-    with tempfile.NamedTemporaryFile(mode="r", suffix=".md", delete=False) as f:
-        path = f.name
-    try:
-        append_brief_feedback(path, "Cut gym scout section unless 3+ leads")
-        content = open(path).read()
-        assert "Cut gym scout section" in content
-        assert "##" in content
-    finally:
-        os.unlink(path)
+def test_append_brief_feedback_writes_timestamped_line(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    append_brief_feedback(storage, "Cut gym scout section unless 3+ leads")
+    content = storage.read("brief_feedback.md")
+    assert "Cut gym scout section" in content
+    assert "##" in content
 
 
-def test_append_brief_feedback_accumulates():
-    with tempfile.NamedTemporaryFile(mode="r", suffix=".md", delete=False) as f:
-        path = f.name
-    try:
-        append_brief_feedback(path, "First note")
-        append_brief_feedback(path, "Second note")
-        lines = [l for l in open(path).read().splitlines() if l.strip()]
-        assert len(lines) == 2
-    finally:
-        os.unlink(path)
+def test_append_brief_feedback_accumulates(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    append_brief_feedback(storage, "First note")
+    append_brief_feedback(storage, "Second note")
+    lines = [l for l in storage.read("brief_feedback.md").splitlines() if l.strip()]
+    assert len(lines) >= 4  # 2 headers + 2 notes
