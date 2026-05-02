@@ -5,6 +5,7 @@ import tempfile
 
 import pytest
 
+from lib.storage import LocalStorage
 from processors.vector_ingest import (
     load_ingest_state,
     save_ingest_state,
@@ -57,16 +58,17 @@ _Last synthesized: 2026-04-28_
 
 
 def test_load_ingest_state_missing_file(tmp_path):
-    state = load_ingest_state(str(tmp_path / "nonexistent.json"))
+    storage = LocalStorage(base_dir=str(tmp_path))
+    state = load_ingest_state(storage)
     assert state.last_obs_line == 0
     assert state.memory_mtimes == {}
 
 
 def test_save_and_load_ingest_state(tmp_path):
-    path = str(tmp_path / "state.json")
+    storage = LocalStorage(base_dir=str(tmp_path))
     state = IngestState(last_obs_line=42, memory_mtimes={"apex.md": 1714300000.0})
-    save_ingest_state(state, path)
-    loaded = load_ingest_state(path)
+    save_ingest_state(state, storage)
+    loaded = load_ingest_state(storage)
     assert loaded.last_obs_line == 42
     assert loaded.memory_mtimes["apex.md"] == 1714300000.0
 
@@ -278,13 +280,13 @@ def test_prepare_raw_records_skips_unchanged_records():
 
 def test_ingest_state_round_trips_raw_record_ids(tmp_path):
     from processors.vector_ingest import IngestState, save_ingest_state, load_ingest_state
-    path = str(tmp_path / "state.json")
+    storage = LocalStorage(base_dir=str(tmp_path))
     state = IngestState(
         last_obs_line=10,
         memory_mtimes={"apex.md": 123.0},
         raw_record_ids={"lead:page-abc": "In-Trial:5:High", "bug:xyz": "2026-04-28"},
     )
-    save_ingest_state(state, path)
-    loaded = load_ingest_state(path)
+    save_ingest_state(state, storage)
+    loaded = load_ingest_state(storage)
     assert loaded.raw_record_ids["lead:page-abc"] == "In-Trial:5:High"
     assert loaded.raw_record_ids["bug:xyz"] == "2026-04-28"

@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-import os
 import re
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -12,6 +11,9 @@ import voyageai
 
 from pinecone import Pinecone
 
+_OBS_KEY = "memory/observations.jsonl"
+_STATE_KEY = "vector_ingest_state.json"
+
 
 @dataclass
 class IngestState:
@@ -20,23 +22,19 @@ class IngestState:
     raw_record_ids: dict = field(default_factory=dict)
 
 
-def load_ingest_state(path: str) -> IngestState:
-    try:
-        with open(path) as f:
-            data = json.load(f)
-        return IngestState(
-            last_obs_line=data.get("last_obs_line", 0),
-            memory_mtimes=data.get("memory_mtimes", {}),
-            raw_record_ids=data.get("raw_record_ids", {}),
-        )
-    except (FileNotFoundError, json.JSONDecodeError):
+def load_ingest_state(storage) -> IngestState:
+    data = storage.read_json(_STATE_KEY)
+    if data is None:
         return IngestState()
+    return IngestState(
+        last_obs_line=data.get("last_obs_line", 0),
+        memory_mtimes=data.get("memory_mtimes", {}),
+        raw_record_ids=data.get("raw_record_ids", {}),
+    )
 
 
-def save_ingest_state(state: IngestState, path: str) -> None:
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(asdict(state), f, indent=2)
+def save_ingest_state(state: IngestState, storage) -> None:
+    storage.write_json(_STATE_KEY, asdict(state))
 
 
 def _sanitize_id(raw: str) -> str:
@@ -422,27 +420,113 @@ def _embed_and_upsert(
 
 
 def ingest(
-    obs_file: str,
-    memory_dir: str,
+    storage,
     pinecone_api_key: str,
     voyage_api_key: str,
     index_name: str,
     embedding_model: str,
     obs_namespace: str = "observations",
     mem_namespace: str = "memories",
-    state_file: str = "data/vector_ingest_state.json",
     raw_namespace: str = "raw_data",
-    pipeline_leads: list | None = None,
-    bugs: list | None = None,
-    cancellations: dict | None = None,
-    sales_entries: list | None = None,
+    pipeline_leads=None,
+    bugs=None,
+    cancellations=None,
+    sales_entries=None,
 ) -> None:
     """Run the full ingest pipeline: embed new observations + updated memories + raw KPI records."""
-    state = load_ingest_state(state_file)
+    state = load_ingest_state(storage)
 
-    # Prepare all records before deciding whether to initialize clients
-    obs_records = prepare_observation_records(obs_file, start_line=state.last_obs_line)
-    mem_records, new_mtimes = prepare_memory_records(memory_dir, state.memory_mtimes)
+    # Prepare observation records from storage
+    content = storage.read(_OBS_KEY) or ""
+    lines = content.splitlines()
+    obs_records = []
+    for i, raw_line in enumerate(lines):
+        if i < state.last_obs_line:
+            continue
+        raw_line = raw_line.strip()
+        if not raw_line:
+            continue
+        try:
+            obs = json.loads(raw_line)
+        except json.JSONDecodeError:
+            continue
+        obs_date = obs.get("date", "unknown")
+        obs_type = obs.get("type", "unknown")
+        entity = obs.get("entity", "unknown")
+        vector_id = _sanitize_id(f"{obs_date}:{obs_type}:{entity}:{i}")
+        obs_records.append({
+            "id": vector_id,
+            "text": build_observation_text(obs),
+            "metadata": {
+                "date": obs_date,
+                "type": obs_type,
+                "entity": entity,
+                "source": obs.get("source", ""),
+                "content_preview": obs.get("content", "")[:200],
+            },
+            "line_number": i,
+        })
+
+    # Prepare memory records from storage
+    memory_keys = [
+        key for key in storage.list_keys("memory")
+        if key.endswith(".md") and not key.startswith("memory/archive/")
+    ]
+    mem_records = []
+    new_mtimes = dict(state.memory_mtimes)
+    for key in sorted(memory_keys):
+        # Use content hash as a proxy for mtime when reading from storage
+        mem_content = storage.read(key)
+        if mem_content is None:
+            continue
+        current_mtime = hashlib.md5(mem_content.encode()).hexdigest()
+
+        # Skip if unchanged
+        if state.memory_mtimes.get(key) == current_mtime:
+            continue
+
+        try:
+            post = frontmatter.loads(mem_content)
+        except Exception:
+            continue
+
+        # Skip suppressed files
+        if post.get("suppress", False):
+            new_mtimes[key] = current_mtime
+            continue
+
+        # Extract text to embed
+        mem_text = post.content
+        if "## Synthesized Memory" in mem_text:
+            parts = mem_text.split("## Synthesized Memory")
+            human_section = parts[0].strip()
+            synthesized = parts[1].strip()
+            filtered_lines = [l for l in synthesized.splitlines()
+                              if not l.strip().startswith("_Last synthesized")]
+            synthesized = "\n".join(filtered_lines).strip()
+            mem_text = f"{human_section}\n\n{synthesized}" if human_section else synthesized
+        else:
+            mem_text = mem_text.strip()
+
+        if not mem_text:
+            new_mtimes[key] = current_mtime
+            continue
+
+        fname = key.split("/")[-1]
+        topic = str(post.get("topic", fname.replace(".md", "")))
+        mem_records.append({
+            "id": _sanitize_id(f"mem:{fname}"),
+            "text": mem_text,
+            "metadata": {
+                "topic": topic,
+                "last_updated": str(post.get("last_updated", "")),
+                "expires": str(post.get("expires", "")),
+                "pinned": bool(post.get("pinned", False)),
+                "content_preview": mem_text[:200],
+            },
+        })
+        new_mtimes[key] = current_mtime
+
     raw_records, new_raw_ids = prepare_raw_records(
         pipeline_leads=pipeline_leads or [],
         bugs=bugs or [],
@@ -467,7 +551,7 @@ def ingest(
         )
         print(f"   Upserted {obs_count} observation vectors.")
         state.last_obs_line = obs_records[-1]["line_number"] + 1
-        save_ingest_state(state, state_file)
+        save_ingest_state(state, storage)
 
     # Embed and upsert memories
     if mem_records:
@@ -485,4 +569,4 @@ def ingest(
         print(f"   Upserted {raw_count} raw_data vectors.")
         state.raw_record_ids = new_raw_ids
 
-    save_ingest_state(state, state_file)
+    save_ingest_state(state, storage)
