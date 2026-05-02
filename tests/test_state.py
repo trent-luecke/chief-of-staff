@@ -2,6 +2,7 @@ import json
 import os
 from datetime import date
 import pytest
+from lib.storage import LocalStorage
 from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_snapshots
 
 
@@ -14,16 +15,18 @@ def make_snapshot(date_str: str, email_thread_ids: list, notion_item_ids: list) 
 
 
 def test_save_and_load_snapshot(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
     snap = make_snapshot("2026-04-16", ["thread_001", "thread_002"], ["notion_abc"])
-    save_snapshot(snap, state_dir=str(tmp_path))
-    loaded = load_snapshot(date(2026, 4, 16), state_dir=str(tmp_path))
+    save_snapshot(snap, storage)
+    loaded = load_snapshot(date(2026, 4, 16), storage)
     assert loaded is not None
     assert loaded.open_email_thread_ids == ["thread_001", "thread_002"]
     assert loaded.open_notion_item_ids == ["notion_abc"]
 
 
 def test_load_snapshot_missing_returns_none(tmp_path):
-    result = load_snapshot(date(2026, 4, 1), state_dir=str(tmp_path))
+    storage = LocalStorage(base_dir=str(tmp_path))
+    result = load_snapshot(date(2026, 4, 1), storage)
     assert result is None
 
 
@@ -50,9 +53,10 @@ def test_diff_snapshots_all_new_no_previous():
 
 
 def test_snapshot_file_is_valid_json(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
     snap = make_snapshot("2026-04-17", ["t1"], ["n1"])
-    save_snapshot(snap, state_dir=str(tmp_path))
-    path = os.path.join(str(tmp_path), "state_2026-04-17.json")
+    save_snapshot(snap, storage)
+    path = os.path.join(str(tmp_path), "state", "state_2026-04-17.json")
     assert os.path.exists(path)
     with open(path) as f:
         data = json.load(f)

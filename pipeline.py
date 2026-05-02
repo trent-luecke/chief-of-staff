@@ -1,0 +1,911 @@
+"""pipeline.py — Typed collect → process → generate pipeline for the morning brief."""
+
+from __future__ import annotations
+
+import dataclasses
+import json
+import os
+import sys
+from dataclasses import dataclass, field
+from datetime import date, datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+from collectors.calendar import fetch_two_day_events
+from collectors.gmail import fetch_threads_needing_attention, filter_automated_threads
+from collectors.local_data import load_projects, load_due_recurring_tasks, read_inbox
+from collectors.notion_inbox import fetch_inbox_items
+from collectors.pipeline import fetch_pipeline_leads, load_activity_overrides, PipelineLead
+from collectors.gym_scout import fetch_recent_leads, GymScoutLead
+from lib.pipeline_activity import (
+    load_lead_email_index,
+    load_lead_page_index,
+    load_pipeline_activity,
+    save_pipeline_activity,
+    record_lead_contact,
+    patch_pipeline_cache_last_contacted,
+    update_notion_last_contacted,
+    reconcile_activity_to_notion,
+    extract_email as _extract_email,
+)
+from lib.health import RunHealth, StageResult, CollectorResult, timed
+from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_snapshots
+from processors.loops import build_loop_summary
+from processors.issues import get_open_issues, auto_resolve_issues
+from processors.meeting_memory import load_meeting_index, find_meeting_for_event, load_last_session_summary
+from processors.drafts import generate_demo_followup, generate_trial_followup, save_draft, load_todays_drafts
+from processors.brief import generate_brief, BriefContent
+from processors.people import enrich_people
+from outputs.sender import build_html_email, send_brief_email
+from lib.google_auth import build_gmail_service
+from outputs.dashboard import write_dashboard
+from processors.memory_observer import observe
+from processors.memory_synthesizer import synthesize
+from processors.memory_retriever import retrieve_memories, get_cold_start_message
+from lib.captures import load_recent_captures, load_brief_feedback
+
+
+# ---------------------------------------------------------------------------
+# Dataclasses
+# ---------------------------------------------------------------------------
+
+@dataclass
+class CollectedData:
+    """Raw signals from all sources. Every field has a safe default."""
+
+    # Calendar
+    today_events: list = field(default_factory=list)
+    tomorrow_events: list = field(default_factory=list)
+    calendar_failed: bool = False
+
+    # Email
+    email_threads: list = field(default_factory=list)
+
+    # Local data
+    projects: list = field(default_factory=list)
+    due_tasks: list = field(default_factory=list)
+    inbox_text: str = ""
+
+    # Notion
+    notion_items: list = field(default_factory=list)
+
+    # Issues
+    open_issues: list = field(default_factory=list)
+
+    # Pipeline
+    trial_leads: list = field(default_factory=list)
+    attention_leads: list = field(default_factory=list)
+    all_pipeline_leads: list = field(default_factory=list)
+    pipeline_cache_age_days: int | None = None
+
+    # Gym scout
+    gym_scout_leads: list = field(default_factory=list)
+
+    # Bugs
+    bugs: list = field(default_factory=list)
+
+    # Sheets
+    sales_data: dict | None = None
+    demos_data: dict | None = None
+    cancellations: dict = field(default_factory=lambda: {"count": 0, "entries": []})
+
+    # Slack
+    slack_dms: list = field(default_factory=list)
+
+
+@dataclass
+class ProcessedContext:
+    """Enriched context ready for brief generation."""
+
+    # Pass-through from collection (brief generator needs these directly)
+    collected: CollectedData
+
+    # Enriched / derived
+    people_context: str = ""
+    memory_context: str = ""
+    memory_cold_start_msg: str | None = None
+    meeting_prep: list = field(default_factory=list)
+    todays_drafts: list = field(default_factory=list)
+    loop_summary: dict = field(default_factory=dict)
+    captures_context: str = ""
+    brief_feedback_context: str = ""
+
+    # State diffing (needed by post-brief memory observer)
+    previous_state: Any = None
+    still_open: dict = field(default_factory=lambda: {"email": [], "notion": []})
+    today_email_ids: list = field(default_factory=list)
+    today_notion_ids: list = field(default_factory=list)
+
+
+# ---------------------------------------------------------------------------
+# Helper functions (moved from main.py)
+# ---------------------------------------------------------------------------
+
+def _save_brief_message_id(storage, message_id: str, thread_id: str, subject: str) -> None:
+    # Overwrites on same-day re-run; replies to earlier send will be missed.
+    storage.write_json("state/brief_message_id.json", {
+        "message_id": message_id,
+        "thread_id": thread_id,
+        "subject": subject,
+        "date": date.today().isoformat(),
+        "processed_reply_ids": [],
+    })
+
+
+def build_meeting_prep(today_events, meeting_configs, storage) -> list[str]:
+    prep = []
+    for event in today_events:
+        config = find_meeting_for_event(event, meeting_configs)
+        if not config:
+            continue
+        key = config.memory_file.removeprefix("data/")
+        last_summary = load_last_session_summary(storage, key)
+        if last_summary:
+            preview = last_summary[:200] + ("..." if len(last_summary) > 200 else "")
+            prep.append(f"{event.summary} ({event.start.strftime('%-I:%M%p')}) — Last session: {preview}")
+        else:
+            prep.append(f"{event.summary} ({event.start.strftime('%-I:%M%p')}) — No prior session notes")
+    return prep
+
+
+def _scan_outbound_pipeline_contacts(config: dict, storage) -> int:
+    """
+    Scans the last 24h of sent mail for emails to pipeline leads.
+    Updates the activity file, patches the local cache, and writes to Notion.
+    Also reconciles any existing activity entries where Notion still has stale dates.
+    Returns count of new contacts recorded.
+    """
+    lead_index = load_lead_email_index(storage)
+    if not lead_index:
+        return 0
+
+    page_index = load_lead_page_index(storage)
+    activity = load_pipeline_activity(storage)
+    new_contacts = 0
+
+    try:
+        sent_threads = fetch_threads_needing_attention(
+            user_email=config["email"],
+            max_results=50,
+            query="in:sent newer_than:24h",
+        )
+    except Exception as e:
+        print(f"   WARNING: sent mail scan failed: {e}", flush=True)
+        sent_threads = []
+
+    for thread in sent_threads:
+        recipient_email = _extract_email(thread.last_recipient)
+        if recipient_email not in lead_index:
+            continue
+        lead_name = lead_index[recipient_email]
+        updated = record_lead_contact(activity, recipient_email, lead_name, thread, direction="outbound")
+        if updated:
+            contact_date = thread.last_message_date.date().isoformat()
+            print(f"   Outbound contact: {lead_name} — {thread.subject[:60]}")
+            patch_pipeline_cache_last_contacted(storage, recipient_email, contact_date)
+            page_id = page_index.get(recipient_email)
+            if page_id:
+                ok = update_notion_last_contacted(page_id, contact_date)
+                print(f"   Notion updated for {lead_name}: {ok}")
+            else:
+                print(f"   WARNING: no page_id for {lead_name} — run pipeline sync")
+            new_contacts += 1
+
+    if new_contacts:
+        save_pipeline_activity(storage, activity)
+
+    # Reconcile any historical gaps: activity_date > cache.last_contacted
+    backfilled = reconcile_activity_to_notion(storage)
+    if backfilled:
+        print(f"   Notion backfilled for {backfilled} lead(s) with stale dates")
+
+    return new_contacts
+
+
+def generate_pipeline_drafts(config: dict, storage, trial_leads: list) -> None:
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    model = config["ai_model"]
+    for lead in trial_leads:
+        if not lead.email:
+            continue
+        days = lead.days_since_contact or 0
+        name = lead.contact or lead.name
+        draft = generate_trial_followup(api_key, model, name, lead.email, days)
+        if draft:
+            save_draft(draft, storage)
+            print(f"   Draft: trial follow-up for {lead.name} ({days}d since last contact)")
+
+
+def generate_daily_drafts(config: dict, storage, today_events) -> None:
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    model = config["ai_model"]
+    for event in today_events:
+        if "demo" in event.summary.lower() and event.attendees:
+            draft = generate_demo_followup(api_key, model, event)
+            if draft:
+                save_draft(draft, storage)
+                print(f"   Draft: demo follow-up for {event.summary}")
+
+
+# ---------------------------------------------------------------------------
+# Stage 1: Collect
+# ---------------------------------------------------------------------------
+
+def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
+    """Pull raw signals from all sources. Returns CollectedData with safe defaults on failure."""
+    data = CollectedData()
+    stage = StageResult(name="collect")
+
+    with timed() as stage_timer:
+
+        # Calendar
+        _err = None
+        print("🗓  Fetching calendar...")
+        with timed() as t:
+            try:
+                data.today_events, data.tomorrow_events, data.calendar_failed = fetch_two_day_events(
+                    config["calendar_ids"], user_email=config["email"]
+                )
+                if data.calendar_failed:
+                    _err = "API unavailable"
+                    print("WARNING: Calendar API unavailable — schedule data missing from brief.", flush=True)
+            except Exception as e:
+                _err = str(e)[:200]
+                data.calendar_failed = True
+                print(f"⚠️ Calendar error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="calendar",
+            status="error" if _err else "ok",
+            error=_err,
+            item_count=len(data.today_events) + len(data.tomorrow_events),
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Gmail
+        _err = None
+        print("📧  Fetching Gmail (work)...")
+        with timed() as t:
+            try:
+                data.email_threads = filter_automated_threads(
+                    fetch_threads_needing_attention(
+                        user_email=config["email"],
+                        max_results=config.get("unread_email_max", 15),
+                    ),
+                    config.get("email_automation_filters", {}),
+                )
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ Gmail error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="gmail",
+            status="error" if _err else "ok",
+            error=_err,
+            item_count=len(data.email_threads),
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Projects + recurring tasks
+        _err = None
+        print("📋  Loading projects and recurring tasks...")
+        with timed() as t:
+            try:
+                data.projects = load_projects(config["projects_file"])
+                data.due_tasks = load_due_recurring_tasks(config["recurring_file"])
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ Projects/tasks error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="projects",
+            status="error" if _err else "ok",
+            error=_err,
+            item_count=len(data.projects),
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Inbox
+        _err = None
+        print("📝  Reading inbox...")
+        with timed() as t:
+            try:
+                data.inbox_text = read_inbox(config.get("inbox_file", ""))
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ Inbox error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="inbox",
+            status="error" if _err else "ok",
+            error=_err,
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Notion inbox
+        notion_token = os.environ.get("NOTION_TOKEN", "")
+        if not config.get("notion", {}).get("enabled"):
+            stage.collectors.append(CollectorResult(name="notion_inbox", status="skipped"))
+        elif not notion_token:
+            stage.collectors.append(CollectorResult(name="notion_inbox", status="skipped", error="NOTION_TOKEN not set"))
+        else:
+            _err = None
+            print("🔔  Fetching Notion inbox...")
+            with timed() as t:
+                try:
+                    data.notion_items = fetch_inbox_items(
+                        token=notion_token,
+                        database_id=config["notion"]["inbox_database_id"],
+                        filter_statuses=config["notion"]["inbox_filter_status"],
+                    )
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Notion inbox error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="notion_inbox",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.notion_items),
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Issues
+        _err = None
+        print("🔥  Loading open issues...")
+        with timed() as t:
+            try:
+                auto_resolve_issues(storage, resolve_after_days=config.get("issue_auto_resolve_days", 3))
+                data.open_issues = get_open_issues(storage)
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ Issues error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="issues",
+            status="error" if _err else "ok",
+            error=_err,
+            item_count=len(data.open_issues),
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Pipeline
+        if not config.get("pipeline", {}).get("enabled"):
+            stage.collectors.append(CollectorResult(name="pipeline", status="skipped"))
+        else:
+            _err = None
+            print("📈  Loading pipeline cache...")
+            with timed() as t:
+                try:
+                    cache_path = config["pipeline"]["cache_path"]
+                    activity_path = str(Path(cache_path).parent / "pipeline_email_activity.json")
+
+                    print("📤  Scanning sent mail for outbound pipeline contacts...")
+                    _scan_outbound_pipeline_contacts(config, storage)
+
+                    data.trial_leads, data.attention_leads = fetch_pipeline_leads(
+                        cache_path=cache_path,
+                        trial_followup_after_days=config["pipeline"].get("trial_followup_after_days", 5),
+                        stale_after_days=config["pipeline"].get("stale_after_days", 14),
+                    )
+                    try:
+                        _cache = storage.read_json("pipeline_cache.json") or {}
+                        synced_at = _cache.get("synced_at", "")
+                        if synced_at:
+                            synced_date = date.fromisoformat(synced_at[:10])
+                            data.pipeline_cache_age_days = (date.today() - synced_date).days
+                        data.all_pipeline_leads = _cache.get("leads", [])
+                        # Apply activity overrides so Pinecone gets accurate staleness data,
+                        # not the (potentially stale) dates from the last Notion sync.
+                        activity_overrides = load_activity_overrides(activity_path)
+                        if activity_overrides:
+                            today_d = date.today()
+                            for lead in data.all_pipeline_leads:
+                                email = lead.get("email", "").lower()
+                                activity_date = activity_overrides.get(email)
+                                cache_date = lead.get("last_contacted") or ""
+                                if activity_date and activity_date > cache_date:
+                                    lead["last_contacted"] = activity_date
+                                    try:
+                                        days = (today_d - date.fromisoformat(activity_date[:10])).days
+                                    except (ValueError, TypeError):
+                                        days = None
+                                    lead["days_since_contact"] = days
+                                    lead["stale"] = days is not None and days >= 14
+                    except (FileNotFoundError, json.JSONDecodeError, ValueError):
+                        pass
+                    print(f"   {len(data.trial_leads)} trial follow-up(s), {len(data.attention_leads)} stale opp(s)")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Pipeline error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="pipeline",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.all_pipeline_leads),
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Gym scout
+        if not config.get("gym_scout", {}).get("enabled"):
+            stage.collectors.append(CollectorResult(name="gym_scout", status="skipped"))
+        else:
+            _err = None
+            with timed() as t:
+                try:
+                    data.gym_scout_leads = fetch_recent_leads(
+                        config["gym_scout"]["results_csv"],
+                        lookback_days=config["gym_scout"].get("lookback_days", 7),
+                    )
+                    if data.gym_scout_leads:
+                        print(f"🏋️  Gym Scout: {len(data.gym_scout_leads)} new lead(s) this week")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Gym Scout error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="gym_scout",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.gym_scout_leads),
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Bugs
+        if not notion_token:
+            stage.collectors.append(CollectorResult(name="bugs", status="skipped", error="NOTION_TOKEN not set"))
+        else:
+            _err = None
+            print("🪲  Fetching bug tracker...")
+            with timed() as t:
+                try:
+                    from collectors.notion_bugs import fetch_bugs
+                    data.bugs = fetch_bugs(notion_token)
+                    if data.bugs:
+                        open_bugs = [b for b in data.bugs if b.status != "Done"]
+                        print(f"   {len(open_bugs)} open bug(s) ({len(data.bugs)} total)")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️  Bug tracker fetch error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="bugs",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.bugs),
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Sheets (cancellations, sales, demos — tracked as one entry)
+        sheets_cfg = config.get("sheets", {})
+        cancel_sheet_id = sheets_cfg.get("cancellations_spreadsheet_id", "")
+        cancel_tab = sheets_cfg.get("cancellations_tab_name", "MONTHLY Cancellations")
+        _mp_sheets = config.get("meeting_prep", {}).get("sheets", {})
+        sales_sheet_id = _mp_sheets.get("sales_spreadsheet_id", "")
+        demos_sheet_id = _mp_sheets.get("demos_spreadsheet_id", "")
+        if not (cancel_sheet_id or sales_sheet_id or demos_sheet_id):
+            stage.collectors.append(CollectorResult(name="sheets", status="skipped"))
+        else:
+            _err = None
+            with timed() as t:
+                try:
+                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, month_label
+                    from lib.google_auth import build_sheets_service
+                    sheets_svc = build_sheets_service()
+                    if cancel_sheet_id:
+                        print("📉  Fetching cancellations...")
+                        data.cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
+                        print(f"   {data.cancellations['count']} cancellation(s) this month")
+                    if sales_sheet_id:
+                        data.sales_data = fetch_sales_mtd(sheets_svc, sales_sheet_id, month_label(0))
+                        print(f"   Sales MTD: {data.sales_data['count']} deals, ${data.sales_data['revenue']:,.0f}")
+                    if demos_sheet_id:
+                        data.demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
+                        print(f"   Demos MTD: {data.demos_data['count']}")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="sheets",
+                status="error" if _err else "ok",
+                error=_err,
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Slack DMs
+        slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
+        if not slack_token:
+            stage.collectors.append(CollectorResult(name="slack_dms", status="skipped", error="SLACK_BOT_TOKEN not set"))
+        else:
+            _err = None
+            with timed() as t:
+                try:
+                    from collectors.slack import fetch_dm_messages
+                    data.slack_dms = fetch_dm_messages(token=slack_token, since_hours=24)
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Slack error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="slack_dms",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.slack_dms),
+                duration_ms=t.elapsed_ms,
+            ))
+
+    stage.duration_ms = stage_timer.elapsed_ms
+    if any(c.status == "error" for c in stage.collectors):
+        stage.status = "degraded"
+    health.stages.append(stage)
+
+    return data
+
+
+# ---------------------------------------------------------------------------
+# Stage 2: Process
+# ---------------------------------------------------------------------------
+
+def process_context(config: dict, collected: CollectedData, health: RunHealth, storage) -> ProcessedContext:
+    """Enrich, classify, and prepare context for brief generation."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    ctx = ProcessedContext(collected=collected)
+    stage = StageResult(name="process")
+
+    with timed() as stage_timer:
+
+        # Meeting prep (fast, file-based — not tracked as a sub-step)
+        print("🗒  Building meeting prep...")
+        meeting_configs = load_meeting_index(config.get("meeting_index_file", "data/meeting_index.json"))
+        ctx.meeting_prep = build_meeting_prep(collected.today_events, meeting_configs, storage)
+
+        # Draft generation (demo + trial follow-ups)
+        _err = None
+        print("✍️  Generating demo follow-up drafts...")
+        with timed() as t:
+            try:
+                generate_daily_drafts(config, storage, collected.today_events)
+                if collected.trial_leads:
+                    print("✍️  Generating trial follow-up drafts...")
+                    generate_pipeline_drafts(config, storage, collected.trial_leads)
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ Draft generation error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="draft_generation",
+            status="error" if _err else "ok",
+            error=_err,
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # People enrichment
+        _err = None
+        print("🧠  Enriching people store...")
+        with timed() as t:
+            try:
+                people_dir = config.get("people_dir", "data/people")
+                if os.path.isdir(people_dir):
+                    ctx.people_context = enrich_people(
+                        calendar_events=collected.today_events,
+                        email_threads=collected.email_threads,
+                        slack_dms=collected.slack_dms,
+                        people_dir=people_dir,
+                        api_key=api_key,
+                        model=config["ai_model"],
+                    )
+            except Exception as e:
+                _err = str(e)[:200]
+                print(f"⚠️ People enrichment error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="people_enrichment",
+            status="error" if _err else "ok",
+            error=_err,
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Memory retrieval
+        memory_cfg = config.get("memory", {})
+        if not memory_cfg.get("enabled"):
+            stage.collectors.append(CollectorResult(name="memory_retrieval", status="skipped"))
+        else:
+            _err = None
+            with timed() as t:
+                try:
+                    _vector_cfg = config.get("vector", {})
+                    _pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+                    _voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+                    _pinecone_cfg = None
+                    if _vector_cfg.get("enabled") and _pinecone_key and _voyage_key:
+                        _pinecone_cfg = {
+                            "api_key": _pinecone_key,
+                            "voyage_api_key": _voyage_key,
+                            "index_name": _vector_cfg["index_name"],
+                            "embedding_model": _vector_cfg["embedding_model"],
+                            "observations_namespace": _vector_cfg.get("observations_namespace", "observations"),
+                            "memories_namespace": _vector_cfg.get("memories_namespace", "memories"),
+                            "retrieval_mode": _vector_cfg.get("retrieval_mode", "auto"),
+                        }
+                    ctx.memory_context = retrieve_memories(
+                        storage=storage,
+                        token_budget=memory_cfg.get("retrieval_token_budget", 1500),
+                        pinecone_config=_pinecone_cfg,
+                        query_signals={
+                            "calendar_events": [e.summary for e in collected.today_events + collected.tomorrow_events],
+                            "email_subjects": [t.subject for t in collected.email_threads[:10]],
+                            "pipeline_lead_names": [l.name for l in collected.trial_leads + collected.attention_leads],
+                            "issue_titles": [i.title for i in collected.open_issues],
+                        },
+                        trigger="brief",
+                        run_date=date.today().isoformat(),
+                    )
+                    ctx.memory_cold_start_msg = get_cold_start_message(
+                        storage=storage,
+                        cold_start_days=memory_cfg.get("cold_start_days", 3),
+                    )
+                    if ctx.memory_cold_start_msg:
+                        print(f"   ℹ️  {ctx.memory_cold_start_msg}")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Memory retrieval error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="memory_retrieval",
+                status="error" if _err else "ok",
+                error=_err,
+                duration_ms=t.elapsed_ms,
+            ))
+
+        # Load today's drafts
+        ctx.todays_drafts = load_todays_drafts(storage)
+
+        # Loop resolution
+        print("🔄  Resolving open loops...")
+        yesterday = date.today() - timedelta(days=1)
+        ctx.previous_state = load_snapshot(yesterday, storage)
+        ctx.today_email_ids = [t.id for t in collected.email_threads]
+        ctx.today_notion_ids = [n.id for n in collected.notion_items]
+
+        if ctx.previous_state:
+            resolved, ctx.still_open = diff_snapshots(ctx.previous_state, ctx.today_email_ids, ctx.today_notion_ids)
+        else:
+            resolved = {"email": [], "notion": []}
+            ctx.still_open = {"email": [], "notion": []}
+
+        ctx.loop_summary = build_loop_summary(collected.email_threads, collected.notion_items, resolved, ctx.still_open)
+
+        # Captures + brief feedback
+        ctx.captures_context = load_recent_captures(storage)
+        ctx.brief_feedback_context = load_brief_feedback(storage)
+
+    stage.duration_ms = stage_timer.elapsed_ms
+    if any(c.status == "error" for c in stage.collectors):
+        stage.status = "degraded"
+    health.stages.append(stage)
+
+    return ctx
+
+
+# ---------------------------------------------------------------------------
+# Stage 3: Generate & Deliver
+# ---------------------------------------------------------------------------
+
+def generate_and_deliver(
+    config: dict,
+    ctx: ProcessedContext,
+    dry_run: bool = False,
+    no_email: bool = False,
+    health: RunHealth = None,
+    storage = None,
+) -> None:
+    """Call Claude, build the brief, send email, write dashboard, persist state, run memory pipeline."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    collected = ctx.collected
+    memory_cfg = config.get("memory", {})
+    stage = StageResult(name="generate_and_deliver")
+
+    with timed() as stage_timer:
+
+        # Brief generation
+        _brief_error = None
+        print("🤖  Generating brief with Claude...")
+        with timed() as t:
+            try:
+                brief = generate_brief(
+                    api_key=api_key,
+                    model=config["ai_model"],
+                    today_events=collected.today_events,
+                    tomorrow_events=collected.tomorrow_events,
+                    email_threads=collected.email_threads,
+                    projects=collected.projects,
+                    due_tasks=collected.due_tasks,
+                    loop_summary=ctx.loop_summary,
+                    open_issues=collected.open_issues,
+                    drafts=ctx.todays_drafts,
+                    meeting_prep=ctx.meeting_prep,
+                    inbox_text=collected.inbox_text,
+                    attention_leads=collected.attention_leads,
+                    gym_scout_leads=collected.gym_scout_leads,
+                    people_context=ctx.people_context,
+                    memory_context=ctx.memory_context,
+                    captures_context=ctx.captures_context,
+                    brief_feedback_context=ctx.brief_feedback_context,
+                )
+            except Exception as e:
+                _brief_error = str(e)[:200]
+                print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)
+                brief = BriefContent(
+                    executive_summary="Brief generation failed — check logs.",
+                    top_3_priorities=["Check logs", "Retry: python main.py --no-email"],
+                    watch_outs=[str(e)[:200]],
+                )
+        stage.collectors.append(CollectorResult(
+            name="brief_generation",
+            status="error" if _brief_error else "ok",
+            error=_brief_error,
+            duration_ms=t.elapsed_ms,
+        ))
+        if _brief_error:
+            stage.status = "failed"
+
+        # Inject watch-outs and mirror them to health warnings
+        if ctx.memory_cold_start_msg:
+            brief.watch_outs = [ctx.memory_cold_start_msg] + (brief.watch_outs or [])
+            if health is not None:
+                health.add_warning(ctx.memory_cold_start_msg)
+
+        if collected.calendar_failed:
+            _cal_warn = "⚠️ Calendar API unavailable — schedule data is missing. Enable Google Calendar API at console.cloud.google.com for project 859502323558."
+            brief.watch_outs = [_cal_warn] + (brief.watch_outs or [])
+            if health is not None:
+                health.add_warning(_cal_warn)
+
+        pipeline_stale_days = config.get("pipeline", {}).get("cache_stale_warn_days", 7)
+        if collected.pipeline_cache_age_days is not None and collected.pipeline_cache_age_days >= pipeline_stale_days:
+            _stale_warn = f"Pipeline cache is {collected.pipeline_cache_age_days} days old — open Claude Code and ask to re-sync the pipeline cache from Notion."
+            brief.watch_outs.append(_stale_warn)
+            if health is not None:
+                health.add_warning(_stale_warn)
+
+        # Dashboard
+        print("📊  Writing dashboard...")
+        write_dashboard(
+            brief=brief,
+            today_events=collected.today_events,
+            projects=collected.projects,
+            due_tasks=collected.due_tasks,
+            loop_summary=ctx.loop_summary,
+            output_path=config["dashboard_path"],
+        )
+
+        # Email send
+        _email_error = None
+        _email_status = "ok"
+        _already_sent_today = False
+        with timed() as t:
+            if dry_run or no_email:
+                _email_status = "skipped"
+                print("   (email skipped)")
+            else:
+                _prev = storage.read_json("state/brief_message_id.json")
+                if _prev and _prev.get("date") == date.today().isoformat():
+                    print(f"   Brief already sent today ({_prev.get('message_id')}) — skipping.")
+                    _already_sent_today = True
+                    _email_status = "skipped"
+                if not _already_sent_today:
+                    try:
+                        print("📤  Sending brief email...")
+                        gmail = build_gmail_service(config["email"])
+                        subject = f"☀️ Morning Brief — {datetime.now().strftime('%A, %B %-d')}"
+                        html = build_html_email(brief, collected.today_events, collected.projects, collected.due_tasks, ctx.loop_summary)
+                        msg_id, thread_id = send_brief_email(gmail, config["email"], subject, html)
+                        if not msg_id:
+                            print("WARNING: send_brief_email returned empty message_id — state not saved.", file=sys.stderr)
+                        else:
+                            print(f"   Sent: {msg_id}")
+                            _save_brief_message_id(storage, msg_id, thread_id, subject)
+                    except Exception as e:
+                        _email_error = str(e)[:200]
+                        print(f"⚠️ Email send error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="email_send",
+            status=_email_status if not _email_error else "error",
+            error=_email_error,
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # Skip state snapshot + memory pipeline when already sent today
+        if _already_sent_today:
+            stage.duration_ms = stage_timer.elapsed_ms
+            if any(c.status == "error" for c in stage.collectors) and stage.status != "failed":
+                stage.status = "degraded"
+            if health is not None:
+                health.stages.append(stage)
+            return
+
+        # State snapshot
+        print("💾  Saving state snapshot...")
+        snapshot = StateSnapshot(
+            date=date.today().isoformat(),
+            open_email_thread_ids=ctx.today_email_ids,
+            open_notion_item_ids=ctx.today_notion_ids,
+        )
+        save_snapshot(snapshot, storage)
+
+        # Memory pipeline (observe + synthesize + vector ingest)
+        if not memory_cfg.get("enabled"):
+            stage.collectors.append(CollectorResult(name="memory_pipeline", status="skipped"))
+        else:
+            _err = None
+            with timed() as t:
+                try:
+                    observe(
+                        storage=storage,
+                        decisions_file=memory_cfg.get("decisions_file", "data/memory/decisions.md"),
+                        email_threads=collected.email_threads,
+                        still_open_ids=ctx.still_open if ctx.previous_state else {"email": [], "notion": []},
+                        pipeline_leads=list(collected.trial_leads) + list(collected.attention_leads),
+                        brief=brief,
+                        issues=collected.open_issues,
+                        sales_data=collected.sales_data,
+                        demos_data=collected.demos_data,
+                        bugs=collected.bugs if collected.bugs else None,
+                        cancellations=collected.cancellations if collected.cancellations.get("count", 0) > 0 else None,
+                    )
+                    print("🧠  Observations captured.")
+                    print("🔄  Running memory synthesis...")
+                    synthesize(
+                        storage=storage,
+                        api_key=api_key,
+                        model=config["ai_model"],
+                        lookback_days=memory_cfg.get("observation_lookback_days", 30),
+                        default_ttl_days=memory_cfg.get("default_ttl_days", 90),
+                        activity_extension_days=memory_cfg.get("activity_extension_days", 30),
+                        abandon_threshold_days=memory_cfg.get("abandon_threshold_days", 60),
+                        abandon_ttl_days=memory_cfg.get("abandon_ttl_days", 14),
+                    )
+                    print("✅  Memory synthesis complete.")
+                    # Vector ingest — embed new observations and updated memories into Pinecone
+                    vector_cfg = config.get("vector", {})
+                    pinecone_key = os.environ.get("PINECONE_API_KEY", "")
+                    voyage_key = os.environ.get("VOYAGE_API_KEY", "")
+                    if vector_cfg.get("enabled") and pinecone_key and voyage_key:
+                        try:
+                            from processors.vector_ingest import ingest as vector_ingest
+                            print("📡  Ingesting vectors into Pinecone...")
+                            vector_ingest(
+                                storage=storage,
+                                pinecone_api_key=pinecone_key,
+                                voyage_api_key=voyage_key,
+                                index_name=vector_cfg["index_name"],
+                                embedding_model=vector_cfg["embedding_model"],
+                                obs_namespace=vector_cfg.get("observations_namespace", "observations"),
+                                mem_namespace=vector_cfg.get("memories_namespace", "memories"),
+                                raw_namespace=vector_cfg.get("raw_data_namespace", "raw_data"),
+                                pipeline_leads=collected.all_pipeline_leads,
+                                bugs=[dataclasses.asdict(b) for b in collected.bugs] if collected.bugs else [],
+                                cancellations=collected.cancellations,
+                                sales_entries=collected.sales_data.get("entries", []) if collected.sales_data else [],
+                            )
+                            print("✅  Vector ingest complete.")
+                        except Exception as e:
+                            print(f"⚠️  Vector ingest error (non-fatal): {e}", file=sys.stderr)
+                            raise  # re-raise so the outer except catches it and marks memory_pipeline as error
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️  Memory pipeline error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="memory_pipeline",
+                status="error" if _err else "ok",
+                error=_err,
+                duration_ms=t.elapsed_ms,
+            ))
+
+    stage.duration_ms = stage_timer.elapsed_ms
+    if any(c.status == "error" for c in stage.collectors) and stage.status != "failed":
+        stage.status = "degraded"
+    if health is not None:
+        health.stages.append(stage)
+
+    print("\n✅ Brief complete.")
+    print(f"\nSummary: {brief.executive_summary}")
+    print("\nTop Priorities:")
+    for i, p in enumerate(brief.top_3_priorities, 1):
+        print(f"  {i}. {p}")
+    if brief.watch_outs:
+        print("\nWatch Outs:")
+        for w in brief.watch_outs:
+            print(f"  ⚠️  {w}")
+    if collected.open_issues:
+        print(f"\nOpen Issues: {len(collected.open_issues)}")
+    if ctx.todays_drafts:
+        print(f"\nDrafts Ready: {len(ctx.todays_drafts)}")
