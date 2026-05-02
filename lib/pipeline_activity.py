@@ -81,7 +81,7 @@ def patch_pipeline_cache_last_contacted(storage, email: str, contact_date: str) 
             continue
         existing = lead.get("last_contacted", "")
         if existing and existing >= contact_date:
-            break
+            continue
         lead["last_contacted"] = contact_date
         try:
             days = (today - date.fromisoformat(contact_date[:10])).days
