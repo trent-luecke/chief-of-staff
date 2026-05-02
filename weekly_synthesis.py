@@ -45,9 +45,8 @@ def _render_html(synthesis: WeeklySynthesis, week_end: str) -> str:
     return "\n".join(sections)
 
 
-def _save_synthesis(synthesis: WeeklySynthesis, weekly_dir: str, run_date: date) -> None:
-    os.makedirs(weekly_dir, exist_ok=True)
-    path = os.path.join(weekly_dir, f"{run_date.isoformat()}.md")
+def _save_synthesis(storage, synthesis: WeeklySynthesis, run_date: date) -> None:
+    key = f"weekly/{run_date.isoformat()}.md"
     lines = [
         f"# Weekly Synthesis — {run_date.isoformat()}",
         "",
@@ -62,36 +61,29 @@ def _save_synthesis(synthesis: WeeklySynthesis, weekly_dir: str, run_date: date)
         lines += ["## Carry-Forwards", *[f"- {c}" for c in synthesis.carry_forwards], ""]
     if synthesis.meta_observation:
         lines += ["## Meta Observation", synthesis.meta_observation, ""]
-    with open(path, "w") as f:
-        f.write("\n".join(lines))
-    print(f"Saved: {path}")
+    storage.write(key, "\n".join(lines))
+    print(f"Saved: {key}")
 
 
-def _main_inner(config: dict, run_date) -> None:
+def _main_inner(config: dict, run_date, storage) -> None:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         print("ERROR: ANTHROPIC_API_KEY not set.", file=sys.stderr)
         sys.exit(1)
 
-    memory_cfg = config.get("memory", {})
-
     print("Generating weekly synthesis...")
     try:
         synthesis = synthesize_week(
+            storage=storage,
             api_key=api_key,
             model=config["ai_model"],
-            obs_file=memory_cfg.get("observations_file", "data/memory/observations.jsonl"),
-            state_dir=config["state_dir"],
-            issues_file=config["issues_file"],
-            captures_file=config.get("captures_file", "data/captures.md"),
             run_date=run_date,
-            log_file=config.get("logs_file"),
         )
     except Exception as e:
         print(f"ERROR: synthesis failed: {e}", file=sys.stderr)
         sys.exit(1)
 
-    _save_synthesis(synthesis, "data/weekly", run_date)
+    _save_synthesis(storage, synthesis, run_date)
 
     gmail = build_gmail_service(config["email"])
     subject = f"📊 Weekly Synthesis — week ending {run_date.isoformat()}"
@@ -116,10 +108,9 @@ def _main_inner(config: dict, run_date) -> None:
         try:
             vector_cfg = config.get("vector", {})
             digest = generate_digest(
+                storage=storage,
                 api_key=api_key,
                 model=config["ai_model"],
-                scores_file=config.get("brief_scores_file", "data/state/brief_scores.jsonl"),
-                retrieval_log_file=vector_cfg.get("retrieval_log_file", "data/state/retrieval_log.jsonl"),
                 config_snapshot={
                     "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
                     "top_k": vector_cfg.get("top_k", 20),
@@ -145,12 +136,13 @@ def _main_inner(config: dict, run_date) -> None:
 def main() -> None:
     config = load_config()
     run_date = date.today()
-
+    from lib.storage import build_storage
     from lib.llm_logger import flush
+    storage = build_storage(config)
     try:
-        _main_inner(config, run_date)
+        _main_inner(config, run_date, storage)
     finally:
-        flush("weekly_synthesis", config.get("logs_file", "data/logs/run_log.jsonl"))
+        flush("weekly_synthesis", storage)
 
 
 if __name__ == "__main__":

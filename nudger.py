@@ -45,33 +45,31 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
-def load_pending_nudges(path: str) -> list[dict]:
-    try:
-        with open(path) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return []
+_NUDGES_KEY = "pending_nudges.json"
 
 
-def save_pending_nudges(nudges: list[dict], path: str) -> None:
-    with open(path, "w") as f:
-        json.dump(nudges, f, indent=2)
+def load_pending_nudges(storage) -> list[dict]:
+    return storage.read_json(_NUDGES_KEY, default=[])
+
+
+def save_pending_nudges(nudges: list[dict], storage) -> None:
+    storage.write_json(_NUDGES_KEY, nudges)
 
 
 def run() -> None:
     config = load_config()
+    from lib.storage import build_storage
+    storage = build_storage(config)
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     nudge_delay = config.get("nudge_minutes_after", 5)
-    pending_file = config["pending_nudges_file"]
-    pending = load_pending_nudges(pending_file)
+    pending = load_pending_nudges(storage)
     already_nudged = {n["event_id"] for n in pending}
 
     prep_config = config.get("meeting_prep", {})
     prep_enabled = prep_config.get("enabled", False)
     prep_window = prep_config.get("prep_window_minutes", 20)
-    prep_state_file = prep_config.get("preps_state_file", "data/meeting_preps.json")
 
     today_events, _, _ = fetch_two_day_events(config["calendar_ids"])
     now = datetime.now().astimezone()
@@ -80,7 +78,7 @@ def run() -> None:
         classify_meeting, build_prep_message,
         load_prep_state, save_prep_state, make_prep_key,
     )
-    sent_preps = load_prep_state(prep_state_file) if prep_enabled else set()
+    sent_preps = load_prep_state(storage) if prep_enabled else set()
 
     for event in today_events:
         # ── Pre-meeting prep ────────────────────────────────────────────
@@ -122,9 +120,9 @@ def run() -> None:
             "session_date": date.today().isoformat(),
         })
 
-    save_pending_nudges(pending, pending_file)
+    save_pending_nudges(pending, storage)
     if prep_enabled:
-        save_prep_state(sent_preps, prep_state_file)
+        save_prep_state(sent_preps, storage)
     print("✅ Nudger run complete.")
 
 

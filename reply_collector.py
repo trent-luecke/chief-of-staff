@@ -58,13 +58,12 @@ def get_latest_reply_text(thread_id: str, profile: str) -> str:
 
 def run() -> None:
     config = load_config()
-    pending_file = config["pending_nudges_file"]
+    from lib.storage import build_storage
+    storage = build_storage(config)
     profile = config.get("gmail_profile", "work")
 
-    try:
-        with open(pending_file) as f:
-            pending = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+    pending = storage.read_json("pending_nudges.json", default=[])
+    if not pending:
         return
 
     cutoff = datetime.now() - timedelta(days=7)
@@ -88,14 +87,13 @@ def run() -> None:
 
         reply_text = get_latest_reply_text(thread_id, profile)
         if reply_text.strip():
-            append_session_notes(memory_file, nudge["session_date"], reply_text)
+            key = memory_file.removeprefix("data/")
+            append_session_notes(storage, key, nudge["session_date"], reply_text)
             print(f"  Captured notes for: {nudge['meeting_name']}")
         else:
             still_pending.append(nudge)
 
-    with open(pending_file, "w") as f:
-        json.dump(still_pending, f, indent=2)
-
+    storage.write_json("pending_nudges.json", still_pending)
     print("✅ Reply collector complete.")
 
 
