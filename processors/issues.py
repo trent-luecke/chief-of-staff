@@ -1,8 +1,9 @@
-import json
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import date, timedelta
 from typing import Optional
+
+_KEY = "issues.json"
 
 
 @dataclass
@@ -29,22 +30,22 @@ class IssueLog:
     issues: list[Issue] = field(default_factory=list)
 
 
-def load_issues(path: str) -> IssueLog:
-    try:
-        with open(path) as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+def load_issues(storage) -> IssueLog:
+    data = storage.read_json(_KEY)
+    if data is None:
         return IssueLog()
-    return IssueLog(issues=[Issue(**i) for i in data.get("issues", [])])
+    try:
+        return IssueLog(issues=[Issue(**i) for i in data.get("issues", [])])
+    except (TypeError, KeyError):
+        return IssueLog()
 
 
-def save_issues(log: IssueLog, path: str) -> None:
-    with open(path, "w") as f:
-        json.dump({"issues": [asdict(i) for i in log.issues]}, f, indent=2)
+def save_issues(log: IssueLog, storage) -> None:
+    storage.write_json(_KEY, {"issues": [asdict(i) for i in log.issues]})
 
 
 def add_or_update_issue(
-    issues_file: str,
+    storage,
     source: str,
     source_ref: str,
     channel: str,
@@ -52,14 +53,14 @@ def add_or_update_issue(
     actions_needed: Optional[list[str]] = None,
     outside_parties: Optional[list[str]] = None,
 ) -> None:
-    log = load_issues(issues_file)
+    log = load_issues(storage)
     existing_refs = {i.source_ref for i in log.issues}
 
     if source_ref in existing_refs:
         for issue in log.issues:
             if issue.source_ref == source_ref:
                 issue.last_seen_date = date.today().isoformat()
-        save_issues(log, issues_file)
+        save_issues(log, storage)
         return
 
     log.issues.append(Issue(
@@ -75,20 +76,20 @@ def add_or_update_issue(
         outside_parties=outside_parties or [],
         resolved_date=None,
     ))
-    save_issues(log, issues_file)
+    save_issues(log, storage)
 
 
-def auto_resolve_issues(issues_file: str, resolve_after_days: int = 3) -> None:
-    log = load_issues(issues_file)
+def auto_resolve_issues(storage, resolve_after_days: int = 3) -> None:
+    log = load_issues(storage)
     cutoff = date.today() - timedelta(days=resolve_after_days)
     for issue in log.issues:
         if issue.status == "open":
             if date.fromisoformat(issue.last_seen_date) < cutoff:
                 issue.status = "resolved"
                 issue.resolved_date = date.today().isoformat()
-    save_issues(log, issues_file)
+    save_issues(log, storage)
 
 
-def get_open_issues(issues_file: str) -> list[Issue]:
-    log = load_issues(issues_file)
+def get_open_issues(storage) -> list[Issue]:
+    log = load_issues(storage)
     return [i for i in log.issues if i.status in ("open", "monitoring")]
