@@ -1,30 +1,30 @@
 import json
-import shutil
+import re
 from datetime import date, timedelta
-from pathlib import Path
 
 import anthropic
 import frontmatter
 
+from lib.llm_logger import log_usage
 
-def _load_recent_observations(obs_file: str, lookback_days: int) -> list[dict]:
+_OBS_KEY = "memory/observations.jsonl"
+
+
+def _load_recent_observations(storage, lookback_days: int) -> list[dict]:
     cutoff = date.today() - timedelta(days=lookback_days)
     observations = []
-    try:
-        with open(obs_file, encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                try:
-                    obs = json.loads(line)
-                    obs_date = date.fromisoformat(obs.get("date", "2000-01-01"))
-                    if obs_date >= cutoff:
-                        observations.append(obs)
-                except (json.JSONDecodeError, ValueError):
-                    continue
-    except FileNotFoundError:
-        pass
+    content = storage.read(_OBS_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obs = json.loads(line)
+            obs_date = date.fromisoformat(obs.get("date", "2000-01-01"))
+            if obs_date >= cutoff:
+                observations.append(obs)
+        except (json.JSONDecodeError, ValueError):
+            continue
     return observations
 
 
@@ -37,59 +37,67 @@ def _is_expired(expires: str, pinned: bool = False) -> bool:
         return False
 
 
-def _archive_expired_files(memory_dir: str, archive_dir: str) -> None:
-    for path in Path(memory_dir).glob("*.md"):
+def _archive_expired_files(storage) -> None:
+    for key in storage.list_keys("memory"):
+        if not key.endswith(".md") or key.startswith("memory/archive/"):
+            continue
+        content = storage.read(key)
+        if content is None:
+            continue
         try:
-            post = frontmatter.load(str(path))
+            post = frontmatter.loads(content)
             if _is_expired(str(post.get("expires", "")), pinned=bool(post.get("pinned", False))):
-                shutil.move(str(path), str(Path(archive_dir) / path.name))
+                name = key.split("/")[-1]
+                storage.write(f"memory/archive/{name}", content)
+                storage.delete(key)
         except Exception:
             continue
 
 
-def _apply_abandonment_decay(
-    memory_dir: str,
-    abandon_threshold_days: int,
-    abandon_ttl_days: int,
-) -> None:
+def _apply_abandonment_decay(storage, abandon_threshold_days: int, abandon_ttl_days: int) -> None:
     cutoff = date.today() - timedelta(days=abandon_threshold_days)
     new_expires = (date.today() + timedelta(days=abandon_ttl_days)).isoformat()
-
-    for path in Path(memory_dir).glob("*.md"):
+    for key in storage.list_keys("memory"):
+        if not key.endswith(".md") or key.startswith("memory/archive/"):
+            continue
+        content = storage.read(key)
+        if content is None:
+            continue
         try:
-            post = frontmatter.load(str(path))
-            if post.get("pinned", False):
+            post = frontmatter.loads(content)
+            if post.get("pinned"):
                 continue
-            activity_str = str(post.get("activity_last_seen", ""))
-            if not activity_str:
+            last_updated = post.get("activity_last_seen", "")
+            if not last_updated:
                 continue
             try:
-                if date.fromisoformat(activity_str) >= cutoff:
-                    continue
+                updated_date = date.fromisoformat(str(last_updated)[:10])
             except ValueError:
                 continue
-            current_expires = str(post.get("expires", ""))
-            try:
-                if date.fromisoformat(current_expires) <= date.fromisoformat(new_expires):
-                    continue
-            except ValueError:
-                pass
-            post["expires"] = new_expires
-            with open(path, "wb") as f:
-                frontmatter.dump(post, f)
+            if updated_date < cutoff:
+                current_expires = str(post.get("expires", ""))
+                try:
+                    current_exp_date = date.fromisoformat(current_expires)
+                except ValueError:
+                    current_exp_date = None
+                candidate = date.today() + timedelta(days=abandon_ttl_days)
+                if current_exp_date is None or candidate < current_exp_date:
+                    post["expires"] = new_expires
+                    storage.write(key, frontmatter.dumps(post))
         except Exception:
             continue
 
 
-def _load_existing_human_section(memory_file: Path) -> str:
-    if not memory_file.exists():
+def _load_existing_human_section(storage, key: str) -> str:
+    content = storage.read(key)
+    if content is None:
         return ""
     try:
-        post = frontmatter.load(str(memory_file))
-        content = post.content
-        if "## Synthesized Memory" in content:
-            return content.split("## Synthesized Memory")[0].strip()
-        return content.strip()
+        post = frontmatter.loads(content)
+        text = post.content
+        if "## Synthesized Memory" in text:
+            return text.split("## Synthesized Memory")[0].strip()
+        return text.strip()
     except Exception:
         return ""
 
@@ -132,9 +140,7 @@ Rules:
 
 
 def synthesize(
-    obs_file: str,
-    memory_dir: str,
-    archive_dir: str,
+    storage,
     api_key: str,
     model: str,
     lookback_days: int = 30,
@@ -143,12 +149,12 @@ def synthesize(
     abandon_threshold_days: int = 60,
     abandon_ttl_days: int = 14,
 ) -> None:
-    observations = _load_recent_observations(obs_file, lookback_days)
+    observations = _load_recent_observations(storage, lookback_days)
     if not observations:
         return
 
-    _apply_abandonment_decay(memory_dir, abandon_threshold_days, abandon_ttl_days)
-    _archive_expired_files(memory_dir, archive_dir)
+    _apply_abandonment_decay(storage, abandon_threshold_days, abandon_ttl_days)
+    _archive_expired_files(storage)
 
     prompt = _build_synthesis_prompt(observations)
     client = anthropic.Anthropic(api_key=api_key)
@@ -157,14 +163,12 @@ def synthesize(
         max_tokens=2000,
         messages=[{"role": "user", "content": prompt}],
     )
-    from lib.llm_logger import log_usage
     log_usage("memory_synthesizer", response.usage, model)
 
     raw = response.content[0].text.strip()
     try:
         memories = json.loads(raw)
     except json.JSONDecodeError:
-        import re
         match = re.search(r"\[.*\]", raw, re.DOTALL)
         if match:
             memories = json.loads(match.group(0))
@@ -179,8 +183,9 @@ def synthesize(
         if not filename or not filename.endswith(".md"):
             continue
 
-        memory_path = Path(memory_dir) / filename
-        human_section = _load_existing_human_section(memory_path)
+        slug = filename.replace(".md", "")
+        key = f"memory/{filename}"
+        human_section = _load_existing_human_section(storage, key)
 
         synthesized = memory.get("synthesized_memory", "")
         decision_candidates = memory.get("decision_candidates", [])
@@ -199,9 +204,10 @@ def synthesize(
         file_expires = expires
         existing_pinned = False
         existing_suppress = False
-        if memory_path.exists():
+        existing_content = storage.read(key)
+        if existing_content is not None:
             try:
-                existing = frontmatter.load(str(memory_path))
+                existing = frontmatter.loads(existing_content)
                 created = str(existing.get("created", today))
                 existing_pinned = bool(existing.get("pinned", False))
                 existing_suppress = bool(existing.get("suppress", False))
@@ -219,7 +225,7 @@ def synthesize(
 
         post = frontmatter.Post(
             content,
-            topic=memory.get("topic", filename.replace(".md", "")),
+            topic=memory.get("topic", slug),
             created=created,
             last_updated=today,
             expires=file_expires,
@@ -227,5 +233,4 @@ def synthesize(
             pinned=existing_pinned,
             suppress=existing_suppress,
         )
-        with open(memory_path, "wb") as f:
-            frontmatter.dump(post, f)
+        storage.write(f"memory/{slug}.md", frontmatter.dumps(post))
