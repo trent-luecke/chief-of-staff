@@ -28,7 +28,7 @@ _ATTENTION_STATUSES = {
 }
 
 
-def _load_activity_overrides(activity_path: str) -> dict[str, str]:
+def load_activity_overrides(activity_path: str) -> dict[str, str]:
     """Returns {email_lower: last_email_date} from the watcher's activity file."""
     try:
         with open(activity_path) as f:
@@ -63,7 +63,7 @@ def fetch_pipeline_leads(
 
     today = date.today()
     activity_path = str(Path(cache_path).parent / "pipeline_email_activity.json")
-    activity_overrides = _load_activity_overrides(activity_path)
+    activity_overrides = load_activity_overrides(activity_path)
 
     def _days_since(iso: Optional[str]) -> Optional[int]:
         if not iso:

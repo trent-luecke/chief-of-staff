@@ -23,5 +23,56 @@ Schedule: May 14, May 28, Jun 11, etc.
 ## 2026-05-01 11:42 — [todo] Follow up to get Trent and Nicole connected with Two Wheels (paid social ads agency for OS) — need campaign performance data.
 ## 2026-05-01 13:27 — [note] Connor — new prospect. Follow-up meeting Wednesday 5/6 to walk through Zapier automations and confirm OS is a good fit. Genuinely excited about OS as an alternative to EZ Facility (current provider). Quoted Platinum + OS. Pays annually in July. Follow-up email already sent, meeting already booked on calendar.
 ## 2026-05-01 13:40 — [todo] MONDAY — Call to set up dentist appointments for Truman and Carter
-## 2026-05-01 14:22 — [note] Payment failed emails from Gmail are automated noise from dummy/demo accounts. Ignore entirely — do not log as issues, do not surface in briefs. All historical ones already resolved.
-## 2026-05-01 16:17 — [todo] MONDAY — Follow up with Quinn on Baba Martin if Baba hasn't replied to Quinn's email (sent today)
+## 2026-05-02 06:39 — [todo] Call Marcus
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:39 — [note] loop
+## 2026-05-02 06:40 — [todo] Call Marcus
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:40 — [note] loop
+## 2026-05-02 06:45 — [todo] Call Marcus
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:45 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:46 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop
+## 2026-05-02 06:47 — [note] loop

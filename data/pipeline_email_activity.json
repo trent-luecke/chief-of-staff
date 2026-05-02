@@ -1,0 +1,17 @@
+{
+  "updated_at": "2026-04-30T16:47:51.836805+00:00",
+  "leads": {
+    "mike@apexholland.co": {
+      "name": "Mike Woodby \u2014 Apex Holland",
+      "last_email_date": "2026-04-30",
+      "last_subject": "Re: TeamBuildr OS Follow-Up",
+      "direction": "outbound"
+    },
+    "tzach1968@gmail.com": {
+      "name": "Tzach Feinsilver",
+      "last_email_date": "2026-04-27",
+      "last_subject": "Re: TeamBuildr OS Follow-Up",
+      "direction": "outbound"
+    }
+  }
+}

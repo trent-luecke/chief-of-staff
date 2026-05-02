@@ -285,6 +285,19 @@
       "actions_needed": [],
       "outside_parties": [],
       "resolved_date": "2026-04-29"
+    },
+    {
+      "id": "a03c62ae",
+      "title": "for TeamBuildr",
+      "source": "gmail",
+      "source_ref": "19de524643868b5e",
+      "channel": "gmail",
+      "created_date": "2026-05-01",
+      "last_seen_date": "2026-05-01",
+      "status": "open",
+      "actions_needed": [],
+      "outside_parties": [],
+      "resolved_date": null
     }
   ]
 }
