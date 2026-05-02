@@ -3,6 +3,7 @@ import os
 import tempfile
 from unittest.mock import patch, MagicMock
 
+from lib.storage import LocalStorage
 from processors.query import _load_local_context, answer_query_with_tools
 
 
@@ -40,14 +41,16 @@ def _make_config(tmp_dir: str) -> dict:
 def test_load_local_context_includes_pipeline():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_config(tmp)
-        context = _load_local_context(config)
+        storage = LocalStorage(tmp)
+        context = _load_local_context(config, storage)
         assert "Apex Fitness" in context
 
 
 def test_load_local_context_includes_people():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_config(tmp)
-        context = _load_local_context(config)
+        storage = LocalStorage(tmp)
+        context = _load_local_context(config, storage)
         assert "Marcus" in context
 
 
@@ -77,6 +80,7 @@ def test_answer_query_with_tools_returns_string_on_end_turn():
 def test_answer_query_with_tools_executes_tool_then_returns_answer():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_config(tmp)
+        storage = LocalStorage(tmp)
 
         tool_block = MagicMock()
         tool_block.type = "tool_use"
@@ -102,18 +106,19 @@ def test_answer_query_with_tools_executes_tool_then_returns_answer():
             mock_client = MagicMock()
             mock_client.messages.create.side_effect = [tool_response, final_response]
             mock_cls.return_value = mock_client
-            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "Add todo: Call Marcus", config)
+            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "Add todo: Call Marcus", config, storage=storage)
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 2
-        with open(config["captures_file"]) as f:
-            assert "Call Marcus" in f.read()
+        content = storage.read("captures.md") or ""
+        assert "Call Marcus" in content
 
 
 def test_load_local_context_accepts_query_param_without_breaking():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_config(tmp)
-        context = _load_local_context(config, query="what's fallen through the cracks?")
+        storage = LocalStorage(tmp)
+        context = _load_local_context(config, storage, query="what's fallen through the cracks?")
         assert isinstance(context, str)
         assert "Apex Fitness" in context
 
@@ -141,10 +146,11 @@ def _make_vector_config(tmp_dir: str) -> dict:
 def test_load_local_context_passes_query_as_raw_query_when_vector_configured():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_vector_config(tmp)
+        storage = LocalStorage(tmp)
 
         with patch("processors.query.retrieve_memories", return_value="") as mock_rm:
             with patch.dict(os.environ, {"PINECONE_API_KEY": "pk-test", "VOYAGE_API_KEY": "vk-test"}):
-                _load_local_context(config, query="what's fallen through the cracks?")
+                _load_local_context(config, storage, query="what's fallen through the cracks?")
 
         mock_rm.assert_called_once()
         _, kwargs = mock_rm.call_args
@@ -156,12 +162,13 @@ def test_load_local_context_passes_query_as_raw_query_when_vector_configured():
 def test_load_local_context_skips_vector_when_env_keys_missing():
     with tempfile.TemporaryDirectory() as tmp:
         config = _make_vector_config(tmp)
+        storage = LocalStorage(tmp)
 
         env_without_keys = {k: v for k, v in os.environ.items()
                             if k not in ("PINECONE_API_KEY", "VOYAGE_API_KEY")}
         with patch("processors.query.retrieve_memories", return_value="") as mock_rm:
             with patch.dict(os.environ, env_without_keys, clear=True):
-                _load_local_context(config, query="any question")
+                _load_local_context(config, storage, query="any question")
 
         _, kwargs = mock_rm.call_args
         assert kwargs["pinecone_config"] is None
@@ -190,7 +197,7 @@ def test_answer_query_with_tools_passes_query_to_load_local_context():
                     "what's fallen through the cracks?", config,
                 )
 
-        mock_llc.assert_called_once_with(config, query="what's fallen through the cracks?")
+        mock_llc.assert_called_once_with(config, None, query="what's fallen through the cracks?")
 
 
 def test_answer_query_with_tools_caps_at_10_iterations():

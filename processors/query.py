@@ -4,9 +4,11 @@ import os
 import anthropic
 
 from processors.memory_retriever import retrieve_memories
+from processors.issues import get_open_issues
+from lib.captures import load_recent_captures
 
 
-def _load_local_context(config: dict, query: str = "") -> str:
+def _load_local_context(config: dict, storage, query: str = "") -> str:
     parts = []
 
     try:
@@ -48,7 +50,7 @@ def _load_local_context(config: dict, query: str = "") -> str:
                 "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
             }
         memory_context = retrieve_memories(
-            memory_dir=memory_cfg["dir"],
+            storage,
             token_budget=memory_cfg.get("retrieval_token_budget", 550),
             pinecone_config=_pinecone_cfg,
             query_signals={"raw_query": query},
@@ -64,22 +66,16 @@ def _load_local_context(config: dict, query: str = "") -> str:
         except OSError:
             pass
 
-    try:
-        with open(config["issues_file"]) as f:
-            issues = json.load(f)
+    if storage is not None:
+        from dataclasses import asdict as _asdict
+        issues = get_open_issues(storage)
         if issues:
-            parts.append("## Open Issues\n" + json.dumps(issues, indent=2))
-    except (FileNotFoundError, json.JSONDecodeError):
-        pass
+            parts.append("## Open Issues\n" + json.dumps([_asdict(i) for i in issues], indent=2))
 
-    captures_file = config.get("captures_file", "data/captures.md")
-    if os.path.exists(captures_file):
-        try:
-            with open(captures_file) as f:
-                content = f.read()
-            parts.append("## Recent Captures\n" + (content[-2000:] if len(content) > 2000 else content))
-        except OSError:
-            pass
+    if storage is not None:
+        captures = load_recent_captures(storage)
+        if captures:
+            parts.append("## Recent Captures\n" + captures)
 
     return "\n\n".join(parts)
 
@@ -99,7 +95,7 @@ def answer_query_with_tools(api_key: str, model: str, query: str, config: dict, 
     from lib.llm_logger import log_usage
 
     client = anthropic.Anthropic(api_key=api_key)
-    local_context = _load_local_context(config, query=query)
+    local_context = _load_local_context(config, storage, query=query)
     system = _SYSTEM_PROMPT.format(local_context=local_context)
     messages = [{"role": "user", "content": query}]
 
