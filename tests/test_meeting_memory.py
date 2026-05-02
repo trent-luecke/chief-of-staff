@@ -1,6 +1,7 @@
 # tests/test_meeting_memory.py
 from datetime import datetime
 import pytest
+from lib.storage import LocalStorage
 from processors.meeting_memory import (
     load_meeting_index, find_meeting_for_event, append_session_notes,
     load_last_session_summary, MeetingConfig,
@@ -35,39 +36,38 @@ def test_find_meeting_for_event_no_match():
 
 
 def test_append_session_notes_creates_entry(tmp_path):
-    memory_file = str(tmp_path / "meeting.md")
-    with open(memory_file, "w") as f:
-        f.write("# Test Meeting\n\n## Session Log\n\n")
-    append_session_notes(memory_file, "2026-04-21", "Discussed roadmap. Action: share feedback by Friday.")
-    with open(memory_file) as f:
-        content = f.read()
+    storage = LocalStorage(str(tmp_path))
+    key = "meeting.md"
+    storage.write(key, "# Test Meeting\n\n## Session Log\n\n")
+    append_session_notes(storage, key, "2026-04-21", "Discussed roadmap. Action: share feedback by Friday.")
+    content = storage.read(key)
     assert "2026-04-21" in content
     assert "Discussed roadmap" in content
 
 
 def test_load_last_session_summary_returns_most_recent(tmp_path):
-    memory_file = str(tmp_path / "meeting.md")
+    storage = LocalStorage(str(tmp_path))
+    key = "meeting.md"
     content = "# Test\n\n## Session Log\n\n### 2026-04-14\nOld session.\n\n### 2026-04-21\nLatest session.\n"
-    with open(memory_file, "w") as f:
-        f.write(content)
-    summary = load_last_session_summary(memory_file)
+    storage.write(key, content)
+    summary = load_last_session_summary(storage, key)
     assert "Latest session" in summary
     assert "Old session" not in summary
 
 
 def test_append_session_notes_creates_file_if_missing(tmp_path):
-    memory_file = str(tmp_path / "new_meeting.md")
-    append_session_notes(memory_file, "2026-04-21", "First session notes.")
-    with open(memory_file) as f:
-        content = f.read()
+    storage = LocalStorage(str(tmp_path))
+    key = "new_meeting.md"
+    append_session_notes(storage, key, "2026-04-21", "First session notes.")
+    content = storage.read(key)
     assert "2026-04-21" in content
     assert "First session notes" in content
 
 
 def test_load_last_session_summary_single_session(tmp_path):
-    memory_file = str(tmp_path / "meeting.md")
+    storage = LocalStorage(str(tmp_path))
+    key = "meeting.md"
     content = "# Test\n\n## Session Log\n\n### 2026-04-21\nOnly session.\n"
-    with open(memory_file, "w") as f:
-        f.write(content)
-    summary = load_last_session_summary(memory_file)
+    storage.write(key, content)
+    summary = load_last_session_summary(storage, key)
     assert "Only session" in summary

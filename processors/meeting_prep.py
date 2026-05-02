@@ -48,28 +48,25 @@ def make_prep_key(event: CalendarEvent) -> str:
     return f"{event.id}_{date.today().isoformat()}"
 
 
-def load_prep_state(path: str) -> set:
-    try:
-        with open(path) as f:
-            data = json.load(f)
-        return set(data.get("sent_keys", []))
-    except (FileNotFoundError, PermissionError, json.JSONDecodeError):
-        return set()
+_PREP_KEY = "meeting_preps.json"
 
 
-def save_prep_state(sent_keys: set, path: str) -> None:
+def load_prep_state(storage) -> set:
+    data = storage.read_json(_PREP_KEY, default={})
+    return set(data.get("sent_keys", []))
+
+
+def save_prep_state(sent_keys: set, storage) -> None:
     cutoff = date.today() - timedelta(days=7)
 
     def _key_date(k: str) -> date:
         try:
             return date.fromisoformat(k.rsplit("_", 1)[-1])
         except ValueError:
-            return date.min  # prune malformed keys immediately
+            return date.min
 
     recent = {k for k in sent_keys if _key_date(k) >= cutoff}
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "w") as f:
-        json.dump({"sent_keys": sorted(recent)}, f, indent=2)
+    storage.write_json(_PREP_KEY, {"sent_keys": sorted(recent)})
 
 
 def _name_tokens(text: str) -> list[str]:

@@ -22,19 +22,17 @@ SAFE_CONFIG_KEYS = {
 }
 
 
-def _tool_add_capture(capture_type: str, text: str, config: dict) -> str:
+def _tool_add_capture(capture_type: str, text: str, storage) -> str:
     valid = {"todo", "idea", "note", "flag"}
     if capture_type not in valid:
         return f"Invalid capture type '{capture_type}'. Must be one of: {', '.join(sorted(valid))}."
-    captures_file = config.get("captures_file", "data/captures.md")
-    append_capture(captures_file, capture_type, None, text)
+    append_capture(storage, capture_type, None, text)
     return f"Captured [{capture_type}]: {text}"
 
 
-def _tool_complete_task(description: str, config: dict) -> str:
-    captures_file = config.get("captures_file", "data/captures.md")
+def _tool_complete_task(description: str, storage, config: dict) -> str:
     projects_file = config.get("projects_file", "data/projects.md")
-    hit_capture = complete_capture(captures_file, description)
+    hit_capture = complete_capture(storage, description)
     hit_project = complete_project_next(projects_file, description)
     if hit_capture or hit_project:
         parts = []
@@ -111,9 +109,8 @@ def _tool_create_project(name: str, description: str, next_action: str, config: 
     return f"Project '{name}' created with next action: {next_action}"
 
 
-def _tool_resolve_issue(title_fragment: str, config: dict) -> str:
-    issues_file = config.get("issues_file", "data/issues.json")
-    log = load_issues(issues_file)
+def _tool_resolve_issue(title_fragment: str, storage, config: dict) -> str:
+    log = load_issues(storage)
     fragment_lower = title_fragment.lower()
     matches = [i for i in log.issues if fragment_lower in i.title.lower() and i.status == "open"]
     if not matches:
@@ -121,7 +118,7 @@ def _tool_resolve_issue(title_fragment: str, config: dict) -> str:
     issue = matches[0]
     issue.status = "resolved"
     issue.resolved_date = date.today().isoformat()
-    save_issues(log, issues_file)
+    save_issues(log, storage)
     return f"Resolved issue: '{issue.title}'."
 
 
@@ -233,13 +230,16 @@ def _tool_create_email_draft(to: str, subject: str, body: str, config: dict) -> 
         return f"Failed to create draft: {e}"
 
 
-def execute_tool(name: str, input_: dict, config: dict) -> str:
+def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
     """Dispatch a tool call by name. Always returns a string — errors included."""
+    if storage is None:
+        from lib.storage import LocalStorage
+        storage = LocalStorage(base_dir=config.get("data_dir", "data"))
     try:
         if name == "add_capture":
-            return _tool_add_capture(input_["capture_type"], input_["text"], config)
+            return _tool_add_capture(input_["capture_type"], input_["text"], storage)
         elif name == "complete_task":
-            return _tool_complete_task(input_["description"], config)
+            return _tool_complete_task(input_["description"], storage, config)
         elif name == "add_people_note":
             return _tool_add_people_note(input_["person_name"], input_["note"], config)
         elif name == "update_project_next_action":
@@ -247,7 +247,7 @@ def execute_tool(name: str, input_: dict, config: dict) -> str:
         elif name == "create_project":
             return _tool_create_project(input_["name"], input_["description"], input_["next_action"], config)
         elif name == "resolve_issue":
-            return _tool_resolve_issue(input_["title_fragment"], config)
+            return _tool_resolve_issue(input_["title_fragment"], storage, config)
         elif name == "update_config":
             return _tool_update_config(input_["key"], input_["value"], config)
         elif name == "add_to_backlog":

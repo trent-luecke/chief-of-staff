@@ -1,5 +1,4 @@
 import json
-import re
 from dataclasses import dataclass
 from typing import Optional
 from collectors.calendar import CalendarEvent
@@ -32,35 +31,27 @@ def find_meeting_for_event(
     return None
 
 
-def append_session_notes(memory_file: str, session_date: str, notes: str) -> None:
-    try:
-        with open(memory_file) as f:
-            content = f.read()
-    except FileNotFoundError:
-        content = "# Meeting Memory\n\n## Session Log\n\n"
-
+def append_session_notes(storage, key: str, session_date: str, notes: str) -> None:
+    """key is like 'meeting_memory/standup.md'"""
+    content = storage.read(key) or "# Meeting Memory\n\n## Session Log\n\n"
     entry = f"\n### {session_date}\n{notes.strip()}\n"
-
     if "## Session Log" in content:
         content = content + entry
     else:
         content = content + "\n## Session Log\n" + entry
-
-    try:
-        with open(memory_file, "w") as f:
-            f.write(content)
-    except OSError as e:
-        raise OSError(f"Failed to write meeting memory file {memory_file}: {e}") from e
+    storage.write(key, content)
 
 
-def load_last_session_summary(memory_file: str) -> str:
-    try:
-        with open(memory_file) as f:
-            content = f.read()
-    except FileNotFoundError:
+def load_last_session_summary(storage, key: str) -> str:
+    """key is like 'meeting_memory/standup.md'"""
+    content = storage.read(key)
+    if not content:
         return ""
-
-    sessions = re.split(r"\n### \d{4}-\d{2}-\d{2}\n", content)
-    if len(sessions) < 2:
+    lines = content.splitlines()
+    last_header_idx = None
+    for i, line in enumerate(lines):
+        if line.startswith("### "):
+            last_header_idx = i
+    if last_header_idx is None:
         return ""
-    return sessions[-1].strip()
+    return "\n".join(lines[last_header_idx + 1:]).strip()

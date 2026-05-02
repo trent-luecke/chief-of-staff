@@ -132,6 +132,7 @@ def test_fetch_demos_mtd_missing_tab_returns_empty():
 
 import json as _json_module
 from datetime import date as _date_module, timedelta
+from lib.storage import LocalStorage
 from processors.meeting_prep import make_prep_key, load_prep_state, save_prep_state
 
 
@@ -142,30 +143,31 @@ def test_make_prep_key():
     assert key == f"abc123_{_date_module.today().isoformat()}"
 
 
-def test_load_prep_state_missing_file():
-    assert load_prep_state("/nonexistent/path.json") == set()
+def test_load_prep_state_missing_file(tmp_path):
+    storage = LocalStorage(str(tmp_path))
+    assert load_prep_state(storage) == set()
 
 
 def test_load_prep_state_corrupt_file(tmp_path):
-    p = tmp_path / "preps.json"
-    p.write_text("not json")
-    assert load_prep_state(str(p)) == set()
+    storage = LocalStorage(str(tmp_path))
+    storage.write("meeting_preps.json", "not json")
+    assert load_prep_state(storage) == set()
 
 
 def test_save_and_load_roundtrip(tmp_path):
-    p = str(tmp_path / "preps.json")
+    storage = LocalStorage(str(tmp_path))
     keys = {f"event1_{_date_module.today().isoformat()}", f"event2_{_date_module.today().isoformat()}"}
-    save_prep_state(keys, p)
-    assert load_prep_state(p) == keys
+    save_prep_state(keys, storage)
+    assert load_prep_state(storage) == keys
 
 
 def test_save_prunes_old_keys(tmp_path):
-    p = str(tmp_path / "preps.json")
+    storage = LocalStorage(str(tmp_path))
     old_date = (_date_module.today() - timedelta(days=8)).isoformat()
     old_key = f"old_event_{old_date}"
     today_key = f"new_event_{_date_module.today().isoformat()}"
-    save_prep_state({old_key, today_key}, p)
-    loaded = load_prep_state(p)
+    save_prep_state({old_key, today_key}, storage)
+    loaded = load_prep_state(storage)
     assert today_key in loaded
     assert old_key not in loaded
 
