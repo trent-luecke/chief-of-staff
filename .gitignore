@@ -3,7 +3,6 @@ credentials/token.json
 credentials/client_secret.json
 credentials/
 output/
-data/drafts/
 __pycache__/
 *.pyc
 .venv/
@@ -12,4 +11,14 @@ __pycache__/
 /logs/
 *.log
 .worktrees/
-data/.slides_token.json
+
+# Runtime state — persisted to R2, not tracked in git
+data/*
+!data/people/
+!data/people/**
+!data/projects.md
+!data/recurring.json
+!data/meeting_index.json
+!data/memory/
+data/memory/*
+!data/memory/decisions.md
