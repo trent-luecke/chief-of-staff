@@ -1,4 +1,5 @@
 import json
+from lib.storage import LocalStorage
 
 
 def setup_function():
@@ -41,11 +42,12 @@ def test_log_usage_unknown_model_zero_cost():
 
 def test_flush_writes_jsonl(tmp_path):
     from lib import llm_logger
-    log_file = str(tmp_path / "run_log.jsonl")
+    storage = LocalStorage(base_dir=str(tmp_path))
     llm_logger.log_usage("brief", FakeUsage(input_tokens=500, output_tokens=100), "claude-sonnet-4-6")
-    llm_logger.flush("daily_brief", log_file)
-    with open(log_file) as f:
-        lines = [json.loads(l) for l in f if l.strip()]
+    llm_logger.flush("daily_brief", storage)
+    log_content = storage.read(llm_logger._LOG_KEY)
+    assert log_content is not None
+    lines = [json.loads(l) for l in log_content.splitlines() if l.strip()]
     assert len(lines) == 1
     entry = lines[0]
     assert entry["run_type"] == "daily_brief"
@@ -59,17 +61,22 @@ def test_flush_writes_jsonl(tmp_path):
 
 def test_flush_clears_accumulator(tmp_path):
     from lib import llm_logger
-    log_file = str(tmp_path / "run_log.jsonl")
+    storage = LocalStorage(base_dir=str(tmp_path))
     llm_logger.log_usage("brief", FakeUsage(), "claude-sonnet-4-6")
-    llm_logger.flush("daily_brief", log_file)
+    llm_logger.flush("daily_brief", storage)
     assert llm_logger._calls == []
 
 
-def test_flush_non_fatal_on_bad_path():
+def test_flush_non_fatal_on_bad_storage():
     from lib import llm_logger
+
+    class BrokenStorage:
+        def append_line(self, key, line):
+            raise OSError("simulated storage failure")
+
     llm_logger.log_usage("brief", FakeUsage(), "claude-sonnet-4-6")
-    # Should not raise even though the directory doesn't exist and can't be created
-    llm_logger.flush("daily_brief", "/nonexistent/dir/run_log.jsonl")
+    # Should not raise even when storage raises
+    llm_logger.flush("daily_brief", BrokenStorage())
     # Accumulator is cleared regardless of write success
     assert llm_logger._calls == []
 

@@ -1,5 +1,4 @@
 import json
-import os
 import sys
 from datetime import datetime, timezone
 
@@ -34,21 +33,20 @@ def log_usage(caller: str, usage, model: str) -> None:
         pass
 
 
-def flush(run_type: str, log_file: str) -> None:
+_LOG_KEY = "logs/run_log.jsonl"
+
+
+def flush(run_type: str, storage) -> None:
     global _calls
     snapshot = list(_calls)
     _calls = []
     if not snapshot:
         return
     try:
-        log_dir = os.path.dirname(log_file)
-        if log_dir:
-            os.makedirs(log_dir, exist_ok=True)
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-        with open(log_file, "a", encoding="utf-8") as f:
-            for call in snapshot:
-                entry = {"timestamp": timestamp, "run_type": run_type, **call}
-                f.write(json.dumps(entry) + "\n")
+        for call in snapshot:
+            entry = {"timestamp": timestamp, "run_type": run_type, **call}
+            storage.append_line(_LOG_KEY, json.dumps(entry))
     except Exception as e:
         print(f"WARNING: llm_logger flush failed: {e}", file=sys.stderr)
 
