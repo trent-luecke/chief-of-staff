@@ -9,15 +9,11 @@ on:
 jobs:
   weekly-synthesis:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     env:
       TZ: America/Chicago
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-python@v5
         with:
@@ -33,14 +29,6 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: python weekly_synthesis.py
-
-      - name: Persist data
-        run: |
-          git config user.name "chief-of-staff[bot]"
-          git config user.email "noreply@github.com"
-          git add data/
-          git diff --cached --quiet && exit 0
-          git commit -m "chore: weekly synthesis $(date +%Y-%m-%d)"
-          git pull --rebase
-          git push
