@@ -1,12 +1,13 @@
 """Log retrieval results for auditing and future tuning."""
 
 import json
-import os
 from datetime import datetime, timezone
+
+_LOG_KEY = "state/retrieval_log.jsonl"
 
 
 def log_retrieval(
-    log_file: str,
+    storage,
     date_str: str,
     trigger: str,
     query_text: str,
@@ -17,12 +18,11 @@ def log_retrieval(
     token_budget: int,
     config_snapshot: dict,
 ) -> None:
-    """Append a retrieval log entry to the JSONL file."""
+    """Append a retrieval log entry via the storage backend."""
     pinned_tokens = sum(m.get("tokens", 0) for m in pinned_memories)
     mem_tokens = sum(r.get("tokens", 0) for r in memory_results if r.get("included"))
     obs_tokens = sum(r.get("tokens", 0) for r in observation_results if r.get("included"))
     total = pinned_tokens + mem_tokens + obs_tokens
-
     included_count = (
         len(pinned_memories)
         + sum(1 for r in memory_results if r.get("included"))
@@ -32,7 +32,6 @@ def log_retrieval(
         sum(1 for r in memory_results if not r.get("included"))
         + sum(1 for r in observation_results if not r.get("included"))
     )
-
     entry = {
         "date": date_str,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -54,7 +53,4 @@ def log_retrieval(
         "items_excluded": excluded_count,
         "config_snapshot": config_snapshot,
     }
-
-    os.makedirs(os.path.dirname(log_file) or ".", exist_ok=True)
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
+    storage.append_line(_LOG_KEY, json.dumps(entry))

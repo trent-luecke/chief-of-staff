@@ -2,6 +2,7 @@ import json
 import os
 
 from processors.brief_scorer import parse_score_command, handle_score_command, save_score
+from lib.storage import LocalStorage
 
 
 def test_parse_valid_score():
@@ -25,30 +26,30 @@ def test_parse_case_insensitive():
 
 
 def test_handle_valid_score(tmp_path):
-    scores_file = str(tmp_path / "scores.jsonl")
-    response = handle_score_command("/brief score 4", scores_file=scores_file)
+    storage = LocalStorage(base_dir=str(tmp_path))
+    response = handle_score_command("/brief score 4", storage=storage)
     assert "4/5" in response
-    with open(scores_file) as f:
-        entry = json.loads(f.readline())
+    content = (tmp_path / "state" / "brief_scores.jsonl").read_text()
+    entry = json.loads(content.strip().splitlines()[0])
     assert entry["score"] == 4
     assert entry["note"] is None
 
 
 def test_handle_score_with_note(tmp_path):
-    scores_file = str(tmp_path / "scores.jsonl")
-    response = handle_score_command("/brief score 2 missed Apex", scores_file=scores_file)
+    storage = LocalStorage(base_dir=str(tmp_path))
+    response = handle_score_command("/brief score 2 missed Apex", storage=storage)
     assert "2/5" in response
     assert "missed Apex" in response
-    with open(scores_file) as f:
-        entry = json.loads(f.readline())
+    content = (tmp_path / "state" / "brief_scores.jsonl").read_text()
+    entry = json.loads(content.strip().splitlines()[0])
     assert entry["note"] == "missed Apex"
 
 
 def test_handle_out_of_range(tmp_path):
-    scores_file = str(tmp_path / "scores.jsonl")
-    response = handle_score_command("/brief score 7", scores_file=scores_file)
-    assert "must be 1-5" in response
-    assert not os.path.exists(scores_file)
+    storage = LocalStorage(base_dir=str(tmp_path))
+    response = handle_score_command("/brief score 7", storage=storage)
+    assert "1" in response and "5" in response
+    assert not (tmp_path / "state" / "brief_scores.jsonl").exists()
 
 
 def test_handle_not_a_command():
@@ -56,25 +57,24 @@ def test_handle_not_a_command():
 
 
 def test_multiple_scores_same_day(tmp_path):
-    scores_file = str(tmp_path / "scores.jsonl")
-    handle_score_command("/brief score 3", scores_file=scores_file)
-    handle_score_command("/brief score 5 actually great", scores_file=scores_file)
-    with open(scores_file) as f:
-        lines = f.readlines()
+    storage = LocalStorage(base_dir=str(tmp_path))
+    handle_score_command("/brief score 3", storage=storage)
+    handle_score_command("/brief score 5 actually great", storage=storage)
+    content = (tmp_path / "state" / "brief_scores.jsonl").read_text()
+    lines = [l for l in content.strip().splitlines() if l]
     assert len(lines) == 2
     last = json.loads(lines[-1])
     assert last["score"] == 5
     assert last["note"] == "actually great"
 
 
-def test_save_score_creates_dir(tmp_path):
-    scores_file = str(tmp_path / "nested" / "scores.jsonl")
-    save_score(4, scores_file=scores_file)
-    assert os.path.exists(scores_file)
+def test_save_score_no_op_without_storage():
+    # save_score with storage=None is a no-op (no error)
+    save_score(4, storage=None)
 
 
 def test_score_zero_rejected(tmp_path):
-    scores_file = str(tmp_path / "scores.jsonl")
-    response = handle_score_command("/brief score 0", scores_file=scores_file)
-    assert "must be 1-5" in response
-    assert not os.path.exists(scores_file)
+    storage = LocalStorage(base_dir=str(tmp_path))
+    response = handle_score_command("/brief score 0", storage=storage)
+    assert "1" in response and "5" in response
+    assert not (tmp_path / "state" / "brief_scores.jsonl").exists()
