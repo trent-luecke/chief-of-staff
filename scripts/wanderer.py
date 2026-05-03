@@ -396,18 +396,19 @@ def main() -> None:
     pinecone_key = os.environ.get("PINECONE_API_KEY", "")
     voyage_key = os.environ.get("VOYAGE_API_KEY", "")
     telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    telegram_chat = os.environ.get("TELEGRAM_CHAT_ID", "")
+    telegram_chat = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
 
     for name, val in [
         ("ANTHROPIC_API_KEY", anthropic_key),
         ("PINECONE_API_KEY", pinecone_key),
         ("VOYAGE_API_KEY", voyage_key),
         ("TELEGRAM_BOT_TOKEN", telegram_token),
-        ("TELEGRAM_CHAT_ID", telegram_chat),
+        ("TELEGRAM_ALLOWED_CHAT_ID", telegram_chat),
     ]:
         if not val:
             print(f"ERROR: {name} not set — wanderer cannot run.", file=sys.stderr)
             return
+
 
     memory_dir = str(_ROOT / "data" / "memory")
     today = date.today().isoformat()
