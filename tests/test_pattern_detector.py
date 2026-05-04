@@ -74,3 +74,103 @@ def test_week_bucket_outside_window_returns_none():
     run_date = date(2026, 5, 4)
     assert _week_bucket(date(2026, 4, 5), run_date) is None
     assert _week_bucket(date(2026, 5, 5), run_date) is None
+
+
+# --- Data loading tests ---
+
+def test_load_observations_window_filters_by_days(tmp_path):
+    from processors.pattern_detector import _load_observations_window
+    storage = LocalStorage(base_dir=str(tmp_path))
+    run_date = date(2026, 5, 4)
+    _write_obs(storage, [
+        {"date": "2026-05-02", "type": "pipeline_stale", "entity": "acme", "content": "stale"},
+        {"date": "2026-04-01", "type": "pipeline_stale", "entity": "old", "content": "old"},
+    ])
+    result = _load_observations_window(storage, run_date, days=28)
+    assert len(result) == 1
+    assert result[0]["entity"] == "acme"
+
+
+def test_load_prior_weekly_patterns_returns_sorted_descending(tmp_path):
+    from processors.pattern_detector import _load_prior_weekly_patterns
+    storage = LocalStorage(base_dir=str(tmp_path))
+    run_date = date(2026, 5, 4)
+    storage.write("weekly/2026-04-27.md", "## Patterns\n- Pattern A\n")
+    storage.write("weekly/2026-04-20.md", "## Patterns\n- Pattern B\n")
+    storage.write("weekly/2026-05-04.md", "## Patterns\n- Current\n")  # excluded (not before run_date)
+    result = _load_prior_weekly_patterns(storage, run_date, lookback_weeks=4)
+    assert len(result) == 2
+    assert result[0]["date"] == "2026-04-27"
+    assert result[0]["patterns"] == ["Pattern A"]
+    assert result[1]["date"] == "2026-04-20"
+
+
+def test_load_prior_weekly_patterns_insufficient_history(tmp_path):
+    from processors.pattern_detector import _load_prior_weekly_patterns
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("weekly/2026-04-27.md", "## Patterns\n- Only one\n")
+    result = _load_prior_weekly_patterns(storage, date(2026, 5, 4), lookback_weeks=4)
+    assert len(result) == 1
+
+
+# --- Delta computation tests ---
+
+def test_compute_weekly_metrics_counts_stale_entities(tmp_path):
+    from processors.pattern_detector import _compute_weekly_metrics
+    run_date = date(2026, 5, 4)
+    obs = [
+        {"date": "2026-05-01", "type": "pipeline_stale", "entity": "acme", "content": ""},
+        {"date": "2026-05-02", "type": "pipeline_stale", "entity": "acme", "content": ""},  # same entity, deduped
+        {"date": "2026-05-03", "type": "pipeline_stale", "entity": "globo-gym", "content": ""},
+    ]
+    result = _compute_weekly_metrics(obs, run_date)
+    # Bucket 0 = current week
+    assert result[0]["pipeline_stale_count"] == 2  # acme + globo-gym (unique entities)
+
+
+def test_compute_weekly_metrics_counts_issues_by_channel(tmp_path):
+    from processors.pattern_detector import _compute_weekly_metrics
+    run_date = date(2026, 5, 4)
+    obs = [
+        {"date": "2026-05-01", "type": "issue_pattern", "entity": "gmail", "content": "", "context": "source: gmail#gmail"},
+        {"date": "2026-05-01", "type": "issue_pattern", "entity": "slack", "content": "", "context": "source: slack#support"},
+    ]
+    result = _compute_weekly_metrics(obs, run_date)
+    assert result[0]["issue_email_count"] == 1
+    assert result[0]["issue_slack_count"] == 1
+
+
+def test_compute_weekly_metrics_extracts_kpi_snapshot(tmp_path):
+    from processors.pattern_detector import _compute_weekly_metrics
+    run_date = date(2026, 5, 4)
+    obs = [
+        {
+            "date": "2026-05-01",
+            "type": "kpi_snapshot",
+            "entity": "daily",
+            "content": "",
+            "context": "sales_revenue=12000 bugs_high=3 cancellations_mtd=2 demos=8",
+        }
+    ]
+    result = _compute_weekly_metrics(obs, run_date)
+    assert result[0]["bugs_high"] == 3
+    assert result[0]["cancellations_mtd"] == 2
+
+
+def test_compute_demo_trend_last_snapshot_per_month():
+    from processors.pattern_detector import _compute_demo_trend
+    run_date = date(2026, 5, 4)
+    obs = [
+        {"date": "2026-04-15", "type": "kpi_snapshot", "entity": "daily", "content": "", "context": "demos=5"},
+        {"date": "2026-04-28", "type": "kpi_snapshot", "entity": "daily", "content": "", "context": "demos=9"},  # latest April
+        {"date": "2026-03-31", "type": "kpi_snapshot", "entity": "daily", "content": "", "context": "demos=7"},
+    ]
+    result = _compute_demo_trend(obs, run_date)
+    assert len(result) == 2
+    april = next(m for m in result if m["month"] == "2026-04")
+    assert april["demos"] == 9  # latest entry wins
+
+
+def test_compute_demo_trend_empty_returns_empty():
+    from processors.pattern_detector import _compute_demo_trend
+    assert _compute_demo_trend([], date(2026, 5, 4)) == []
