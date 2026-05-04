@@ -15,3 +15,16 @@ Executive peer. In group DMs with Trent and Luke Green. Shares Ken as a mentor a
 ## Notes
 - Active in #revteam
 - Asks about sales process / HubSpot email automation
+
+<!-- AUTO-UPDATED: do not edit below this line -->
+## Activity
+**Last seen:** 2026-05-04
+
+**Significant touchpoints:**
+- 2026-05-04 | calendar | "Rev: Department Heads" | Department head review meeting likely involves decisions, updates, or follow-up actions requiring tracking.
+
+**Recent touchpoints (last 5):**
+- (none)
+
+**Open threads:**
+- (none)
