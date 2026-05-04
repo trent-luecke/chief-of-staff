@@ -4,6 +4,9 @@ from dataclasses import dataclass, field
 from datetime import date, timedelta
 from typing import Optional
 
+import anthropic
+from lib.llm_logger import log_usage
+
 _OBS_KEY = "memory/observations.jsonl"
 
 
@@ -210,3 +213,127 @@ def _compute_demo_trend(obs: list[dict], run_date: date) -> list[dict]:
         ctx = _parse_kpi_context(entry.get("context", ""))
         result.append({"month": month_key, "demos": ctx.get("demos", 0)})
     return result
+
+
+# ---------------------------------------------------------------------------
+# Anomaly detection — prompt + Claude call
+# ---------------------------------------------------------------------------
+
+_ANOMALY_SYSTEM_PROMPT = """\
+You are analyzing weekly trend data for Trent Luecke — VP of Sales at TeamBuildr OS \
+(B2B SaaS for strength and conditioning coaches).
+
+Review the metric deltas and pattern history. Surface 0–3 genuinely notable anomalies only.
+
+An anomaly is worth surfacing if:
+- A metric is 2× or more above its 4-week average (type: "worsening")
+- A pattern has appeared in 3+ of the last 4 synthesized pattern lists (type: "recurring")
+- A new pattern this week is absent from all prior 4 weeks AND supported by raw metric counts \
+(type: "new")
+- Month-over-month demo count dropped 20%+ (type: "worsening")
+
+Cite specific numbers. If nothing clearly meets these thresholds, return {"anomalies": []}.
+
+Respond ONLY in JSON:
+{"anomalies": [{"type": "new"|"recurring"|"worsening", "title": "short label", \
+"description": "1-2 sentences with specific numbers", "weeks_seen": 1}]}
+"""
+
+
+def _build_anomaly_prompt(
+    current_synthesis,
+    run_date: date,
+    weekly_metrics: list[dict],
+    demo_trend: list[dict],
+    prior_patterns: list[dict],
+) -> str:
+    lines = [f"## Current week (ending {run_date.isoformat()})", ""]
+
+    lines.append("**Current patterns:**")
+    for p in current_synthesis.patterns:
+        lines.append(f"- {p}")
+    lines.append("")
+
+    lines.append("## Weekly metrics (current + prior 3 weeks)")
+    lines.append("")
+    lines.append("| Week | Stale Leads | Issues (email) | Issues (Slack) | Bugs High | Cancellations MTD |")
+    lines.append("|---|---|---|---|---|---|")
+    for m in weekly_metrics:
+        bugs = m["bugs_high"] if m["bugs_high"] is not None else "—"
+        cancel = m["cancellations_mtd"] if m["cancellations_mtd"] is not None else "—"
+        lines.append(
+            f"| {m['label']} ({m['week_start']}) "
+            f"| {m['pipeline_stale_count']} "
+            f"| {m['issue_email_count']} "
+            f"| {m['issue_slack_count']} "
+            f"| {bugs} "
+            f"| {cancel} |"
+        )
+    lines.append("")
+
+    if demo_trend:
+        lines.append("## Demo trend (last 3 months, demos MTD at month-end)")
+        lines.append("")
+        for m in demo_trend:
+            lines.append(f"- {m['month']}: {m['demos']} demos")
+        lines.append("")
+
+    lines.append("## Prior 4 weeks — synthesized patterns")
+    lines.append("")
+    for pw in prior_patterns:
+        lines.append(f"**Week ending {pw['date']}:**")
+        for p in pw["patterns"]:
+            lines.append(f"- {p}")
+        if not pw["patterns"]:
+            lines.append("- (none recorded)")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def detect_anomalies(
+    storage,
+    current_synthesis,
+    run_date: date,
+    api_key: str,
+    model: str,
+    lookback_weeks: int = 4,
+) -> AnomalyReport:
+    prior_patterns = _load_prior_weekly_patterns(storage, run_date, lookback_weeks)
+    if len(prior_patterns) < 2:
+        return AnomalyReport()
+
+    obs = _load_observations_window(storage, run_date, days=90)
+    weekly_metrics = _compute_weekly_metrics(obs, run_date)
+    demo_trend = _compute_demo_trend(obs, run_date)
+
+    prompt = _build_anomaly_prompt(current_synthesis, run_date, weekly_metrics, demo_trend, prior_patterns)
+
+    client = anthropic.Anthropic(api_key=api_key)
+    response = client.messages.create(
+        model=model,
+        max_tokens=800,
+        system=_ANOMALY_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": prompt}],
+    )
+    log_usage("pattern_detector", response.usage, model)
+
+    raw = response.content[0].text.strip()
+    match = re.search(r"```(?:json)?\n?(.*?)```", raw, re.DOTALL)
+    if match:
+        raw = match.group(1).strip()
+
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return AnomalyReport()
+
+    anomalies = []
+    for item in data.get("anomalies", [])[:3]:
+        anomalies.append(PatternAnomaly(
+            type=item.get("type", "new"),
+            title=item.get("title", ""),
+            description=item.get("description", ""),
+            weeks_seen=item.get("weeks_seen", 1),
+        ))
+    return AnomalyReport(anomalies=anomalies)

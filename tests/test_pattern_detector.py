@@ -174,3 +174,80 @@ def test_compute_demo_trend_last_snapshot_per_month():
 def test_compute_demo_trend_empty_returns_empty():
     from processors.pattern_detector import _compute_demo_trend
     assert _compute_demo_trend([], date(2026, 5, 4)) == []
+
+
+from unittest.mock import MagicMock, patch
+import json
+
+
+def test_detect_anomalies_returns_empty_with_insufficient_history(tmp_path):
+    from processors.pattern_detector import detect_anomalies, AnomalyReport
+    from processors.weekly_synthesizer import WeeklySynthesis
+    storage = LocalStorage(base_dir=str(tmp_path))
+    # Only one prior weekly file — below the 2-file minimum
+    storage.write("weekly/2026-04-27.md", "## Patterns\n- Pattern A\n")
+    synthesis = WeeklySynthesis(executive_summary="ok", patterns=["P1"])
+    result = detect_anomalies(storage, synthesis, date(2026, 5, 4), "key", "claude-sonnet-4-6")
+    assert isinstance(result, AnomalyReport)
+    assert result.anomalies == []
+
+
+def test_detect_anomalies_returns_anomalies_from_claude(tmp_path):
+    from processors.pattern_detector import detect_anomalies, PatternAnomaly
+    from processors.weekly_synthesizer import WeeklySynthesis
+    storage = LocalStorage(base_dir=str(tmp_path))
+    run_date = date(2026, 5, 4)
+    storage.write("weekly/2026-04-27.md", "## Patterns\n- Pattern A\n")
+    storage.write("weekly/2026-04-20.md", "## Patterns\n- Pattern B\n")
+    synthesis = WeeklySynthesis(executive_summary="ok", patterns=["Stale leads spiking"])
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text=json.dumps({
+        "anomalies": [{
+            "type": "worsening",
+            "title": "Stale leads spike",
+            "description": "5 stale leads this week vs avg of 1.5.",
+            "weeks_seen": 1,
+        }]
+    }))]
+    mock_response.usage = MagicMock(input_tokens=100, output_tokens=50)
+    with patch("processors.pattern_detector.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        result = detect_anomalies(storage, synthesis, run_date, "key", "claude-sonnet-4-6")
+    assert len(result.anomalies) == 1
+    assert result.anomalies[0].type == "worsening"
+    assert result.anomalies[0].title == "Stale leads spike"
+
+
+def test_detect_anomalies_handles_invalid_json_from_claude(tmp_path):
+    from processors.pattern_detector import detect_anomalies, AnomalyReport
+    from processors.weekly_synthesizer import WeeklySynthesis
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("weekly/2026-04-27.md", "## Patterns\n- A\n")
+    storage.write("weekly/2026-04-20.md", "## Patterns\n- B\n")
+    synthesis = WeeklySynthesis(executive_summary="ok", patterns=[])
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text="not json at all")]
+    mock_response.usage = MagicMock(input_tokens=10, output_tokens=5)
+    with patch("processors.pattern_detector.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        result = detect_anomalies(storage, synthesis, date(2026, 5, 4), "key", "claude-sonnet-4-6")
+    assert isinstance(result, AnomalyReport)
+    assert result.anomalies == []
+
+
+def test_build_anomaly_prompt_includes_metrics_and_patterns():
+    from processors.pattern_detector import _build_anomaly_prompt
+    from processors.weekly_synthesizer import WeeklySynthesis
+    synthesis = WeeklySynthesis(executive_summary="ok", patterns=["Lead follow-ups high"])
+    weekly_metrics = [
+        {"label": "current week", "week_start": "2026-04-27", "week_end": "2026-05-04",
+         "pipeline_stale_count": 4, "issue_email_count": 2, "issue_slack_count": 1,
+         "bugs_high": 3, "cancellations_mtd": 1},
+    ]
+    demo_trend = [{"month": "2026-04", "demos": 8}, {"month": "2026-03", "demos": 10}]
+    prior_patterns = [{"date": "2026-04-27", "patterns": ["Pattern A"]}]
+    prompt = _build_anomaly_prompt(synthesis, date(2026, 5, 4), weekly_metrics, demo_trend, prior_patterns)
+    assert "Lead follow-ups high" in prompt
+    assert "pipeline_stale_count" not in prompt  # should be formatted, not raw key names
+    assert "2026-04" in prompt
+    assert "Pattern A" in prompt
