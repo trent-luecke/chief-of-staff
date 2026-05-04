@@ -1,6 +1,35 @@
 // cloudflare/telegram-bridge.js
+async function dispatchToGitHub(env, message) {
+  const resp = await fetch(
+    `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/ask.yml/dispatches`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.GITHUB_PAT}`,
+        Accept: "application/vnd.github+json",
+        "Content-Type": "application/json",
+        "User-Agent": "chief-of-staff-bot",
+      },
+      body: JSON.stringify({
+        ref: "main",
+        inputs: {
+          query: message.text,
+          chat_id: String(message.chat.id),
+        },
+      }),
+    }
+  );
+
+  if (!resp.ok) {
+    console.error(`GitHub API error: ${resp.status} ${await resp.text()}`);
+  }
+}
+
 export default {
-  async fetch(request, env) {
+  // ctx (ExecutionContext) is required so we can use ctx.waitUntil() to fire
+  // the GitHub dispatch *after* returning OK to Telegram. Without this,
+  // Telegram retries the webhook if GitHub is slow, creating duplicate runs.
+  async fetch(request, env, ctx) {
     if (request.method !== "POST") return new Response("OK");
 
     const secret = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
@@ -18,30 +47,11 @@ export default {
     const message = body?.message;
     if (!message?.text || !message?.chat?.id) return new Response("OK");
 
-    const resp = await fetch(
-      `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/ask.yml/dispatches`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${env.GITHUB_PAT}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json",
-          "User-Agent": "chief-of-staff-bot",
-        },
-        body: JSON.stringify({
-          ref: "main",
-          inputs: {
-            query: message.text,
-            chat_id: String(message.chat.id),
-          },
-        }),
-      }
-    );
+    console.log(`Telegram message received: "${message.text}" from chat ${message.chat.id}`);
 
-    if (!resp.ok) {
-      console.error(`GitHub API error: ${resp.status} ${await resp.text()}`);
-    }
-
+    // Acknowledge immediately — Telegram will not retry if we respond quickly.
+    // The GitHub dispatch runs in the background after the response is sent.
+    ctx.waitUntil(dispatchToGitHub(env, message));
     return new Response("OK");
   },
 };

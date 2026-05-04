@@ -2,8 +2,8 @@ name: Daily Brief
 
 on:
   schedule:
-    # 7am CDT (UTC-5, Apr-Oct). Change to "0 12 * * *" in November for CST (UTC-6).
-    - cron: "0 11 * * *"
+    # 7am CDT (UTC-5, Apr-Oct). Change to "0 13 * * *" in November for CST (UTC-6).
+    - cron: "0 12 * * *"
   workflow_dispatch:
 
 jobs:

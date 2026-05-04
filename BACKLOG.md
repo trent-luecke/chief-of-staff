@@ -1,168 +1,227 @@
 # Chief of Staff — Backlog
 
-Prioritized by leverage on brief quality. Items 1–2 are infrastructure; the rest are features.
+> **Core principle:** Context beats prompt engineering. The system is prompting Claude well — the gap is in what it knows.
 
 ---
 
-## ✅ Q1 — Memory Token Budget (complete)
+## ✅ Shipped (breadcrumb trail)
 
-**Shipped 2026-04-20.** Reduced memory retrieval budget from 1500 → 550 tokens in `config.json` and `processors/memory_retriever.py`. Research finding (Doney Li): empirically derived sweet spot is 550 tokens — below 400 loses context, above 700 shows diminishing returns. At 1500 the system was injecting stale noise above the point where more context helps.
-
----
-
-## ✅ Q2 — Brief Signal-to-Noise (complete)
-
-**Shipped 2026-04-20.** Three changes to `processors/brief.py`:
-1. Removed "expansive" from the system prompt (was directly contradicting "no filler")
-2. Empty sections are no longer passed to Claude — sections with no data are omitted entirely rather than sending `(none)` noise for every field
-3. Removed the "Open Loop Summary" section (resolved/still-open counts) — pure metadata, not actionable
-4. Active Projects capped at 7 — no value in surfacing all projects every day
-5. Tomorrow Preview suppressed when no events
-
-**Why it matters:** The research finding is "context beats prompt engineering" — meaning the data layer is what improves brief quality, not prompt tweaks. But that only holds if the context is signal, not noise. Cutting empty-section noise reduces token waste and reduces the chance Claude hedges on sections with nothing to say.
-
----
-
-## ✅ P1 — People Intelligence (complete)
-
-**Shipped 2026-04-18.** `data/people/` store with per-contact markdown files. Each file has a human-written section (role, relationship, notes — never touched by code) and a machine-written `## Activity` section updated on every run. Calendar events, Gmail threads, and Slack DMs are matched to contact files by email. One Claude call per run assesses touchpoint significance (persistent) vs routine (rolling 5) and auto-creates profiles for notable Slack DM contacts. People context is injected as ambient background into the brief prompt to surface missed deliverables and relationship context.
-
-**PR:** https://github.com/trent-luecke/chief-of-staff/pull/1
+| Item | Shipped | What it did |
+|------|---------|-------------|
+| Q1 Memory Token Budget | 2026-04-20 | Reduced retrieval budget 1500→550 tokens; empirically derived sweet spot |
+| Q2 Brief Signal-to-Noise | 2026-04-20 | Removed empty sections, capped projects at 7, cut open-loop metadata |
+| P0 Cloud Hosting | 2026-04-19 | Moved from macOS launchd to GitHub Actions; OAuth2 refresh token via Secret |
+| P1 People Intelligence | 2026-04-18 | `data/people/` store with machine-written Activity sections; per-contact Claude enrichment |
+| P2 Pipeline Data Source | 2026-04-19 | Notion pipeline seeded into `data/pipeline_cache.json` via MCP; flare-up routing |
+| P3 Cross-Day Memory | 2026-04-19 | `observations.jsonl` → `memory_synthesizer` → 90-day TTL `.md` files → retriever |
+| P4 Two-Way Interface | 2026-04-20 | Telegram bot via Cloudflare Worker + GitHub Actions; JARVIS personality |
+| P5 Weekly Synthesis | 2026-04-20 | Sunday Claude narrative with 7-day patterns, carry-forwards, cost summary |
+| P7 Gmail Draft Push | 2026-04-22 | Absorbed into P9 `create_email_draft` tool |
+| P8 Project Intelligence | 2026-04-22 | Absorbed into P9 `create_project` tool |
+| P9 Tool Use & Action Execution | 2026-04-22 | Native Anthropic tool use loop; 12 tools (read + write); no more JSON parsing |
+| P10 Outbound Email Tracking | 2026-04-22 | Sent-mail scan; `direction` field on pipeline activity records |
+| P12 Observability | 2026-04-20 | All 8 Claude call sites log to `data/logs/run_log.jsonl` with token counts + cost |
+| P13 Graduated Memory Decay | 2026-04-23 | Abandoned memories (60d+) shortened to 14-day TTL; pinned memories immune |
+| P14 Phase 1 — Vector Ingest | 2026-04-30 | Pinecone serverless index; Voyage AI embeddings; `observations` + `memories` namespaces |
+| P14 Phase 2 — Semantic Retrieval | 2026-04-30 | Pinecone replaces recency-based retriever; query built from calendar + email + leads |
 
 ---
 
-## ✅ P2 — Lead and Trial Pipeline Data Source (complete)
+## Open — Single-User Improvements
 
-**Shipped 2026-04-19.** Notion pipeline DB seeded into `data/pipeline_cache.json` via MCP. Watcher extended to classify all inbound email — pipeline lead contacts write to `data/pipeline_email_activity.json`, flare-ups route to `issues.json`. Manual sync on request: ask Claude Code to re-sync pipeline cache from Notion MCP. Cache staleness warning fires in the brief after 7 days.
+### P11 — Meeting Transcript Integration
+**Highest remaining capability gap.** System knows meetings happened (calendar) but has zero signal for what came out of them.
 
----
-
-## ✅ P0 — Cloud Hosting (complete)
-
-**Shipped 2026-04-19.** System moved from macOS launchd to GitHub Actions. Runs unconditionally at 7am CDT (cron `0 12 * * *`) without the local machine. Auth migrated from `gws` CLI subprocess calls to `google-api-python-client` with OAuth2 refresh token stored as `GOOGLE_OAUTH_JSON` GitHub Secret (service account was blocked by Workspace admin access). Personal Gmail removed — not accessible without domain-wide delegation; covered by quick capture or P4. `data/` committed back to repo after each run for state persistence.
-
-**Known gap — brief content volume.** The brief delivers too much information in its current form. Needs a content refinement pass to tighten signal-to-noise: reduce section length, increase prioritization, cut low-value fields. Tackle before or alongside P3.
-
-**GitHub Secrets required:** `GOOGLE_OAUTH_JSON`, `ANTHROPIC_API_KEY`, `SLACK_BOT_TOKEN`
+- Choose a transcript provider: Fireflies, Granola, or Fathom (all offer webhooks or email delivery)
+- Ingest summary into `data/memory/observations.jsonl` as a structured observation post-meeting
+- Memory synthesizer already picks these up — gap is purely the ingestion path
 
 ---
 
-## ✅ P3 — Cross-Day Memory (complete)
-
-**Shipped 2026-04-19.** Three-layer memory: `memory_observer` appends structured signals to `data/memory/observations.jsonl` each run; `memory_synthesizer` calls Claude after send to write/update `data/memory/*.md` files with YAML frontmatter and 90-day TTL; `memory_retriever` injects up to 1500 tokens of active memory into the brief prompt before generation. Cold-start banner shown for first 3 runs. Memory errors are non-fatal. PR #3.
-
-**Known gaps:**
-- `test_watcher.py` references stale API (`detect_flareups_from_gmail`, `is_business_hours`) — test is broken, watcher itself is fine. Delete or fix before next watcher change.
+### P14 Phase 3 — Semantic Telegram Queries
+Replace the `_load_local_context` memory dump in `query.py` with a Pinecone query seeded from the user's actual query text. Currently the tool loop gets the full context dump regardless of what was asked; semantic retrieval would surface only what's relevant to the query.
 
 ---
 
-## ✅ P4 — Two-Way Interface (complete)
-
-**Shipped 2026-04-20.** Full Telegram bot interface operational. Cloudflare Worker validates webhook and dispatches to GitHub Actions (`ask.yml`). `processors/query.py` classifies intent, optionally fetches live Gmail/Calendar, and generates answers with JARVIS personality (dry, precise, occasional "sir"). Email replies to the morning brief are parsed and acted on via `reply-check.yml`. Task completion shipped: send "done with X" to remove items from `data/captures.md` or mark project next-actions complete in `data/projects.md`.
-
-**Known gap:** `reply-check.yml` runs Mon–Fri 8am–5pm CDT only — replies outside those hours are processed next business day.
+### P14 Phase 4 — Proactive Pattern Detection
+Alert on emerging patterns without being asked: "3 stale leads this week, new pattern" or "you've had 4 back-to-back no-shows this month." Requires the weekly synthesizer to compare against prior weeks' observations and flag anomalies, not just summarize.
 
 ---
 
-## ✅ P5 — Weekly Synthesis (complete)
-
-**Shipped 2026-04-20.** Sunday 12pm CDT synthesis via `weekly.yml` GitHub Actions workflow. `processors/weekly_synthesizer.py` loads 7-day observations, state deltas, open issues, and captures — calls Claude for a narrative summary with patterns, carry-forwards, and a meta observation. Output emailed to trent@teambuildr.com and saved to `data/weekly/YYYY-MM-DD.md`. Trigger: `weekly.yml` cron `0 17 * * 0` + `workflow_dispatch`.
+### Notion Write Access
+Update pipeline lead fields (status, last_contacted, notes) from Telegram. Blocked on Notion API key with workspace admin access. Low urgency — pipeline reads are sufficient for now.
 
 ---
 
-## P6 — Dashboard (Deferred)
+## Open — Team Scale
 
-**Not blocking daily use.** The system generates a local HTML file but it's basic. A proper dashboard would make all outputs accessible without reading an email.
+These items are sourced from a Hermes Agent architecture review (2026-05-03). Hermes is a mature open-source agent runtime (130K stars, MIT) with strong multi-user and multi-platform delivery patterns. The chief-of-staff already has better context depth than Hermes; what it lacks is everything needed to run for 6+ people.
+
+---
+
+### T1 — Multi-Channel Delivery *(short-term, low effort)*
+The brief is email-only. For team use, "Slack DM it to me at 7 AM" is dramatically better DX. The system already reads Slack — it doesn't write to it.
+
+- Add `outputs/slack_sender.py` with per-user channel/DM target
+- Per-user config block in `config.json`: `delivery: {email: true, slack_dm: "@username"}`
+- Hermes' gateway pattern is the right model: each platform is an isolated adapter, not a conditional branch in `sender.py`
+
+---
+
+### T2 — Tool Registry Refactor *(short-term, medium effort)*
+`processors/query_tools.py` is monolithic — 12 tools defined in one file. Hermes uses self-registering tools (each tool is its own file, auto-discovered at import). Worth adopting before the tool count grows further, and essential if team members will add their own custom tools without touching core files.
+
+- Each tool: its own file in `processors/tools/`
+- File exports: `schema`, `handler`, optional `check_fn` and `requires_env`
+- Registry discovers at import; `ask.py` just calls `registry.get_tools()`
+
+---
+
+### T3 — Approval Gates for Write Tools *(short-term, low effort)*
+Write tools (create_email_draft, add_capture, update_project_next_action) currently execute immediately on Claude's decision. For a team product — especially email draft creation on behalf of someone — a confirmation step before execution matters.
+
+- `"confirm_writes": true` config flag (default `false` for backward compat)
+- Write tools return a pending confirmation with a preview; user sends "confirm" to execute
+- Hermes implements this cleanly with an approval queue pattern
+
+---
+
+### M1 — Per-User Config and Data Isolation *(medium-term, foundational)*
+**The hardest prerequisite for team use.** The entire system today assumes one identity: one OAuth token set, one `data/` directory, one email address. Nothing else on this list works at team scale without this.
 
 **What's needed:**
-- A structured HTML/CSS template for the daily brief with clear sections
-- Navigation between current brief, people profiles, and pipeline status
-- Possibly: a local server for in-browser interaction (stretch)
+- Namespace `data/` by user: `data/users/{user_id}/people/`, `data/users/{user_id}/memory/`, etc.
+- Per-user `config.json` (delivery prefs, role/context, which signal sources are active)
+- Per-user OAuth tokens (Google Calendar, Gmail, Slack) — currently one set, hardcoded via GitHub Secret
+
+**Architecture decision: hosted service (decided 2026-05-03).** One deployment, multi-tenant, Google OAuth per user. Trent manages the infra; team members log in via a web UI. The untracked `web_app/` directory is the starting point.
 
 ---
 
-## ✅ P7 — Push Drafts to Gmail (absorbed by P9)
+### M2 — Web Onboarding + Config UI *(medium-term, depends on M1)*
+A simple FastAPI app where each team member:
+1. Logs in via Google OAuth (gets their own Calendar + Gmail access)
+2. Sets delivery preference (email, Slack DM, etc.)
+3. Customizes signal sources (pipeline view depth, calendar lookback, etc.)
+4. Views brief history
 
-**Absorbed 2026-04-22.** The `create_email_draft` tool in P9 pushes drafts to Gmail via `users.drafts.create` on demand from Telegram. No longer needs a separate implementation path.
-
----
-
-## ✅ P8 — Project Intelligence (absorbed by P9)
-
-**Absorbed 2026-04-22.** The `create_project` tool in P9 handles natural language project creation via Telegram. Pattern detection suggestions remain a future possibility but are not blocking.
-
----
-
-## ✅ P9 — Tool Use & Action Execution (complete)
-
-**Shipped 2026-04-22.** Replaced `processors/query.py`'s intent classifier + two-pass fetch with a native Anthropic tool use loop. Claude now decides what to fetch and what to execute based on the query. 12 tools shipped across read (search_gmail, get_calendar_events, get_pipeline_lead) and write (add_capture, complete_task, create_email_draft, add_people_note, update_project_next_action, create_project, resolve_issue, update_config, add_to_backlog). Tool executors in `processors/query_tools.py`. `ask.py` simplified — no more JSON parsing or capture post-processing. Absorbs P7 (create_email_draft pushes Gmail draft) and P8 (create_project via natural language).
-
-**Known gap:** Notion write access deferred — updating pipeline lead fields (status, last_contacted, notes) from Telegram requires a Notion API key with workspace admin access, which is not currently available.
+Without this, "the team can use it" means "6 people edit JSON files." The `web_app/` directory is already seeded.
 
 ---
 
-## ✅ P10 — Outbound Email Tracking (complete)
+### L1 — Shared vs. Personal Context Layers *(long-term)*
+The most powerful version of this for a sales/ops team has two layers:
+- **Personal:** My calendar, my email, my 1:1 notes
+- **Shared:** Company pipeline stage changes, team announcements, shared deals, company-wide bugs
 
-**Shipped 2026-04-22.** Third Gmail pass added to `watcher.py`: queries `in:sent newer_than:{lookback_hours}h`, matches `last_recipient` against the lead index, and records with `direction="outbound"` in `pipeline_email_activity.json`. `EmailThread` now carries `last_recipient` (populated from the `To` header via `metadataHeaders`). Activity records now include a `direction` field (`"inbound"` or `"outbound"`) so the brief can distinguish who reached out last.
-
-**Also fixed:** `watcher.py` had a latent `profile=` kwarg being passed to `fetch_threads_needing_attention()` — a remnant from the `gws` CLI era that caused a `TypeError` at the call site, silently breaking the Gmail scan on every watcher run since the API migration. All three call sites cleaned up.
-
----
-
-## P11 — Meeting Transcript Integration
-
-**The biggest capability gap.** The system knows meetings happened (calendar) but has zero signal for what came out of them — no action items, no decisions, no follow-ups.
-
-**What's needed:**
-- Choose a transcript provider: Fireflies, Granola, or Fathom all offer webhooks or email delivery of meeting summaries
-- Ingest the transcript/summary into `data/memory/observations.jsonl` as a structured observation after each meeting
-- The memory synthesizer already picks these up — the gap is purely the ingestion path
-
-**Research note:** This is the gap every reference build flags as unsolved. The meeting itself is easy to detect; what came out of it requires either a transcript service or manual capture (current state via Telegram). A transcript webhook is the high-leverage path.
+Right now everything is personal. A shared context layer (pipeline status, new bugs, company metrics visible to all team members) would make this useful for coordination, not just individual productivity.
 
 ---
 
-## ✅ P12 — Observability (complete)
-
-**Shipped 2026-04-20.** Per-call Claude API usage logged to `data/logs/run_log.jsonl` as JSONL. Each entry captures timestamp, run_type, caller, model, input_tokens, output_tokens, and estimated_cost_usd. All 8 Claude call sites instrumented via `lib/llm_logger.log_usage()`. All 4 entry points flush via try/finally on exit. Weekly synthesis reads the 7-day window and prepends a cost summary line to the synthesis prompt. Langfuse skipped — local log is sufficient.
-
----
-
-## ✅ P13 — Graduated Memory Decay (complete)
-
-**Shipped 2026-04-23.** Abandonment-based TTL shortening in `memory_synthesizer.py`. Files with no new observations for 60+ days have their expiry shortened to today + 14 days. Pinned memories are immune. Also fixed a bug where synthesis was hardcoding `pinned=False` and `suppress=False` on every write. Config params: `abandon_threshold_days` (default 60), `abandon_ttl_days` (default 14). Will produce visible effects from ~mid-June onward.
+### L2 — Role-Based Signals and Skill Customization *(long-term)*
+Trent's brief needs pipeline-heavy context. An engineer's brief needs bug tracker context. A coach-facing CSM needs onboarding context. Hermes' skill system (users teach the agent new capabilities via conversation) is the right model for making this extensible without changing core code.
 
 ---
 
-## ✅ P14 — Vector Memory Layer — Phase 1 (complete)
-
-**Shipped 2026-04-30.** Pinecone serverless index (`chief-of-staff`) with two namespaces: `observations` and `memories`. `processors/vector_ingest.py` embeds new observations and updated memory files after each daily run using Voyage AI (`voyage-3-lite`, 512 dims). Non-fatal — Pinecone errors don't block the brief. Backfill script in `scripts/backfill_vectors.py` populated the index with all historical data. State tracked in `data/vector_ingest_state.json`.
-
----
-
-## ✅ P14 Phase 2 — Semantic Retrieval (complete)
-
-**Shipped 2026-04-30.** `memory_retriever.py` now queries Pinecone instead of loading `.md` files by recency. Query built from today's calendar events, email subjects, active pipeline lead names, and open issue titles. Output split into `### Context` (synthesized memories, 60% of token budget) and `### Recent Signals` (raw observations, 40%). Pinned memories bypass ranking and always appear first. Expired memories filtered post-query in Python. Falls back to file-based retrieval on any Pinecone error (`retrieval_mode="auto"`). `retrieval_mode` config field controls behavior.
-
-**Next:** Phase 3 — semantic Telegram queries (replace `_load_local_context` memory dump in `query.py` with vector retrieval using the user's query text as the embedding).
+### L3 — Voice / Mobile-First Delivery *(long-term)*
+Hermes has free TTS (Edge TTS, no API key) and Faster-Whisper for STT baked in. For a team primarily on phones, a 90-second audio brief is more realistic than reading an email. Not urgent, but the right long-term delivery format for mobile users.
 
 ---
 
-## 📥 Inbox
+---
 
-- 2026-04-22: Notion write access via API — update pipeline lead fields (status, last_contacted, notes) from Telegram. Blocked on Notion API key (requires workspace admin access).
-- 2026-04-23: Idempotency guard added to `main.py` — if `brief_message_id.json` exists with today's date, skip send. Fixes duplicate morning brief caused by launchd + GitHub Actions both firing at 7am CDT.
+## Recommended Roadmap to Team-Wide Use
+
+The sequencing below is driven by dependencies, not just priority. Each phase has to be solid before the next one is worth building.
 
 ---
 
-## Core Principle (from research)
+### Phase 0 — Finish the Single-User Experience
+*Before scaling to a team, the core product should be as good as it can get for one person.*
 
-> **Context beats prompt engineering.** The system is prompting Claude well — the gap is in what it knows.
+1. **P11 — Meeting Transcript Integration** — biggest remaining context gap. Whatever the team uses (Fireflies, Granola, Fathom), get a webhook ingesting into `observations.jsonl` before anyone else onboards. They'll expect this.
+2. **P14 Phase 3 — Semantic Telegram Queries** — rounds out the two-way interface. Right now the query loop dumps full context regardless of what was asked; this makes it actually responsive.
 
-**Status as of 2026-04-30:** Q1, Q2, P0–P5, P7–P10, P12–P14 (Phase 1–2) all shipped. Open items:
+*Exit criteria: the daily brief and Telegram interface are sharp enough that you'd confidently hand them to someone else.*
 
-1. P11 Meeting transcript integration — highest capability gap remaining
+---
+
+### Phase 1 — Structural Cleanup Before Multi-User Complexity
+*Easier to refactor internals while there's one user. Doing this after M1 means touching multi-user code while mid-migration.*
+
+3. **T2 — Tool Registry Refactor** — move from monolithic `query_tools.py` to self-registering per-file tools. Non-negotiable before the tool count grows across roles and users. Also makes T3 much cleaner to implement.
+4. **T3 — Approval Gates for Write Tools** — add the `confirm_writes` flag. Low effort now; much harder to retrofit after other users are executing write tools against their own email and data.
+
+*Exit criteria: adding a new tool is a single new file. Write tools can be gated without touching the core loop.*
+
+---
+
+### Phase 2 — Multi-User Infrastructure (the hard one)
+*This is the foundation everything else sits on. Don't start M2 until M1 is solid.*
+
+5. **M1 — Per-User Config + Data Isolation** — namespace `data/` by user, per-user OAuth tokens, per-user config. The hosted architecture decision is made; this is what makes it real. Expect this to touch almost every file in the system.
+
+*Exit criteria: you can run the brief for two different users (e.g., yourself + one other) from the same deployment without any state bleed.*
+
+---
+
+### Phase 3 — The Front Door
+*Once the infra supports multiple users, give them a way to actually get in.*
+
+6. **M2 — Web Onboarding + Config UI** — Google OAuth login, delivery preferences, signal source toggles, brief history. The `web_app/` directory is already seeded. This is what makes onboarding a link, not a GitHub tutorial.
+7. **T1 — Multi-Channel Delivery** — add Slack DM delivery alongside email. Do this in Phase 3 (not earlier) because delivery targets are per-user config, which requires M1 to be in place.
+
+*Exit criteria: a new team member can onboard without Trent touching any code or config files.*
+
+---
+
+### Phase 4 — Shared Team Context
+*Individual briefs are live. Now make them useful for coordination.*
+
+8. **L1 — Shared Context Layer** — company-wide signals (pipeline stage changes, new bugs, team-wide metrics) surfaced on top of each person's personal context. This is where the product shifts from "personal productivity tool" to "team coordination layer."
+
+*Exit criteria: a pipeline deal moving to Closed-Won appears in the relevant team members' briefs without anyone manually adding it.*
+
+---
+
+### Phase 5 — Depth and Polish
+*Nice-to-haves that compound on a healthy foundation.*
+
+9. **L2 — Role-Based Signals + Skill Customization** — engineer's brief is bug-heavy, sales brief is pipeline-heavy, CS brief is onboarding-heavy. Without L1's shared layer, this is just per-user config tweaking. With it, it's genuinely differentiated context per role.
+10. **P14 Phase 4 — Proactive Pattern Detection** — anomaly alerts ("3 stale leads this week, new pattern"). Requires enough history across multiple users to be meaningful.
+11. **L3 — Voice / Mobile-First Delivery** — TTS audio brief for mobile users. Nice-to-have once delivery reliability is solid across channels.
+
+---
+
+**Summary:**
+
+```
+Phase 0: P11 → P14 Phase 3              (best single-user experience)
+Phase 1: T2 → T3                        (clean internals before complexity)
+Phase 2: M1                             (multi-user foundation)
+Phase 3: M2 → T1                        (onboarding + delivery)
+Phase 4: L1                             (team coordination value)
+Phase 5: L2 → P14 Phase 4 → L3         (depth + polish)
+```
+
+---
+
+## Status as of 2026-05-03
+
+**Shipped:** Q1, Q2, P0–P5, P7–P10, P12–P14 (Phase 1–2)
+
+**Open — single-user:**
+1. P11 — Meeting transcript integration (highest remaining capability gap)
 2. P14 Phase 3 — Semantic Telegram queries
 3. P14 Phase 4 — Proactive pattern detection
-4. P6 Dashboard — deferred, not blocking daily use
-5. Notion write access — blocked on API key (workspace admin required)
+4. Notion write access (blocked on API key)
+
+**Open — team scale (new):**
+1. T1 — Multi-channel delivery (Slack DM) — low effort, start here
+2. T2 — Tool registry refactor — do before tool count grows
+3. T3 — Approval gates for write tools — low effort
+4. M1 — Per-user config + data isolation — foundational, hardest item
+5. M2 — Web onboarding + config UI — depends on M1
+6. L1 — Shared context layer (company-wide signals)
+7. L2 — Role-based signals + skill customization
+8. L3 — Voice / mobile-first delivery

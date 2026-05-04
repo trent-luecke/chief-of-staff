@@ -6,6 +6,7 @@ import os
 import re
 from datetime import date
 from email.mime.text import MIMEText
+from pathlib import Path
 from typing import Any
 
 from collectors.gmail import fetch_threads_needing_attention
@@ -68,6 +69,53 @@ def _tool_add_people_note(person_name: str, note: str, config: dict) -> str:
     with open(path, "a") as f:
         f.write(entry)
     return f"Note added to {os.path.basename(path)[:-3]}: {note}"
+
+
+def _tool_create_person_profile(
+    name: str,
+    config: dict,
+    email: str = "",
+    role: str = "",
+    relationship: str = "",
+    slack_handle: str = "",
+    notes: str = "",
+) -> str:
+    people_dir = config.get("people_dir", "data/people")
+    filename = re.sub(r"[^\w\s-]", "", name.lower()).strip()
+    filename = re.sub(r"[\s_]+", "-", filename) + ".md"
+    path = Path(people_dir) / filename
+    if not path.resolve().is_relative_to(Path(people_dir).resolve()):
+        return "Invalid name — path traversal rejected."
+    if path.exists():
+        return f"Profile already exists: {filename}. Use add_people_note to append notes."
+    os.makedirs(people_dir, exist_ok=True)
+    content = f"# {name}\n\n"
+    if email:
+        content += f"**Email:** {email}\n"
+    if role:
+        content += f"**Role:** {role}\n"
+    if slack_handle:
+        content += f"**Slack:** {slack_handle}\n"
+    content += "\n## Relationship\n"
+    if relationship:
+        content += f"{relationship}\n"
+    content += "\n## Notes\n"
+    if notes:
+        content += f"- {date.today().isoformat()}: {notes}\n"
+    path.write_text(content)
+    return f"Profile created: {filename}"
+
+
+def _tool_get_person_profile(person_name: str, config: dict) -> str:
+    people_dir = config.get("people_dir", "data/people")
+    path = _find_people_file(people_dir, person_name)
+    if not path:
+        return f"No profile found matching '{person_name}'."
+    try:
+        with open(path) as f:
+            return f.read()
+    except OSError as e:
+        return f"Could not read profile: {e}"
 
 
 def _tool_update_project_next_action(project_name: str, next_action: str, config: dict) -> str:
@@ -242,6 +290,18 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
             return _tool_complete_task(input_["description"], storage, config)
         elif name == "add_people_note":
             return _tool_add_people_note(input_["person_name"], input_["note"], config)
+        elif name == "create_person_profile":
+            return _tool_create_person_profile(
+                name=input_["name"],
+                config=config,
+                email=input_.get("email", ""),
+                role=input_.get("role", ""),
+                relationship=input_.get("relationship", ""),
+                slack_handle=input_.get("slack_handle", ""),
+                notes=input_.get("notes", ""),
+            )
+        elif name == "get_person_profile":
+            return _tool_get_person_profile(input_["person_name"], config)
         elif name == "update_project_next_action":
             return _tool_update_project_next_action(input_["project_name"], input_["next_action"], config)
         elif name == "create_project":
@@ -306,6 +366,33 @@ TOOL_SCHEMAS = [
                 "note": {"type": "string", "description": "Note to append to their profile"},
             },
             "required": ["person_name", "note"],
+        },
+    },
+    {
+        "name": "create_person_profile",
+        "description": "Create a new people profile file for a contact who doesn't have one yet. Use add_people_note instead if a profile already exists.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "name": {"type": "string", "description": "Full name of the person"},
+                "email": {"type": "string", "description": "Email address (optional)"},
+                "role": {"type": "string", "description": "Their role or title (optional)"},
+                "relationship": {"type": "string", "description": "Short description of your relationship or how you know them (optional)"},
+                "slack_handle": {"type": "string", "description": "Slack handle e.g. @username (optional)"},
+                "notes": {"type": "string", "description": "Initial note to add (optional)"},
+            },
+            "required": ["name"],
+        },
+    },
+    {
+        "name": "get_person_profile",
+        "description": "Read the full profile file for a contact, including Activity, Notes, and Relationship sections.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "person_name": {"type": "string", "description": "Name or partial name of the contact"},
+            },
+            "required": ["person_name"],
         },
     },
     {
