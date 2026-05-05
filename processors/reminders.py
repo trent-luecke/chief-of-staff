@@ -19,7 +19,7 @@ def _format_local_time(dt: datetime, tz_name: str) -> str:
         hour = int(local.strftime("%I"))
         return f"{hour}:{local.strftime('%M %p %Z')}"
     except Exception:
-        return dt.strftime("%H:%MZ")
+        return dt.strftime("%H:%M UTC")
 
 
 def set_reminder(storage, message: str, fire_at_iso: str, config: dict = None) -> str:

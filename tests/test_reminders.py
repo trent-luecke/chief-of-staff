@@ -64,3 +64,30 @@ def test_set_reminder_multiple_entries_appended():
     reminders = s.read_json("reminders.json")
     assert len(reminders) == 2
     assert reminders[1]["message"] == "second task"
+
+
+def test_set_reminder_default_config_uses_chicago_timezone():
+    s = _storage()
+    # No config passed — should default to America/Chicago without error
+    result = set_reminder(s, "cook dinner", _FUTURE_15)
+    assert "cook dinner" in result
+    reminders = s.read_json("reminders.json")
+    assert len(reminders) == 1
+
+
+def test_set_reminder_entry_has_id_and_created_at():
+    s = _storage()
+    set_reminder(s, "cook dinner", _FUTURE_15, _CONFIG)
+    entry = s.read_json("reminders.json")[0]
+    assert "id" in entry and len(entry["id"]) > 0
+    assert "created_at" in entry and len(entry["created_at"]) > 0
+
+
+def test_set_reminder_append_does_not_clobber_existing():
+    s = _storage()
+    set_reminder(s, "first task", _FUTURE_15, _CONFIG)
+    set_reminder(s, "second task", "2099-01-01T21:15:00Z", _CONFIG)
+    reminders = s.read_json("reminders.json")
+    assert len(reminders) == 2
+    assert reminders[0]["message"] == "first task"  # original not clobbered
+    assert reminders[1]["message"] == "second task"
