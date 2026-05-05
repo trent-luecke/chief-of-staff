@@ -131,5 +131,12 @@
       "bucket": "chief-of-staff",
       "account_id": "4a1a8e479424c01a898b8717fd1cb9f5"
     }
+  },
+  "demo_scan": {
+    "enabled": true,
+    "sales_rep_calendar_ids": [],
+    "lookforward_days": 28,
+    "demo_keywords": ["demo"],
+    "internal_domains": ["teambuildr.com"]
   }
 }
