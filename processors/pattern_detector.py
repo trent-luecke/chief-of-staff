@@ -366,8 +366,8 @@ def _is_demo_event(event, demo_cfg: dict) -> bool:
     if not any(kw in desc for kw in demo_keywords):
         return False
 
-    # Rule 2: "OS" in title or description
-    if "os" not in title and "os" not in desc:
+    # Rule 2: "OS" product name in title or description (word-boundary match)
+    if not (re.search(r'\bOS\b', event.summary) or re.search(r'\bOS\b', event.description or "")):
         return False
 
     # Rule 3: at least one external attendee

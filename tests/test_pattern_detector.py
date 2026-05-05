@@ -395,3 +395,19 @@ def test_scan_upcoming_demos_skips_non_demo_events(tmp_path):
     with patch("collectors.calendar.fetch_date_range_events", return_value=[not_a_demo]):
         result = scan_upcoming_demos(config, "trent@teambuildr.com", date(2026, 5, 4), storage)
     assert result.total == 0
+
+
+def test_load_pipeline_lead_details_excludes_closed_and_lost(tmp_path):
+    from processors.pattern_detector import _load_pipeline_lead_details
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("pipeline_cache.json", {
+        "leads": [
+            {"email": "active@gym.com", "name": "Active Gym", "status": "Demo Scheduled"},
+            {"email": "closed@gym.com", "name": "Closed Gym", "status": "Closed"},
+            {"email": "lost@gym.com", "name": "Lost Gym", "status": "Lost"},
+        ]
+    })
+    result = _load_pipeline_lead_details(storage)
+    assert "active@gym.com" in result
+    assert "closed@gym.com" not in result
+    assert "lost@gym.com" not in result
