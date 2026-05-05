@@ -523,8 +523,8 @@ TOOL_SCHEMAS = [
                 "fire_at": {
                     "type": "string",
                     "description": (
-                        "UTC ISO 8601 datetime on a 15-minute boundary "
-                        "(e.g. 2026-05-05T21:00:00Z)"
+                        "UTC ISO 8601 datetime on a 15-minute boundary with seconds set to :00 "
+                        "(e.g. 2026-05-05T21:00:00Z, 2026-05-05T21:15:00Z)"
                     ),
                 },
             },
