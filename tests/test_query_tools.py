@@ -319,9 +319,11 @@ def test_tool_schemas_cover_all_expected_tools():
     names = {s["name"] for s in TOOL_SCHEMAS}
     expected = {
         "add_capture", "complete_task", "add_people_note",
+        "create_person_profile", "get_person_profile",
         "update_project_next_action", "create_project", "resolve_issue",
         "update_config", "add_to_backlog", "search_gmail",
         "get_calendar_events", "get_pipeline_lead", "create_email_draft",
+        "set_reminder",
     }
     assert names == expected
 
@@ -347,3 +349,39 @@ def test_tool_schemas_required_fields_match_executor_params():
     # get_calendar_events has no required fields (days_ahead has default)
     gce = schema_map["get_calendar_events"]
     assert gce["input_schema"].get("required", []) == []
+
+
+def test_set_reminder_tool_valid_future_time():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        config["timezone"] = "America/Chicago"
+        storage = LocalStorage(tmp)
+        result = execute_tool(
+            "set_reminder",
+            {"message": "cook dinner", "fire_at": "2099-01-01T21:00:00Z"},
+            config,
+            storage=storage,
+        )
+        assert "cook dinner" in result
+        reminders = storage.read_json("reminders.json")
+        assert reminders is not None and len(reminders) == 1
+
+
+def test_set_reminder_tool_rejects_non_aligned_time():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        result = execute_tool(
+            "set_reminder",
+            {"message": "cook dinner", "fire_at": "2099-01-01T21:07:00Z"},
+            config,
+            storage=storage,
+        )
+        assert "boundary" in result.lower() or ":07" in result
+        assert storage.read_json("reminders.json") is None
+
+
+def test_set_reminder_in_tool_schemas():
+    from processors.query_tools import TOOL_SCHEMAS
+    names = {s["name"] for s in TOOL_SCHEMAS}
+    assert "set_reminder" in names

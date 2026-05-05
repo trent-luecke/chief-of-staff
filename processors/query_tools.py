@@ -320,6 +320,9 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
             return _tool_get_pipeline_lead(input_["lead_name"], config)
         elif name == "create_email_draft":
             return _tool_create_email_draft(input_["to"], input_["subject"], input_["body"], config)
+        elif name == "set_reminder":
+            from processors.reminders import set_reminder
+            return set_reminder(storage, input_["message"], input_["fire_at"], config)
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
@@ -499,6 +502,33 @@ TOOL_SCHEMAS = [
                 "body": {"type": "string", "description": "Plain text email body"},
             },
             "required": ["to", "subject", "body"],
+        },
+    },
+    {
+        "name": "set_reminder",
+        "description": (
+            "Set a timed reminder that fires via Telegram. The reminder system checks every "
+            "15 minutes (:00, :15, :30, :45), so fire_at must land on a 15-minute boundary. "
+            "Before calling this tool, check if the target time is on a boundary — if not, "
+            "do NOT call this tool; ask the user which surrounding mark they prefer. "
+            "Only offer boundaries that are in the future."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "description": "The reminder text to send to the user",
+                },
+                "fire_at": {
+                    "type": "string",
+                    "description": (
+                        "UTC ISO 8601 datetime on a 15-minute boundary "
+                        "(e.g. 2026-05-05T21:00:00Z)"
+                    ),
+                },
+            },
+            "required": ["message", "fire_at"],
         },
     },
 ]
