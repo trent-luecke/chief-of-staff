@@ -1,6 +1,5 @@
 """Reminder queue: set and fire timed Telegram reminders."""
 
-import json
 import uuid
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
@@ -45,8 +44,7 @@ def set_reminder(storage, message: str, fire_at_iso: str, config: dict = None) -
     if fire_at.minute % 15 != 0 or fire_at.second != 0:
         return (
             f"Fire time must be on a 15-minute boundary (:00, :15, :30, :45). "
-            f"Got :{fire_at.minute:02d} — pick :{(fire_at.minute // 15) * 15:02d} "
-            f"or :{min((fire_at.minute // 15 + 1) * 15, 59):02d}."
+            f"Got :{fire_at.minute:02d} — nearest valid: :{(fire_at.minute // 15) * 15:02d}."
         )
 
     display_time = _format_local_time(fire_at, tz_name)
