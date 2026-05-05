@@ -15,6 +15,7 @@ class CalendarEvent:
     end: datetime
     description: str = ""
     attendees: list[str] = field(default_factory=list)
+    declined: bool = False
 
 
 def _build_service(user_email: str):
@@ -53,6 +54,12 @@ def fetch_today_events(
         if "date" in start_raw and "dateTime" not in start_raw:
             continue
         try:
+            raw_attendees = item.get("attendees", [])
+            self_entry = next((a for a in raw_attendees if a.get("self")), None)
+            owner_declined = (
+                self_entry is not None
+                and self_entry.get("responseStatus") == "declined"
+            )
             events.append(
                 CalendarEvent(
                     id=item["id"],
@@ -61,8 +68,9 @@ def fetch_today_events(
                     end=parse_dt(item["end"]["dateTime"]),
                     description=item.get("description", ""),
                     attendees=[
-                        a["email"] for a in item.get("attendees", []) if not a.get("self")
+                        a["email"] for a in raw_attendees if not a.get("self")
                     ],
+                    declined=owner_declined,
                 )
             )
         except (KeyError, ValueError):
@@ -90,3 +98,27 @@ def fetch_two_day_events(
     today_events.sort(key=lambda e: e.start)
     tomorrow_events.sort(key=lambda e: e.start)
     return today_events, tomorrow_events, calendar_failed
+
+
+def fetch_date_range_events(
+    calendar_ids: list[str],
+    start_date: date,
+    end_date: date,
+    user_email: str = "",
+) -> list[CalendarEvent]:
+    seen: set[str] = set()
+    events: list[CalendarEvent] = []
+    current = start_date
+    while current < end_date:
+        for cal_id in calendar_ids:
+            result = fetch_today_events(cal_id, current, user_email, _return_error=True)
+            if isinstance(result, Exception):
+                print(f"WARNING: calendar fetch failed for {cal_id} on {current}: {result}", flush=True)
+                continue
+            for evt in result:
+                if evt.id not in seen:
+                    seen.add(evt.id)
+                    events.append(evt)
+        current += timedelta(days=1)
+    events.sort(key=lambda e: e.start)
+    return events
