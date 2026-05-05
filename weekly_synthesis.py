@@ -14,6 +14,10 @@ from lib.telegram import send_message
 from outputs.sender import send_brief_email
 from processors.weekly_synthesizer import synthesize_week, WeeklySynthesis
 from processors.retrieval_digest import generate_digest
+from processors.pattern_detector import (
+    detect_anomalies, scan_upcoming_demos,
+    AnomalyReport, DemoScanReport,
+)
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -65,6 +69,41 @@ def _save_synthesis(storage, synthesis: WeeklySynthesis, run_date: date) -> None
     print(f"Saved: {key}")
 
 
+def _render_trends_html(anomaly_report: AnomalyReport, demo_report: DemoScanReport) -> str:
+    if not anomaly_report.anomalies and not demo_report.demos:
+        return ""
+    parts = ["<h3>Trends &amp; Demo Health</h3>"]
+    if anomaly_report.anomalies:
+        parts.append("<h4>Pattern Alerts</h4><ul>")
+        for a in anomaly_report.anomalies:
+            parts.append(f"<li><strong>{a.title}</strong> — {a.description}</li>")
+        parts.append("</ul>")
+    if demo_report.demos:
+        parts.append(f"<h4>Upcoming Demos ({demo_report.total} in next 28 days)</h4><ul>")
+        for d in demo_report.demos:
+            lead_info = d.lead_name or "new prospect"
+            stage_info = f" ({d.pipeline_stage})" if d.pipeline_stage else " (not in pipeline)"
+            parts.append(f"<li>{d.date.isoformat()} — {d.title} — {lead_info}{stage_info}</li>")
+        parts.append("</ul>")
+    return "\n".join(parts)
+
+
+def _format_trends_telegram(anomaly_report: AnomalyReport, demo_report: DemoScanReport) -> str:
+    lines = []
+    if anomaly_report.anomalies:
+        lines.append("Pattern Alerts:")
+        for a in anomaly_report.anomalies:
+            lines.append(f"• {a.title} — {a.description}")
+        lines.append("")
+    if demo_report.demos:
+        lines.append(f"Upcoming Demos ({demo_report.total} in next 28 days):")
+        for d in demo_report.demos:
+            lead_info = d.lead_name or "new prospect"
+            stage_info = f" ({d.pipeline_stage})" if d.pipeline_stage else ""
+            lines.append(f"• {d.date.isoformat()} — {d.title} — {lead_info}{stage_info}")
+    return "\n".join(lines)
+
+
 def _main_inner(config: dict, run_date, storage) -> None:
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -85,9 +124,25 @@ def _main_inner(config: dict, run_date, storage) -> None:
 
     _save_synthesis(storage, synthesis, run_date)
 
+    anomaly_report = AnomalyReport()
+    demo_report = DemoScanReport()
+
+    if config.get("demo_scan", {}).get("enabled"):
+        try:
+            anomaly_report = detect_anomalies(storage, synthesis, run_date, api_key, config["ai_model"])
+        except Exception as e:
+            print(f"WARNING: anomaly detection failed: {e}", file=sys.stderr)
+        try:
+            demo_report = scan_upcoming_demos(config, config["email"], run_date, storage)
+        except Exception as e:
+            print(f"WARNING: demo scan failed: {e}", file=sys.stderr)
+
     gmail = build_gmail_service(config["email"])
     subject = f"📊 Weekly Synthesis — week ending {run_date.isoformat()}"
     html = _render_html(synthesis, run_date.isoformat())
+    trends_html = _render_trends_html(anomaly_report, demo_report)
+    if trends_html:
+        html += "\n" + trends_html
 
     try:
         msg_id, _ = send_brief_email(
@@ -125,6 +180,15 @@ def _main_inner(config: dict, run_date, storage) -> None:
             print("Retrieval digest sent via Telegram.")
         except Exception as e:
             print(f"WARNING: retrieval digest failed: {e}", file=sys.stderr)
+
+    trends_text = _format_trends_telegram(anomaly_report, demo_report)
+    if trends_text and bot_token and chat_id:
+        try:
+            header = f"📈 Trends & Demo Health — week ending {run_date.isoformat()}\n\n"
+            send_message(bot_token, chat_id, header + trends_text)
+            print("Trends & demo health sent via Telegram.")
+        except Exception as e:
+            print(f"WARNING: trends Telegram send failed: {e}", file=sys.stderr)
 
     print(f"\nSummary: {synthesis.executive_summary}")
     if synthesis.carry_forwards:
