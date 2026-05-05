@@ -240,7 +240,7 @@ def test_build_anomaly_prompt_includes_metrics_and_patterns():
     from processors.weekly_synthesizer import WeeklySynthesis
     synthesis = WeeklySynthesis(executive_summary="ok", patterns=["Lead follow-ups high"])
     weekly_metrics = [
-        {"label": "current week", "week_start": "2026-04-27", "week_end": "2026-05-04",
+        {"label": "current week", "week_start": "2026-04-28", "week_end": "2026-05-04",
          "pipeline_stale_count": 4, "issue_email_count": 2, "issue_slack_count": 1,
          "bugs_high": 3, "cancellations_mtd": 1},
     ]

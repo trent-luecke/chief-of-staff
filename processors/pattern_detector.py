@@ -139,7 +139,7 @@ def _compute_weekly_metrics(obs: list[dict], run_date: date) -> list[dict]:
     buckets = []
     for i in range(4):
         week_end = run_date - timedelta(days=7 * i)
-        week_start = run_date - timedelta(days=7 * (i + 1))
+        week_start = run_date - timedelta(days=7 * i + 6)
         buckets.append({
             "label": labels[i],
             "week_start": week_start.isoformat(),
