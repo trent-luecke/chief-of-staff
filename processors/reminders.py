@@ -87,7 +87,7 @@ def fire_due_reminders(
 
         # Already fired — keep if recent, prune if > 7 days old
         if entry.get("fired"):
-            if (now - fire_at).days < 7:
+            if (now - fire_at).total_seconds() < 7 * 86400:
                 updated.append(entry)
             continue
 
@@ -121,6 +121,7 @@ def fire_due_reminders(
             if delay.total_seconds() > max_age_hours * 3600:
                 print(f"WARNING: Reminder '{message}' expired after {max_age_hours}h — dropping.")
             else:
+                entry["fired"] = False
                 updated.append(entry)
 
     storage.write_json(_REMINDERS_KEY, updated)
