@@ -24,6 +24,7 @@
 | P13 Graduated Memory Decay | 2026-04-23 | Abandoned memories (60d+) shortened to 14-day TTL; pinned memories immune |
 | P14 Phase 1 — Vector Ingest | 2026-04-30 | Pinecone serverless index; Voyage AI embeddings; `observations` + `memories` namespaces |
 | P14 Phase 2 — Semantic Retrieval | 2026-04-30 | Pinecone replaces recency-based retriever; query built from calendar + email + leads |
+| P14 Phase 3 — Semantic Telegram Queries | 2026-04-30 | `_load_local_context` passes raw query text as embedding signal; only relevant memories retrieved instead of full dump |
 
 ---
 
@@ -35,11 +36,6 @@
 - Choose a transcript provider: Fireflies, Granola, or Fathom (all offer webhooks or email delivery)
 - Ingest summary into `data/memory/observations.jsonl` as a structured observation post-meeting
 - Memory synthesizer already picks these up — gap is purely the ingestion path
-
----
-
-### P14 Phase 3 — Semantic Telegram Queries
-Replace the `_load_local_context` memory dump in `query.py` with a Pinecone query seeded from the user's actual query text. Currently the tool loop gets the full context dump regardless of what was asked; semantic retrieval would surface only what's relevant to the query.
 
 ---
 
