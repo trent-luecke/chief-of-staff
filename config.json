@@ -1,5 +1,6 @@
 {
   "email": "trent@teambuildr.com",
+  "timezone": "America/Chicago",
   "people_dir": "data/people",
   "brief_subject_prefix": "\u2600\ufe0f Morning Brief",
   "calendar_ids": [
