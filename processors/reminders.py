@@ -87,7 +87,14 @@ def fire_due_reminders(
 
         # Already fired — keep if recent, prune if > 7 days old
         if entry.get("fired"):
-            if (now - fire_at).total_seconds() < 7 * 86400:
+            prune_ref_str = entry.get("fired_at") or entry.get("fire_at", "")
+            try:
+                prune_ref = datetime.fromisoformat(prune_ref_str.replace("Z", "+00:00"))
+                if prune_ref.tzinfo is None:
+                    prune_ref = prune_ref.replace(tzinfo=timezone.utc)
+            except (ValueError, AttributeError):
+                prune_ref = fire_at
+            if (now - prune_ref).total_seconds() < 7 * 86400:
                 updated.append(entry)
             continue
 
@@ -97,7 +104,7 @@ def fire_due_reminders(
             continue
 
         # Due — build message text
-        delay = now - fire_at
+        delay = now - fire_at  # used for: late-fire display (>20min) and max-age expiry check
         message = entry.get("message", "")
         scheduled_str = _format_local_time(fire_at, timezone_name)
         fired_str = _format_local_time(now, timezone_name)
@@ -113,8 +120,8 @@ def fire_due_reminders(
         try:
             send_message(bot_token, chat_id, text)
             entry["fired"] = True
-            fired_entry = {**entry, "fired_at": now.strftime("%Y-%m-%dT%H:%M:%SZ")}
-            storage.append_line(_HISTORY_KEY, json.dumps(fired_entry))
+            entry["fired_at"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+            storage.append_line(_HISTORY_KEY, json.dumps(entry))
             updated.append(entry)
         except Exception as e:
             print(f"WARNING: Failed to send reminder '{message}': {e}")

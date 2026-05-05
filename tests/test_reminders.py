@@ -158,7 +158,8 @@ def test_fire_due_reminders_appends_to_history(storage):
     import json as _json
     raw = storage.read("reminder_history.jsonl")
     assert raw is not None
-    entry = _json.loads(raw.strip())
+    lines = [line for line in raw.strip().splitlines() if line]
+    entry = _json.loads(lines[0])
     assert entry["message"] == "email Ted"
     assert "fired_at" in entry
 
