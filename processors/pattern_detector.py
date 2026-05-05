@@ -337,3 +337,98 @@ def detect_anomalies(
             weeks_seen=item.get("weeks_seen", 1),
         ))
     return AnomalyReport(anomalies=anomalies)
+
+
+# ---------------------------------------------------------------------------
+# Demo scan
+# ---------------------------------------------------------------------------
+
+def _load_pipeline_lead_details(storage) -> dict[str, dict]:
+    data = storage.read_json("pipeline_cache.json", default={})
+    result = {}
+    for r in data.get("leads", []):
+        if r.get("email") and r.get("status") not in {"Closed", "Lost"}:
+            result[r["email"].lower()] = {
+                "name": r.get("name", ""),
+                "status": r.get("status", ""),
+            }
+    return result
+
+
+def _is_demo_event(event, demo_cfg: dict) -> bool:
+    demo_keywords = [kw.lower() for kw in demo_cfg.get("demo_keywords", ["demo"])]
+    internal_domains = [d.lower() for d in demo_cfg.get("internal_domains", ["teambuildr.com"])]
+
+    title = event.summary.lower()
+    desc = (event.description or "").lower()
+
+    # Rule 1: demo keyword in description
+    if not any(kw in desc for kw in demo_keywords):
+        return False
+
+    # Rule 2: "OS" in title or description
+    if "os" not in title and "os" not in desc:
+        return False
+
+    # Rule 3: at least one external attendee
+    has_external = any(
+        not any(email.lower().endswith(f"@{domain}") for domain in internal_domains)
+        for email in event.attendees
+    )
+    if not has_external:
+        return False
+
+    # Rule 4: not declined by calendar owner
+    if event.declined:
+        return False
+
+    return True
+
+
+def scan_upcoming_demos(
+    config: dict,
+    user_email: str,
+    run_date: date,
+    storage,
+) -> DemoScanReport:
+    from collectors.calendar import fetch_date_range_events
+
+    demo_cfg = config.get("demo_scan", {})
+    lookforward = demo_cfg.get("lookforward_days", 28)
+    internal_domains = [d.lower() for d in demo_cfg.get("internal_domains", ["teambuildr.com"])]
+
+    all_cal_ids = list(config.get("calendar_ids", [])) + list(demo_cfg.get("sales_rep_calendar_ids", []))
+    start = run_date + timedelta(days=1)
+    end = run_date + timedelta(days=lookforward + 1)
+
+    events = fetch_date_range_events(all_cal_ids, start, end, user_email)
+    lead_details = _load_pipeline_lead_details(storage)
+
+    demos = []
+    for event in events:
+        if not _is_demo_event(event, demo_cfg):
+            continue
+
+        external_emails = [
+            email for email in event.attendees
+            if not any(email.lower().endswith(f"@{domain}") for domain in internal_domains)
+        ]
+
+        lead_name = None
+        pipeline_stage = None
+        for email in external_emails:
+            details = lead_details.get(email.lower())
+            if details:
+                lead_name = details["name"]
+                pipeline_stage = details["status"]
+                break
+
+        demos.append(UpcomingDemo(
+            date=event.start.date(),
+            title=event.summary,
+            attendee_emails=external_emails,
+            lead_name=lead_name,
+            pipeline_stage=pipeline_stage,
+        ))
+
+    return DemoScanReport(demos=demos, total=len(demos))

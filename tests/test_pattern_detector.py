@@ -251,3 +251,147 @@ def test_build_anomaly_prompt_includes_metrics_and_patterns():
     assert "pipeline_stale_count" not in prompt  # should be formatted, not raw key names
     assert "2026-04" in prompt
     assert "Pattern A" in prompt
+
+
+from datetime import datetime
+from collectors.calendar import CalendarEvent
+
+
+def _make_event(
+    id="evt1",
+    summary="John Smith / Trent Luecke",
+    description="TeamBuildr OS demo with CrossFit Denver",
+    attendees=None,
+    declined=False,
+    start_dt=None,
+):
+    if attendees is None:
+        attendees = ["contact@crossfitdenver.com"]
+    if start_dt is None:
+        start_dt = datetime(2026, 5, 10, 9, 0)
+    return CalendarEvent(
+        id=id,
+        summary=summary,
+        start=start_dt,
+        end=datetime(2026, 5, 10, 10, 0),
+        description=description,
+        attendees=attendees,
+        declined=declined,
+    )
+
+
+_DEMO_CFG = {
+    "demo_keywords": ["demo"],
+    "internal_domains": ["teambuildr.com"],
+}
+
+
+def test_is_demo_event_passes_all_rules():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event()
+    assert _is_demo_event(event, _DEMO_CFG) is True
+
+
+def test_is_demo_event_fails_missing_demo_keyword_in_description():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(description="TeamBuildr OS intro call")
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_is_demo_event_fails_missing_os_in_title_and_description():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(description="Product demo with the client")
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_is_demo_event_fails_all_internal_attendees():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(attendees=["colleague@teambuildr.com"])
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_is_demo_event_fails_no_attendees():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(attendees=[])
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_is_demo_event_fails_declined():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(declined=True)
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_is_demo_event_os_in_title_not_description():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(
+        summary="TeamBuildr OS / John Smith",
+        description="Product demo scheduled",
+    )
+    assert _is_demo_event(event, _DEMO_CFG) is True
+
+
+def test_is_demo_event_empty_description_fails():
+    from processors.pattern_detector import _is_demo_event
+    event = _make_event(description="")
+    assert _is_demo_event(event, _DEMO_CFG) is False
+
+
+def test_scan_upcoming_demos_returns_matching_events(tmp_path):
+    from processors.pattern_detector import scan_upcoming_demos, DemoScanReport
+    storage = LocalStorage(base_dir=str(tmp_path))
+    config = {
+        "calendar_ids": ["primary"],
+        "demo_scan": {
+            "sales_rep_calendar_ids": [],
+            "lookforward_days": 28,
+            "demo_keywords": ["demo"],
+            "internal_domains": ["teambuildr.com"],
+        },
+    }
+    event = _make_event(start_dt=datetime(2026, 5, 10, 9, 0))
+    with patch("collectors.calendar.fetch_date_range_events", return_value=[event]):
+        result = scan_upcoming_demos(config, "trent@teambuildr.com", date(2026, 5, 4), storage)
+    assert isinstance(result, DemoScanReport)
+    assert result.total == 1
+    assert result.demos[0].lead_name is None  # no pipeline data in tmp storage
+
+
+def test_scan_upcoming_demos_enriches_known_pipeline_lead(tmp_path):
+    from processors.pattern_detector import scan_upcoming_demos
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("pipeline_cache.json", {
+        "leads": [{"email": "contact@crossfitdenver.com", "name": "CrossFit Denver", "status": "Demo Scheduled"}]
+    })
+    config = {
+        "calendar_ids": ["primary"],
+        "demo_scan": {
+            "sales_rep_calendar_ids": [],
+            "lookforward_days": 28,
+            "demo_keywords": ["demo"],
+            "internal_domains": ["teambuildr.com"],
+        },
+    }
+    event = _make_event()
+    with patch("collectors.calendar.fetch_date_range_events", return_value=[event]):
+        result = scan_upcoming_demos(config, "trent@teambuildr.com", date(2026, 5, 4), storage)
+    assert result.demos[0].lead_name == "CrossFit Denver"
+    assert result.demos[0].pipeline_stage == "Demo Scheduled"
+
+
+def test_scan_upcoming_demos_skips_non_demo_events(tmp_path):
+    from processors.pattern_detector import scan_upcoming_demos
+    storage = LocalStorage(base_dir=str(tmp_path))
+    config = {
+        "calendar_ids": ["primary"],
+        "demo_scan": {
+            "sales_rep_calendar_ids": [],
+            "lookforward_days": 28,
+            "demo_keywords": ["demo"],
+            "internal_domains": ["teambuildr.com"],
+        },
+    }
+    not_a_demo = _make_event(description="Just a call, no product info")
+    with patch("collectors.calendar.fetch_date_range_events", return_value=[not_a_demo]):
+        result = scan_upcoming_demos(config, "trent@teambuildr.com", date(2026, 5, 4), storage)
+    assert result.total == 0
