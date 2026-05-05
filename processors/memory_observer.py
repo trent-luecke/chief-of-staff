@@ -1,6 +1,7 @@
 import json
 from datetime import date
 
+from collectors.avoma import AvomaTranscript
 from collectors.gmail import EmailThread
 from collectors.pipeline import PipelineLead
 from processors.brief import BriefContent
@@ -50,6 +51,74 @@ def _read_decisions(decisions_file: str, known_contents: set[str]) -> list[dict]
     except FileNotFoundError:
         pass
     return observations
+
+
+def _load_ingested_avoma_uuids(storage) -> set[str]:
+    """Return Avoma meeting UUIDs already present in observations."""
+    uuids: set[str] = set()
+    content = storage.read(_OBS_KEY) or ""
+    for line in content.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obs = json.loads(line)
+            if obs.get("source") == "avoma" and obs.get("type") == "meeting_transcript":
+                ctx = obs.get("context", "")
+                for part in ctx.split():
+                    if part.startswith("avoma_uuid="):
+                        uuids.add(part.split("=", 1)[1])
+        except json.JSONDecodeError:
+            continue
+    return uuids
+
+
+def _transcript_to_observation(t: AvomaTranscript) -> dict:
+    today = date.today().isoformat()
+
+    meeting_date = today
+    if t.start_at:
+        try:
+            meeting_date = t.start_at[:10]
+        except (ValueError, IndexError):
+            pass
+
+    call_label = t.call_type.replace("_", " ").title() if t.call_type else "Meeting"
+    header = f"{call_label}: {t.title}"
+    if t.participants:
+        header += f" ({', '.join(t.participants[:5])})"
+
+    body_parts = [header + "."]
+    if t.summary:
+        body_parts.append(t.summary.rstrip(".") + ".")
+    if t.features_covered:
+        body_parts.append(f"Features covered: {'; '.join(t.features_covered[:5])}.")
+    if t.gaps:
+        body_parts.append(f"Gaps raised: {'; '.join(t.gaps[:4])}.")
+    if t.objections:
+        body_parts.append(f"Objections: {'; '.join(t.objections[:4])}.")
+    if t.buying_signals:
+        body_parts.append(f"Buying signals: {'; '.join(t.buying_signals[:4])}.")
+    if t.competitors:
+        body_parts.append(f"Competitors: {'; '.join(t.competitors)}.")
+    if t.onboarding_completed:
+        body_parts.append(f"Onboarding completed: {'; '.join(t.onboarding_completed[:4])}.")
+    if t.onboarding_next_steps:
+        body_parts.append(f"Onboarding next steps: {'; '.join(t.onboarding_next_steps[:4])}.")
+    if t.action_items:
+        body_parts.append(f"Action items: {'; '.join(t.action_items[:5])}.")
+
+    entity = t.title.lower().replace(" ", "-")[:60]
+    participants_str = ", ".join(t.participants[:5])
+
+    return {
+        "date": meeting_date,
+        "type": "meeting_transcript",
+        "entity": entity,
+        "content": " ".join(body_parts)[:1000],
+        "source": "avoma",
+        "context": f"avoma_uuid={t.uuid} call_type={t.call_type} participants={participants_str}",
+    }
 
 
 def _kpi_snapshot_exists_today(storage) -> bool:
@@ -140,6 +209,7 @@ def observe(
     demos_data: dict | None = None,
     bugs: list | None = None,
     cancellations: dict | None = None,
+    avoma_transcripts: list[AvomaTranscript] | None = None,
 ) -> None:
     today = date.today().isoformat()
     observations = []
@@ -211,6 +281,13 @@ def observe(
             bugs=bugs or [],
             cancellations=cancellations or {},
         ))
+
+    # meeting_transcript — one observation per Avoma meeting, deduped by UUID
+    if avoma_transcripts:
+        seen_uuids = _load_ingested_avoma_uuids(storage)
+        for transcript in avoma_transcripts:
+            if transcript.uuid not in seen_uuids:
+                observations.append(_transcript_to_observation(transcript))
 
     if not observations:
         return

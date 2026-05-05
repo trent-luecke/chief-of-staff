@@ -82,7 +82,7 @@ def prepare_observation_records(
                         "type": obs_type,
                         "entity": entity,
                         "source": obs.get("source", ""),
-                        "content_preview": obs.get("content", "")[:200],
+                        "content_preview": obs.get("content", "")[:500],
                     },
                     "line_number": i,
                 })
@@ -143,7 +143,7 @@ def prepare_memory_records(
                 "last_updated": str(post.get("last_updated", "")),
                 "expires": str(post.get("expires", "")),
                 "pinned": bool(post.get("pinned", False)),
-                "content_preview": text[:200],
+                "content_preview": text[:500],
             },
         })
         new_mtimes[fname] = current_mtime
@@ -462,7 +462,7 @@ def ingest(
                 "type": obs_type,
                 "entity": entity,
                 "source": obs.get("source", ""),
-                "content_preview": obs.get("content", "")[:200],
+                "content_preview": obs.get("content", "")[:500],
             },
             "line_number": i,
         })
@@ -522,7 +522,7 @@ def ingest(
                 "last_updated": str(post.get("last_updated", "")),
                 "expires": str(post.get("expires", "")),
                 "pinned": bool(post.get("pinned", False)),
-                "content_preview": mem_text[:200],
+                "content_preview": mem_text[:500],
             },
         })
         new_mtimes[key] = current_mtime

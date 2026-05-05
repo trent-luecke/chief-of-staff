@@ -202,8 +202,18 @@ def execute_filter_records(
 
 _NAMESPACE_SCHEMA = """
 **observations** — daily signals written by the morning brief system.
-  Metadata fields: type (pipeline_staleness | email_loop | top_priorities | kpi_snapshot), date (YYYY-MM-DD), entity, content_preview.
-  kpi_snapshot entries have structured context in content_preview: sales_revenue, demos, open_bugs, cancellations_mtd.
+  Metadata fields: type, date (YYYY-MM-DD), entity, source, content_preview.
+  Observation types:
+    pipeline_stale       — a pipeline lead that has gone stale (days without contact).
+    email_loop           — an email thread open multiple days with no reply.
+    top_priority         — a top-3 priority from that day's brief.
+    kpi_snapshot         — daily KPI rollup: sales_revenue, demos, open_bugs, cancellations_mtd.
+    meeting_transcript   — analyzed Avoma sales/onboarding call (source=avoma). content_preview includes:
+                           call type (demo|onboarding|follow_up), summary, features covered, gaps raised,
+                           objections, buying signals, competitors mentioned, onboarding progress, action items.
+                           Filter by source=avoma or type=meeting_transcript to find these.
+    issue_pattern        — a tracked issue from Slack or other sources.
+    decision             — a manually logged decision from decisions.md.
 
 **memories** — synthesized cross-day context files on ongoing topics.
   Metadata fields: topic, last_updated, expires, pinned, content_preview.

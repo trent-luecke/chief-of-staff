@@ -92,6 +92,9 @@ class CollectedData:
     # Slack
     slack_dms: list = field(default_factory=list)
 
+    # Avoma meeting transcripts
+    avoma_transcripts: list = field(default_factory=list)
+
 
 @dataclass
 class ProcessedContext:
@@ -525,6 +528,42 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                 duration_ms=t.elapsed_ms,
             ))
 
+        # Avoma meeting transcripts
+        avoma_key = os.environ.get("AVOMA_API_KEY", "")
+        avoma_cfg = config.get("avoma", {})
+        if not avoma_cfg.get("enabled") or not avoma_key:
+            stage.collectors.append(CollectorResult(
+                name="avoma",
+                status="skipped",
+                error=None if avoma_cfg.get("enabled") else "avoma.enabled=false",
+            ))
+        else:
+            _err = None
+            print("🎙️  Fetching Avoma meeting transcripts...")
+            with timed() as t:
+                try:
+                    from collectors.avoma import fetch_recent_meetings
+                    data.avoma_transcripts = fetch_recent_meetings(
+                        api_key=avoma_key,
+                        anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+                        model=config.get("ai_model", "claude-sonnet-4-6"),
+                        lookback_hours=avoma_cfg.get("lookback_hours", 96),
+                        sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
+                        filter_internal=avoma_cfg.get("filter_internal", True),
+                    )
+                    if data.avoma_transcripts:
+                        print(f"   {len(data.avoma_transcripts)} OS-interested meeting(s) analyzed")
+                except Exception as e:
+                    _err = str(e)[:200]
+                    print(f"⚠️ Avoma error (non-fatal): {e}", file=sys.stderr)
+            stage.collectors.append(CollectorResult(
+                name="avoma",
+                status="error" if _err else "ok",
+                error=_err,
+                item_count=len(data.avoma_transcripts),
+                duration_ms=t.elapsed_ms,
+            ))
+
     stage.duration_ms = stage_timer.elapsed_ms
     if any(c.status == "error" for c in stage.collectors):
         stage.status = "degraded"
@@ -840,6 +879,7 @@ def generate_and_deliver(
                         demos_data=collected.demos_data,
                         bugs=collected.bugs if collected.bugs else None,
                         cancellations=collected.cancellations if collected.cancellations.get("count", 0) > 0 else None,
+                        avoma_transcripts=collected.avoma_transcripts or None,
                     )
                     print("🧠  Observations captured.")
                     print("🔄  Running memory synthesis...")

@@ -133,6 +133,19 @@
       "account_id": "4a1a8e479424c01a898b8717fd1cb9f5"
     }
   },
+  "avoma": {
+    "enabled": true,
+    "lookback_hours": 96,
+    "filter_internal": true,
+    "sales_rep_emails": [
+      "ryan@teambuildr.com",
+      "lmartin@teambuildr.com",
+      "chris@teambuildr.com",
+      "jeff@teambuildr.com",
+      "quinn@teambuildr.com",
+      "trent@teambuildr.com"
+    ]
+  },
   "demo_scan": {
     "enabled": true,
     "sales_rep_calendar_ids": [],

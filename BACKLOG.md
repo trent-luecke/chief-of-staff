@@ -25,17 +25,28 @@
 | P14 Phase 1 — Vector Ingest | 2026-04-30 | Pinecone serverless index; Voyage AI embeddings; `observations` + `memories` namespaces |
 | P14 Phase 2 — Semantic Retrieval | 2026-04-30 | Pinecone replaces recency-based retriever; query built from calendar + email + leads |
 | P14 Phase 3 — Semantic Telegram Queries | 2026-04-30 | `_load_local_context` passes raw query text as embedding signal; only relevant memories retrieved instead of full dump |
+| P11 — Meeting Transcript Integration | 2026-05-05 | Avoma API; raw transcript + Claude analysis per call; filters by 6 sales rep emails + `is_internal=false`; OS interest gate; extracts features, gaps, objections, buying signals, competitors, onboarding fields; `meeting_transcript` observations → weekly synthesis + wanderer |
 
 ---
 
 ## Open — Single-User Improvements
 
-### P11 — Meeting Transcript Integration
-**Highest remaining capability gap.** System knows meetings happened (calendar) but has zero signal for what came out of them.
+### P17 — Meeting Transcript Sub-Agent (Weekly)
+A dedicated sub-agent that runs on a weekly cadence and exclusively analyzes `meeting_transcript` observations (source=avoma) from the past 7 days. Sends a long-form breakdown to Trent via Telegram.
 
-- Choose a transcript provider: Fireflies, Granola, or Fathom (all offer webhooks or email delivery)
-- Ingest summary into `data/memory/observations.jsonl` as a structured observation post-meeting
-- Memory synthesizer already picks these up — gap is purely the ingestion path
+Focus: **product signals across calls** — not a per-call summary. Cross-call pattern analysis: which feature gaps recur, which objections cluster, what's resonating, competitor mention trends, buying signal themes. Depth and detail over volume — fewer observations with richer synthesis.
+
+Distinct from the wanderer (nightly, broad operational scan) and the weekly synthesis (rolls up all observation types). This is purely for product/sales signal intelligence.
+
+---
+
+### P18 — Telegram Checkout Nudge
+Add a checkout nudge from the Telegram bot. Trigger TBD — confirm with Trent before building.
+
+---
+
+### Wanderer Namespace Schema Audit
+Verify the observation types, metadata fields, and filter examples in the wanderer system prompt match what's actually in Pinecone. Schema was recently expanded (`meeting_transcript` added, `content_preview` bumped to 500 chars) but has likely drifted from reality in other areas. Small maintenance item, no new code.
 
 ---
 
@@ -207,10 +218,11 @@ Phase 5: L2 → P14 Phase 4 → L3         (depth + polish)
 **Shipped:** Q1, Q2, P0–P5, P7–P10, P12–P14 (Phase 1–2)
 
 **Open — single-user:**
-1. P11 — Meeting transcript integration (highest remaining capability gap)
-2. P14 Phase 3 — Semantic Telegram queries
-3. P14 Phase 4 — Proactive pattern detection
-4. Notion write access (blocked on API key)
+1. P17 — Meeting transcript sub-agent (weekly product signal breakdown via Telegram)
+2. P18 — Telegram checkout nudge (trigger TBD)
+3. Wanderer namespace schema audit (maintenance)
+4. P14 Phase 4 — Proactive pattern detection
+5. Notion write access (blocked on API key)
 
 **Open — team scale (new):**
 1. T1 — Multi-channel delivery (Slack DM) — low effort, start here
