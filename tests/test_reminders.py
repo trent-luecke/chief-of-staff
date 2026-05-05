@@ -74,3 +74,136 @@ def test_set_reminder_append_does_not_clobber_existing(storage):
     assert len(reminders) == 2
     assert reminders[0]["message"] == "first task"  # original not clobbered
     assert reminders[1]["message"] == "second task"
+
+
+from processors.reminders import fire_due_reminders
+
+
+def _make_entry(message: str, fire_at: datetime, fired: bool = False) -> dict:
+    return {
+        "id": "test-id",
+        "message": message,
+        "fire_at": fire_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "created_at": "2026-05-05T18:00:00Z",
+        "fired": fired,
+    }
+
+
+def test_fire_due_reminders_sends_due_reminder(storage):
+    fire_at = datetime(2026, 5, 5, 0, 0, 0, tzinfo=timezone.utc)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
+
+    with patch("processors.reminders.send_message") as mock_send:
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    mock_send.assert_called_once()
+    text = mock_send.call_args[0][2]
+    assert "email Ted" in text
+    assert "⏰" in text
+    assert storage.read_json("reminders.json")[0]["fired"] is True
+
+
+def test_fire_due_reminders_skips_future_reminder(storage):
+    fire_at = datetime(2099, 1, 1, 21, 0, 0, tzinfo=timezone.utc)
+    storage.write_json("reminders.json", [_make_entry("future task", fire_at)])
+
+    with patch("processors.reminders.send_message") as mock_send:
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    mock_send.assert_not_called()
+    assert storage.read_json("reminders.json")[0]["fired"] is False
+
+
+def test_fire_due_reminders_skips_already_fired(storage):
+    fire_at = datetime(2026, 5, 5, 21, 0, 0, tzinfo=timezone.utc)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at, fired=True)])
+
+    with patch("processors.reminders.send_message") as mock_send:
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    mock_send.assert_not_called()
+
+
+def test_fire_due_reminders_adds_late_note_when_delayed(storage):
+    fire_at = datetime.now(timezone.utc) - timedelta(minutes=30)
+    fire_at = fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
+
+    with patch("processors.reminders.send_message") as mock_send:
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    text = mock_send.call_args[0][2]
+    assert "delayed run" in text
+
+
+def test_fire_due_reminders_no_late_note_when_on_time(storage):
+    fire_at = datetime.now(timezone.utc) - timedelta(minutes=5)
+    fire_at = fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
+
+    with patch("processors.reminders.send_message") as mock_send:
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    text = mock_send.call_args[0][2]
+    assert "delayed run" not in text
+
+
+def test_fire_due_reminders_appends_to_history(storage):
+    fire_at = datetime(2026, 5, 5, 0, 0, 0, tzinfo=timezone.utc)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
+
+    with patch("processors.reminders.send_message"):
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    import json as _json
+    raw = storage.read("reminder_history.jsonl")
+    assert raw is not None
+    entry = _json.loads(raw.strip())
+    assert entry["message"] == "email Ted"
+    assert "fired_at" in entry
+
+
+def test_fire_due_reminders_prunes_old_fired_entries(storage):
+    old_fire_at = datetime.now(timezone.utc) - timedelta(days=8)
+    old_fire_at = old_fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("old task", old_fire_at, fired=True)])
+
+    with patch("processors.reminders.send_message"):
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    assert storage.read_json("reminders.json") == []
+
+
+def test_fire_due_reminders_keeps_recent_fired_entries(storage):
+    recent_fire_at = datetime.now(timezone.utc) - timedelta(hours=1)
+    recent_fire_at = recent_fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("recent task", recent_fire_at, fired=True)])
+
+    with patch("processors.reminders.send_message"):
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    assert len(storage.read_json("reminders.json")) == 1
+
+
+def test_fire_due_reminders_retries_on_send_failure(storage):
+    fire_at = datetime.now(timezone.utc) - timedelta(minutes=5)
+    fire_at = fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
+
+    with patch("processors.reminders.send_message", side_effect=Exception("network error")):
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+
+    updated = storage.read_json("reminders.json")
+    assert len(updated) == 1
+    assert updated[0]["fired"] is False
+
+
+def test_fire_due_reminders_drops_expired_unsent_reminder(storage):
+    fire_at = datetime.now(timezone.utc) - timedelta(hours=25)
+    fire_at = fire_at.replace(second=0, microsecond=0)
+    storage.write_json("reminders.json", [_make_entry("stale task", fire_at)])
+
+    with patch("processors.reminders.send_message", side_effect=Exception("fail")):
+        fire_due_reminders(storage, "tok", "chat", "America/Chicago", max_age_hours=24)
+
+    assert storage.read_json("reminders.json") == []
