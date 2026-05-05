@@ -350,6 +350,11 @@ def test_tool_schemas_required_fields_match_executor_params():
     gce = schema_map["get_calendar_events"]
     assert gce["input_schema"].get("required", []) == []
 
+    # set_reminder requires message and fire_at
+    sr = schema_map["set_reminder"]
+    assert "message" in sr["input_schema"]["required"]
+    assert "fire_at" in sr["input_schema"]["required"]
+
 
 def test_set_reminder_tool_valid_future_time():
     with tempfile.TemporaryDirectory() as tmp:
