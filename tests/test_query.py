@@ -223,3 +223,13 @@ def test_answer_query_with_tools_caps_at_10_iterations():
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 10
+
+
+def test_load_local_context_includes_current_time():
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _make_config(tmp)
+        config["timezone"] = "America/Chicago"
+        storage = LocalStorage(tmp)
+        context = _load_local_context(config, storage)
+        assert "Current time:" in context
+        assert "America/Chicago" in context
