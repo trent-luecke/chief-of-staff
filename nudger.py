@@ -106,19 +106,23 @@ def run() -> None:
         if now < nudge_time:
             continue
 
+        nudge_message_id = None
         if bot_token and chat_id:
             text = f"📝 {event.summary} just wrapped. Drop your notes — what was covered, open items, action items."
-            send_message(bot_token, chat_id, text)
+            nudge_message_id = send_message(bot_token, chat_id, text)
             print(f"  Nudge sent for: {event.summary}")
         else:
             print(f"  WARNING: TELEGRAM_BOT_TOKEN / TELEGRAM_ALLOWED_CHAT_ID not set — skipping nudge for {event.summary}")
 
-        pending.append({
+        entry = {
             "event_id": event.id,
             "meeting_name": event.summary,
             "sent_at": now.isoformat(),
             "session_date": date.today().isoformat(),
-        })
+        }
+        if nudge_message_id:
+            entry["telegram_message_id"] = nudge_message_id
+        pending.append(entry)
 
     save_pending_nudges(pending, storage)
     if prep_enabled:

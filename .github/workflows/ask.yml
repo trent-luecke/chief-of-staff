@@ -11,6 +11,10 @@ on:
         description: "Telegram chat ID"
         required: true
         type: string
+      reply_to_message_id:
+        description: "Telegram message_id this is a reply to (optional)"
+        required: false
+        type: string
 
 jobs:
   answer:
@@ -38,6 +42,7 @@ jobs:
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
           QUERY_TEXT: ${{ inputs.query }}
           QUERY_CHAT_ID: ${{ inputs.chat_id }}
+          REPLY_TO_MESSAGE_ID: ${{ inputs.reply_to_message_id }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: python ask.py

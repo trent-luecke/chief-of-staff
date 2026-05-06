@@ -1,5 +1,15 @@
 // cloudflare/telegram-bridge.js
 async function dispatchToGitHub(env, message) {
+  const inputs = {
+    query: message.text,
+    chat_id: String(message.chat.id),
+  };
+
+  const replyToId = message.reply_to_message?.message_id;
+  if (replyToId) {
+    inputs.reply_to_message_id = String(replyToId);
+  }
+
   const resp = await fetch(
     `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/ask.yml/dispatches`,
     {
@@ -10,13 +20,7 @@ async function dispatchToGitHub(env, message) {
         "Content-Type": "application/json",
         "User-Agent": "chief-of-staff-bot",
       },
-      body: JSON.stringify({
-        ref: "main",
-        inputs: {
-          query: message.text,
-          chat_id: String(message.chat.id),
-        },
-      }),
+      body: JSON.stringify({ ref: "main", inputs }),
     }
   );
 

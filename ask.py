@@ -10,6 +10,7 @@ load_dotenv()
 
 from processors.query import answer_query_with_tools
 from processors.brief_scorer import handle_score_command
+from processors.meeting_memory import append_session_notes
 from lib.telegram import send_message
 
 
@@ -18,7 +19,30 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
-def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage) -> None:
+def _resolve_nudge_reply(reply_to_id: str, storage) -> dict | None:
+    """Return the pending nudge record if reply_to_id matches a sent nudge, else None."""
+    pending = storage.read_json("pending_nudges.json", default=[])
+    for nudge in pending:
+        if str(nudge.get("telegram_message_id", "")) == reply_to_id:
+            return nudge
+    return None
+
+
+def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage, reply_to_id: str = "") -> None:
+    # If this is a Telegram reply to a nudge, route directly to meeting notes
+    if reply_to_id:
+        nudge = _resolve_nudge_reply(reply_to_id, storage)
+        if nudge:
+            memory_key = nudge.get("memory_file", "").removeprefix("data/") or None
+            if not memory_key:
+                safe = nudge["meeting_name"].lower().replace(" ", "_")[:40]
+                memory_key = f"meeting_memory/{safe}.md"
+            append_session_notes(storage, memory_key, nudge["session_date"], query)
+            if bot_token:
+                send_message(bot_token, chat_id, f"Got it — notes saved for {nudge['meeting_name']}.")
+            print(f"  Notes captured via reply for: {nudge['meeting_name']}")
+            return
+
     # /brief score commands are handled locally — no Claude call, no API cost
     score_response = handle_score_command(query, storage=storage)
     if score_response is not None:
@@ -53,6 +77,7 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage)
 def main() -> None:
     query = os.environ.get("QUERY_TEXT", "").strip()
     chat_id = os.environ.get("QUERY_CHAT_ID", "").strip()
+    reply_to_id = os.environ.get("REPLY_TO_MESSAGE_ID", "").strip()
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     allowed_chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
 
@@ -70,7 +95,7 @@ def main() -> None:
     storage = build_storage(config)
 
     try:
-        _main_inner(query, chat_id, bot_token, config, storage)
+        _main_inner(query, chat_id, bot_token, config, storage, reply_to_id=reply_to_id)
     finally:
         flush("ask", storage)
 
