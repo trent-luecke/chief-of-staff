@@ -148,7 +148,8 @@ def _fetch_transcript(api_key: str, meeting_uuid: str) -> tuple[list[dict], list
     """Return (speakers, utterances) for a meeting, or ([], []) on failure."""
     try:
         body = _get(api_key, "/v1/transcriptions", {"meeting_uuid": meeting_uuid})
-        results = body.get("results", [])
+        # API returns a bare list, not {"results": [...]}
+        results = body if isinstance(body, list) else body.get("results", [])
         if not results:
             return [], []
         data = results[0]
