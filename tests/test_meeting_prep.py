@@ -217,6 +217,7 @@ def test_build_external_context_empty_when_no_data(tmp_path):
 
 
 from processors.meeting_prep import build_dept_heads_context, build_recurring_internal_context
+import json as _json_for_meeting
 
 
 def test_build_dept_heads_context_pipeline_summary(tmp_path):
@@ -270,6 +271,52 @@ def test_build_recurring_internal_context_no_crash_missing_files(tmp_path):
     event = _event("Luke / Trent")
     result = build_recurring_internal_context(event, config)
     assert isinstance(result, str)
+
+
+def test_build_recurring_internal_context_reads_memory_file(tmp_path):
+    meeting_index = {"meetings": [{"calendar_pattern": "marketing sync", "memory_file": "data/meeting_memory/marketing_sync.md", "nudge_subject": "Notes?", "nudge_minutes_after": 5}]}
+    idx_path = tmp_path / "meeting_index.json"
+    idx_path.write_text(_json_for_meeting.dumps(meeting_index))
+
+    from lib.storage import LocalStorage
+    storage = LocalStorage(str(tmp_path))
+    storage.write(
+        "meeting_memory/marketing_sync.md",
+        "# Marketing Sync\n\n## Current State\nSolid working relationship.\n\n## Open Threads\n- Budget review\n\n## Session Log\n\n### 2026-04-28\nDiscussed Q2 priorities.\n",
+    )
+
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(_json_for_meeting.dumps({"date": "2026-04-28", "type": "note", "entity": "", "content": "marketing sync discussion", "source": "brief"}) + "\n")
+
+    config = {
+        "data_dir": str(tmp_path),
+        "meeting_index_file": str(idx_path),
+        "memory": {"observations_file": str(obs_path)},
+        "projects_file": str(tmp_path / "projects.md"),
+        "captures_file": str(tmp_path / "captures.md"),
+    }
+    event = _event("Weekly Marketing Sync")
+    result = build_recurring_internal_context(event, config)
+    assert "Current State" in result
+    assert "Solid working relationship" in result
+    assert "## Recent Context" not in result
+
+
+def test_build_recurring_internal_context_falls_back_to_observations(tmp_path):
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(_json_for_meeting.dumps({"date": "2026-04-28", "type": "note", "entity": "", "content": "Discussed product roadmap with Luke", "source": "brief"}) + "\n")
+
+    config = {
+        "data_dir": str(tmp_path),
+        "memory": {"observations_file": str(obs_path)},
+        "projects_file": str(tmp_path / "projects.md"),
+        "captures_file": str(tmp_path / "captures.md"),
+    }
+    event = _event("Luke / Trent")
+    result = build_recurring_internal_context(event, config)
+    assert "Recent Context" in result
+    assert "product roadmap" in result
+    assert "Luke" in result
 
 
 from unittest.mock import patch as _patch

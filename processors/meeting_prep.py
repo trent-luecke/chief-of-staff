@@ -8,6 +8,7 @@ from typing import Optional
 
 import anthropic
 from collectors.calendar import CalendarEvent
+from processors.meeting_memory import load_meeting_index, find_meeting_for_event
 
 EXTERNAL_KEYWORDS = {"demo", "reconnect", "intro", "pitch", "walkthrough", "onboarding", "call"}
 
@@ -241,16 +242,29 @@ def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
     if not event.summary:
         return ""
 
+    from lib.storage import build_storage
+    storage = build_storage(config)
+
     obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
     projects_file = config.get("projects_file", "data/projects.md")
     captures_file = config.get("captures_file", "data/captures.md")
 
-    tokens = _name_tokens(event.summary)
     parts = []
 
-    obs = _find_observations(obs_path, tokens, limit=10)
-    if obs:
-        parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
+    meeting_index = load_meeting_index(config.get("meeting_index_file", "data/meeting_index.json"))
+    meeting_cfg = find_meeting_for_event(event, meeting_index)
+
+    if meeting_cfg:
+        key = meeting_cfg.memory_file.removeprefix("data/")
+        memory_content = storage.read(key) or ""
+        if memory_content.strip():
+            parts.append(memory_content.strip())
+
+    if not parts:
+        tokens = _name_tokens(event.summary)
+        obs = _find_observations(obs_path, tokens, limit=10)
+        if obs:
+            parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
 
     if os.path.exists(projects_file):
         try:

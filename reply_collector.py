@@ -3,13 +3,14 @@
 
 import base64
 import json
+import os
 import subprocess
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from processors.meeting_memory import append_session_notes
+from processors.meeting_memory import append_session_notes, rewrite_meeting_memory
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -61,6 +62,7 @@ def run() -> None:
     from lib.storage import build_storage
     storage = build_storage(config)
     profile = config.get("gmail_profile", "work")
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
 
     pending = storage.read_json("pending_nudges.json", default=[])
     if not pending:
@@ -88,7 +90,17 @@ def run() -> None:
         reply_text = get_latest_reply_text(thread_id, profile)
         if reply_text.strip():
             key = memory_file.removeprefix("data/")
-            append_session_notes(storage, key, nudge["session_date"], reply_text)
+            if api_key:
+                rewrite_meeting_memory(
+                    storage=storage,
+                    key=key,
+                    session_date=nudge["session_date"],
+                    new_notes=reply_text,
+                    api_key=api_key,
+                    model=config.get("ai_model", "claude-sonnet-4-6"),
+                )
+            else:
+                append_session_notes(storage, key, nudge["session_date"], reply_text)
             print(f"  Captured notes for: {nudge['meeting_name']}")
         else:
             still_pending.append(nudge)

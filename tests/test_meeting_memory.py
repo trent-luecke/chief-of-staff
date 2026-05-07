@@ -1,10 +1,11 @@
 # tests/test_meeting_memory.py
 from datetime import datetime
+from unittest.mock import patch, MagicMock
 import pytest
 from lib.storage import LocalStorage
 from processors.meeting_memory import (
     load_meeting_index, find_meeting_for_event, append_session_notes,
-    load_last_session_summary, MeetingConfig,
+    load_last_session_summary, rewrite_meeting_memory, MeetingConfig,
 )
 from collectors.calendar import CalendarEvent
 
@@ -71,3 +72,62 @@ def test_load_last_session_summary_single_session(tmp_path):
     storage.write(key, content)
     summary = load_last_session_summary(storage, key)
     assert "Only session" in summary
+
+
+def _mock_claude_response(text: str):
+    mock_client = MagicMock()
+    mock_client.messages.create.return_value = MagicMock(
+        content=[MagicMock(text=text)]
+    )
+    return mock_client
+
+
+_WELL_FORMED_DOC = """\
+# Marketing Sync
+
+## Current State
+Good progress on the roadmap. The team is aligned on Q2 priorities.
+
+## Open Threads
+- Follow up on budget approval
+
+## Session Log
+
+### 2026-04-21
+Discussed Q2 roadmap. Action: share feedback by Friday."""
+
+
+@patch("processors.meeting_memory.anthropic.Anthropic")
+def test_rewrite_meeting_memory_creates_file_if_missing(mock_cls, tmp_path):
+    mock_cls.return_value = _mock_claude_response(_WELL_FORMED_DOC)
+    storage = LocalStorage(str(tmp_path))
+    rewrite_meeting_memory(storage, "meeting_memory/marketing_sync.md", "2026-04-21", "Discussed Q2 roadmap.", api_key="test")
+    content = storage.read("meeting_memory/marketing_sync.md")
+    assert "Current State" in content
+    assert "Open Threads" in content
+    assert "Session Log" in content
+
+
+@patch("processors.meeting_memory.anthropic.Anthropic")
+def test_rewrite_meeting_memory_preserves_recent_sessions(mock_cls, tmp_path):
+    recent_doc = _WELL_FORMED_DOC + "\n\n### 2026-04-14\nPrevious session from 15 days ago."
+    mock_cls.return_value = _mock_claude_response(recent_doc)
+    storage = LocalStorage(str(tmp_path))
+    storage.write("meeting_memory/marketing_sync.md", "# Marketing Sync\n\n## Session Log\n\n### 2026-04-14\nPrevious session.\n")
+    rewrite_meeting_memory(storage, "meeting_memory/marketing_sync.md", "2026-04-21", "New notes.", api_key="test")
+    content = storage.read("meeting_memory/marketing_sync.md")
+    assert "2026-04-14" in content
+
+
+@patch("processors.meeting_memory.anthropic.Anthropic")
+def test_rewrite_meeting_memory_drops_old_sessions(mock_cls, tmp_path):
+    # Claude returns a doc without the old session (as instructed by the prompt)
+    mock_cls.return_value = _mock_claude_response(_WELL_FORMED_DOC)
+    storage = LocalStorage(str(tmp_path))
+    storage.write(
+        "meeting_memory/marketing_sync.md",
+        "# Marketing Sync\n\n## Session Log\n\n### 2026-03-01\nSession from 51 days ago.\n",
+    )
+    rewrite_meeting_memory(storage, "meeting_memory/marketing_sync.md", "2026-04-21", "New notes.", api_key="test")
+    content = storage.read("meeting_memory/marketing_sync.md")
+    assert "2026-03-01" not in content
