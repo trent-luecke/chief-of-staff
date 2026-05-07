@@ -50,7 +50,10 @@ MOCK_ROW = {
 
 
 def test_parse_bug_row_populates_all_fields():
-    ticket = _parse_bug_row(MOCK_ROW)
+    with patch("collectors.notion_bugs.date") as mock_date:
+        mock_date.today.return_value = date(2026, 5, 1)
+        mock_date.fromisoformat = date.fromisoformat
+        ticket = _parse_bug_row(MOCK_ROW)
     assert ticket.id == "abc-123"
     assert ticket.title == "Payment widget crashes on iOS"
     assert ticket.status == "In progress"
