@@ -1,0 +1,45 @@
+name: Market Intel Daily
+
+on:
+  schedule:
+    # 5am CDT (UTC-5, Apr-Oct). Change to "0 11 * * *" in November for CST (UTC-6).
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-market-intel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: America/Chicago
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: market-intel/requirements.txt
+
+      - name: Install dependencies
+        working-directory: market-intel
+        run: pip install -r requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Run market intel
+        working-directory: market-intel
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+        run: python market_intel.py
+
+      - name: Push data files
+        run: git push origin main
