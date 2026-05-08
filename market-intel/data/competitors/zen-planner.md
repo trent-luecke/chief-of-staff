@@ -42,3 +42,31 @@ Zen Planner published content about systematizing martial arts curriculum while 
 Source: https://zenplanner.com/blogs/how-to-systemize-your-martial-arts-curriculum-without-losing-flexibility/
 
 ---
+## 2026-05-08 — feature_launch (score: 4)
+
+Zen Planner is promoting their ability to manage hybrid martial arts gyms that offer multiple disciplines (BJJ, Muay Thai, MMA) plus fitness programs under one system. This directly targets the multi-program gym market that TeamBuildr OS serves, emphasizing unified management of complex scheduling, membership tiers, and instructor coordination across diverse program types.
+
+Source: https://zenplanner.com/blogs/hybrid-martial-arts-gym-management-one-system-for-bjj-muay-thai-mma-and-fitness-programs/
+
+---
+## 2026-05-08 — feature_launch (score: 4)
+
+Zen Planner is promoting their class scheduling software specifically for martial arts schools and dojos, highlighting pain points around schedule management, instructor booking conflicts, and student communication. This targets a segment that overlaps with TeamBuildr's market of specialized fitness facilities that need robust scheduling and member management.
+
+Source: https://zenplanner.com/blogs/martial-arts-class-scheduling-software-for-dojos-and-academies/
+
+---
+## 2026-05-08 — feature_launch (score: 4)
+
+Zen Planner is promoting their gym automation software capabilities that eliminate manual administrative tasks like payment collection, class reminders, attendance logging, and member record updates. This directly competes with TeamBuildr OS's core value proposition of streamlining gym operations and reducing administrative burden for independent gym owners.
+
+Source: https://zenplanner.com/blogs/gym-automation-software-that-eliminates-manual-admin-work/
+
+---
+## 2026-05-08 — feature_launch (score: 4)
+
+Zen Planner is promoting their attendance tracking software specifically for martial arts studios, emphasizing automated engagement features that identify at-risk students (those missing multiple classes) before they drop out. This directly competes with TeamBuildr's member retention and engagement capabilities, particularly targeting the martial arts segment which overlaps with TeamBuildr's sports performance market.
+
+Source: https://zenplanner.com/blogs/martial-arts-attendance-tracking-software-for-student-engagement/
+
+---

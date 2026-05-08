@@ -28,3 +28,38 @@ Gymdesk published a strategic guide on recession-proofing martial arts gyms, fea
 Source: https://gymdesk.com/blog/recession-proof-martial-arts-gym
 
 ---
+## 2026-05-08 — industry_trend (score: 4)
+
+Gymdesk published detailed financial analysis showing BJJ gym owners typically earn $30k-$200k annually based on membership levels, providing specific scenarios and break-even formulas. This content marketing directly targets TeamBuildr's ICP (independent gym owners) with valuable business insights that position Gymdesk as a knowledgeable partner in gym profitability.
+
+Source: https://gymdesk.com/blog/how-much-do-bjj-gym-owners-make
+
+---
+## 2026-05-08 — industry_trend (score: 4)
+
+Gymdesk published a competitive analysis comparing 10 gym management platforms, positioning themselves as transparent by acknowledging their bias while providing pricing and feature comparisons. This type of content marketing creates thought leadership in the space and could influence prospect decision-making by framing the competitive landscape from Gymdesk's perspective.
+
+Source: https://gymdesk.com/blog/best-gym-management-software
+
+---
+## 2026-05-08 — feature_launch (score: 4)
+
+Gymdesk launched a comprehensive kickboxing curriculum feature that helps gym owners create structured programs with belt systems, grading criteria, and lesson plans that can operate independently of the head coach. This directly addresses a key pain point for martial arts and combat sports gyms around program standardization and scalability.
+
+Source: https://gymdesk.com/blog/kickboxing-curriculum
+
+---
+## 2026-05-08 — industry_trend (score: 3)
+
+Gymdesk published a case study about Combat Sports Academy Orlando's approach to coaching the majority of gym members who are hobbyists rather than competitive athletes. The article explores how successful combat sports gyms focus on serving the 99% of members who never compete, which is a key business model insight for membership-based fitness facilities.
+
+Source: https://gymdesk.com/blog/combat-sports-academy-99-sheep
+
+---
+## 2026-05-08 — leadership_change (score: 4)
+
+Gymdesk founder Eran Galperin shared his 10-year bootstrap journey building the gym management platform to thousands of customers, including surviving COVID and hints at stepping away from the company. This suggests potential leadership transition at a direct competitor that serves the same ICP as TeamBuildr OS.
+
+Source: https://gymdesk.com/blog/gymdesk-founder-journey
+
+---
