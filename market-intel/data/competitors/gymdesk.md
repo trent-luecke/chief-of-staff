@@ -63,3 +63,38 @@ Gymdesk founder Eran Galperin shared his 10-year bootstrap journey building the 
 Source: https://gymdesk.com/blog/gymdesk-founder-journey
 
 ---
+## 2026-05-09 — industry_trend (score: 3)
+
+Gymdesk published a blog post analyzing what makes the world's best gyms successful, highlighting experience design, human-centric service, and strong operational systems. This is positioning content that reinforces their value proposition around gym management systems. While not a direct product announcement, it demonstrates their thought leadership approach to marketing.
+
+Source: https://gymdesk.com/blog/what-do-the-best-gyms-in-the-world-all-have-in-common
+
+---
+## 2026-05-09 — feature_launch (score: 4)
+
+Gymdesk published a comprehensive guide with 15 email campaign templates specifically designed for gym member engagement and retention. This content marketing effort positions them as a thought leader while providing actionable templates that could attract gym owners to their platform. The focus on member retention and revenue generation directly competes with TeamBuildr's value proposition.
+
+Source: https://gymdesk.com/blog/gym-email-campaign-ideas-grow-engage-members
+
+---
+## 2026-05-09 — feature_launch (score: 4)
+
+Gymdesk launched a dedicated mobile app for gym members with features including mobile check-in, bookings, billing, digital membership cards, messaging, and push notifications. This is a significant competitive move as mobile member experience is increasingly important for gym retention and engagement, and Gymdesk is targeting the same independent gym market as TeamBuildr OS.
+
+Source: https://gymdesk.com/blog/the-gymdesk-members-mobile-app-is-now-available-on-iphone-and-android
+
+---
+## 2026-05-09 — feature_launch (score: 4)
+
+Gymdesk launched enhanced booking forms with custom fields, e-signature collection, automation triggers, and improved design. This directly competes with TeamBuildr's booking and client management features, potentially making Gymdesk more attractive to gyms looking for streamlined client onboarding and data collection.
+
+Source: https://gymdesk.com/blog/new-and-improved-booking-forms
+
+---
+## 2026-05-09 — feature_launch (score: 4)
+
+Gymdesk launched a built-in WOD (Workout of the Day) tracking app specifically for CrossFit gyms, allowing members to view workouts, log results, and compete on leaderboards within their existing platform. This eliminates the need for gym owners to use separate tools like SugarWOD or Wodify for CrossFit programming and member engagement.
+
+Source: https://gymdesk.com/blog/built-in-wod-tracking
+
+---
