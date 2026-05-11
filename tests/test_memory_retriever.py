@@ -6,7 +6,7 @@ import frontmatter
 import pytest
 
 from lib.storage import LocalStorage
-from processors.memory_retriever import retrieve_memories, get_cold_start_message, build_query_string
+from processors.memory_retriever import retrieve_memories, get_cold_start_message, build_query_string, _load_memory_section
 
 
 def write_memory(storage, filename, topic, synthesized, suppress=False, expires_days=90, pinned=False):
@@ -397,3 +397,30 @@ def test_retrieve_memories_semantic_respects_token_budget(storage):
         )
 
     assert len(result) <= 300 * 4 * 1.1  # allow 10% overhead for headers
+
+
+def test_load_memory_section_returns_section_and_empty_reason_on_success(storage):
+    write_memory(storage, "good.md", "good-topic", "Some synthesized content here.")
+    section, reason = _load_memory_section(storage, "mem:good.md")
+    assert section is not None
+    assert "good-topic" in section
+    assert reason == ""
+
+
+def test_load_memory_section_returns_missing_for_nonexistent_file(storage):
+    section, reason = _load_memory_section(storage, "mem:nonexistent.md")
+    assert section is None
+    assert reason == "missing"
+
+
+def test_load_memory_section_returns_suppressed_for_suppress_flag(storage):
+    write_memory(storage, "suppressed.md", "suppressed-topic", "Hidden content", suppress=True)
+    section, reason = _load_memory_section(storage, "mem:suppressed.md")
+    assert section is None
+    assert reason == "suppressed"
+
+
+def test_load_memory_section_returns_not_a_memory_for_non_mem_id(storage):
+    section, reason = _load_memory_section(storage, "obs:some-observation")
+    assert section is None
+    assert reason == "not_a_memory"

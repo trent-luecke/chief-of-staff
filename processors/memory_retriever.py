@@ -34,29 +34,33 @@ def build_query_string(query_signals: dict) -> str:
     return " | ".join(unique)
 
 
-def _load_memory_section(storage, match_id: str) -> Optional[str]:
-    """Load and format a memory .md file by its Pinecone vector ID, or None if skipped."""
+def _load_memory_section(storage, match_id: str) -> tuple[Optional[str], str]:
+    """Load and format a memory .md file by its Pinecone vector ID.
+
+    Returns (section_text, reason) where reason is "" on success and one of
+    "not_a_memory", "missing", "suppressed", "expired", "empty" on failure.
+    """
     if not match_id.startswith("mem:"):
-        return None
+        return None, "not_a_memory"
     filename = match_id[4:]
     key = f"memory/{filename}"
     try:
         content = storage.read(key)
         if content is None:
-            return None
+            return None, "missing"
         post = frontmatter.loads(content)
     except Exception:
-        return None
+        return None, "missing"
 
     if post.get("suppress", False):
-        return None
+        return None, "suppressed"
 
     today = date.today()
     expires_str = str(post.get("expires", ""))
     pinned = bool(post.get("pinned", False))
     try:
         if not pinned and expires_str and date.fromisoformat(expires_str) < today:
-            return None
+            return None, "expired"
     except ValueError:
         pass
 
@@ -72,9 +76,9 @@ def _load_memory_section(storage, match_id: str) -> Optional[str]:
         synthesized = body.strip()
 
     if not synthesized:
-        return None
+        return None, "empty"
 
-    return f"**{topic}** (updated: {last_updated})\n{synthesized}"
+    return f"**{topic}** (updated: {last_updated})\n{synthesized}", ""
 
 
 def query_pinecone(
@@ -327,14 +331,14 @@ def _retrieve_memories_semantic(
         except ValueError:
             pass
 
-        section = _load_memory_section(storage, match_id)
+        section, excl_reason = _load_memory_section(storage, match_id)
         if section is None:
             log_memory.append({
                 "id": match_id,
                 "namespace": "memories",
                 "score": score,
                 "included": False,
-                "excluded_reason": "suppressed",
+                "excluded_reason": excl_reason,
             })
             continue
 
