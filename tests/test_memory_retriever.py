@@ -64,6 +64,25 @@ def test_retrieve_memories_respects_token_budget(storage):
     assert len(result) < 20 * 500
 
 
+def test_retrieve_memories_900_budget_includes_more_items(storage):
+    # Each memory body is 1200 chars (~300 tokens); each rendered section is ~1232 chars.
+    # char_budget = token_budget * 4:
+    #   550 tokens → 2200 chars → header (~20) leaves ~2180 → only 1 section fits (1232 < 2180, 2×1232=2464 > 2180)
+    #   900 tokens → 3600 chars → header (~20) leaves ~3580 → at least 2 sections fit (2×1232=2464 < 3580)
+    BODY = "X" * 1200
+    for i in range(5):
+        write_memory(storage, f"mem-{i}.md", f"mem-{i}", BODY)
+
+    result_narrow = retrieve_memories(storage, token_budget=550)
+    result_wide   = retrieve_memories(storage, token_budget=900)
+
+    # Narrow budget: only 1 memory body in result
+    assert result_narrow.count(BODY) <= 1
+
+    # Wide budget: at least 2 memory bodies in result
+    assert result_wide.count(BODY) >= 2
+
+
 def test_retrieve_memories_never_truncates_pinned(storage):
     write_memory(storage, "pinned.md", "pinned-topic", "Critical pinned memory", pinned=True)
     for i in range(20):

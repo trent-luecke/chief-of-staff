@@ -56,7 +56,7 @@
     "default_ttl_days": 90,
     "activity_extension_days": 30,
     "cold_start_days": 3,
-    "retrieval_token_budget": 550,
+    "retrieval_token_budget": 900,
     "abandon_threshold_days": 60,
     "abandon_ttl_days": 14
   },
