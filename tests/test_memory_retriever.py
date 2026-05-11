@@ -424,3 +424,19 @@ def test_load_memory_section_returns_not_a_memory_for_non_mem_id(storage):
     section, reason = _load_memory_section(storage, "obs:some-observation")
     assert section is None
     assert reason == "not_a_memory"
+
+
+def test_load_memory_section_returns_expired_for_expired_file(storage):
+    write_memory(storage, "old.md", "old-topic", "Old content", expires_days=-1)
+    section, reason = _load_memory_section(storage, "mem:old.md")
+    assert section is None
+    assert reason == "expired"
+
+
+def test_load_memory_section_returns_empty_for_no_synthesized_content(storage):
+    # Write a memory file with empty body (no synthesized content)
+    content = "---\ntopic: empty-topic\ncreated: 2026-05-11\nlast_updated: 2026-05-11\nexpires: 2026-08-09\nactivity_last_seen: 2026-05-11\npinned: false\nsuppress: false\n---\n"
+    storage.write("memory/empty.md", content)
+    section, reason = _load_memory_section(storage, "mem:empty.md")
+    assert section is None
+    assert reason == "empty"
