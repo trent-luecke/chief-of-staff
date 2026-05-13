@@ -1,0 +1,11 @@
+---
+date: 2026-05-13
+category: industry_trend
+competitor: N/A
+relevance_score: 3
+action_flag: false
+source: The Globe and Mail
+url: https://news.google.com/rss/articles/CBMi1wJBVV95cUxNMm83Y29YUjhDX202MDFtMnpDNHViN1NBelctOElPbmRtcnA2d1U2WjB6RUFkN054TWo3UVhPMG1JLUVYS1pYaTRYZmdkcUZ1NW1oVzZIeXZkZmpFTEgwY3dJenhnWVdJb3pmQms3ZDBvVnR3UGk2cENjeWR5emhWbWs4cnhRdUgwdDVZcVU1cG13emJzU1p1M0tqNzFkblJpcTVyT2NTRFA2RmxRWXhSQS1xYmJwXzNuSHFmZWdZbkdMbHZQazhjdkw5MUVCYUk3N1p6bVZYOUI3QmRLRGVjZ0JCbUhkUkFCRHFXV0otUHJEeEZsQnVYQ2Z2M1dDMlBBMl80SG12YVcwQzh2T1RraWJoSVhzSjdLN3MxVHF1U3Rxdi01V0h0bTdGRmFtX0ZfQmZnZFhnS0tEaXNqUG9HTlpwYlJsRHRBTWxveUdzTlduSXRkcWZN?oc=5
+---
+
+The Institute of Personal Trainers launched a free comprehensive business encyclopedia for fitness professionals worldwide. This educational resource could help personal trainers better understand business operations and potentially influence their software selection criteria. While not directly competitive to TeamBuildr's gym management software, it represents increased professionalization and business education in the personal training market.

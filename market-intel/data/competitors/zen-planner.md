@@ -70,3 +70,10 @@ Zen Planner is promoting their attendance tracking software specifically for mar
 Source: https://zenplanner.com/blogs/martial-arts-attendance-tracking-software-for-student-engagement/
 
 ---
+## 2026-05-13 — feature_launch (score: 4)
+
+Zen Planner is promoting their payment processing capabilities as a key differentiator for gym success, emphasizing how billing problems directly impact member retention. They're positioning modern payment processing as essential infrastructure that affects both member experience and operational efficiency.
+
+Source: https://zenplanner.com/blogs/why-your-gym-needs-modern-payment-processing-software-to-succeed/
+
+---
