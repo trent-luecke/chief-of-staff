@@ -22,3 +22,10 @@ data/*
 !data/memory/
 data/memory/*
 !data/memory/decisions.md
+
+# Market intel scraped data — runtime output, not source
+market-intel/data/
+market-intel/config/seen_urls.json
+
+# Archived planning docs — completed work, not needed for operation
+docs/archive/
