@@ -338,7 +338,7 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
 TOOL_SCHEMAS = [
     {
         "name": "add_capture",
-        "description": "Add a todo, idea, note, or flag to the captures file.",
+        "description": "Add a todo, idea, note, or flag to the captures file. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -350,7 +350,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "complete_task",
-        "description": "Mark a capture or project next-action as complete and remove it.",
+        "description": "Mark a capture or project next-action as complete and remove it. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -361,7 +361,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "add_people_note",
-        "description": "Add a note to a contact's people profile file.",
+        "description": "Add a note to a contact's people profile file. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -373,7 +373,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "create_person_profile",
-        "description": "Create a new people profile file for a contact who doesn't have one yet. Use add_people_note instead if a profile already exists.",
+        "description": "Create a new people profile file for a contact who doesn't have one yet. Use add_people_note instead if a profile already exists. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -400,7 +400,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "update_project_next_action",
-        "description": "Update the next action field for a project in projects.md.",
+        "description": "Update the next action field for a project in projects.md. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -412,7 +412,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "create_project",
-        "description": "Create a new project entry in projects.md.",
+        "description": "Create a new project entry in projects.md. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -425,7 +425,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "resolve_issue",
-        "description": "Mark an open issue as resolved in the issues log.",
+        "description": "Mark an open issue as resolved in the issues log. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -436,7 +436,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "update_config",
-        "description": "Update a system configuration value. Only safe keys are allowed: issue_auto_resolve_days, pipeline.enabled, memory.retrieval_token_budget, unread_email_max.",
+        "description": "Update a system configuration value. Only safe keys are allowed: issue_auto_resolve_days, pipeline.enabled, memory.retrieval_token_budget, unread_email_max. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -448,7 +448,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "add_to_backlog",
-        "description": "Add an item to the chief-of-staff backlog inbox for future consideration.",
+        "description": "Add an item to the chief-of-staff backlog inbox for future consideration. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -493,7 +493,7 @@ TOOL_SCHEMAS = [
     },
     {
         "name": "create_email_draft",
-        "description": "Create a draft email in Gmail. The draft is saved but NOT sent — review and send from Gmail.",
+        "description": "Create a draft email in Gmail. The draft is saved but NOT sent — review and send from Gmail. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -511,7 +511,7 @@ TOOL_SCHEMAS = [
             "15 minutes (:00, :15, :30, :45), so fire_at must land on a 15-minute boundary. "
             "Before calling this tool, check if the target time is on a boundary — if not, "
             "do NOT call this tool; ask the user which surrounding mark they prefer. "
-            "Only offer boundaries that are in the future."
+            "Only offer boundaries that are in the future. After calling, include a receipt entry in your response naming the destination and content written."
         ),
         "input_schema": {
             "type": "object",
