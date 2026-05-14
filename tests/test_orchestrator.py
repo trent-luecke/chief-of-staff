@@ -264,16 +264,18 @@ def test_handle_pending_change_approve_writes_and_commits():
         pending_path = os.path.join(tmp, "pending_change.json")
         _write_pending_change(pending_path, target, "# new content\n")
         with patch("ask.PENDING_CHANGE_PATH", pending_path):
-            with patch("ask.send_message") as mock_send:
-                with patch("ask.subprocess.run") as mock_run:
-                    mock_run.return_value = MagicMock(returncode=0)
-                    from ask import _handle_pending_change
-                    _handle_pending_change("approve", "123", "fake-token")
-                    with open(target) as f:
-                        assert f.read() == "# new content\n"
-                    assert not os.path.exists(pending_path)
-                    mock_send.assert_called_once()
-                    assert "applied" in mock_send.call_args[0][2].lower()
-                    # verify git commands were called
-                    calls = [str(c) for c in mock_run.call_args_list]
-                    assert any("git" in c for c in calls)
+            with patch("ask.CHANGE_WHITELIST", {target}):
+                with patch("ask.send_message") as mock_send:
+                    with patch("ask.subprocess.run") as mock_run:
+                        mock_run.return_value = MagicMock(returncode=0)
+                        from ask import _handle_pending_change
+                        _handle_pending_change("approve", "123", "fake-token")
+                        with open(target) as f:
+                            assert f.read() == "# new content\n"
+                        assert not os.path.exists(pending_path)
+                        mock_send.assert_called_once()
+                        assert "applied" in mock_send.call_args[0][2].lower()
+                        # verify git pull + git add + commit + push were called
+                        calls = [str(c) for c in mock_run.call_args_list]
+                        assert any("pull" in c for c in calls)
+                        assert any("git" in c for c in calls)

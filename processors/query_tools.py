@@ -385,8 +385,11 @@ def _tool_propose_code_change(file: str, description: str, new_content: str) -> 
                 f"Pending change already exists for '{existing.get('file', '?')}': "
                 f"{existing.get('description', '?')}. Approve or reject it first."
             )
-        except Exception:
-            pass  # Corrupt file — overwrite
+        except json.JSONDecodeError:
+            return (
+                f"Pending change file at {PENDING_CHANGE_PATH} is corrupt. "
+                "Delete it manually and try again."
+            )
 
     try:
         with open(file) as f:
@@ -408,6 +411,11 @@ def _tool_propose_code_change(file: str, description: str, new_content: str) -> 
         if result.returncode != 0:
             error = result.stderr.replace(tmp_path, file)
             return f"Syntax check failed — change not sent:\n{error.strip()}"
+    elif file.endswith(".json"):
+        try:
+            json.loads(new_content)
+        except json.JSONDecodeError as e:
+            return f"JSON validation failed — change not sent:\n{e}"
 
     diff_lines = list(difflib.unified_diff(
         old_content.splitlines(keepends=True),
@@ -428,18 +436,21 @@ def _tool_propose_code_change(file: str, description: str, new_content: str) -> 
     with open(PENDING_CHANGE_PATH, "w") as f:
         json.dump(pending, f, indent=2)
 
+    MAX_DIFF = 3500
+    if len(diff_text) > MAX_DIFF:
+        return (
+            f"Diff for '{file}' is {len(diff_text)} chars — too large to display safely in Telegram "
+            f"(limit {MAX_DIFF}). Break the change into smaller pieces."
+        )
+
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     chat_id = os.environ.get("QUERY_CHAT_ID", "")
     if bot_token and chat_id:
         from lib.telegram import send_message
-        MAX_DIFF = 3500
-        diff_display = diff_text[:MAX_DIFF]
-        if len(diff_text) > MAX_DIFF:
-            diff_display += f"\n... (truncated at {MAX_DIFF} chars)"
         msg = (
             f"Proposed change to `{file}`:\n"
             f"_{description}_\n\n"
-            f"```\n{diff_display}\n```\n\n"
+            f"```\n{diff_text}\n```\n\n"
             f"Reply 'approve' or 'reject'."
         )
         send_message(bot_token, chat_id, msg)

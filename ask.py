@@ -13,7 +13,7 @@ from processors.query import answer_query_with_tools
 from processors.brief_scorer import handle_score_command
 from processors.meeting_memory import append_session_notes
 from lib.telegram import send_message
-from processors.query_tools import PENDING_CHANGE_PATH
+from processors.query_tools import PENDING_CHANGE_PATH, CHANGE_WHITELIST
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -48,6 +48,12 @@ def _handle_pending_change(action: str, chat_id: str, bot_token: str) -> None:
             send_message(bot_token, chat_id, f"Change to {file_path} rejected and discarded.")
         return
 
+    if file_path not in CHANGE_WHITELIST:
+        os.remove(PENDING_CHANGE_PATH)
+        if bot_token:
+            send_message(bot_token, chat_id, f"Rejected: '{file_path}' is not on the change whitelist. Pending change discarded.")
+        return
+
     new_content = pending.get("new_content", "")
     try:
         with open(file_path, "w") as f:
@@ -59,6 +65,7 @@ def _handle_pending_change(action: str, chat_id: str, bot_token: str) -> None:
 
     commit_msg = f"bot: {description} [telegram-approved]"
     try:
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], check=True)
         subprocess.run(["git", "add", file_path], check=True)
         subprocess.run(["git", "commit", "-m", commit_msg], check=True)
         subprocess.run(["git", "push", "origin", "main"], check=True)
