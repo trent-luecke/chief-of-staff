@@ -324,6 +324,7 @@ def test_tool_schemas_cover_all_expected_tools():
         "update_config", "add_to_backlog", "search_gmail",
         "get_calendar_events", "get_pipeline_lead", "create_email_draft",
         "set_reminder",
+        "queue_notion_update", "set_brief_preference", "propose_code_change",
     }
     assert names == expected
 
