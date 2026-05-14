@@ -152,3 +152,17 @@ def test_load_brief_prefs_returns_content():
         config = {"brief_prefs_path": prefs_path}
         result = load_brief_prefs(config)
         assert "Skip gym scout" in result
+
+
+# ── Task 4: brief prefs in daily brief ───────────────────────────────────────
+
+def test_build_prompt_includes_brief_prefs():
+    from processors.brief import _build_prompt
+    result = _build_prompt(
+        today_events=[], tomorrow_events=[], email_threads=[], projects=[],
+        due_tasks=[], loop_summary=None, open_issues=[], drafts=[],
+        meeting_prep=[], inbox_text="",
+        brief_prefs_context="- Skip gym scout section\n- Lead with pipeline",
+    )
+    assert "Skip gym scout section" in result
+    assert "Lead with pipeline" in result

@@ -112,6 +112,7 @@ class ProcessedContext:
     loop_summary: dict = field(default_factory=dict)
     captures_context: str = ""
     brief_feedback_context: str = ""
+    brief_prefs_context: str = ""
 
     # State diffing (needed by post-brief memory observer)
     previous_state: Any = None
@@ -705,6 +706,8 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
         # Captures + brief feedback
         ctx.captures_context = load_recent_captures(storage)
         ctx.brief_feedback_context = load_brief_feedback(storage)
+        from lib.captures import load_brief_prefs
+        ctx.brief_prefs_context = load_brief_prefs(config)
 
     stage.duration_ms = stage_timer.elapsed_ms
     if any(c.status == "error" for c in stage.collectors):
@@ -758,6 +761,7 @@ def generate_and_deliver(
                     memory_context=ctx.memory_context,
                     captures_context=ctx.captures_context,
                     brief_feedback_context=ctx.brief_feedback_context,
+                    brief_prefs_context=ctx.brief_prefs_context,
                 )
             except Exception as e:
                 _brief_error = str(e)[:200]

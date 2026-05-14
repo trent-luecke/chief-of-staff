@@ -75,6 +75,7 @@ def _build_prompt(
     memory_context: str = "",
     captures_context: str = "",
     brief_feedback_context: str = "",
+    brief_prefs_context: str = "",
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -116,6 +117,12 @@ def _build_prompt(
         sections += [
             "## Delivery Instructions (from your feedback — follow these when writing the brief)",
             brief_feedback_context,
+            "",
+        ]
+    if brief_prefs_context:
+        sections += [
+            "## Active Brief Preferences (follow these when writing the brief)",
+            brief_prefs_context,
             "",
         ]
     if memory_context:
@@ -182,6 +189,7 @@ def generate_brief(
     memory_context: str = "",
     captures_context: str = "",
     brief_feedback_context: str = "",
+    brief_prefs_context: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -197,6 +205,7 @@ def generate_brief(
         memory_context=memory_context,
         captures_context=captures_context,
         brief_feedback_context=brief_feedback_context,
+        brief_prefs_context=brief_prefs_context,
     )
     response = client.messages.create(
         model=model,
