@@ -225,3 +225,55 @@ def test_propose_code_change_blocks_if_pending_exists():
             )
         assert "pending" in result.lower()
         assert "approve" in result.lower() or "reject" in result.lower()
+
+
+# ── Task 6: approve/reject routing ───────────────────────────────────────────
+import subprocess as _subprocess
+from unittest.mock import patch, MagicMock, call
+
+
+def _write_pending_change(path: str, file_rel: str, new_content: str, description: str = "test change") -> None:
+    with open(path, "w") as f:
+        json.dump({
+            "timestamp": "2026-05-14T10:00:00Z",
+            "file": file_rel,
+            "description": description,
+            "diff": "--- a/main.py\n+++ b/main.py\n@@ -1 +1 @@\n-old\n+new\n",
+            "new_content": new_content,
+        }, f)
+
+
+def test_handle_pending_change_reject_deletes_file():
+    with tempfile.TemporaryDirectory() as tmp:
+        pending_path = os.path.join(tmp, "pending_change.json")
+        _write_pending_change(pending_path, "main.py", "# new\n")
+        with patch("ask.PENDING_CHANGE_PATH", pending_path):
+            with patch("ask.send_message") as mock_send:
+                from ask import _handle_pending_change
+                _handle_pending_change("reject", "123", "fake-token")
+    assert not os.path.exists(pending_path)
+    mock_send.assert_called_once()
+    assert "rejected" in mock_send.call_args[0][2].lower()
+
+
+def test_handle_pending_change_approve_writes_and_commits():
+    with tempfile.TemporaryDirectory() as tmp:
+        target = os.path.join(tmp, "main.py")
+        with open(target, "w") as f:
+            f.write("# old\n")
+        pending_path = os.path.join(tmp, "pending_change.json")
+        _write_pending_change(pending_path, target, "# new content\n")
+        with patch("ask.PENDING_CHANGE_PATH", pending_path):
+            with patch("ask.send_message") as mock_send:
+                with patch("ask.subprocess.run") as mock_run:
+                    mock_run.return_value = MagicMock(returncode=0)
+                    from ask import _handle_pending_change
+                    _handle_pending_change("approve", "123", "fake-token")
+                    with open(target) as f:
+                        assert f.read() == "# new content\n"
+                    assert not os.path.exists(pending_path)
+                    mock_send.assert_called_once()
+                    assert "applied" in mock_send.call_args[0][2].lower()
+                    # verify git commands were called
+                    calls = [str(c) for c in mock_run.call_args_list]
+                    assert any("git" in c for c in calls)

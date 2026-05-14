@@ -3,6 +3,7 @@
 
 import json
 import os
+import subprocess
 import sys
 
 from dotenv import load_dotenv
@@ -12,6 +13,7 @@ from processors.query import answer_query_with_tools
 from processors.brief_scorer import handle_score_command
 from processors.meeting_memory import append_session_notes
 from lib.telegram import send_message
+from processors.query_tools import PENDING_CHANGE_PATH
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -28,7 +30,55 @@ def _resolve_nudge_reply(reply_to_id: str, storage) -> dict | None:
     return None
 
 
+def _handle_pending_change(action: str, chat_id: str, bot_token: str) -> None:
+    try:
+        with open(PENDING_CHANGE_PATH) as f:
+            pending = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        if bot_token:
+            send_message(bot_token, chat_id, f"Could not read pending change: {e}")
+        return
+
+    file_path = pending.get("file", "")
+    description = pending.get("description", "")
+
+    if action == "reject":
+        os.remove(PENDING_CHANGE_PATH)
+        if bot_token:
+            send_message(bot_token, chat_id, f"Change to {file_path} rejected and discarded.")
+        return
+
+    new_content = pending.get("new_content", "")
+    try:
+        with open(file_path, "w") as f:
+            f.write(new_content)
+    except OSError as e:
+        if bot_token:
+            send_message(bot_token, chat_id, f"Could not write {file_path}: {e}")
+        return
+
+    commit_msg = f"bot: {description} [telegram-approved]"
+    try:
+        subprocess.run(["git", "add", file_path], check=True)
+        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
+        subprocess.run(["git", "push", "origin", "main"], check=True)
+    except subprocess.CalledProcessError as e:
+        if bot_token:
+            send_message(bot_token, chat_id, f"Git error after applying change: {e}")
+        return
+
+    os.remove(PENDING_CHANGE_PATH)
+    if bot_token:
+        send_message(bot_token, chat_id, f"Change to {file_path} applied and pushed. Commit: \"{commit_msg}\"")
+
+
 def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage, reply_to_id: str = "") -> None:
+    # Approve/reject pending code change — exact match only
+    query_normalized = query.strip().lower()
+    if query_normalized in ("approve", "reject") and os.path.exists(PENDING_CHANGE_PATH):
+        _handle_pending_change(query_normalized, chat_id, bot_token)
+        return
+
     # If this is a Telegram reply to a nudge, route directly to meeting notes
     if reply_to_id:
         nudge = _resolve_nudge_reply(reply_to_id, storage)
