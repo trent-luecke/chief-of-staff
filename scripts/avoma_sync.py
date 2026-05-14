@@ -98,6 +98,50 @@ def _lead_in_pipeline(lead_name: str, pipeline_leads: list[dict]) -> bool:
     return False
 
 
+def _patch_cache_last_contacted(cache_path: Path, pipeline_updates: list[dict]) -> int:
+    """Patch last_contacted, days_since_contact, and stale in the local pipeline cache by name match.
+
+    Only updates a lead if the call date is strictly more recent than what's already stored.
+    Returns count of leads patched.
+    """
+    try:
+        with open(cache_path) as f:
+            cache = json.load(f)
+    except Exception:
+        return 0
+
+    leads = cache.get("leads", [])
+    today = date.today()
+    changed = 0
+
+    for u in pipeline_updates:
+        name_lower = u["lead_name"].lower()
+        call_date = u["call_date"]
+
+        for lead in leads:
+            cached_name = (lead.get("name") or "").lower()
+            if not (name_lower and (name_lower in cached_name or cached_name in name_lower)):
+                continue
+            existing = lead.get("last_contacted") or ""
+            if existing and existing >= call_date:
+                break  # matched but not newer — skip without marking unmatched
+            lead["last_contacted"] = call_date
+            try:
+                days = (today - date.fromisoformat(call_date)).days
+            except (ValueError, TypeError):
+                days = None
+            lead["days_since_contact"] = days
+            lead["stale"] = bool(days is not None and days >= 14)
+            changed += 1
+            break
+
+    if changed:
+        with open(cache_path, "w") as f:
+            json.dump(cache, f, indent=2)
+
+    return changed
+
+
 def build_telegram_message(
     pipeline_updates: list[dict],
     onboarding_updates: list[dict],
@@ -298,6 +342,14 @@ def main() -> None:
                 "status_update": status_update,
                 "summary": t.summary,
             })
+
+    # Patch pipeline cache last_contacted for matched leads
+    if pipeline_updates:
+        patched = _patch_cache_last_contacted(cache_path, pipeline_updates)
+        if patched:
+            print(f"   Pipeline cache patched: {patched} lead(s) updated.")
+        else:
+            print("   Pipeline cache: no name matches found — no patch applied.")
 
     # Build and send Telegram message
     telegram_text = build_telegram_message(pipeline_updates, onboarding_updates, today)

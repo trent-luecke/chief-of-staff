@@ -41,12 +41,13 @@ jobs:
           TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
         run: python scripts/avoma_sync.py
 
-      - name: Commit payload changes
+      - name: Commit data changes
         run: |
           if [ -f data/avoma_prompt_payload.md ]; then
             git add data/avoma_prompt_payload.md
           else
             git rm --cached data/avoma_prompt_payload.md 2>/dev/null || true
           fi
-          git diff --staged --quiet || git commit -m "chore: avoma sync payload [skip ci]"
+          git add data/pipeline_cache.json 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: avoma sync data [skip ci]"
           git push origin main || true
