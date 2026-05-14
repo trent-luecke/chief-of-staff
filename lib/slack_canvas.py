@@ -1,3 +1,4 @@
+import os
 import sys
 from datetime import date
 from typing import Optional
@@ -8,28 +9,30 @@ from slack_sdk.errors import SlackApiError
 CANVAS_ANCHOR = "Chief of Staff — Task Board"
 
 
-def setup_canvas(token: str, user_email: str, config_path: str = "config.json") -> dict:
-    """One-time setup: open bot DM with user, create canvas, store IDs in config.json."""
+def setup_canvas(user_token: str, config_path: str = "config.json") -> dict:
+    """One-time setup: create canvas in user's self-DM, store IDs in config.json."""
     import json
 
-    client = WebClient(token=token)
+    client = WebClient(token=user_token)
 
-    user_resp = client.users_lookupByEmail(email=user_email)
-    user_id = user_resp["user"]["id"]
+    # Get the calling user's own ID
+    auth = client.auth_test()
+    user_id = auth["user_id"]
 
-    # Find existing DM channel — avoids needing im:write scope
-    channel_id = None
-    dm_list = client.conversations_list(types="im", limit=200)
-    for ch in dm_list.get("channels", []):
-        if ch.get("user") == user_id:
-            channel_id = ch["id"]
-            break
+    # Open DM with self — creates the "messages with yourself" channel
+    dm_resp = client.conversations_open(users=[user_id])
+    channel_id = dm_resp["channel"]["id"]
 
-    if not channel_id:
-        raise RuntimeError(
-            "No DM channel found with this user. "
-            "Send the bot a message in Slack first, then re-run this script."
-        )
+    # Delete old bot-created canvas if present
+    with open(config_path) as f:
+        config_data = json.load(f)
+    old_canvas_id = config_data.get("slack_canvas", {}).get("canvas_id")
+    if old_canvas_id:
+        try:
+            bot_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN", ""))
+            bot_client.canvases_delete(canvas_id=old_canvas_id)
+        except SlackApiError:
+            pass
 
     markdown = _render([], [])
     canvas_resp = client.conversations_canvases_create(
@@ -38,8 +41,6 @@ def setup_canvas(token: str, user_email: str, config_path: str = "config.json") 
     )
     canvas_id = canvas_resp["canvas_id"]
 
-    with open(config_path) as f:
-        config_data = json.load(f)
     config_data["slack_canvas"] = {"canvas_id": canvas_id, "channel_id": channel_id}
     with open(config_path, "w") as f:
         json.dump(config_data, f, indent=2)
@@ -47,9 +48,9 @@ def setup_canvas(token: str, user_email: str, config_path: str = "config.json") 
     return {"canvas_id": canvas_id, "channel_id": channel_id}
 
 
-def sync_task_canvas(token: str, canvas_id: str, open_tasks: list, recent_completions: list) -> None:
+def sync_task_canvas(user_token: str, canvas_id: str, open_tasks: list, recent_completions: list) -> None:
     """Rewrite the task canvas with current state. Non-fatal on errors."""
-    client = WebClient(token=token)
+    client = WebClient(token=user_token)
     markdown = _render(open_tasks, recent_completions)
 
     try:

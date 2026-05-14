@@ -38,7 +38,7 @@ def _sync_canvas(config: dict, storage) -> None:
     import os
     canvas_cfg = config.get("slack_canvas", {})
     canvas_id = canvas_cfg.get("canvas_id")
-    token = os.environ.get("SLACK_BOT_TOKEN", "")
+    token = os.environ.get("SLACK_USER_TOKEN", "")
     if not canvas_id or not token:
         return
     try:

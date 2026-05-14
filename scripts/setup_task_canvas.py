@@ -12,33 +12,21 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(override=True)
 
 from lib.slack_canvas import setup_canvas
 
 
 def main() -> None:
-    token = os.environ.get("SLACK_BOT_TOKEN", "")
-    if not token:
-        print("ERROR: SLACK_BOT_TOKEN not set in .env", file=sys.stderr)
+    user_token = os.environ.get("SLACK_USER_TOKEN", "")
+    if not user_token:
+        print("ERROR: SLACK_USER_TOKEN not set in .env", file=sys.stderr)
         sys.exit(1)
 
-    with open("config.json") as f:
-        config = json.load(f)
-    email = config.get("email", "")
-    if not email:
-        print("ERROR: 'email' not found in config.json", file=sys.stderr)
-        sys.exit(1)
-
-    if config.get("slack_canvas", {}).get("canvas_id"):
-        print(f"Canvas already configured: {config['slack_canvas']['canvas_id']}")
-        print("Delete 'slack_canvas' from config.json to recreate.")
-        sys.exit(0)
-
-    print(f"Creating task canvas for {email}...")
-    result = setup_canvas(token, email)
+    print("Creating task canvas in your Slack self-DM...")
+    result = setup_canvas(user_token)
     print(f"✅ Canvas created: {result['canvas_id']}")
-    print(f"   DM channel: {result['channel_id']}")
+    print(f"   Self-DM channel: {result['channel_id']}")
     print(f"   config.json updated with slack_canvas block.")
 
 
