@@ -166,3 +166,62 @@ def test_build_prompt_includes_brief_prefs():
     )
     assert "Skip gym scout section" in result
     assert "Lead with pipeline" in result
+
+
+# ── Task 5: propose_code_change ───────────────────────────────────────────────
+from unittest.mock import patch, MagicMock
+
+
+def test_propose_code_change_rejects_non_whitelisted_file():
+    from processors.query_tools import execute_tool
+    from lib.storage import LocalStorage
+
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        result = execute_tool(
+            "propose_code_change",
+            {"file": "cloudflare/telegram-bridge.js", "description": "test", "new_content": "x"},
+            config, storage=storage,
+        )
+        assert "whitelist" in result.lower() or "not on the" in result.lower()
+
+
+def test_propose_code_change_rejects_syntax_error():
+    from processors.query_tools import execute_tool
+    from lib.storage import LocalStorage
+
+    with tempfile.TemporaryDirectory() as tmp:
+        bad_python = "def broken(\n  print('hello')\n"
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        pending_path = os.path.join(tmp, "pending_change.json")
+        with patch("processors.query_tools.PENDING_CHANGE_PATH", pending_path):
+            with patch("processors.query_tools.CHANGE_WHITELIST", frozenset({"processors/query.py"})):
+                result = execute_tool(
+                    "propose_code_change",
+                    {"file": "processors/query.py", "description": "break it", "new_content": bad_python},
+                    config, storage=storage,
+                )
+        assert "syntax" in result.lower() or "failed" in result.lower()
+        assert not os.path.exists(pending_path)
+
+
+def test_propose_code_change_blocks_if_pending_exists():
+    from processors.query_tools import execute_tool
+    from lib.storage import LocalStorage
+
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        pending_path = os.path.join(tmp, "pending_change.json")
+        with open(pending_path, "w") as f:
+            json.dump({"file": "main.py", "description": "old change", "new_content": "# old"}, f)
+        with patch("processors.query_tools.PENDING_CHANGE_PATH", pending_path):
+            result = execute_tool(
+                "propose_code_change",
+                {"file": "main.py", "description": "new change", "new_content": "# new"},
+                config, storage=storage,
+            )
+        assert "pending" in result.lower()
+        assert "approve" in result.lower() or "reject" in result.lower()

@@ -22,6 +22,15 @@ SAFE_CONFIG_KEYS = {
     "unread_email_max",
 }
 
+CHANGE_WHITELIST = frozenset({
+    "processors/query_tools.py",
+    "processors/query.py",
+    "main.py",
+    "config.json",
+})
+
+PENDING_CHANGE_PATH = "data/pending_change.json"
+
 
 def _tool_add_capture(capture_type: str, text: str, storage) -> str:
     valid = {"todo", "idea", "note", "flag"}
@@ -358,6 +367,86 @@ def _tool_create_email_draft(to: str, subject: str, body: str, config: dict) -> 
         return f"Failed to create draft: {e}"
 
 
+def _tool_propose_code_change(file: str, description: str, new_content: str) -> str:
+    import difflib
+    import subprocess
+    import tempfile as _tempfile
+    from datetime import datetime, timezone
+
+    if file not in CHANGE_WHITELIST:
+        allowed = ", ".join(sorted(CHANGE_WHITELIST))
+        return f"File '{file}' is not on the change whitelist. Allowed: {allowed}."
+
+    if os.path.exists(PENDING_CHANGE_PATH):
+        try:
+            with open(PENDING_CHANGE_PATH) as f:
+                existing = json.load(f)
+            return (
+                f"Pending change already exists for '{existing.get('file', '?')}': "
+                f"{existing.get('description', '?')}. Approve or reject it first."
+            )
+        except Exception:
+            pass  # Corrupt file — overwrite
+
+    try:
+        with open(file) as f:
+            old_content = f.read()
+    except FileNotFoundError:
+        old_content = ""
+
+    if file.endswith(".py"):
+        with _tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp:
+            tmp.write(new_content)
+            tmp_path = tmp.name
+        try:
+            result = subprocess.run(
+                ["python3", "-m", "py_compile", tmp_path],
+                capture_output=True, text=True,
+            )
+        finally:
+            os.unlink(tmp_path)
+        if result.returncode != 0:
+            error = result.stderr.replace(tmp_path, file)
+            return f"Syntax check failed — change not sent:\n{error.strip()}"
+
+    diff_lines = list(difflib.unified_diff(
+        old_content.splitlines(keepends=True),
+        new_content.splitlines(keepends=True),
+        fromfile=f"a/{file}",
+        tofile=f"b/{file}",
+    ))
+    diff_text = "".join(diff_lines) if diff_lines else "(no changes detected)"
+
+    pending = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "file": file,
+        "description": description,
+        "diff": diff_text,
+        "new_content": new_content,
+    }
+    os.makedirs(os.path.dirname(PENDING_CHANGE_PATH) or ".", exist_ok=True)
+    with open(PENDING_CHANGE_PATH, "w") as f:
+        json.dump(pending, f, indent=2)
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.environ.get("QUERY_CHAT_ID", "")
+    if bot_token and chat_id:
+        from lib.telegram import send_message
+        MAX_DIFF = 3500
+        diff_display = diff_text[:MAX_DIFF]
+        if len(diff_text) > MAX_DIFF:
+            diff_display += f"\n... (truncated at {MAX_DIFF} chars)"
+        msg = (
+            f"Proposed change to `{file}`:\n"
+            f"_{description}_\n\n"
+            f"```\n{diff_display}\n```\n\n"
+            f"Reply 'approve' or 'reject'."
+        )
+        send_message(bot_token, chat_id, msg)
+
+    return f"Proposed change to {file} sent to Telegram for your approval. Reply 'approve' or 'reject'."
+
+
 def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
     """Dispatch a tool call by name. Always returns a string — errors included."""
     if storage is None:
@@ -415,6 +504,12 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
             )
         elif name == "set_brief_preference":
             return _tool_set_brief_preference(input_["preference"], config)
+        elif name == "propose_code_change":
+            return _tool_propose_code_change(
+                file=input_["file"],
+                description=input_["description"],
+                new_content=input_["new_content"],
+            )
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
@@ -664,6 +759,25 @@ TOOL_SCHEMAS = [
                 "preference": {"type": "string", "description": "Freeform preference instruction for the morning brief"},
             },
             "required": ["preference"],
+        },
+    },
+    {
+        "name": "propose_code_change",
+        "description": (
+            "Propose a change to a whitelisted system file. Reads the current file, runs a Python syntax check "
+            "on the new content (for .py files), and sends the unified diff to Telegram for approval. "
+            "You must provide the COMPLETE new file content — not a partial patch. "
+            "Whitelisted files: processors/query_tools.py, processors/query.py, main.py, config.json. "
+            "Only one pending change is allowed at a time. The user replies 'approve' or 'reject' to proceed."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "file": {"type": "string", "description": "Relative path to the file (must be on the whitelist)"},
+                "description": {"type": "string", "description": "One-sentence description of what the change does"},
+                "new_content": {"type": "string", "description": "Complete new content for the file (full file, not a patch)"},
+            },
+            "required": ["file", "description", "new_content"],
         },
     },
 ]
