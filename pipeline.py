@@ -42,7 +42,7 @@ from outputs.dashboard import write_dashboard
 from processors.memory_observer import observe
 from processors.memory_synthesizer import synthesize
 from processors.memory_retriever import retrieve_memories, get_cold_start_message
-from lib.captures import load_recent_captures, load_brief_feedback
+from lib.captures import load_recent_captures, load_brief_feedback, load_brief_prefs
 
 
 # ---------------------------------------------------------------------------
@@ -706,7 +706,6 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
         # Captures + brief feedback
         ctx.captures_context = load_recent_captures(storage)
         ctx.brief_feedback_context = load_brief_feedback(storage)
-        from lib.captures import load_brief_prefs
         ctx.brief_prefs_context = load_brief_prefs(config)
 
     stage.duration_ms = stage_timer.elapsed_ms
