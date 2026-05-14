@@ -19,6 +19,7 @@ data/*
 !data/projects.md
 !data/recurring.json
 !data/meeting_index.json
+!data/notion_updates_queue.json
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

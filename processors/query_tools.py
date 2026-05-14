@@ -212,6 +212,60 @@ def _tool_add_to_backlog(description: str, config: dict) -> str:
     return f"Added to backlog: {description}"
 
 
+def _tool_queue_notion_update(
+    person: str,
+    action: str,
+    config: dict,
+    note: str = "",
+    stage: str = "",
+    follow_up_date: str = "",
+    reason: str = "",
+) -> str:
+    import uuid
+    from datetime import datetime, timezone
+
+    valid_actions = {"add_note", "update_stage", "set_follow_up", "delete_record"}
+    if action not in valid_actions:
+        return f"Invalid action '{action}'. Must be one of: {', '.join(sorted(valid_actions))}."
+    if action == "delete_record" and not reason:
+        return "reason is required for delete_record actions."
+
+    queue_path = config.get("notion_queue_path", "data/notion_updates_queue.json")
+    try:
+        with open(queue_path) as f:
+            queue = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        queue = []
+
+    entry: dict[str, Any] = {
+        "id": str(uuid.uuid4()),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "person": person,
+        "action": action,
+    }
+    if note:
+        entry["note"] = note
+    if stage:
+        entry["stage"] = stage
+    if follow_up_date:
+        entry["follow_up_date"] = follow_up_date
+    if reason:
+        entry["reason"] = reason
+
+    queue.append(entry)
+    os.makedirs(os.path.dirname(queue_path) or ".", exist_ok=True)
+    with open(queue_path, "w") as f:
+        json.dump(queue, f, indent=2)
+
+    action_desc = {
+        "add_note": f"note queued for {person}",
+        "update_stage": f"stage update to '{stage}' queued for {person}",
+        "set_follow_up": f"follow-up date {follow_up_date} queued for {person}",
+        "delete_record": f"delete record queued for {person} (reason: {reason})",
+    }[action]
+    return f"Notion queue: {action_desc}. Cowork will apply this on its next scheduled run."
+
+
 def _tool_search_gmail(query: str, max_results: int, config: dict) -> str:
     try:
         threads = fetch_threads_needing_attention(
@@ -323,6 +377,16 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
         elif name == "set_reminder":
             from processors.reminders import set_reminder
             return set_reminder(storage, input_["message"], input_["fire_at"], config)
+        elif name == "queue_notion_update":
+            return _tool_queue_notion_update(
+                person=input_["person"],
+                action=input_["action"],
+                config=config,
+                note=input_.get("note", ""),
+                stage=input_.get("stage", ""),
+                follow_up_date=input_.get("follow_up_date", ""),
+                reason=input_.get("reason", ""),
+            )
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
@@ -529,6 +593,31 @@ TOOL_SCHEMAS = [
                 },
             },
             "required": ["message", "fire_at"],
+        },
+    },
+    {
+        "name": "queue_notion_update",
+        "description": (
+            "Queue an update to a Notion pipeline record. Cowork applies queued updates on its next scheduled run. "
+            "Supported actions: add_note (append note to record), update_stage (change deal stage), "
+            "set_follow_up (set a follow-up date), delete_record (delete the record — requires reason field). "
+            "After calling, include a receipt entry naming the person, action queued, and that Cowork will apply it."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "person": {"type": "string", "description": "Name of the person whose Notion pipeline record to update"},
+                "action": {
+                    "type": "string",
+                    "enum": ["add_note", "update_stage", "set_follow_up", "delete_record"],
+                    "description": "Action to queue",
+                },
+                "note": {"type": "string", "description": "Note text (for add_note)"},
+                "stage": {"type": "string", "description": "New deal stage (for update_stage)"},
+                "follow_up_date": {"type": "string", "description": "Follow-up date YYYY-MM-DD (for set_follow_up)"},
+                "reason": {"type": "string", "description": "Reason for deletion — required for delete_record"},
+            },
+            "required": ["person", "action"],
         },
     },
 ]
