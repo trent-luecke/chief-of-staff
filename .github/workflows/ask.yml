@@ -19,6 +19,8 @@ on:
 jobs:
   answer:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       TZ: America/Chicago
 
@@ -33,6 +35,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Configure git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
       - name: Answer query
         env:
           GOOGLE_OAUTH_JSON: ${{ secrets.GOOGLE_OAUTH_JSON }}
@@ -46,3 +53,9 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: python ask.py
+
+      - name: Commit data files
+        run: |
+          git add data/notion_updates_queue.json data/brief_prefs.md data/pending_change.json data/people/ data/projects.md 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore: sync bot data [skip ci]"
+          git push origin main || true
