@@ -56,6 +56,6 @@ jobs:
 
       - name: Commit data files
         run: |
-          git add data/notion_updates_queue.json data/brief_prefs.md data/pending_change.json data/people/ data/projects.md 2>/dev/null || true
+          git add data/notion_updates_queue.json data/brief_prefs.md data/pending_change.json data/people/ data/projects.md data/tasks.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: sync bot data [skip ci]"
           git push origin main || true

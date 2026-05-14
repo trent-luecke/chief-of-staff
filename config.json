@@ -150,7 +150,15 @@
     "enabled": true,
     "sales_rep_calendar_ids": [],
     "lookforward_days": 28,
-    "demo_keywords": ["demo"],
-    "internal_domains": ["teambuildr.com"]
+    "demo_keywords": [
+      "demo"
+    ],
+    "internal_domains": [
+      "teambuildr.com"
+    ]
+  },
+  "slack_canvas": {
+    "canvas_id": "F0B3V02T23G",
+    "channel_id": "D0AK1SD5TSL"
   }
 }

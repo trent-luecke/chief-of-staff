@@ -33,12 +33,30 @@ CHANGE_WHITELIST = frozenset({
 PENDING_CHANGE_PATH = "data/pending_change.json"
 
 
-def _tool_add_capture(capture_type: str, text: str, storage, due_date: str = "") -> str:
+def _sync_canvas(config: dict, storage) -> None:
+    """Push current task state to the Slack canvas. Non-fatal."""
+    import os
+    canvas_cfg = config.get("slack_canvas", {})
+    canvas_id = canvas_cfg.get("canvas_id")
+    token = os.environ.get("SLACK_BOT_TOKEN", "")
+    if not canvas_id or not token:
+        return
+    try:
+        from lib.slack_canvas import sync_task_canvas
+        from lib.tasks import get_open_tasks, get_recent_completions
+        sync_task_canvas(token, canvas_id, get_open_tasks(storage), get_recent_completions(storage))
+    except Exception as e:
+        import sys
+        print(f"WARNING: canvas sync failed: {e}", file=sys.stderr)
+
+
+def _tool_add_capture(capture_type: str, text: str, storage, config: dict, due_date: str = "") -> str:
     valid = {"todo", "idea", "note", "flag"}
     if capture_type not in valid:
         return f"Invalid capture type '{capture_type}'. Must be one of: {', '.join(sorted(valid))}."
     if capture_type == "todo":
         task = add_task(storage, text, source="telegram", due_date=due_date or None)
+        _sync_canvas(config, storage)
         return f"Task added [{task['id']}]: {text}"
     append_capture(storage, capture_type, None, text)
     return f"Captured [{capture_type}]: {text}"
@@ -49,6 +67,7 @@ def _tool_complete_task(description: str, storage, config: dict) -> str:
     task = complete_task_record(storage, description)
     hit_project = complete_project_next(projects_file, description)
     if task or hit_project:
+        _sync_canvas(config, storage)
         parts = []
         if task:
             parts.append(f"task '{task['title'][:60]}' marked completed")
@@ -489,7 +508,7 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
         storage = build_storage(config)
     try:
         if name == "add_capture":
-            return _tool_add_capture(input_["capture_type"], input_["text"], storage, due_date=input_.get("due_date", ""))
+            return _tool_add_capture(input_["capture_type"], input_["text"], storage, config, due_date=input_.get("due_date", ""))
         elif name == "complete_task":
             return _tool_complete_task(input_["description"], storage, config)
         elif name == "list_tasks":
