@@ -22,6 +22,7 @@ data/*
 !data/notion_updates_queue.json
 !data/brief_prefs.md
 !data/pending_change.json
+!data/tasks.json
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

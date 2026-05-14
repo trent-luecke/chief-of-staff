@@ -10,7 +10,8 @@ from pathlib import Path
 from typing import Any
 
 from collectors.gmail import fetch_threads_needing_attention
-from lib.captures import append_capture, complete_capture, complete_project_next
+from lib.captures import append_capture, complete_project_next
+from lib.tasks import add_task, complete_task as complete_task_record, get_open_tasks, get_recent_completions
 from lib.google_auth import build_gmail_service
 from processors.issues import load_issues, save_issues
 
@@ -32,26 +33,48 @@ CHANGE_WHITELIST = frozenset({
 PENDING_CHANGE_PATH = "data/pending_change.json"
 
 
-def _tool_add_capture(capture_type: str, text: str, storage) -> str:
+def _tool_add_capture(capture_type: str, text: str, storage, due_date: str = "") -> str:
     valid = {"todo", "idea", "note", "flag"}
     if capture_type not in valid:
         return f"Invalid capture type '{capture_type}'. Must be one of: {', '.join(sorted(valid))}."
+    if capture_type == "todo":
+        task = add_task(storage, text, source="telegram", due_date=due_date or None)
+        return f"Task added [{task['id']}]: {text}"
     append_capture(storage, capture_type, None, text)
     return f"Captured [{capture_type}]: {text}"
 
 
 def _tool_complete_task(description: str, storage, config: dict) -> str:
     projects_file = config.get("projects_file", "data/projects.md")
-    hit_capture = complete_capture(storage, description)
+    task = complete_task_record(storage, description)
     hit_project = complete_project_next(projects_file, description)
-    if hit_capture or hit_project:
+    if task or hit_project:
         parts = []
-        if hit_capture:
-            parts.append("removed from captures")
+        if task:
+            parts.append(f"task '{task['title'][:60]}' marked completed")
         if hit_project:
-            parts.append("marked done in projects")
-        return f"Completed '{description}' — {', '.join(parts)}."
-    return f"No match found for '{description}' in captures or projects."
+            parts.append("project next-action marked done")
+        return f"Completed — {', '.join(parts)}."
+    return f"No match found for '{description}' in tasks or projects."
+
+
+def _tool_list_tasks(storage, include_recent_completions: bool = False) -> str:
+    open_tasks = get_open_tasks(storage)
+    lines = []
+    if open_tasks:
+        lines.append("**Open tasks:**")
+        for t in open_tasks:
+            due = f" (due {t['due_date']})" if t.get("due_date") else ""
+            lines.append(f"  [{t['id']}] {t['title']}{due}")
+    else:
+        lines.append("No open tasks.")
+    if include_recent_completions:
+        completed = get_recent_completions(storage, days=7)
+        if completed:
+            lines.append("\n**Completed this week:**")
+            for t in completed:
+                lines.append(f"  ✓ {t['title']} (completed {t['completed_at']})")
+    return "\n".join(lines)
 
 
 def _find_people_file(people_dir: str, person_name: str) -> str | None:
@@ -466,9 +489,11 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
         storage = build_storage(config)
     try:
         if name == "add_capture":
-            return _tool_add_capture(input_["capture_type"], input_["text"], storage)
+            return _tool_add_capture(input_["capture_type"], input_["text"], storage, due_date=input_.get("due_date", ""))
         elif name == "complete_task":
             return _tool_complete_task(input_["description"], storage, config)
+        elif name == "list_tasks":
+            return _tool_list_tasks(storage, include_recent_completions=input_.get("include_recent_completions", False))
         elif name == "add_people_note":
             return _tool_add_people_note(input_["person_name"], input_["note"], config)
         elif name == "create_person_profile":
@@ -537,25 +562,37 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
 TOOL_SCHEMAS = [
     {
         "name": "add_capture",
-        "description": "Add a todo, idea, note, or flag to the captures file. After calling, include a receipt entry in your response naming the destination and content written.",
+        "description": "Add a todo, idea, note, or flag. Todos go to the task ledger (persistent, with optional due date). Ideas, notes, and flags go to the captures file. After calling, include a receipt entry in your response naming the destination and content written.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "capture_type": {"type": "string", "enum": ["todo", "idea", "note", "flag"], "description": "Type of capture"},
                 "text": {"type": "string", "description": "Content of the capture"},
+                "due_date": {"type": "string", "description": "Optional due date in YYYY-MM-DD format (todos only)"},
             },
             "required": ["capture_type", "text"],
         },
     },
     {
         "name": "complete_task",
-        "description": "Mark a capture or project next-action as complete and remove it. After calling, include a receipt entry in your response naming the destination and content written.",
+        "description": "Mark a task as complete. The task is moved to the completed ledger with a timestamp — not deleted. Also checks project next-actions. After calling, include a receipt entry in your response.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "description": {"type": "string", "description": "Exact or approximate text of the item to complete"},
+                "description": {"type": "string", "description": "Exact or approximate text of the task to complete"},
             },
             "required": ["description"],
+        },
+    },
+    {
+        "name": "list_tasks",
+        "description": "Return all open tasks. Optionally include tasks completed in the last 7 days.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "include_recent_completions": {"type": "boolean", "description": "If true, also return tasks completed in the last 7 days"},
+            },
+            "required": [],
         },
     },
     {

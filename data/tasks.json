@@ -1,0 +1,22 @@
+{
+  "tasks": [
+    {
+      "id": "t-000001",
+      "title": "Follow up with Luke Green: BFU ticket giveaway — send internal email asking for opt-in, draw randomly, send out ~June. Consider care package: UberEats gift card + t-shirt.",
+      "status": "open",
+      "created_at": "2026-05-14",
+      "due_date": "2026-05-15",
+      "source": "marketing-meeting-nudge",
+      "completed_at": null
+    },
+    {
+      "id": "t-000002",
+      "title": "Set up a Notion timeline map to visualize what campaigns are running when; enables content to speak to upcoming seasons.",
+      "status": "open",
+      "created_at": "2026-05-14",
+      "due_date": null,
+      "source": "marketing-meeting-nudge",
+      "completed_at": null
+    }
+  ]
+}
