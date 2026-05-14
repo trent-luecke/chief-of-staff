@@ -1,7 +1,7 @@
 # James Peters
 
 **Also known as:** James
-**Role:** Unknown — shares Ken Andrukow as a mentor alongside Trent and Hewitt
+**Role:** CTO, co-founder
 
 ## Notes
 - Part of the Ken mentorship group (Trent, Hewitt, James)
