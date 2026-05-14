@@ -266,6 +266,32 @@ def _tool_queue_notion_update(
     return f"Notion queue: {action_desc}. Cowork will apply this on its next scheduled run."
 
 
+def _tool_set_brief_preference(preference: str, config: dict) -> str:
+    prefs_path = config.get("brief_prefs_path", "data/brief_prefs.md")
+    today = date.today().isoformat()
+    header = f"## {today}"
+    try:
+        with open(prefs_path) as f:
+            content = f.read()
+    except FileNotFoundError:
+        content = ""
+
+    if header in content:
+        idx = content.index(header) + len(header)
+        next_section = content.find("\n##", idx)
+        if next_section == -1:
+            content = content.rstrip("\n") + f"\n- {preference}\n"
+        else:
+            content = content[:next_section] + f"\n- {preference}" + content[next_section:]
+    else:
+        content = content.rstrip("\n") + f"\n\n{header}\n- {preference}\n"
+
+    os.makedirs(os.path.dirname(prefs_path) or ".", exist_ok=True)
+    with open(prefs_path, "w") as f:
+        f.write(content)
+    return f"Brief preference set: {preference}. Takes effect in tomorrow's brief."
+
+
 def _tool_search_gmail(query: str, max_results: int, config: dict) -> str:
     try:
         threads = fetch_threads_needing_attention(
@@ -387,6 +413,8 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
                 follow_up_date=input_.get("follow_up_date", ""),
                 reason=input_.get("reason", ""),
             )
+        elif name == "set_brief_preference":
+            return _tool_set_brief_preference(input_["preference"], config)
         else:
             return f"Unknown tool: '{name}'."
     except KeyError as e:
@@ -618,6 +646,24 @@ TOOL_SCHEMAS = [
                 "reason": {"type": "string", "description": "Reason for deletion — required for delete_record"},
             },
             "required": ["person", "action"],
+        },
+    },
+    {
+        "name": "set_brief_preference",
+        "description": (
+            "Set a preference that controls what appears in the morning brief. Preferences are freeform text "
+            "and take effect in the next brief run. Examples: 'skip gym scout section this week', "
+            "'always lead with pipeline follow-ups', 'remind me about Jake Torres tomorrow'. "
+            "To clear or override a preference, call this with a correcting statement "
+            "e.g. 'remove the gym scout skip'. "
+            "After calling, include a receipt entry naming the preference set and when it takes effect."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "preference": {"type": "string", "description": "Freeform preference instruction for the morning brief"},
+            },
+            "required": ["preference"],
         },
     },
 ]

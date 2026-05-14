@@ -95,3 +95,60 @@ def test_queue_notion_update_appends_multiple():
             queue = json.load(f)
         assert len(queue) == 2
         assert queue[1]["person"] == "Bob"
+
+
+# ── Task 3: set_brief_preference ─────────────────────────────────────────────
+
+
+def test_set_brief_preference_writes_to_file():
+    from processors.query_tools import execute_tool
+    from lib.storage import LocalStorage
+
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        result = execute_tool(
+            "set_brief_preference",
+            {"preference": "Skip the gym scout section this week"},
+            config, storage=storage,
+        )
+        assert "preference" in result.lower() or "brief" in result.lower()
+        with open(config["brief_prefs_path"]) as f:
+            content = f.read()
+        assert "Skip the gym scout section this week" in content
+
+
+def test_set_brief_preference_appends_multiple():
+    from processors.query_tools import execute_tool
+    from lib.storage import LocalStorage
+
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        storage = LocalStorage(tmp)
+        execute_tool("set_brief_preference", {"preference": "First pref"}, config, storage=storage)
+        execute_tool("set_brief_preference", {"preference": "Second pref"}, config, storage=storage)
+        with open(config["brief_prefs_path"]) as f:
+            content = f.read()
+        assert "First pref" in content
+        assert "Second pref" in content
+
+
+def test_load_brief_prefs_returns_empty_when_missing():
+    from lib.captures import load_brief_prefs
+
+    with tempfile.TemporaryDirectory() as tmp:
+        config = {"brief_prefs_path": os.path.join(tmp, "brief_prefs.md")}
+        result = load_brief_prefs(config)
+        assert result == ""
+
+
+def test_load_brief_prefs_returns_content():
+    from lib.captures import load_brief_prefs
+
+    with tempfile.TemporaryDirectory() as tmp:
+        prefs_path = os.path.join(tmp, "brief_prefs.md")
+        with open(prefs_path, "w") as f:
+            f.write("## 2026-05-14\n- Skip gym scout\n")
+        config = {"brief_prefs_path": prefs_path}
+        result = load_brief_prefs(config)
+        assert "Skip gym scout" in result

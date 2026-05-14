@@ -67,3 +67,14 @@ def complete_project_next(projects_file: str, match_text: str) -> bool:
         return True
     except OSError:
         return False
+
+
+def load_brief_prefs(config: dict, token_budget: int = 600) -> str:
+    prefs_path = config.get("brief_prefs_path", "data/brief_prefs.md")
+    try:
+        with open(prefs_path) as f:
+            content = f.read()
+    except FileNotFoundError:
+        return ""
+    max_chars = token_budget * 4
+    return content[-max_chars:] if len(content) > max_chars else content
