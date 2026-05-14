@@ -1,6 +1,7 @@
 # Ken Andrukow
 
 **Also known as:** Ken
+**Email:** kenandrukow@gmail.com
 **Role:** Mentor — for Trent, Hewitt, and James
 
 ## Relationship

@@ -119,6 +119,7 @@ def run() -> None:
             "meeting_name": event.summary,
             "sent_at": now.isoformat(),
             "session_date": date.today().isoformat(),
+            "attendees": event.attendees,
         }
         if nudge_message_id:
             entry["telegram_message_id"] = nudge_message_id

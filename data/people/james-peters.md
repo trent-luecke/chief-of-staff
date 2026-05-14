@@ -1,6 +1,7 @@
 # James Peters
 
 **Also known as:** James
+**Email:** james@teambuildr.com
 **Role:** CTO, co-founder
 
 ## Notes

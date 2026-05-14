@@ -21,6 +21,7 @@ def load_config(path: str = "config.json") -> dict:
         return json.load(f)
 
 
+
 def _resolve_nudge_reply(reply_to_id: str, storage) -> dict | None:
     """Return the pending nudge record if reply_to_id matches a sent nudge, else None."""
     pending = storage.read_json("pending_nudges.json", default=[])
@@ -95,8 +96,46 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
                 safe = nudge["meeting_name"].lower().replace(" ", "_")[:40]
                 memory_key = f"meeting_memory/{safe}.md"
             append_session_notes(storage, memory_key, nudge["session_date"], query)
+
+            api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+            if api_key:
+                attendees = nudge.get("attendees", [])
+                attendee_str = ", ".join(attendees) if attendees else "none listed"
+                enriched_query = (
+                    f"[MEETING NUDGE REPLY]\n"
+                    f"Meeting: {nudge['meeting_name']}\n"
+                    f"Date: {nudge['session_date']}\n"
+                    f"Attendees (emails): {attendee_str}\n"
+                    f"Meeting notes already saved to: {memory_key}\n\n"
+                    f"Process these meeting notes. For each attendee, add a note to their people "
+                    f"file (match by email in the people profiles). If an attendee has no existing "
+                    f"profile, create one using the email prefix as their name. Extract any action "
+                    f"items, todos, ideas, or next steps as captures.\n\n"
+                    f"Notes:\n{query}"
+                )
+                try:
+                    answer = answer_query_with_tools(
+                        api_key=api_key,
+                        model=config["ai_model"],
+                        query=enriched_query,
+                        config=config,
+                        storage=storage,
+                    )
+                except Exception as e:
+                    print(f"  WARNING: Claude call failed for nudge reply: {e}", file=sys.stderr)
+                    answer = (
+                        f"Notes saved for *{nudge['meeting_name']}*.\n"
+                        f"📝 Meeting memory: `{memory_key}`\n"
+                        f"⚠️ People file updates skipped — API error."
+                    )
+            else:
+                answer = (
+                    f"Notes saved for *{nudge['meeting_name']}*.\n"
+                    f"📝 Meeting memory: `{memory_key}`"
+                )
+
             if bot_token:
-                send_message(bot_token, chat_id, f"Got it — notes saved for {nudge['meeting_name']}.")
+                send_message(bot_token, chat_id, answer)
             print(f"  Notes captured via reply for: {nudge['meeting_name']}")
             return
 
