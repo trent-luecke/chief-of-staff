@@ -443,8 +443,9 @@ def _tool_propose_code_change(file: str, description: str, new_content: str) -> 
             f"Reply 'approve' or 'reject'."
         )
         send_message(bot_token, chat_id, msg)
+        return f"Proposed change to {file} sent to Telegram for your approval. Reply 'approve' or 'reject'."
 
-    return f"Proposed change to {file} sent to Telegram for your approval. Reply 'approve' or 'reject'."
+    return f"Proposed change to {file} saved to pending_change.json. Reply 'approve' or 'reject' to apply."
 
 
 def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
