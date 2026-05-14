@@ -1,0 +1,52 @@
+name: Nightly Avoma Sync
+
+on:
+  schedule:
+    # 10pm CDT (UTC-5, Apr-Oct). Change to "0 4 * * *" in November for CST (UTC-6).
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  run-avoma-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: America/Chicago
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Clear previous payload
+        run: rm -f data/avoma_prompt_payload.md
+
+      - name: Run Avoma sync
+        env:
+          AVOMA_API_KEY: ${{ secrets.AVOMA_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+        run: python scripts/avoma_sync.py
+
+      - name: Commit payload changes
+        run: |
+          if [ -f data/avoma_prompt_payload.md ]; then
+            git add data/avoma_prompt_payload.md
+          else
+            git rm --cached data/avoma_prompt_payload.md 2>/dev/null || true
+          fi
+          git diff --staged --quiet || git commit -m "chore: avoma sync payload [skip ci]"
+          git push origin main || true

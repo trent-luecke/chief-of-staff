@@ -358,6 +358,7 @@ def append_competitor_file(record: dict):
         f"---\n"
     )
 
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     if not filepath.exists():
         filepath.write_text(f"# {competitor} — Intelligence Timeline\n\n{entry}", encoding="utf-8")
     else:
