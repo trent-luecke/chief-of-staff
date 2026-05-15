@@ -159,6 +159,19 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
             send_message(bot_token, chat_id, f"Done.\n  → task ledger: {text}\n  → Slack canvas: synced")
         return
 
+    # /done <text> — direct dispatch, no Claude call needed
+    if query_normalized.startswith("/done "):
+        text = query[6:].strip()
+        if not text:
+            if bot_token:
+                send_message(bot_token, chat_id, "Usage: /done <task description>")
+            return
+        from processors.query_tools import _tool_complete_task
+        result = _tool_complete_task(text, storage, config)
+        if bot_token:
+            send_message(bot_token, chat_id, f"Done.\n  → {result}\n  → Slack canvas: synced")
+        return
+
     # /reminder <text with time> — still uses Claude for time parsing, but forces set_reminder intent
     if query_normalized.startswith("/reminder "):
         text = query[10:].strip()
