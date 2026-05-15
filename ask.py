@@ -146,6 +146,28 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
             send_message(bot_token, chat_id, score_response)
         return
 
+    # /todo <text> — direct dispatch, no Claude call needed
+    if query_normalized.startswith("/todo "):
+        text = query[6:].strip()
+        if not text:
+            if bot_token:
+                send_message(bot_token, chat_id, "Usage: /todo <task description>")
+            return
+        from processors.query_tools import _tool_add_capture
+        _tool_add_capture("todo", text, storage, config)
+        if bot_token:
+            send_message(bot_token, chat_id, f"Done.\n  → task ledger: {text}\n  → Slack canvas: synced")
+        return
+
+    # /reminder <text with time> — still uses Claude for time parsing, but forces set_reminder intent
+    if query_normalized.startswith("/reminder "):
+        text = query[10:].strip()
+        if not text:
+            if bot_token:
+                send_message(bot_token, chat_id, "Usage: /reminder <message and time>")
+            return
+        query = f"[SLASH COMMAND: set_reminder — you MUST call the set_reminder tool] {text}"
+
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
     if not api_key:
         if bot_token:
