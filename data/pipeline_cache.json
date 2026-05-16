@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-15T14:20:00Z",
+  "fetched_at": "2026-05-16T23:06:29Z",
   "leads": [
     {
       "name": "Ryan Pace",
@@ -9,7 +9,7 @@
       "priority": "High",
       "last_contacted": "2026-05-14",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -17,10 +17,10 @@
       "contact": "",
       "email": "chanson@cardsperformance.com",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -28,10 +28,10 @@
       "contact": "Cody Coley",
       "email": "ccoley@cbhs.org",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -42,7 +42,7 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -53,7 +53,7 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -61,10 +61,10 @@
       "contact": "Aaron Letinski",
       "email": "letinskia26@gmail.com",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -72,10 +72,10 @@
       "contact": "Jack Dustin",
       "email": "dustin.sportperformance@gmail.com",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": 750,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -83,10 +83,10 @@
       "contact": "",
       "email": "",
       "status": "Demo Scheduled",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     }
   ]
