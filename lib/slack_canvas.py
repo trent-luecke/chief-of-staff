@@ -53,18 +53,24 @@ def sync_task_canvas(user_token: str, canvas_id: str, open_tasks: list, recent_c
     client = WebClient(token=user_token)
     markdown = _render(open_tasks, recent_completions)
 
-    # Delete all existing anchor sections, then insert fresh content.
-    # If the delete step fails we abort rather than appending a duplicate.
+    # Clear all existing sections before inserting fresh content.
+    # section_types only supports header variants; task list items are separate
+    # sections not findable by type. Use any_header + contains_text:" " to get
+    # the full set (short headings like "Open" have no space so need the type
+    # query; everything else is caught by the space search).
     try:
-        resp = client.canvases_sections_lookup(
-            canvas_id=canvas_id,
-            criteria={"contains_text": CANVAS_ANCHOR},
-        )
-        sections = resp.get("sections", [])
-        if sections:
+        seen = set()
+        all_sections = []
+        for criteria in ({"section_types": ["any_header"]}, {"contains_text": " "}):
+            resp = client.canvases_sections_lookup(canvas_id=canvas_id, criteria=criteria)
+            for s in resp.get("sections", []):
+                if s["id"] not in seen:
+                    seen.add(s["id"])
+                    all_sections.append(s)
+        for section in all_sections:
             client.canvases_edit(
                 canvas_id=canvas_id,
-                changes=[{"operation": "delete", "section_id": s["id"]} for s in sections],
+                changes=[{"operation": "delete", "section_id": section["id"]}],
             )
     except SlackApiError as e:
         print(f"WARNING: canvas sync aborted (could not clear old sections): {e}", file=sys.stderr)
