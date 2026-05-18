@@ -30,9 +30,6 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-      - name: Clear previous payload
-        run: rm -f data/avoma_prompt_payload.md
-
       - name: Run Avoma sync
         env:
           AVOMA_API_KEY: ${{ secrets.AVOMA_API_KEY }}
@@ -43,11 +40,6 @@ jobs:
 
       - name: Commit data changes
         run: |
-          if [ -f data/avoma_prompt_payload.md ]; then
-            git add data/avoma_prompt_payload.md
-          else
-            git rm --cached data/avoma_prompt_payload.md 2>/dev/null || true
-          fi
           git add data/pipeline_cache.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: avoma sync data [skip ci]"
           git push origin main || true

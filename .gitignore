@@ -23,7 +23,6 @@ data/*
 !data/brief_prefs.md
 !data/pending_change.json
 !data/tasks.json
-!data/avoma_prompt_payload.md
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

@@ -179,74 +179,6 @@ def build_telegram_message(
     return msg
 
 
-def build_prompt_payload(
-    pipeline_updates: list[dict],
-    onboarding_updates: list[dict],
-    today: str,
-) -> str:
-    lines = [
-        f"# Avoma Update Payload — {today}",
-        "",
-        "Paste the relevant section into Claude desktop with the matching skill.",
-        "",
-    ]
-
-    if pipeline_updates:
-        lines += [
-            "## Pipeline Updates",
-            "",
-            "Use with: **notion-os-pipeline-updater**",
-            "",
-            "Please update the OS pipeline tracker in Notion with the following changes from recent Avoma calls:",
-            "",
-        ]
-        for u in pipeline_updates:
-            ct = u["call_type"].replace("_", " ").title()
-            lines += [
-                f"### {u['lead_name']}",
-                f"- **Call type:** {ct}",
-                f"- **Call date / Last Contacted:** {u['call_date']}",
-                f"- **Inferred status:** {u['inferred_status']}",
-                f"- **Note:** {u['summary']}",
-                f"- **Action:** {'CREATE new record (not currently in pipeline)' if u.get('is_new_lead') else 'UPDATE existing record'}",
-            ]
-            if u.get("is_new_lead"):
-                lines.append(f"- **Account Owner:** {u['account_owner']}")
-            if u.get("buying_signals"):
-                lines.append(f"- **Buying signals:** {'; '.join(u['buying_signals'])}")
-            if u.get("objections"):
-                lines.append(f"- **Objections:** {'; '.join(u['objections'])}")
-            lines.append("")
-
-    if onboarding_updates:
-        lines += [
-            "## Onboarding Updates",
-            "",
-            "Use with: **notion-os-onboarding-updater**",
-            "",
-            "Please update the OS onboarding tracker in Notion with the following changes from recent Avoma calls:",
-            "",
-        ]
-        for u in onboarding_updates:
-            lines += [
-                f"### {u['customer_name']}",
-                f"- **Call date:** {u['call_date']}",
-                f"- **Status update:** {u['status_update']}",
-                f"- **Note:** {u['summary']}",
-            ]
-            if u["onboarding_completed"]:
-                lines.append("- **Mark complete:**")
-                for item in u["onboarding_completed"]:
-                    lines.append(f"  - [x] {item}")
-            if u.get("onboarding_next_steps"):
-                lines.append("- **Next steps:**")
-                for step in u["onboarding_next_steps"]:
-                    lines.append(f"  - {step}")
-            lines.append("")
-
-    return "\n".join(lines)
-
-
 def main() -> None:
     from dotenv import load_dotenv
     load_dotenv(_ROOT / ".env")
@@ -358,20 +290,6 @@ def main() -> None:
         print("   Telegram message sent.")
     except Exception as exc:
         print(f"WARNING: Telegram send failed: {exc}", file=sys.stderr)
-
-    # Write Claude prompt payload only when there are actual updates
-    payload_path = _ROOT / "data" / "avoma_prompt_payload.md"
-    if pipeline_updates or onboarding_updates:
-        payload_path.parent.mkdir(exist_ok=True)
-        payload_path.write_text(
-            build_prompt_payload(pipeline_updates, onboarding_updates, today),
-            encoding="utf-8",
-        )
-        print(f"   Payload written: {payload_path.relative_to(_ROOT)}")
-    else:
-        # Remove stale payload from previous run if present
-        payload_path.unlink(missing_ok=True)
-        print("   No updates — payload cleared.")
 
 
 if __name__ == "__main__":

@@ -16,12 +16,15 @@ Trent delegates email and administrative tasks to Nicole. She handles all market
 
 <!-- AUTO-UPDATED: do not edit below this line -->
 ## Activity
-**Last seen:** 2026-05-14
+**Last seen:** 2026-05-18
 
 **Significant touchpoints:**
 - 2026-04-29 | calendar | "TMB Email Outreach" | Email outreach implies a pending response or follow-up dependency with TMB that should be tracked to closure.
 - 2026-04-30 | calendar | "OS | Marketing" | Operating system or marketing sync meeting likely contains agenda items, decisions, or follow-ups requiring tracking.
 - 2026-05-06 | calendar | "TMB Email Outreach" | Email outreach typically implies a pending response, follow-up dependency, or initiated engagement that requires tracking to closure.
+- 2026-05-15 | email | "Accepted: Captains & Coaches / TeamBuildr @ Mon May 18, 2026 2pm - 3pm (CDT) (Trent Luecke)" | Confirmed meeting on May 18 between Captains & Coaches and TeamBuildr represents a scheduled follow-up dependency worth tracking for outcomes.
+- 2026-05-18 | calendar | "TBOS Schedule Launch Prep" | Launch prep meeting implies active deliverables, timeline dependencies, and likely follow-up actions tied to a scheduled launch.
+- 2026-05-18 | calendar | "Captains & Coaches / TeamBuildr" | Cross-functional coordination meeting with an external platform (TeamBuildr) suggests open integration or operational commitments requiring follow-up.
 
 **Recent touchpoints (last 5):**
 - 2026-05-14 | calendar | "OS | Marketing 2.0"
@@ -31,4 +34,5 @@ Trent delegates email and administrative tasks to Nicole. She handles all market
 - 2026-05-05 | calendar | "1:1 Weekly OS Meeting"
 
 **Open threads:**
+- "Accepted: Captains & Coaches / TeamBuildr @ Mon May 18, 2026 2pm - 3pm (CDT) (Trent Luecke)" — needs reply
 - "Accepted: Nicole / Trent: Tex Partnership Brainstorm @ Wed May 6, 2026 2:30pm - 3pm (CDT) (Trent Luecke)" — needs reply

@@ -53,7 +53,8 @@ def sync_task_canvas(user_token: str, canvas_id: str, open_tasks: list, recent_c
     client = WebClient(token=user_token)
     markdown = _render(open_tasks, recent_completions)
 
-    # Delete all existing anchor sections to avoid accumulation from prior runs
+    # Delete all existing anchor sections, then insert fresh content.
+    # If the delete step fails we abort rather than appending a duplicate.
     try:
         resp = client.canvases_sections_lookup(
             canvas_id=canvas_id,
@@ -65,10 +66,10 @@ def sync_task_canvas(user_token: str, canvas_id: str, open_tasks: list, recent_c
                 canvas_id=canvas_id,
                 changes=[{"operation": "delete", "section_id": s["id"]} for s in sections],
             )
-    except SlackApiError:
-        pass
+    except SlackApiError as e:
+        print(f"WARNING: canvas sync aborted (could not clear old sections): {e}", file=sys.stderr)
+        return
 
-    # Insert fresh content
     try:
         client.canvases_edit(
             canvas_id=canvas_id,
