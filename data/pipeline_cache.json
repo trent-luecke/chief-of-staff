@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-17T00:00:00Z",
+  "fetched_at": "2026-05-18T23:02:48.000Z",
   "leads": [
     {
       "name": "Ryan Pace",
@@ -8,17 +8,6 @@
       "status": "In-Trial / Post Demo",
       "priority": "High",
       "last_contacted": "2026-05-14",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Connor Hanson",
-      "contact": "",
-      "email": "chanson@cardsperformance.com",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": null,
       "estimated_value": null,
       "source": null,
       "stale": false
