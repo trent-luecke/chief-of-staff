@@ -174,6 +174,43 @@ def deduplicate_items(items: list[dict], seen: set) -> tuple[list[dict], set]:
     return new_items, updated_seen
 
 
+# ── Title-similarity dedup ─────────────────────────────────────────────────
+
+_STOP_WORDS = {"a", "an", "the", "is", "are", "of", "for", "in", "and", "to",
+               "that", "it", "its", "as", "at", "by", "on", "with", "was",
+               "has", "have", "be", "been", "this", "their", "how", "why",
+               "over", "new", "more"}
+
+
+def _title_word_set(title: str) -> set[str]:
+    words = re.sub(r"[^a-z0-9\s]", "", title.lower()).split()
+    return {w for w in words if w not in _STOP_WORDS}
+
+
+def _jaccard(a: set, b: set) -> float:
+    union = a | b
+    return len(a & b) / len(union) if union else 0.0
+
+
+def dedup_by_title(items: list[dict], threshold: float = 0.45) -> list[dict]:
+    """Collapse near-duplicate articles by title similarity (Jaccard on word sets).
+    Processes items in descending score order; keeps the first (highest-scored)
+    representative of each topic cluster."""
+    sorted_items = sorted(
+        items,
+        key=lambda x: int(x.get("relevance_score") or 0),
+        reverse=True,
+    )
+    kept: list[dict] = []
+    kept_sets: list[set] = []
+    for item in sorted_items:
+        ws = _title_word_set(item.get("title", ""))
+        if all(_jaccard(ws, ks) < threshold for ks in kept_sets):
+            kept.append(item)
+            kept_sets.append(ws)
+    return kept
+
+
 # ── Competitor blog fetching ───────────────────────────────────────────────
 
 _COMMON_RSS_PATHS = [

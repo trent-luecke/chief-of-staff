@@ -13,6 +13,7 @@ from market_intel import (
     load_competitors,
     load_queries,
     deduplicate_items,
+    dedup_by_title,
 )
 
 
@@ -137,3 +138,52 @@ def test_deduplicate_items_no_duplicates_within_batch():
     new_items, updated = deduplicate_items(items, seen)
     assert len(new_items) == 2
     assert len(updated) == 2
+
+
+def test_dedup_by_title_empty():
+    assert dedup_by_title([]) == []
+
+
+def test_dedup_by_title_single():
+    items = [{"title": "Gymdesk Launches WOD Tracker", "relevance_score": 4}]
+    assert dedup_by_title(items) == items
+
+
+def test_dedup_by_title_keeps_distinct():
+    items = [
+        {"title": "Gymdesk Launches WOD Tracker", "relevance_score": 4},
+        {"title": "Gymdesk Launches Mobile App", "relevance_score": 4},
+    ]
+    result = dedup_by_title(items)
+    assert len(result) == 2
+
+
+def test_dedup_by_title_collapses_near_duplicates():
+    items = [
+        {"title": "Run Clubs Replace Bars Young Adults Social Fitness", "relevance_score": 3},
+        {"title": "Run Clubs Replace Bars Young Adults Dating Scene", "relevance_score": 4},
+    ]
+    result = dedup_by_title(items)
+    assert len(result) == 1
+    # keeps the higher-scored item
+    assert result[0]["relevance_score"] == 4
+
+
+def test_dedup_by_title_collapses_exact_duplicate():
+    items = [
+        {"title": "Gymdesk Launches WOD Tracker", "relevance_score": 4},
+        {"title": "Gymdesk Launches WOD Tracker", "relevance_score": 3},
+    ]
+    result = dedup_by_title(items)
+    assert len(result) == 1
+    assert result[0]["relevance_score"] == 4
+
+
+def test_dedup_by_title_threshold_respected():
+    # these two titles share only stop words — should NOT be collapsed
+    items = [
+        {"title": "GLP-1 Drugs Drive Gym Membership Growth", "relevance_score": 4},
+        {"title": "Run Clubs Replace Dating Apps for Gen Z", "relevance_score": 4},
+    ]
+    result = dedup_by_title(items)
+    assert len(result) == 2
