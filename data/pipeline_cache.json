@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-18T23:02:48.000Z",
+  "fetched_at": "2026-05-19T00:00:00Z",
   "leads": [
     {
       "name": "Ryan Pace",
@@ -9,7 +9,40 @@
       "priority": "High",
       "last_contacted": "2026-05-14",
       "estimated_value": null,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Patrick Labat — TGMC",
+      "contact": "Patrick Labat",
+      "email": "patrick.labat@tgmc.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "Medium",
+      "last_contacted": "2026-03-10",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Mike Woodby — Apex Holland",
+      "contact": "Mike Woodby",
+      "email": "mike@apexholland.co",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": "2026-03-02",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Tzach Feinsilver",
+      "contact": "Tzach Feinsilver",
+      "email": "tzach1968@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": "2026-03-12",
+      "estimated_value": null,
+      "source": "Calendly Demo",
       "stale": false
     },
     {
@@ -17,10 +50,21 @@
       "contact": "Cody Coley",
       "email": "ccoley@cbhs.org",
       "status": "Out of Demo / Need Upate",
-      "priority": null,
+      "priority": "",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": "",
       "stale": false
     },
     {
@@ -31,7 +75,18 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Dustin Sport Performance",
+      "contact": "Jack Dustin",
+      "email": "dustin.sportperformance@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 750,
+      "source": "",
       "stale": false
     },
     {
@@ -42,40 +97,29 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Dustin Sport Performance",
-      "contact": "Jack Dustin",
-      "email": "dustin.sportperformance@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 750,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "New customer",
-      "contact": "",
-      "email": "",
-      "status": "Demo Scheduled",
-      "priority": null,
-      "last_contacted": null,
+      "name": "Emma Hicks — For Fitness & Athletics",
+      "contact": "Emma Hicks",
+      "email": "emmahicks@forfitnessandathletics.com",
+      "status": "On-Hold",
+      "priority": "Medium",
+      "last_contacted": "2026-03-05",
       "estimated_value": null,
-      "source": null,
+      "source": "Marketing",
+      "stale": false
+    },
+    {
+      "name": "okonji",
+      "contact": "okonji",
+      "email": "chrisjeremey@gmail.com",
+      "status": "On-Hold",
+      "priority": "Medium",
+      "last_contacted": "2026-03-12",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     }
   ]
