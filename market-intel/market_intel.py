@@ -53,6 +53,17 @@ CATEGORY_DIRS = {
     "leadership_change": DATA_DIR / "trends",
 }
 
+CATEGORY_LABELS = {
+    "feature_launch": "FEATURE LAUNCH",
+    "acquisition": "ACQUISITION",
+    "new_entrant": "NEW ENTRANT",
+    "industry_trend": "INDUSTRY TREND",
+    "pricing_change": "PRICING CHANGE",
+    "partnership": "PARTNERSHIP",
+    "funding": "FUNDING",
+    "leadership_change": "LEADERSHIP CHANGE",
+}
+
 # ── Logging ────────────────────────────────────────────────────────────────
 logging.basicConfig(
     level=logging.INFO,
@@ -484,44 +495,84 @@ def send_email(subject: str, body: str):
         log.error(f"Email send failed: {e}")
 
 
+def _first_sentence(summary: str) -> str:
+    """Extract the first sentence from a multi-sentence summary."""
+    match = re.search(r'.+?[.!?](?:\s|$)', summary)
+    if match:
+        return match.group(0).strip()
+    return summary.strip()
+
+
 def format_daily_email(records: list[dict], date_str: str) -> tuple[str, str]:
     """
     Format daily summary email.
-    Action-flagged items appear first under ACTION NEEDED.
-    Remaining items are grouped by category.
+    ACTION NEEDED block at top for action-flagged items.
+    Remaining items grouped by category: top 2 leads with full summary,
+    rest as bulleted honorable mentions (one sentence + URL).
+    Within-day title-similarity dedup applied per category.
     Returns (subject, body).
     """
-    n = len(records)
-    subject = f"Market Intel — {date_str} ({n} new items)"
-
     action_items = [r for r in records if r.get("action_flag") in (True, "true", "True")]
-    other_items = [r for r in records if r not in action_items]
+    action_items = dedup_by_title(action_items)
+    non_action = [r for r in records if r not in action_items]
 
-    lines = []
-
-    if action_items:
-        lines.append("ACTION NEEDED")
-        lines.append("=" * 40)
-        for r in action_items:
-            competitor = r.get("competitor") or "Industry"
-            lines.append(f"\n[{r.get('category', '').upper().replace('_', ' ')}] {competitor} (score: {r.get('relevance_score')})")
-            lines.append(r.get("summary", ""))
-            lines.append(r.get("url", ""))
-        lines.append("")
-
-    by_category = defaultdict(list)
-    for r in other_items:
+    # Dedup by category to collapse near-duplicate items across different competitors
+    by_category: dict[str, list[dict]] = defaultdict(list)
+    for r in non_action:
         by_category[r.get("category", "other")].append(r)
 
-    for category, items in sorted(by_category.items()):
-        lines.append(category.upper().replace("_", " "))
-        lines.append("-" * 30)
-        for r in items:
+    deduped: dict[str, list[dict]] = {
+        cat: dedup_by_title(items) for cat, items in by_category.items()
+    }
+
+    def _max_score(items: list[dict]) -> int:
+        return max((int(r.get("relevance_score") or 0) for r in items), default=0)
+
+    ordered = sorted(deduped.items(), key=lambda kv: _max_score(kv[1]), reverse=True)
+
+    total = len(action_items) + sum(len(v) for v in deduped.values())
+    n_cats = sum(1 for _, items in ordered if items)
+    cat_word = "category" if n_cats == 1 else "categories"
+
+    subject = f"Market Intel — {date_str} ({total} items)"
+    lines = [f"Market Intel — {date_str} ({total} items across {n_cats} {cat_word})", ""]
+
+    if action_items:
+        lines += ["ACTION NEEDED", "=" * 40, ""]
+        for r in sorted(action_items, key=lambda x: int(x.get("relevance_score") or 0), reverse=True):
             competitor = r.get("competitor") or "Industry"
-            lines.append(f"\n{competitor} (score: {r.get('relevance_score')})")
+            cat_label = CATEGORY_LABELS.get(r.get("category", ""), r.get("category", "").upper().replace("_", " "))
+            lines.append(f"[{cat_label}] {competitor} | score: {r.get('relevance_score')}")
             lines.append(r.get("summary", ""))
             lines.append(r.get("url", ""))
-        lines.append("")
+            lines.append("")
+
+    for category, items in ordered:
+        if not items:
+            continue
+        cat_label = CATEGORY_LABELS.get(category, category.upper().replace("_", " "))
+        lines += [cat_label, "-" * 40, ""]
+
+        sorted_items = sorted(items, key=lambda x: int(x.get("relevance_score") or 0), reverse=True)
+        leads = sorted_items[:2]
+        honorable = sorted_items[2:]
+
+        for i, r in enumerate(leads, 1):
+            competitor = r.get("competitor") or "Industry"
+            lines.append(f"[{i}] {competitor} | score: {r.get('relevance_score')}")
+            lines.append(r.get("summary", ""))
+            lines.append(r.get("url", ""))
+            lines.append("")
+
+        if honorable:
+            lines.append("Honorable mentions:")
+            for r in honorable:
+                competitor = r.get("competitor") or "Industry"
+                title = r.get("title", "")
+                first_sent = _first_sentence(r.get("summary", ""))
+                url = r.get("url", "")
+                lines.append(f"• {competitor} — {title}: {first_sent}  {url}")
+            lines.append("")
 
     return subject, "\n".join(lines)
 
