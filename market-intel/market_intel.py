@@ -4,8 +4,6 @@ market_intel.py — Competitive intelligence scraper for gym management software
 Usage:
     python market_intel.py              # daily run
     python market_intel.py --dry-run    # fetch/classify/store; skip email and git push
-    python market_intel.py --weekly     # compile and send weekly digest
-    python market_intel.py --weekly --dry-run
 """
 
 import argparse
@@ -577,106 +575,6 @@ def format_daily_email(records: list[dict], date_str: str) -> tuple[str, str]:
     return subject, "\n".join(lines)
 
 
-# ── Weekly digest ──────────────────────────────────────────────────────────
-
-def load_recent_csv_records(days: int = 7) -> list[dict]:
-    """Read intel-log.csv and return records from the last N days."""
-    if not CSV_LOG.exists():
-        return []
-    cutoff = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
-    records = []
-    with CSV_LOG.open(encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row.get("date_found", "") >= cutoff:
-                records.append(row)
-    return records
-
-
-def format_weekly_digest(records: list[dict], week_start: str) -> tuple[str, str]:
-    """
-    Format weekly digest email and markdown body.
-    Returns (subject, body).
-    """
-    subject = f"Weekly Market Intel Digest — Week of {week_start}"
-
-    high_signal = [r for r in records if int(r.get("relevance_score") or 0) >= 4]
-
-    by_competitor = defaultdict(list)
-    for r in records:
-        c = r.get("competitor")
-        if c:
-            by_competitor[c].append(r)
-
-    trend_items = [
-        r for r in records
-        if r.get("category") in ("industry_trend", "new_entrant", "partnership")
-        and not r.get("competitor")
-    ]
-
-    category_counts = Counter(r.get("category") for r in records)
-    competitor_counts = Counter(r.get("competitor") for r in records if r.get("competitor"))
-    most_active = competitor_counts.most_common(3)
-
-    lines = [
-        f"Weekly Market Intel Digest — Week of {week_start}",
-        "=" * 50,
-        "",
-        f"Total items tracked this week: {len(records)}",
-        "",
-        "TOP SIGNALS (score 4-5)",
-        "-" * 30,
-    ]
-
-    if high_signal:
-        for r in sorted(high_signal, key=lambda x: int(x.get("relevance_score") or 0), reverse=True):
-            competitor = r.get("competitor") or "Industry"
-            lines.append(f"\n[{r.get('category', '').upper().replace('_', ' ')}] {competitor} (score: {r.get('relevance_score')})")
-            lines.append(r.get("summary", ""))
-            lines.append(r.get("url", ""))
-    else:
-        lines.append("No high-signal items this week.")
-    lines.append("")
-
-    lines += ["COMPETITOR ACTIVITY", "-" * 30]
-    for competitor, items in sorted(by_competitor.items()):
-        lines.append(f"\n{competitor} ({len(items)} items)")
-        for r in items:
-            cat = r.get("category", "").replace("_", " ")
-            lines.append(f"  • [{cat}] {r.get('summary', '')[:120]}")
-    if not by_competitor:
-        lines.append("No competitor-specific activity this week.")
-    lines.append("")
-
-    lines += ["INDUSTRY TRENDS", "-" * 30]
-    for r in trend_items:
-        lines.append(f"\n[{r.get('category', '').upper().replace('_', ' ')}] {r.get('title', '')}")
-        lines.append(r.get("summary", ""))
-    if not trend_items:
-        lines.append("No pure industry trends this week.")
-    lines.append("")
-
-    lines += ["STATS", "-" * 30]
-    lines.append(f"Total items: {len(records)}")
-    for cat, count in sorted(category_counts.items()):
-        if cat:
-            lines.append(f"  {cat}: {count}")
-    if most_active:
-        lines.append("Most active competitors:")
-        for name, count in most_active:
-            if name:
-                lines.append(f"  {name}: {count} items")
-    lines.append("")
-
-    return subject, "\n".join(lines)
-
-
-def save_weekly_brief(body: str, date_str: str):
-    """Save weekly digest body to briefs/YYYY-MM-DD.md."""
-    BRIEFS_DIR.mkdir(exist_ok=True)
-    filepath = BRIEFS_DIR / f"{date_str}.md"
-    filepath.write_text(body, encoding="utf-8")
-    log.info(f"Saved weekly brief: briefs/{date_str}.md")
 
 
 # ── Main pipelines ─────────────────────────────────────────────────────────
@@ -754,54 +652,18 @@ def run_daily(dry_run: bool = False):
     return stored_records
 
 
-def run_weekly(dry_run: bool = False):
-    """Weekly pipeline: read last 7 days of CSV → format digest → email → save → git."""
-    log.info(f"=== Weekly digest run (dry_run={dry_run}) ===")
-    today = datetime.now().strftime("%Y-%m-%d")
-    week_start = (datetime.now() - timedelta(days=6)).strftime("%Y-%m-%d")
-
-    records = load_recent_csv_records(days=7)
-    log.info(f"Found {len(records)} records from last 7 days")
-
-    subject, body = format_weekly_digest(records, week_start)
-    save_weekly_brief(body, today)
-
-    if not dry_run:
-        send_email(subject, body)
-        git_run("add", ".")
-        code, _, stderr = git_run("commit", "-m", f"weekly digest {today}: brief saved to briefs/{today}.md")
-        if code != 0:
-            log.error(f"git commit failed: {stderr}")
-        else:
-            remote_url = os.getenv("GITHUB_REMOTE_URL", "")
-            if remote_url:
-                push_code, _, push_err = git_run("push", "origin", "main")
-                if push_code != 0:
-                    log.error(f"git push failed: {push_err}")
-                else:
-                    log.info("git push successful")
-    else:
-        log.info("[dry-run] Skipping email and git push")
-
-    log.info("=== Weekly digest complete ===")
-
-
 # ── CLI ────────────────────────────────────────────────────────────────────
 
 def main():
     parser = argparse.ArgumentParser(
         description="Market Intel — gym software competitive intelligence scraper"
     )
-    parser.add_argument("--weekly", action="store_true", help="Run weekly digest instead of daily run")
     parser.add_argument("--dry-run", action="store_true", help="Skip email and git push; write files locally")
     args = parser.parse_args()
 
     ensure_git_repo()
 
-    if args.weekly:
-        run_weekly(dry_run=args.dry_run)
-    else:
-        run_daily(dry_run=args.dry_run)
+    run_daily(dry_run=args.dry_run)
 
 
 if __name__ == "__main__":
