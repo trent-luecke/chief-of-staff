@@ -26,6 +26,8 @@ data/*
 !data/memory/
 data/memory/*
 !data/memory/decisions.md
+!data/meeting_memory/
+!data/meeting_memory/**
 
 # Market intel scraped data — runtime output, not source
 market-intel/data/
