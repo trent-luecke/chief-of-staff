@@ -20,6 +20,7 @@ class IngestState:
     last_obs_line: int = 0
     memory_mtimes: dict = field(default_factory=dict)
     raw_record_ids: dict = field(default_factory=dict)
+    sidecar_enriched_lines: list = field(default_factory=list)
 
 
 def load_ingest_state(storage) -> IngestState:
@@ -30,6 +31,7 @@ def load_ingest_state(storage) -> IngestState:
         last_obs_line=data.get("last_obs_line", 0),
         memory_mtimes=data.get("memory_mtimes", {}),
         raw_record_ids=data.get("raw_record_ids", {}),
+        sidecar_enriched_lines=data.get("sidecar_enriched_lines", []),
     )
 
 
@@ -45,9 +47,44 @@ def _sanitize_id(raw: str) -> str:
     return re.sub(r"-{2,}", "-", ascii_only)
 
 
-def build_observation_text(obs: dict) -> str:
-    """Build the text string to embed for a single observation."""
-    parts = [f"{obs.get('type', 'unknown')}: {obs.get('content', '')}"]
+def _load_person_names() -> dict:
+    """Return person_id → canonical_name from the registry (best-effort)."""
+    registry_file = Path("data/people_registry.json")
+    try:
+        if registry_file.exists():
+            data = json.loads(registry_file.read_text(encoding="utf-8"))
+            return {p["id"]: p["canonical_name"] for p in data.get("people", [])}
+    except Exception:
+        pass
+    return {}
+
+
+def _load_sidecar(sidecar_file: str | None) -> dict:
+    """Load people_resolution.json sidecar. Returns empty dict if absent."""
+    if not sidecar_file:
+        return {}
+    try:
+        p = Path(sidecar_file)
+        if p.exists():
+            return json.loads(p.read_text(encoding="utf-8")).get("resolutions", {})
+    except Exception:
+        pass
+    return {}
+
+
+def build_observation_text(obs: dict, person_name: str | None = None) -> str:
+    """Build the text string to embed for a single observation.
+
+    When person_name is provided, it is prepended to improve embedding quality
+    by grounding the semantic content to a specific person.
+    """
+    obs_type = obs.get("type", "unknown")
+    content = obs.get("content", "")
+    if person_name:
+        prefix = f"{obs_type} [{person_name}]: {content}"
+    else:
+        prefix = f"{obs_type}: {content}"
+    parts = [prefix]
     if obs.get("context"):
         parts.append(f"Context: {obs['context']}")
     return " | ".join(parts)
@@ -432,9 +469,13 @@ def ingest(
     bugs=None,
     cancellations=None,
     sales_entries=None,
+    sidecar_file: str | None = None,
 ) -> None:
     """Run the full ingest pipeline: embed new observations + updated memories + raw KPI records."""
     state = load_ingest_state(storage)
+    person_names = _load_person_names()
+    sidecar = _load_sidecar(sidecar_file)
+    enriched_set = set(state.sidecar_enriched_lines)
 
     # Prepare observation records from storage
     content = storage.read(_OBS_KEY) or ""
@@ -454,18 +495,73 @@ def ingest(
         obs_type = obs.get("type", "unknown")
         entity = obs.get("entity", "unknown")
         vector_id = _sanitize_id(f"{obs_date}:{obs_type}:{entity}:{i}")
+
+        # Resolve person_id: prefer embedded field, fall back to sidecar
+        person_id = obs.get("primary_person_id")
+        related_ids = obs.get("related_person_ids", [])
+        if person_id is None and str(i) in sidecar:
+            res = sidecar[str(i)]
+            person_id = res.get("primary_person_id")
+            related_ids = res.get("related_person_ids", [])
+
+        person_name = person_names.get(person_id) if person_id else None
+
         obs_records.append({
             "id": vector_id,
-            "text": build_observation_text(obs),
+            "text": build_observation_text(obs, person_name),
             "metadata": {
                 "date": obs_date,
                 "type": obs_type,
                 "entity": entity,
+                "person_id": person_id or "",
+                "related_person_ids": related_ids,
                 "source": obs.get("source", ""),
                 "content_preview": obs.get("content", "")[:500],
             },
             "line_number": i,
         })
+
+    # Sidecar re-ingestion: enrich historical observations that now have a resolved person_id
+    sidecar_records = []
+    if sidecar and lines:
+        for line_str, res in sidecar.items():
+            line_num = int(line_str)
+            if line_num in enriched_set:
+                continue
+            if line_num >= state.last_obs_line:
+                continue  # Will be handled in the new-observations pass above
+            person_id = res.get("primary_person_id")
+            if not person_id:
+                continue  # System-level or unresolved — no enrichment needed
+            if line_num >= len(lines):
+                continue
+            raw_line = lines[line_num].strip()
+            if not raw_line:
+                continue
+            try:
+                obs = json.loads(raw_line)
+            except json.JSONDecodeError:
+                continue
+            obs_date = obs.get("date", "unknown")
+            obs_type = obs.get("type", "unknown")
+            entity = obs.get("entity", "unknown")
+            vector_id = _sanitize_id(f"{obs_date}:{obs_type}:{entity}:{line_num}")
+            person_name = person_names.get(person_id)
+            related_ids = res.get("related_person_ids", [])
+            sidecar_records.append({
+                "id": vector_id,
+                "text": build_observation_text(obs, person_name),
+                "metadata": {
+                    "date": obs_date,
+                    "type": obs_type,
+                    "entity": entity,
+                    "person_id": person_id,
+                    "related_person_ids": related_ids,
+                    "source": obs.get("source", ""),
+                    "content_preview": obs.get("content", "")[:500],
+                },
+                "line_number": line_num,
+            })
 
     # Prepare memory records from storage
     memory_keys = [
@@ -535,7 +631,7 @@ def ingest(
         previous_ids=state.raw_record_ids,
     )
 
-    if not obs_records and not mem_records and not raw_records:
+    if not obs_records and not mem_records and not raw_records and not sidecar_records:
         print("   No new data to ingest.")
         return
 
@@ -544,13 +640,24 @@ def ingest(
     pc_index = pc.Index(index_name)
     vo = voyageai.Client(api_key=voyage_api_key)
 
-    # Embed and upsert observations
+    # Embed and upsert new observations
     if obs_records:
         obs_count = _embed_and_upsert(
             vo, pc_index, obs_namespace, embedding_model, obs_records
         )
         print(f"   Upserted {obs_count} observation vectors.")
         state.last_obs_line = obs_records[-1]["line_number"] + 1
+        save_ingest_state(state, storage)
+
+    # Re-ingest historical observations enriched with person_id from sidecar
+    if sidecar_records:
+        sidecar_count = _embed_and_upsert(
+            vo, pc_index, obs_namespace, embedding_model, sidecar_records
+        )
+        print(f"   Re-upserted {sidecar_count} sidecar-enriched observation vectors.")
+        state.sidecar_enriched_lines = sorted(
+            enriched_set | {r["line_number"] for r in sidecar_records}
+        )
         save_ingest_state(state, storage)
 
     # Embed and upsert memories

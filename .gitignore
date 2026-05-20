@@ -23,6 +23,9 @@ data/*
 !data/brief_prefs.md
 !data/pending_change.json
 !data/tasks.json
+!data/people_registry.json
+!data/people_resolution.json
+!data/people_unresolved.json
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

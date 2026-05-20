@@ -918,6 +918,7 @@ def generate_and_deliver(
                                 bugs=[dataclasses.asdict(b) for b in collected.bugs] if collected.bugs else [],
                                 cancellations=collected.cancellations,
                                 sales_entries=collected.sales_data.get("entries", []) if collected.sales_data else [],
+                                sidecar_file="data/people_resolution.json",
                             )
                             print("✅  Vector ingest complete.")
                         except Exception as e:
