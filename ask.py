@@ -139,6 +139,17 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
             print(f"  Notes captured via reply for: {nudge['meeting_name']}")
             return
 
+    # If this is a reply to a people-resolution notification, route to handler
+    if reply_to_id:
+        resolution_state = storage.read_json("people_unresolved_state.json")
+        if resolution_state and str(resolution_state.get("telegram_message_id")) == reply_to_id:
+            from processors.people_resolution_handler import handle_resolution_reply
+            ack = handle_resolution_reply(query, storage)
+            if bot_token:
+                send_message(bot_token, chat_id, ack)
+            print(f"  People resolution reply processed.")
+            return
+
     # /brief score commands are handled locally — no Claude call, no API cost
     score_response = handle_score_command(query, storage=storage)
     if score_response is not None:

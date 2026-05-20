@@ -14,15 +14,17 @@ Resolution strategy per observation type:
 """
 
 import json
+import os
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 from rapidfuzz import fuzz
 
 REGISTRY_FILE = Path("data/people_registry.json")
 RESOLUTION_FILE = Path("data/people_resolution.json")
+UNRESOLVED_STATE_FILE = Path("data/people_unresolved_state.json")
 OBSERVATIONS_FILE = Path("data/memory/observations.jsonl")
 PEOPLE_DIR = Path("data/people")
 
@@ -314,6 +316,84 @@ def resolve_all(
 
 
 # ---------------------------------------------------------------------------
+# Unresolved entity classification (for Telegram notification)
+# ---------------------------------------------------------------------------
+
+def _best_candidate(
+    entity: str,
+    alias_list: list,
+) -> tuple[str | None, str | None, int]:
+    """Return (person_id, canonical_name, score) for the best fuzzy match, ignoring threshold."""
+    best_id, best_canonical, best_score = None, None, 0
+    for canonical, aliases, pid in alias_list:
+        for alias in aliases:
+            score = fuzz.token_sort_ratio(entity.lower(), alias.lower())
+            if score > best_score:
+                best_score, best_id, best_canonical = score, pid, canonical
+    if best_score >= 50:
+        return best_id, best_canonical, best_score
+    return None, None, 0
+
+
+def _classify_entity(
+    entity: str,
+    email_index: dict,
+    alias_list: list,
+) -> dict:
+    """Classify an unresolved entity for the Telegram notification and state file."""
+    if entity.startswith("#"):
+        return {
+            "entity": entity,
+            "candidate_id": None,
+            "candidate_name": None,
+            "confidence": None,
+            "type": "system_entity",
+        }
+
+    pid, canonical, score = _best_candidate(entity, alias_list)
+    if pid:
+        return {
+            "entity": entity,
+            "candidate_id": pid,
+            "candidate_name": canonical,
+            "confidence": round(score / 100, 2),
+            "type": "fuzzy_match",
+        }
+
+    return {
+        "entity": entity,
+        "candidate_id": None,
+        "candidate_name": None,
+        "confidence": None,
+        "type": "no_match",
+    }
+
+
+def _build_notification(classified: list[dict]) -> str:
+    n = len(classified)
+    lines = [f"{n} unresolved {'entity' if n == 1 else 'entities'} from today:\n"]
+    for item in classified:
+        idx = item["index"]
+        entity = item["entity"]
+        if item["type"] == "fuzzy_match":
+            pct = int(round(item["confidence"] * 100))
+            lines.append(f'{idx}. "{entity}" → possible match: {item["candidate_name"]} ({pct}%)')
+        elif item["type"] == "no_match":
+            lines.append(f'{idx}. "{entity}" → no match found')
+        else:
+            lines.append(f'{idx}. "{entity}" → unknown entity')
+    lines.append(
+        "\nReply with:\n"
+        '• "1 confirm" — merge into suggested match\n'
+        '• "1 alias <person-id>" — assign to a specific person ID\n'
+        '• "2 new <Full Name>" — create new person\n'
+        '• "3 skip" — add to permanent skiplist\n'
+        '• Multiple: "1 confirm, 2 new Name, 3 skip"'
+    )
+    return "\n".join(lines)
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
@@ -348,6 +428,39 @@ def main() -> None:
         f"Done: {len(resolutions)} resolved, {len(unresolved_lines)} unresolved"
         f" (of {total} total observations)."
     )
+
+    if not unresolved_entities:
+        return
+
+    # Classify each entity and send a Telegram notification
+    classified = [
+        {"index": i + 1, **_classify_entity(entity, email_index, alias_list)}
+        for i, entity in enumerate(unresolved_entities)
+    ]
+
+    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
+    if not bot_token or not chat_id:
+        print("  TELEGRAM_BOT_TOKEN / TELEGRAM_ALLOWED_CHAT_ID not set — skipping notification.")
+        return
+
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from lib.telegram import send_message
+
+    notification_text = _build_notification(classified)
+    message_id = send_message(bot_token, chat_id, notification_text)
+    if message_id:
+        state = {
+            "telegram_message_id": str(message_id),
+            "sent_at": datetime.now(timezone.utc).isoformat(),
+            "entities": classified,
+        }
+        UNRESOLVED_STATE_FILE.write_text(
+            json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+        print(f"  Telegram notification sent (message_id={message_id}); state written.")
+    else:
+        print("  WARNING: Telegram send failed — state file not written.")
 
 
 if __name__ == "__main__":
