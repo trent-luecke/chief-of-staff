@@ -4,7 +4,11 @@
     {
       "id": "trent-luecke",
       "canonical_name": "Trent Luecke",
-      "aliases": ["Trent Luecke", "trent@teambuildr.com", "Trent"],
+      "aliases": [
+        "Trent Luecke",
+        "trent@teambuildr.com",
+        "Trent"
+      ],
       "email": "trent@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -15,7 +19,11 @@
     {
       "id": "hewitt-tomlin",
       "canonical_name": "Hewitt Tomlin",
-      "aliases": ["Hewitt Tomlin", "hewitt@teambuildr.com", "Hewitt"],
+      "aliases": [
+        "Hewitt Tomlin",
+        "hewitt@teambuildr.com",
+        "Hewitt"
+      ],
       "email": "hewitt@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -26,7 +34,11 @@
     {
       "id": "james-peters",
       "canonical_name": "James Peters",
-      "aliases": ["James Peters", "james@teambuildr.com", "James"],
+      "aliases": [
+        "James Peters",
+        "james@teambuildr.com",
+        "James"
+      ],
       "email": "james@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -37,7 +49,11 @@
     {
       "id": "luke-green",
       "canonical_name": "Luke Green",
-      "aliases": ["Luke Green", "luke@teambuildr.com", "Luke G"],
+      "aliases": [
+        "Luke Green",
+        "luke@teambuildr.com",
+        "Luke G"
+      ],
       "email": "luke@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -48,7 +64,12 @@
     {
       "id": "luke-martin",
       "canonical_name": "Luke Martin",
-      "aliases": ["Luke Martin", "lmartin@teambuildr.com", "Luke M", "LMartin"],
+      "aliases": [
+        "Luke Martin",
+        "lmartin@teambuildr.com",
+        "Luke M",
+        "LMartin"
+      ],
       "email": "lmartin@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -59,7 +80,11 @@
     {
       "id": "nicole-foley",
       "canonical_name": "Nicole Foley",
-      "aliases": ["Nicole Foley", "nicole@teambuildr.com", "Nicole"],
+      "aliases": [
+        "Nicole Foley",
+        "nicole@teambuildr.com",
+        "Nicole"
+      ],
       "email": "nicole@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -70,7 +95,10 @@
     {
       "id": "heather",
       "canonical_name": "Heather",
-      "aliases": ["Heather", "heather@teambuildr.com"],
+      "aliases": [
+        "Heather",
+        "heather@teambuildr.com"
+      ],
       "email": "heather@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -81,7 +109,10 @@
     {
       "id": "rachel",
       "canonical_name": "Rachel",
-      "aliases": ["Rachel", "rachel@teambuildr.com"],
+      "aliases": [
+        "Rachel",
+        "rachel@teambuildr.com"
+      ],
       "email": "rachel@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -92,7 +123,10 @@
     {
       "id": "clayton",
       "canonical_name": "Clayton",
-      "aliases": ["Clayton", "clayton@teambuildr.com"],
+      "aliases": [
+        "Clayton",
+        "clayton@teambuildr.com"
+      ],
       "email": "clayton@teambuildr.com",
       "type": "internal",
       "pipeline_record": null,
@@ -103,11 +137,377 @@
     {
       "id": "ken-andrukow",
       "canonical_name": "Ken Andrukow",
-      "aliases": ["Ken Andrukow", "kenandrukow@gmail.com", "Ken"],
+      "aliases": [
+        "Ken Andrukow",
+        "kenandrukow@gmail.com",
+        "Ken"
+      ],
       "email": "kenandrukow@gmail.com",
       "type": "partner",
       "pipeline_record": null,
       "people_file": "data/people/ken.md",
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "ryan-pace",
+      "canonical_name": "Ryan Pace",
+      "aliases": [
+        "Ryan Pace",
+        "coachpace@realflowperformance.com"
+      ],
+      "email": "coachpace@realflowperformance.com",
+      "type": "lead",
+      "pipeline_record": "Ryan Pace",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "patrick-labat-tgmc",
+      "canonical_name": "Patrick Labat — TGMC",
+      "aliases": [
+        "Patrick Labat — TGMC",
+        "patrick.labat@tgmc.com"
+      ],
+      "email": "patrick.labat@tgmc.com",
+      "type": "lead",
+      "pipeline_record": "Patrick Labat — TGMC",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "mike-woodby-apex-holland",
+      "canonical_name": "Mike Woodby — Apex Holland",
+      "aliases": [
+        "Mike Woodby — Apex Holland",
+        "mike@apexholland.co"
+      ],
+      "email": "mike@apexholland.co",
+      "type": "lead",
+      "pipeline_record": "Mike Woodby — Apex Holland",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "tzach-feinsilver",
+      "canonical_name": "Tzach Feinsilver",
+      "aliases": [
+        "Tzach Feinsilver",
+        "tzach1968@gmail.com"
+      ],
+      "email": "tzach1968@gmail.com",
+      "type": "lead",
+      "pipeline_record": "Tzach Feinsilver",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "cody-coley",
+      "canonical_name": "Cody Coley",
+      "aliases": [
+        "Cody Coley",
+        "ccoley@cbhs.org"
+      ],
+      "email": "ccoley@cbhs.org",
+      "type": "lead",
+      "pipeline_record": "Cody Coley",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "aaron-letinksi",
+      "canonical_name": "Aaron Letinksi",
+      "aliases": [
+        "Aaron Letinksi",
+        "letinskia26@gmail.com"
+      ],
+      "email": "letinskia26@gmail.com",
+      "type": "lead",
+      "pipeline_record": "Aaron Letinksi",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "gameready-performance",
+      "canonical_name": "Gameready Performance",
+      "aliases": [
+        "Gameready Performance",
+        "info@grperformance.com.au"
+      ],
+      "email": "info@grperformance.com.au",
+      "type": "lead",
+      "pipeline_record": "Gameready Performance",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "dustin-sport-performance",
+      "canonical_name": "Dustin Sport Performance",
+      "aliases": [
+        "Dustin Sport Performance",
+        "dustin.sportperformance@gmail.com"
+      ],
+      "email": "dustin.sportperformance@gmail.com",
+      "type": "lead",
+      "pipeline_record": "Dustin Sport Performance",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "the-bullpen-utah",
+      "canonical_name": "The Bullpen Utah",
+      "aliases": [
+        "The Bullpen Utah",
+        "billy@thebullpenut.com"
+      ],
+      "email": "billy@thebullpenut.com",
+      "type": "lead",
+      "pipeline_record": "The Bullpen Utah",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "emma-hicks-for-fitness-athletics",
+      "canonical_name": "Emma Hicks — For Fitness & Athletics",
+      "aliases": [
+        "Emma Hicks — For Fitness & Athletics",
+        "emmahicks@forfitnessandathletics.com"
+      ],
+      "email": "emmahicks@forfitnessandathletics.com",
+      "type": "lead",
+      "pipeline_record": "Emma Hicks — For Fitness & Athletics",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "okonji",
+      "canonical_name": "okonji",
+      "aliases": [
+        "okonji",
+        "chrisjeremey@gmail.com"
+      ],
+      "email": "chrisjeremey@gmail.com",
+      "type": "lead",
+      "pipeline_record": "okonji",
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "summitperformanceinstitute",
+      "canonical_name": "Summitperformanceinstitute",
+      "aliases": [
+        "Summitperformanceinstitute"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "jeff-davidson",
+      "canonical_name": "Jeff Davidson",
+      "aliases": [
+        "Jeff Davidson"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "ben-deloach",
+      "canonical_name": "Ben Deloach",
+      "aliases": [
+        "Ben Deloach"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "zack",
+      "canonical_name": "Zack",
+      "aliases": [
+        "Zack"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "ryan-allwein",
+      "canonical_name": "Ryan Allwein",
+      "aliases": [
+        "Ryan Allwein"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "josh",
+      "canonical_name": "Josh",
+      "aliases": [
+        "Josh"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "coachbrigitaroemer",
+      "canonical_name": "Coachbrigitaroemer",
+      "aliases": [
+        "Coachbrigitaroemer"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "roseca",
+      "canonical_name": "Roseca",
+      "aliases": [
+        "Roseca"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "chris-reynolds",
+      "canonical_name": "Chris Reynolds",
+      "aliases": [
+        "Chris Reynolds"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "jeffromkey",
+      "canonical_name": "Jeffromkey",
+      "aliases": [
+        "Jeffromkey"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "benjamin-villalon",
+      "canonical_name": "Benjamin Villalon",
+      "aliases": [
+        "Benjamin Villalon"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "admin",
+      "canonical_name": "Admin",
+      "aliases": [
+        "Admin"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "coachpace",
+      "canonical_name": "Coachpace",
+      "aliases": [
+        "Coachpace"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "levelupmobilegym",
+      "canonical_name": "Levelupmobilegym",
+      "aliases": [
+        "Levelupmobilegym"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "drake",
+      "canonical_name": "Drake",
+      "aliases": [
+        "Drake"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-20",
+      "last_seen": "2026-05-20"
+    },
+    {
+      "id": "asher",
+      "canonical_name": "Asher",
+      "aliases": [
+        "Asher"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-05-20"
     }
