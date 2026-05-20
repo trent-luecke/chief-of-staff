@@ -1,0 +1,138 @@
+name: Person Resolution
+
+on:
+  schedule:
+    # 10pm CDT (UTC-5, Apr-Oct). Change to "0 4 * * *" in November for CST (UTC-6).
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TZ: America/Chicago
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Configure git
+        run: |
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+
+      - name: Download observations from R2
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          python - <<'EOF'
+          import json, sys
+          from pathlib import Path
+          sys.path.insert(0, ".")
+          from lib.storage import build_storage
+          with open("config.json") as f:
+              config = json.load(f)
+          storage = build_storage(config)
+          content = storage.read("memory/observations.jsonl") or ""
+          Path("data/memory").mkdir(parents=True, exist_ok=True)
+          Path("data/memory/observations.jsonl").write_text(content, encoding="utf-8")
+          line_count = len([l for l in content.splitlines() if l.strip()])
+          print(f"Downloaded {line_count} observations from storage.")
+          EOF
+
+      - name: Build people registry
+        run: python scripts/build_people_registry.py
+
+      - name: Resolve observations to person IDs
+        run: python scripts/resolve_observations.py
+
+      - name: Commit registry and resolution files
+        run: |
+          git add data/people_registry.json data/people_resolution.json data/people_unresolved.json
+          git diff --staged --quiet || git commit -m "chore: update people registry and resolution sidecar [skip ci]"
+          git push origin main || true
+
+      - name: Notify on new unresolved entities
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+        run: |
+          python - <<'EOF'
+          import json, os, sys
+          from pathlib import Path
+
+          bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+          chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
+          if not bot_token or not chat_id:
+              print("Telegram not configured — skipping notification.")
+              sys.exit(0)
+
+          unresolved_file = Path("data/people_unresolved.json")
+          if not unresolved_file.exists():
+              print("No unresolved file — nothing to notify.")
+              sys.exit(0)
+
+          data = json.loads(unresolved_file.read_text(encoding="utf-8"))
+          all_unresolved = data.get("unresolved", [])
+          notified = set(data.get("previously_notified", []))
+
+          new_entries = [u for u in all_unresolved if u.get("entity") not in notified]
+          if not new_entries:
+              print("No new unresolved entities — skipping notification.")
+              sys.exit(0)
+
+          lines = ["*New unresolved people entities:*\n"]
+          for idx, u in enumerate(new_entries, 1):
+              entity = u.get("entity", "?")
+              source = u.get("source", "?")
+              cand = u.get("candidate_id")
+              score = u.get("candidate_score", 0)
+              if cand:
+                  lines.append(f"{idx}. `{entity}` (source: {source}) — candidate: `{cand}` ({score}%)")
+              else:
+                  lines.append(f"{idx}. `{entity}` (source: {source}) — no match")
+          lines.append("\nReply: `1 confirm`, `2 new Jane Smith`, `3 skip`")
+
+          text = "\n".join(lines)
+
+          import urllib.request, urllib.parse
+          payload = json.dumps({
+              "chat_id": chat_id,
+              "text": text,
+              "parse_mode": "Markdown",
+          }).encode("utf-8")
+          req = urllib.request.Request(
+              f"https://api.telegram.org/bot{bot_token}/sendMessage",
+              data=payload,
+              headers={"Content-Type": "application/json"},
+          )
+          with urllib.request.urlopen(req) as resp:
+              result = json.loads(resp.read())
+              if result.get("ok"):
+                  print(f"Notified {len(new_entries)} new unresolved entities.")
+              else:
+                  print(f"Telegram error: {result}", file=sys.stderr)
+                  sys.exit(1)
+
+          # Update previously_notified and commit
+          data["previously_notified"] = sorted(notified | {u["entity"] for u in new_entries})
+          unresolved_file.write_text(
+              json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+          )
+          EOF
+
+      - name: Commit notification state
+        run: |
+          git add data/people_unresolved.json
+          git diff --staged --quiet || git commit -m "chore: update unresolved notification state [skip ci]"
+          git push origin main || true
