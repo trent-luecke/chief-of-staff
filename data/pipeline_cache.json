@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-19T00:00:00Z",
+  "fetched_at": "2026-05-21T23:03:55Z",
   "leads": [
     {
       "name": "Ryan Pace",
@@ -13,66 +13,11 @@
       "stale": false
     },
     {
-      "name": "Patrick Labat — TGMC",
-      "contact": "Patrick Labat",
-      "email": "patrick.labat@tgmc.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "Medium",
-      "last_contacted": "2026-03-10",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
-      "name": "Mike Woodby — Apex Holland",
-      "contact": "Mike Woodby",
-      "email": "mike@apexholland.co",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": "2026-03-02",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
-      "name": "Tzach Feinsilver",
-      "contact": "Tzach Feinsilver",
-      "email": "tzach1968@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": "2026-03-12",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
-      "name": "Cody Coley",
-      "contact": "Cody Coley",
-      "email": "ccoley@cbhs.org",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Aaron Letinksi",
       "contact": "Aaron Letinski",
       "email": "letinskia26@gmail.com",
       "status": "Out of Demo / Need Upate",
       "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Gameready Performance",
-      "contact": "Daniel Chudleigh",
-      "email": "info@grperformance.com.au",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
       "source": "",
@@ -101,23 +46,34 @@
       "stale": false
     },
     {
-      "name": "Emma Hicks — For Fitness & Athletics",
-      "contact": "Emma Hicks",
-      "email": "emmahicks@forfitnessandathletics.com",
-      "status": "On-Hold",
-      "priority": "Medium",
-      "last_contacted": "2026-03-05",
-      "estimated_value": null,
-      "source": "Marketing",
+      "name": "Cody Coley",
+      "contact": "Cody Coley",
+      "email": "ccoley@cbhs.org",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": "",
       "stale": false
     },
     {
-      "name": "okonji",
-      "contact": "okonji",
-      "email": "chrisjeremey@gmail.com",
-      "status": "On-Hold",
+      "name": "Gameready Performance",
+      "contact": "Daniel Chudleigh",
+      "email": "info@grperformance.com.au",
+      "status": "Out of Demo / Need Upate",
       "priority": "Medium",
-      "last_contacted": "2026-03-12",
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "New customer",
+      "contact": "",
+      "email": "",
+      "status": "Demo Scheduled",
+      "priority": "",
+      "last_contacted": null,
       "estimated_value": null,
       "source": "",
       "stale": false
