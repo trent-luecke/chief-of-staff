@@ -127,6 +127,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-20"
+    },
+    {
+      "entity": "Lee Douglas",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-22"
+    },
+    {
+      "entity": "Oliviak",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-22"
     }
   ],
   "previously_notified": [

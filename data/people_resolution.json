@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-21T00:00:00",
+  "resolved_at": "2026-05-22T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -917,6 +917,76 @@
         "trent-luecke"
       ],
       "confidence": "exact"
+    },
+    "299": {
+      "primary_person_id": "patrick-labat-tgmc",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "300": {
+      "primary_person_id": "mike-woodby-apex-holland",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "301": {
+      "primary_person_id": "tzach-feinsilver",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "302": {
+      "primary_person_id": "emma-hicks-for-fitness-athletics",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "303": {
+      "primary_person_id": "okonji",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "304": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "305": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "306": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "307": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "308": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "309": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "310": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "311": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "312": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -1040,7 +1110,8 @@
     284,
     285,
     286,
-    288
+    288,
+    298
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -1065,6 +1136,7 @@
     "thread:Re: TeamBuildr Demo Recap",
     "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment",
     "thread:Re: Membership fee for Leela Thumati",
-    "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment"
+    "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment",
+    "thread:Re: TeamBuildrOS <> St. Mary's Episcopal"
   ]
 }
