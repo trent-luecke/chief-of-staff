@@ -143,6 +143,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-22"
+    },
+    {
+      "entity": "Alberth",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-23"
     }
   ],
   "previously_notified": [
