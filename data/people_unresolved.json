@@ -151,6 +151,38 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-23"
+    },
+    {
+      "entity": "Hilbre T",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-24"
+    },
+    {
+      "entity": "Nicholas Lewin",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-24"
+    },
+    {
+      "entity": "Bmuller",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-24"
+    },
+    {
+      "entity": "Mwoodby",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-24"
     }
   ],
   "previously_notified": [
