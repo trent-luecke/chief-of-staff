@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-24T23:05:31Z",
+  "fetched_at": "2026-05-25T00:00:00Z",
   "leads": [
     {
       "name": "Ryan Pace",
@@ -9,6 +9,17 @@
       "priority": "High",
       "last_contacted": "2026-05-14",
       "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "The Bullpen Utah",
+      "contact": "William Schlee",
+      "email": "billy@thebullpenut.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
       "source": "",
       "stale": false
     },
@@ -31,17 +42,6 @@
       "priority": "",
       "last_contacted": null,
       "estimated_value": 750,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "The Bullpen Utah",
-      "contact": "William Schlee",
-      "email": "billy@thebullpenut.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
       "source": "",
       "stale": false
     },
