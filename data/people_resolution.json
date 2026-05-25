@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-24T00:00:00",
+  "resolved_at": "2026-05-25T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1082,6 +1082,36 @@
       "primary_person_id": "trent-luecke",
       "related_person_ids": [],
       "confidence": "embedded"
+    },
+    "333": {
+      "primary_person_id": "ryan-pace",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "334": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "335": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "336": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "337": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "338": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -1206,7 +1236,8 @@
     285,
     286,
     288,
-    298
+    298,
+    332
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -1232,6 +1263,7 @@
     "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment",
     "thread:Re: Membership fee for Leela Thumati",
     "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment",
-    "thread:Re: TeamBuildrOS <> St. Mary's Episcopal"
+    "thread:Re: TeamBuildrOS <> St. Mary's Episcopal",
+    "thread:Re: Update - Ascend"
   ]
 }
