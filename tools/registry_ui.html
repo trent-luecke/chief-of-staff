@@ -393,16 +393,33 @@ const el = id => document.getElementById(id);
 
 // ── File System Access ──────────────────────────────────────────────────────
 async function getFileHandle(dirHandle, filePath, create = false) {
-  // STUB — Task 4
+  const parts = filePath.split('/');
+  let cur = dirHandle;
+  for (const part of parts.slice(0, -1)) {
+    cur = await cur.getDirectoryHandle(part, { create: false });
+  }
+  return cur.getFileHandle(parts.at(-1), { create });
 }
+
 async function readJSON(dirHandle, path) {
-  // STUB — Task 4
+  const fh = await getFileHandle(dirHandle, path, false);
+  const file = await fh.getFile();
+  return JSON.parse(await file.text());
 }
+
 async function writeJSON(dirHandle, path, data) {
-  // STUB — Task 4
+  const fh = await getFileHandle(dirHandle, path, true);
+  const writable = await fh.createWritable();
+  await writable.write(JSON.stringify(data, null, 2));
+  await writable.close();
 }
+
 async function readLines(dirHandle, path, limit = null) {
-  // STUB — Task 4
+  const fh = await getFileHandle(dirHandle, path, false);
+  const file = await fh.getFile();
+  const text = await file.text();
+  const lines = text.split('\n').filter(l => l.trim());
+  return limit ? lines.slice(-limit) : lines;
 }
 
 // ── State ───────────────────────────────────────────────────────────────────
@@ -417,15 +434,63 @@ const state = {
 
 // ── Data loading ────────────────────────────────────────────────────────────
 async function loadData() {
-  // STUB — Task 4
+  // Required reads — throw if registry is missing
+  state.registry = await readJSON(state.dir, 'data/people_registry.json');
+
+  // Primary unresolved list — non-fatal
+  state.unresolvedState = await readJSON(state.dir, 'data/people_unresolved_state.json')
+    .catch(() => null);
+
+  // Enrichment file — non-fatal
+  state.unresolvedRich = await readJSON(state.dir, 'data/people_unresolved.json')
+    .catch(() => null);
+
+  // Observations — fully isolated, never blocks the UI
+  try {
+    state.observations = await readLines(state.dir, 'data/memory/observations.jsonl');
+  } catch {
+    state.observations = null;
+  }
+
+  // Session merging: load any existing decisions from a prior save
+  try {
+    const existing = await readJSON(state.dir, 'data/people_resolution_decisions.json');
+    if (Array.isArray(existing?.decisions)) {
+      existing.decisions.forEach(d => { state.decisions[d.entity] = d; });
+    }
+  } catch { /* no prior decisions */ }
 }
+
 function joinUnresolved() {
-  // STUB — Task 4
-  return [];
+  if (!state.unresolvedState?.entities?.length) return [];
+  // Build lookup from enrichment file, keyed by entity string
+  const richMap = {};
+  (state.unresolvedRich?.unresolved ?? []).forEach(e => { richMap[e.entity] = e; });
+  return state.unresolvedState.entities.map(e => ({
+    ...e,
+    source: richMap[e.entity]?.source ?? 'unknown',
+    added: richMap[e.entity]?.added ?? 'unknown',
+    email: richMap[e.entity]?.email ?? null,
+  }));
 }
-function findObservationsForEntity(_entity, _candidateId) {
-  // STUB — Task 4
-  return [];
+
+function findObservationsForEntity(entity, candidateId) {
+  if (!state.observations?.length) return [];
+  const matched = [];
+  for (const line of state.observations) {
+    if (matched.length >= 3) break;
+    try {
+      const obs = JSON.parse(line);
+      if (
+        obs.entity === entity ||
+        (candidateId && obs.primary_person_id === candidateId) ||
+        (candidateId && (obs.related_person_ids ?? []).includes(candidateId))
+      ) {
+        matched.push(obs);
+      }
+    } catch { /* skip malformed lines */ }
+  }
+  return matched;
 }
 
 // ── View: Pending Resolutions ───────────────────────────────────────────────
