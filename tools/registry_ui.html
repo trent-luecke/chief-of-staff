@@ -493,11 +493,113 @@ function findObservationsForEntity(entity, candidateId) {
   return matched;
 }
 
+// ── Registry lookup helpers ────────────────────────────────────────────────
+function getPersonById(id) {
+  return (state.registry?.people ?? []).find(p => p.id === id) ?? null;
+}
+
+function getPersonType(id) {
+  return getPersonById(id)?.type ?? 'unknown';
+}
+
 // ── View: Pending Resolutions ───────────────────────────────────────────────
 function renderPendingView() {
-  el('view-pending').innerHTML = '<div class="empty-state"><h3>Loading…</h3></div>';
+  const entries = joinUnresolved();
+  const view = el('view-pending');
+
+  if (!entries.length) {
+    view.innerHTML = `
+      <div class="empty-state">
+        <h3>No Pending Resolutions</h3>
+        <p>All entities resolved, or no unresolved state file found.</p>
+      </div>`;
+    el('pending-count').textContent = '';
+    return;
+  }
+
+  el('pending-count').textContent = `(${entries.length})`;
+
+  const cardsHtml = entries.map(e => makeCard(e)).join('');
+  view.innerHTML = `
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-label" id="progress-label">0 of ${entries.length} resolved</span>
+    </div>
+    <div id="cards-container">${cardsHtml}</div>
+    <div class="save-bar">
+      <button class="btn-save" id="btn-save" disabled>Save Decisions</button>
+      <span class="save-status hidden" id="save-status">Saved.</span>
+    </div>`;
+
+  updateProgress(entries);
+  attachCardListeners(entries);
+
+  el('btn-save').addEventListener('click', saveDecisions);
 }
-function updateProgress(_entries) { /* STUB — Task 5 */ }
+
+function makeCard(entry) {
+  const decision = state.decisions[entry.entity];
+  const resolved = !!decision;
+
+  // Observation snippet
+  const obs = findObservationsForEntity(entry.entity, entry.candidate_id);
+  const snippetHtml = obs.length
+    ? obs.map(o => `<span class="snippet">${esc(o.content || o.context || '')}</span>`).join('')
+    : `<span class="muted">no observations on file</span>`;
+
+  // Candidate match block
+  const candidateHtml = entry.candidate_id
+    ? `<div class="candidate">
+        Possible match: <strong>${esc(entry.candidate_name)}</strong>
+        <span class="badge badge-${esc(getPersonType(entry.candidate_id))}">${esc(getPersonType(entry.candidate_id))}</span>
+        <span class="confidence">${Math.round((entry.confidence ?? 0) * 100)}%</span>
+      </div>`
+    : `<div class="candidate muted">No match found</div>`;
+
+  const resolutionBadge = resolved
+    ? `<span class="resolution-badge">${esc(decision.action)}</span>` : '';
+
+  return `<div class="card${resolved ? ' resolved' : ''}" data-entity="${esc(entry.entity)}">
+    <div class="card-header">
+      <span class="entity">${esc(entry.entity)}</span>
+      ${resolutionBadge}
+    </div>
+    <div class="card-meta">
+      <span class="source-badge">${esc(entry.source)}</span>
+      <span class="muted">${esc(entry.added)}</span>
+      ${entry.email ? `<span class="muted">${esc(entry.email)}</span>` : ''}
+    </div>
+    <div class="card-snippets">${snippetHtml}</div>
+    ${candidateHtml}
+    <div class="card-actions"${resolved ? ' style="display:none"' : ''}>
+      <button class="btn btn-confirm" data-action="confirm" data-entity="${esc(entry.entity)}"
+        ${!entry.candidate_id ? 'disabled' : ''}>Confirm</button>
+      <button class="btn" data-action="assign" data-entity="${esc(entry.entity)}">Assign to…</button>
+      <button class="btn" data-action="new" data-entity="${esc(entry.entity)}">New Person</button>
+      <button class="btn btn-skip" data-action="skip" data-entity="${esc(entry.entity)}">Skip</button>
+    </div>
+    <div class="card-inline" data-entity="${esc(entry.entity)}"></div>
+  </div>`;
+}
+
+function updateProgress(entries) {
+  const total = entries.length;
+  const done = Object.keys(state.decisions).filter(k =>
+    entries.some(e => e.entity === k)
+  ).length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('progress-fill');
+  const label = document.getElementById('progress-label');
+  const saveBtn = el('btn-save');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = `${done} of ${total} resolved`;
+  if (saveBtn) saveBtn.disabled = done === 0;
+}
+
+function attachCardListeners(_entries) {
+  // STUB — Task 6: wires confirm, assign, new, skip buttons
+}
+
 async function saveDecisions() { /* STUB — Task 6 */ }
 
 // ── View: Registry Browser ──────────────────────────────────────────────────
