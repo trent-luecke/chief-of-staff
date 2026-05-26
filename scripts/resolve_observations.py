@@ -371,26 +371,11 @@ def _classify_entity(
 
 def _build_notification(classified: list[dict]) -> str:
     n = len(classified)
-    lines = [f"{n} unresolved {'entity' if n == 1 else 'entities'} from today:\n"]
-    for item in classified:
-        idx = item["index"]
-        entity = item["entity"]
-        if item["type"] == "fuzzy_match":
-            pct = int(round(item["confidence"] * 100))
-            lines.append(f'{idx}. "{entity}" → possible match: {item["candidate_name"]} ({pct}%)')
-        elif item["type"] == "no_match":
-            lines.append(f'{idx}. "{entity}" → no match found')
-        else:
-            lines.append(f'{idx}. "{entity}" → unknown entity')
-    lines.append(
-        "\nReply with:\n"
-        '• "1 confirm" — merge into suggested match\n'
-        '• "1 alias <person-id>" — assign to a specific person ID\n'
-        '• "2 new <Full Name>" — create new person\n'
-        '• "3 skip" — add to permanent skiplist\n'
-        '• Multiple: "1 confirm, 2 new Name, 3 skip"'
+    noun = "entity" if n == 1 else "entities"
+    return (
+        f"{n} unresolved {noun} from tonight's run.\n\n"
+        "Open your people tracker HTML artifact to reconcile new items."
     )
-    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
