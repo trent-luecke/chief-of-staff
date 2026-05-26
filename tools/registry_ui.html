@@ -596,11 +596,174 @@ function updateProgress(entries) {
   if (saveBtn) saveBtn.disabled = done === 0;
 }
 
-function attachCardListeners(_entries) {
-  // STUB — Task 6: wires confirm, assign, new, skip buttons
+function attachCardListeners(entries) {
+  el('cards-container').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const entity = btn.dataset.entity;
+    const entry = entries.find(en => en.entity === entity);
+    if (!entry) return;
+    const action = btn.dataset.action;
+    if (action === 'confirm') handleConfirm(entry, entries);
+    if (action === 'assign') handleAssign(entry, entries);
+    if (action === 'new') handleNew(entry, entries);
+    if (action === 'skip') handleSkip(entry, entries);
+  });
 }
 
-async function saveDecisions() { /* STUB — Task 6 */ }
+function resolveCard(entity, decision, entries) {
+  state.decisions[entity] = decision;
+  const card = document.querySelector(`.card[data-entity="${CSS.escape(entity)}"]`);
+  if (!card) return;
+  card.classList.add('resolved');
+  card.querySelector('.card-header').querySelector('.resolution-badge')?.remove();
+  card.querySelector('.card-header').insertAdjacentHTML('beforeend',
+    `<span class="resolution-badge">${esc(decision.action)}</span>`);
+  const actionsDiv = card.querySelector('.card-actions');
+  if (actionsDiv) actionsDiv.style.display = 'none';
+  const inlineDiv = card.querySelector('.card-inline');
+  if (inlineDiv) inlineDiv.innerHTML = '';
+  updateProgress(entries);
+}
+
+function handleConfirm(entry, entries) {
+  resolveCard(entry.entity, {
+    index: entry.index,
+    entity: entry.entity,
+    action: 'confirm',
+    target_id: entry.candidate_id,
+  }, entries);
+}
+
+function handleSkip(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  inlineDiv.innerHTML = `
+    <div class="inline-confirm">
+      <span>Add to permanent skiplist?</span>
+      <button class="btn" data-skip-cancel>Cancel</button>
+      <button class="btn btn-skip" data-skip-confirm>Yes, skip</button>
+    </div>`;
+  inlineDiv.querySelector('[data-skip-cancel]').addEventListener('click', () => {
+    inlineDiv.innerHTML = '';
+  });
+  inlineDiv.querySelector('[data-skip-confirm]').addEventListener('click', () => {
+    resolveCard(entry.entity, { index: entry.index, entity: entry.entity, action: 'skip' }, entries);
+  });
+}
+
+function handleAssign(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  const people = state.registry?.people ?? [];
+  inlineDiv.innerHTML = `
+    <div class="typeahead-wrap">
+      <input class="typeahead-input" placeholder="Search people…" autocomplete="off" />
+      <div class="typeahead-list" id="ta-${esc(entry.entity)}"></div>
+    </div>`;
+  const input = inlineDiv.querySelector('.typeahead-input');
+  const list = inlineDiv.querySelector('.typeahead-list');
+  input.focus();
+
+  function renderMatches(query) {
+    const q = query.toLowerCase();
+    const matches = q.length < 1 ? people.slice(0, 8) : people.filter(p =>
+      p.canonical_name.toLowerCase().includes(q) ||
+      (p.aliases ?? []).some(a => a.toLowerCase().includes(q))
+    ).slice(0, 8);
+    list.innerHTML = matches.map(p =>
+      `<div class="typeahead-item" data-id="${esc(p.id)}">
+        <span>${esc(p.canonical_name)}</span>
+        <span class="badge badge-${esc(p.type)}">${esc(p.type)}</span>
+      </div>`
+    ).join('');
+    list.querySelectorAll('.typeahead-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const person = people.find(p => p.id === item.dataset.id);
+        if (!person) return;
+        resolveCard(entry.entity, {
+          index: entry.index, entity: entry.entity,
+          action: 'assign', target_id: person.id,
+        }, entries);
+      });
+    });
+  }
+
+  renderMatches('');
+  input.addEventListener('input', () => renderMatches(input.value));
+}
+
+function handleNew(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  inlineDiv.innerHTML = `
+    <div class="inline-form">
+      <div class="form-row">
+        <div>
+          <label>Canonical Name *</label>
+          <input id="new-name-${esc(entry.index)}" placeholder="Full Name" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="new-email-${esc(entry.index)}" placeholder="optional" type="email" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Type</label>
+          <select id="new-type-${esc(entry.index)}">
+            <option value="unknown">unknown</option>
+            <option value="lead">lead</option>
+            <option value="customer">customer</option>
+            <option value="partner">partner</option>
+            <option value="internal">internal</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:6px">
+          <button class="btn" data-new-cancel>Cancel</button>
+          <button class="btn btn-confirm" data-new-submit>Create</button>
+        </div>
+      </div>
+    </div>`;
+  inlineDiv.querySelector('[data-new-cancel]').addEventListener('click', () => {
+    inlineDiv.innerHTML = '';
+  });
+  inlineDiv.querySelector('[data-new-submit]').addEventListener('click', () => {
+    const name = inlineDiv.querySelector(`#new-name-${entry.index}`).value.trim();
+    if (!name) { inlineDiv.querySelector(`#new-name-${entry.index}`).focus(); return; }
+    resolveCard(entry.entity, {
+      index: entry.index, entity: entry.entity, action: 'new',
+      canonical_name: name,
+      email: inlineDiv.querySelector(`#new-email-${entry.index}`).value.trim() || null,
+      type: inlineDiv.querySelector(`#new-type-${entry.index}`).value,
+    }, entries);
+  });
+}
+
+async function saveDecisions() {
+  const btn = el('btn-save');
+  const status = el('save-status');
+  btn.disabled = true;
+
+  const sourceId = state.unresolvedState?.telegram_message_id ?? null;
+  const decisionsArr = Object.values(state.decisions);
+
+  const payload = {
+    decided_at: new Date().toISOString().replace(/\.\d{3}Z$/, ''),
+    source_message_id: sourceId,
+    decisions: decisionsArr,
+  };
+
+  try {
+    await writeJSON(state.dir, 'data/people_resolution_decisions.json', payload);
+    status.classList.remove('hidden');
+    setTimeout(() => status.classList.add('hidden'), 3000);
+  } catch (e) {
+    alert('Failed to save: ' + e.message);
+  } finally {
+    btn.disabled = decisionsArr.length === 0;
+  }
+}
 
 // ── View: Registry Browser ──────────────────────────────────────────────────
 function renderRegistryView(_filter = '') {
