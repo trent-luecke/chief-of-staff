@@ -766,8 +766,92 @@ async function saveDecisions() {
 }
 
 // ── View: Registry Browser ──────────────────────────────────────────────────
-function renderRegistryView(_filter = '') {
-  el('view-registry').innerHTML = '<div class="empty-state"><h3>Registry</h3><p>Coming soon</p></div>';
+function renderRegistryView(filter = '') {
+  const view = el('view-registry');
+  const people = state.registry?.people ?? [];
+  const q = filter.toLowerCase();
+  const filtered = q
+    ? people.filter(p =>
+        p.canonical_name.toLowerCase().includes(q) ||
+        (p.aliases ?? []).some(a => a.toLowerCase().includes(q)) ||
+        (p.email ?? '').toLowerCase().includes(q)
+      )
+    : people;
+
+  view.innerHTML = `
+    <input class="search-input" id="registry-search" placeholder="Search names, aliases, email…" value="${esc(filter)}" />
+    <div id="registry-list"></div>`;
+
+  const list = el('registry-list');
+  list.innerHTML = filtered.length
+    ? filtered.map(p => `
+        <div class="registry-row" data-id="${esc(p.id)}">
+          <span class="registry-name">${esc(p.canonical_name)}</span>
+          <span class="badge badge-${esc(p.type)}">${esc(p.type)}</span>
+          <span class="registry-meta">${esc(p.last_seen ?? '')}</span>
+          <span class="registry-meta muted">${(p.aliases ?? []).length} aliases</span>
+        </div>
+        <div class="registry-detail hidden" id="detail-${esc(p.id)}"></div>`
+      ).join('')
+    : '<div class="empty-state"><p>No results</p></div>';
+
+  // Expand/collapse on row click
+  list.querySelectorAll('.registry-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id = row.dataset.id;
+      const detail = document.getElementById(`detail-${id}`);
+      if (!detail) return;
+      if (!detail.classList.contains('hidden')) {
+        detail.classList.add('hidden');
+        detail.innerHTML = '';
+        return;
+      }
+      const person = people.find(p => p.id === id);
+      if (!person) return;
+
+      // Recent observations for this person
+      const personObs = (state.observations ?? []).reduce((acc, line) => {
+        if (acc.length >= 5) return acc;
+        try {
+          const obs = JSON.parse(line);
+          if (obs.primary_person_id === id ||
+              (obs.related_person_ids ?? []).includes(id)) acc.push(obs);
+        } catch { /* skip */ }
+        return acc;
+      }, []);
+
+      const obsHtml = personObs.length
+        ? personObs.map(o => `
+            <div class="obs-entry">
+              <div class="obs-date">${esc(o.date ?? '')}
+                <span class="obs-type-badge">${esc(o.type ?? '')}</span>
+              </div>
+              <div class="obs-content">${esc((o.content ?? '').slice(0, 200))}</div>
+            </div>`).join('')
+        : '<span class="muted">no observations on file</span>';
+
+      const aliasesHtml = (person.aliases ?? []).length
+        ? `<div class="alias-list">${(person.aliases ?? []).map(a =>
+            `<span class="alias-chip">${esc(a)}</span>`).join('')}</div>`
+        : '<span class="muted">none</span>';
+
+      detail.innerHTML = `
+        <div class="detail-row"><span class="detail-label">ID:</span><span class="alias-chip">${esc(person.id)}</span></div>
+        ${person.email ? `<div class="detail-row"><span class="detail-label">Email:</span>${esc(person.email)}</div>` : ''}
+        ${person.pipeline_record ? `<div class="detail-row"><span class="detail-label">Pipeline:</span>${esc(person.pipeline_record)}</div>` : ''}
+        ${person.people_file ? `<div class="detail-row"><span class="detail-label">File:</span>${esc(person.people_file)}</div>` : ''}
+        <div class="detail-row"><span class="detail-label">Aliases:</span>${aliasesHtml}</div>
+        <div class="detail-row" style="margin-top:8px"><span class="detail-label">Observations:</span></div>
+        ${obsHtml}`;
+      detail.classList.remove('hidden');
+    });
+  });
+
+  // Live search
+  el('registry-search').addEventListener('input', e => {
+    renderRegistryView(e.target.value);
+  });
+  el('registry-search').focus();
 }
 
 // ── View: Recent Observations ───────────────────────────────────────────────
