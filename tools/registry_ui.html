@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>People Registry</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #181818;
+      --surface2: #202020;
+      --border: #2c2c2c;
+      --text: #ddd;
+      --muted: #666;
+      --accent: #4a9eff;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --lead: #3b82f6;
+      --customer: #22c55e;
+      --partner: #f59e0b;
+      --internal: #6b7280;
+      --unknown: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .hidden { display: none !important; }
+
+    /* ── Screens (unsupported / access prompt / loading) ── */
+    .screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .center-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 400px;
+    }
+    .center-card h2 { font-size: 18px; margin-bottom: 10px; }
+    .center-card p { color: var(--muted); margin-bottom: 24px; font-size: 13px; }
+
+    /* ── Buttons ── */
+    button { cursor: pointer; font-size: 12px; border-radius: 4px; border: none; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 20px;
+      font-size: 13px;
+    }
+    .btn-primary:hover { background: #3a8eef; }
+    .btn { background: var(--surface2); color: var(--text); padding: 5px 12px; border: 1px solid var(--border); }
+    .btn:hover:not(:disabled) { background: #2a2a2a; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-confirm { border-color: var(--success); color: var(--success); }
+    .btn-confirm:hover:not(:disabled) { background: rgba(34,197,94,.1); }
+    .btn-skip { border-color: var(--danger); color: var(--danger); }
+    .btn-skip:hover { background: rgba(239,68,68,.1); }
+    .btn-save {
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 22px;
+      font-size: 13px;
+      border-radius: 4px;
+    }
+    .btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-save:hover:not(:disabled) { background: #3a8eef; }
+
+    /* ── App layout ── */
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 16px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab {
+      background: none;
+      color: var(--muted);
+      padding: 7px 14px;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid transparent;
+      border-bottom: none;
+      font-size: 13px;
+    }
+    .tab.active {
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .tab:hover:not(.active) { color: var(--text); }
+    main { flex: 1; overflow-y: auto; padding: 20px 16px; }
+    .view { max-width: 780px; margin: 0 auto; }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .progress-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s; }
+    .progress-label { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: opacity 0.15s;
+    }
+    .card.resolved { opacity: 0.55; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .entity {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .resolution-badge {
+      font-size: 11px;
+      background: rgba(74,158,255,.15);
+      color: var(--accent);
+      border: 1px solid rgba(74,158,255,.3);
+      border-radius: 3px;
+      padding: 1px 7px;
+    }
+    .card-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .source-badge {
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 7px;
+      color: var(--muted);
+    }
+    .card-snippets { color: var(--muted); font-size: 12px; margin-bottom: 10px; line-height: 1.4; }
+    .snippet { display: block; }
+    .snippet + .snippet { margin-top: 4px; }
+    .candidate { font-size: 12px; margin-bottom: 10px; color: var(--muted); }
+    .candidate strong { color: var(--text); }
+    .confidence { opacity: 0.6; }
+    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .card-inline { margin-top: 10px; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .badge-lead { background: rgba(59,130,246,.2); color: var(--lead); }
+    .badge-customer { background: rgba(34,197,94,.2); color: var(--customer); }
+    .badge-partner { background: rgba(245,158,11,.2); color: var(--partner); }
+    .badge-internal { background: rgba(107,114,128,.2); color: var(--internal); }
+    .badge-unknown { background: rgba(239,68,68,.2); color: var(--unknown); }
+
+    /* ── Inline typeahead ── */
+    .typeahead-wrap { position: relative; }
+    .typeahead-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+    }
+    .typeahead-list {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      z-index: 10;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .typeahead-item {
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .typeahead-item:hover { background: var(--surface); }
+
+    /* ── Inline new-person form ── */
+    .inline-form { display: flex; flex-direction: column; gap: 8px; }
+    .inline-form label { font-size: 11px; color: var(--muted); }
+    .inline-form input, .inline-form select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      width: 100%;
+      outline: none;
+    }
+    .inline-form input:focus, .inline-form select:focus { border-color: var(--accent); }
+    .inline-form select option { background: var(--surface2); }
+    .form-row { display: flex; gap: 8px; }
+    .form-row > * { flex: 1; }
+    .inline-confirm { font-size: 12px; color: var(--danger); display: flex; gap: 8px; align-items: center; }
+    .inline-confirm span { flex: 1; }
+
+    /* ── Save bar ── */
+    .save-bar {
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px -16px -20px;
+    }
+    .save-status { font-size: 12px; color: var(--success); }
+
+    /* ── Registry browser ── */
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .registry-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: var(--surface);
+    }
+    .registry-row:hover { background: var(--surface2); }
+    .registry-name { flex: 1; font-size: 13px; }
+    .registry-meta { font-size: 11px; color: var(--muted); }
+    .registry-detail {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 12px;
+      margin-top: -6px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .detail-row { margin-bottom: 5px; }
+    .detail-label { color: var(--muted); margin-right: 6px; }
+    .alias-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .alias-chip {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      color: var(--muted);
+    }
+
+    /* ── Observations view ── */
+    .obs-group { margin-bottom: 18px; }
+    .obs-group-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .obs-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .obs-entry:last-child { border-bottom: none; }
+    .obs-date { color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+    .obs-type-badge {
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+    .obs-content { color: var(--text); margin-top: 3px; }
+
+    /* ── Empty states ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state h3 { font-size: 15px; margin-bottom: 8px; color: var(--text); }
+    .muted { color: var(--muted); }
+    hr.section-sep { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Screen: unsupported browser -->
+  <div id="screen-unsupported" class="screen hidden">
+    <div class="center-card">
+      <h2>Unsupported Browser</h2>
+      <p>This tool requires Chrome or Edge (File System Access API).</p>
+    </div>
+  </div>
+
+  <!-- Screen: folder access prompt -->
+  <div id="screen-access" class="screen hidden">
+    <div class="center-card">
+      <h2>People Registry</h2>
+      <p>Select the repo root folder to load registry data.</p>
+      <button class="btn-primary" id="btn-access">Select Repo Folder</button>
+    </div>
+  </div>
+
+  <!-- Screen: loading -->
+  <div id="screen-loading" class="screen hidden">
+    <div class="center-card">
+      <h2>Loading…</h2>
+      <p>Reading registry and unresolved data.</p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <nav class="tabs">
+      <button class="tab active" data-view="pending">Pending <span id="pending-count"></span></button>
+      <button class="tab" data-view="registry">Registry</button>
+      <button class="tab" data-view="observations">Observations</button>
+    </nav>
+    <main>
+      <div id="view-pending" class="view"></div>
+      <div id="view-registry" class="view hidden"></div>
+      <div id="view-observations" class="view hidden"></div>
+    </main>
+  </div>
+
+<script type="module">
+
+// ── Escape helpers ──────────────────────────────────────────────────────────
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const el = id => document.getElementById(id);
+
+// ── File System Access ──────────────────────────────────────────────────────
+async function getFileHandle(dirHandle, filePath, create = false) {
+  // STUB — Task 4
+}
+async function readJSON(dirHandle, path) {
+  // STUB — Task 4
+}
+async function writeJSON(dirHandle, path, data) {
+  // STUB — Task 4
+}
+async function readLines(dirHandle, path, limit = null) {
+  // STUB — Task 4
+}
+
+// ── State ───────────────────────────────────────────────────────────────────
+const state = {
+  dir: null,
+  registry: null,        // { version, people: [], skiplist?: [] }
+  unresolvedState: null, // { telegram_message_id, sent_at, entities: [] }
+  unresolvedRich: null,  // { unresolved: [] }
+  observations: null,    // string[] | null
+  decisions: {},         // keyed by entity string
+};
+
+// ── Data loading ────────────────────────────────────────────────────────────
+async function loadData() {
+  // STUB — Task 4
+}
+function joinUnresolved() {
+  // STUB — Task 4
+  return [];
+}
+function findObservationsForEntity(_entity, _candidateId) {
+  // STUB — Task 4
+  return [];
+}
+
+// ── View: Pending Resolutions ───────────────────────────────────────────────
+function renderPendingView() {
+  el('view-pending').innerHTML = '<div class="empty-state"><h3>Loading…</h3></div>';
+}
+function updateProgress(_entries) { /* STUB — Task 5 */ }
+async function saveDecisions() { /* STUB — Task 6 */ }
+
+// ── View: Registry Browser ──────────────────────────────────────────────────
+function renderRegistryView(_filter = '') {
+  el('view-registry').innerHTML = '<div class="empty-state"><h3>Registry</h3><p>Coming soon</p></div>';
+}
+
+// ── View: Recent Observations ───────────────────────────────────────────────
+function renderObservationsView(_filter = '') {
+  el('view-observations').innerHTML = '<div class="empty-state"><h3>Observations</h3><p>Coming soon</p></div>';
+}
+
+// ── Tab navigation ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.view === name)
+  );
+  ['pending','registry','observations'].forEach(v => {
+    el(`view-${v}`).classList.toggle('hidden', v !== name);
+  });
+}
+
+// ── Entry point ─────────────────────────────────────────────────────────────
+async function init() {
+  if (!('showDirectoryPicker' in window)) {
+    el('screen-unsupported').classList.remove('hidden');
+    return;
+  }
+
+  el('screen-access').classList.remove('hidden');
+
+  el('btn-access').addEventListener('click', async () => {
+    try {
+      state.dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (e) {
+      if (e.name !== 'AbortError') alert('Could not open folder: ' + e.message);
+      return;
+    }
+    el('screen-access').classList.add('hidden');
+    el('screen-loading').classList.remove('hidden');
+    try {
+      await loadData();
+    } catch (e) {
+      alert('Failed to load registry data: ' + e.message);
+      el('screen-loading').classList.add('hidden');
+      el('screen-access').classList.remove('hidden');
+      return;
+    }
+    el('screen-loading').classList.add('hidden');
+    el('app').classList.remove('hidden');
+    renderPendingView();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const view = tab.dataset.view;
+      switchTab(view);
+      if (view === 'registry') renderRegistryView();
+      if (view === 'observations') renderObservationsView();
+    });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
