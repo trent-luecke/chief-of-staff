@@ -855,8 +855,79 @@ function renderRegistryView(filter = '') {
 }
 
 // ── View: Recent Observations ───────────────────────────────────────────────
-function renderObservationsView(_filter = '') {
-  el('view-observations').innerHTML = '<div class="empty-state"><h3>Observations</h3><p>Coming soon</p></div>';
+function renderObservationsView(filter = '') {
+  const view = el('view-observations');
+
+  if (!state.observations) {
+    view.innerHTML = `<div class="empty-state"><h3>No Observations File</h3><p>data/memory/observations.jsonl not found.</p></div>`;
+    return;
+  }
+
+  const lines = state.observations.slice(-200);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    .toISOString().slice(0, 10);
+
+  const parsed = [];
+  for (const line of lines) {
+    try {
+      const obs = JSON.parse(line);
+      if ((obs.date ?? '') >= sevenDaysAgo) parsed.push(obs);
+    } catch { /* skip */ }
+  }
+
+  const q = filter.toLowerCase();
+  const filtered = q
+    ? parsed.filter(o =>
+        (o.content ?? '').toLowerCase().includes(q) ||
+        (o.type ?? '').toLowerCase().includes(q) ||
+        (o.primary_person_id ?? '').toLowerCase().includes(q)
+      )
+    : parsed;
+
+  // Group by primary_person_id
+  const grouped = {};
+  const unattributed = [];
+  for (const obs of filtered) {
+    if (obs.primary_person_id) {
+      (grouped[obs.primary_person_id] ??= []).push(obs);
+    } else {
+      unattributed.push(obs);
+    }
+  }
+
+  const renderObs = obs => `
+    <div class="obs-entry">
+      <div class="obs-date">${esc(obs.date ?? '')}
+        <span class="obs-type-badge">${esc(obs.type ?? '')}</span>
+        ${obs.source ? `<span class="obs-type-badge">${esc(obs.source)}</span>` : ''}
+      </div>
+      <div class="obs-content">${esc((obs.content ?? '').slice(0, 300))}</div>
+    </div>`;
+
+  const groupsHtml = Object.entries(grouped).map(([pid, obsList]) => {
+    const person = getPersonById(pid);
+    const label = person ? person.canonical_name : pid;
+    return `<div class="obs-group">
+      <div class="obs-group-header">${esc(label)}</div>
+      ${obsList.map(renderObs).join('')}
+    </div>`;
+  }).join('');
+
+  const unattributedHtml = unattributed.length ? `
+    <hr class="section-sep">
+    <div class="obs-group">
+      <div class="obs-group-header">Unattributed</div>
+      ${unattributed.map(renderObs).join('')}
+    </div>` : '';
+
+  view.innerHTML = `
+    <input class="search-input" id="obs-search" placeholder="Filter by person, type, or content…" value="${esc(filter)}" />
+    ${!filtered.length
+      ? '<div class="empty-state"><p>No observations in last 7 days matching filter.</p></div>'
+      : groupsHtml + unattributedHtml}`;
+
+  el('obs-search').addEventListener('input', e => renderObservationsView(e.target.value));
+  el('obs-search').focus();
 }
 
 // ── Tab navigation ──────────────────────────────────────────────────────────
