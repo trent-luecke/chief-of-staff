@@ -14,3 +14,16 @@ Serves as a mentor to Trent (and also Hewitt and James). Trent and Ken are curre
 ## Notes
 - Ken has background relevant to gym ownership and business
 - Content topics include: niche selection, retention strategy, marketing, sales, pricing
+
+<!-- AUTO-UPDATED: do not edit below this line -->
+## Activity
+**Last seen:** 2026-05-20
+
+**Significant touchpoints:**
+- (none)
+
+**Recent touchpoints (last 5):**
+- 2026-05-20 | email | "The Operator's Edge: Same Shite, Different Day"
+
+**Open threads:**
+- "The Operator's Edge: Same Shite, Different Day" — needs reply

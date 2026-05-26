@@ -163,7 +163,7 @@ Project-scoped. Triggered by: *"reconcile pending people resolutions"* or *"appl
 3. Apply mutations per decision (see below)
 4. Write updated registry to `data/people_registry.json`
 5. Delete `data/people_resolution_decisions.json`
-6. Commit: `git add data/people_registry.json && git commit -m "chore: apply people resolution decisions (N resolved)"`
+6. Delete decisions file from disk, then commit: `git add data/people_registry.json && git commit -m "chore: apply people resolution decisions (N resolved)"`
 7. Push
 8. Report summary
 

@@ -17,12 +17,15 @@ Main strategic partner for Trent. They do "Brain Blasts" sessions together — b
 
 <!-- AUTO-UPDATED: do not edit below this line -->
 ## Activity
-**Last seen:** 2026-05-18
+**Last seen:** 2026-05-20
 
 **Significant touchpoints:**
-- (none)
+- 2026-05-20 | calendar | "Sales Reviews" | Sales review meeting likely involves performance assessments, quotas, or pipeline commitments requiring follow-up.
+- 2026-05-20 | calendar | "TMB Email Outreach" | Outreach campaign indicates an open deliverable or dependency tied to TMB relationship development.
 
 **Recent touchpoints (last 5):**
+- 2026-05-19 | calendar | "TeamBuildr OS Weekly Dev Sync"
+- 2026-05-19 | calendar | "Rainmakers Anonymous"
 - 2026-05-18 | calendar | "Rev: Department Heads"
 - 2026-05-15 | calendar | "Luke / Trent"
 

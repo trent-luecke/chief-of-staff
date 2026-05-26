@@ -16,12 +16,14 @@ Frequent Slack DM contact. Trent and Luke M collaborate on day-to-day rev team o
 
 <!-- AUTO-UPDATED: do not edit below this line -->
 ## Activity
-**Last seen:** 2026-05-18
+**Last seen:** 2026-05-20
 
 **Significant touchpoints:**
 - 2026-05-04 | calendar | "Stand Up - Sales" | Recurring sales stand-up likely surfaces blockers, commitments, or pipeline dependencies worth monitoring.
+- 2026-05-20 | calendar | "Sales Reviews" | Sales review meeting likely involves performance assessments, quotas, or pipeline commitments requiring follow-up.
 
 **Recent touchpoints (last 5):**
+- 2026-05-19 | calendar | "Rainmakers Anonymous"
 - 2026-05-18 | calendar | "Stand Up - Sales"
 - 2026-05-12 | calendar | "Rev Team Meeting"
 - 2026-05-11 | calendar | "Stand Up - Sales"
