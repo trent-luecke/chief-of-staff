@@ -1,0 +1,1675 @@
+# Registry UI — People Resolution Interface Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Build a self-contained browser-based UI for resolving unresolved people entities, a Claude Code skill for applying decisions to the registry, and simplify the Telegram notification.
+
+**Architecture:** A single `tools/registry_ui.html` file with inline CSS/JS (File System Access API, Chrome/Edge only). UI reads two unresolved-entity files, cross-references them, presents resolution cards, and writes `data/people_resolution_decisions.json`. A separate `.claude/skills/reconcile-people.md` skill reads that file, mutates `data/people_registry.json`, commits, and pushes.
+
+**Tech Stack:** Vanilla HTML/CSS/JS, File System Access API (Chrome/Edge), Python/pytest for the one Python change.
+
+---
+
+## Task 1: Update `_build_notification` in `resolve_observations.py`
+
+**Files:**
+- Modify: `scripts/resolve_observations.py` (function `_build_notification`, ~line 370)
+- Create: `tests/test_resolve_notifications.py`
+
+- [ ] **Step 1: Write the failing test**
+
+```python
+# tests/test_resolve_notifications.py
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from scripts.resolve_observations import _build_notification
+
+
+def test_notification_short_form_single():
+    classified = [{"index": 1, "entity": "foo", "type": "no_match",
+                   "candidate_id": None, "candidate_name": None, "confidence": None}]
+    msg = _build_notification(classified)
+    assert msg == (
+        "1 unresolved entity from tonight's run.\n\n"
+        "Open your people tracker HTML artifact to reconcile new items."
+    )
+
+
+def test_notification_short_form_plural():
+    classified = [
+        {"index": 1, "entity": "foo", "type": "no_match",
+         "candidate_id": None, "candidate_name": None, "confidence": None},
+        {"index": 2, "entity": "bar", "type": "fuzzy_match",
+         "candidate_id": "bar-id", "candidate_name": "Bar Person", "confidence": 0.87},
+    ]
+    msg = _build_notification(classified)
+    assert msg == (
+        "2 unresolved entities from tonight's run.\n\n"
+        "Open your people tracker HTML artifact to reconcile new items."
+    )
+
+
+def test_notification_contains_no_numbered_list():
+    classified = [
+        {"index": 1, "entity": "someone", "type": "fuzzy_match",
+         "candidate_id": "p1", "candidate_name": "Someone", "confidence": 0.90},
+    ]
+    msg = _build_notification(classified)
+    assert "1." not in msg
+    assert "confirm" not in msg.lower()
+    assert "Reply" not in msg
+```
+
+- [ ] **Step 2: Run tests to confirm they fail**
+
+```bash
+cd /Users/trentluecke/dev/Claude-Projects/chief-of-staff
+pytest tests/test_resolve_notifications.py -v
+```
+
+Expected: 3 failures (`AssertionError` — current output has the numbered list and reply instructions).
+
+- [ ] **Step 3: Replace `_build_notification` with the simplified version**
+
+In `scripts/resolve_observations.py`, replace the entire `_build_notification` function body. The current function starts around line 370 with `def _build_notification(classified: list[dict]) -> str:` and ends before `# Entry point`. Replace the body:
+
+```python
+def _build_notification(classified: list[dict]) -> str:
+    n = len(classified)
+    noun = "entity" if n == 1 else "entities"
+    return (
+        f"{n} unresolved {noun} from tonight's run.\n\n"
+        "Open your people tracker HTML artifact to reconcile new items."
+    )
+```
+
+- [ ] **Step 4: Run tests to confirm they pass**
+
+```bash
+pytest tests/test_resolve_notifications.py -v
+```
+
+Expected: 3 passed.
+
+- [ ] **Step 5: Run the full test suite to check for regressions**
+
+```bash
+pytest --ignore=tests/test_vector_ingest_integration.py -v 2>&1 | tail -20
+```
+
+Expected: all previously passing tests still pass.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add scripts/resolve_observations.py tests/test_resolve_notifications.py
+git commit -m "feat: simplify resolve_observations Telegram notification to short-form"
+```
+
+---
+
+## Task 2: Create the `reconcile-people` skill
+
+**Files:**
+- Create: `.claude/skills/reconcile-people.md`
+
+(`.claude/` directory already exists with `settings.json`. Create `skills/` subdirectory.)
+
+- [ ] **Step 1: Create the skill file**
+
+Create `.claude/skills/reconcile-people.md` with exactly this content:
+
+```markdown
+---
+name: reconcile-people
+description: Apply pending people resolution decisions to the registry and commit. Use when Trent says "reconcile pending people resolutions" or "apply resolution decisions".
+---
+
+## When to use
+
+When `data/people_resolution_decisions.json` exists and has a non-empty `decisions` array.
+
+## Steps
+
+1. Read `data/people_resolution_decisions.json`. If file doesn't exist or `decisions` is empty, report "No pending decisions found." and stop.
+2. Read `data/people_registry.json`
+3. Apply mutations (see below) to the in-memory registry object
+4. Write updated registry back to `data/people_registry.json`
+5. Delete `data/people_resolution_decisions.json` from disk
+6. Stage and commit:
+   ```
+   git add data/people_registry.json
+   git commit -m "chore: apply people resolution decisions (N resolved)"
+   ```
+   (Replace N with actual count of decisions applied)
+7. Push: `git push`
+8. Report summary (see format below)
+
+## Mutation logic per action
+
+**`confirm` or `assign`** (both require `target_id`):
+- Look up the person in `registry.people` where `id === target_id`
+- If not found: skip this decision, add "Warning: target_id `<id>` not found" to report, continue
+- If `decision.entity` is not already in `person.aliases`: append it
+- Set `person.last_seen` to today's date as `YYYY-MM-DD`
+
+**`new`** (requires `canonical_name`):
+- Generate `id`: lowercase the canonical_name, replace spaces and non-alphanumeric chars with hyphens, collapse consecutive hyphens, strip leading/trailing hyphens
+  - "Tzach Feinsilver" → "tzach-feinsilver"
+  - "Summit Performance Institute" → "summit-performance-institute"
+- If that id already exists in `registry.people`, append `-2`, incrementing until unique
+- Append to `registry.people`:
+  ```json
+  {
+    "id": "<generated>",
+    "canonical_name": "<from decision.canonical_name>",
+    "aliases": ["<decision.entity>"],
+    "email": "<decision.email or empty string>",
+    "type": "<decision.type or 'unknown'>",
+    "pipeline_record": "",
+    "people_file": "",
+    "created": "<today YYYY-MM-DD>",
+    "last_seen": "<today YYYY-MM-DD>"
+  }
+  ```
+
+**`skip`**:
+- Ensure `registry.skiplist` array exists at the top level of the registry object (create empty array if absent)
+- Append `decision.entity` to `registry.skiplist` if not already present
+
+## Safety invariants
+
+- Never delete existing registry entries
+- Never overwrite `canonical_name` on existing entries
+- Never remove existing aliases — only append new ones
+- Read-modify-write as one atomic operation (read full file → modify in memory → write full file)
+- If `target_id` missing for confirm/assign: skip that decision and report warning, do not abort the run
+
+## After completing
+
+Report in this format:
+```
+Applied N decisions: X aliases added, Y new stubs created, Z skipped.
+Registry committed and pushed.
+```
+
+Include any warnings (missing target_ids) after the summary line.
+```
+
+- [ ] **Step 2: Verify the file is syntactically valid YAML frontmatter**
+
+```bash
+python3 -c "
+import re
+content = open('.claude/skills/reconcile-people.md').read()
+assert content.startswith('---'), 'Missing frontmatter start'
+end = content.index('---', 3)
+print('Frontmatter OK, skill body length:', len(content) - end)
+"
+```
+
+Expected: prints frontmatter OK message without errors.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add .claude/skills/reconcile-people.md
+git commit -m "feat: add reconcile-people Claude Code skill"
+```
+
+---
+
+## Task 3: HTML skeleton — structure, CSS, tab nav, file access flow
+
+**Files:**
+- Create: `tools/registry_ui.html`
+
+This task creates the full file with complete CSS, HTML structure, working tab nav and folder access flow, and JS function stubs. No data is rendered yet — the views show placeholder text.
+
+- [ ] **Step 1: Create `tools/` directory and write the skeleton file**
+
+Create `tools/registry_ui.html` with the content below. Every JS function that renders data is a stub returning placeholder HTML — they will be replaced in Tasks 4–8.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>People Registry</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #181818;
+      --surface2: #202020;
+      --border: #2c2c2c;
+      --text: #ddd;
+      --muted: #666;
+      --accent: #4a9eff;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --lead: #3b82f6;
+      --customer: #22c55e;
+      --partner: #f59e0b;
+      --internal: #6b7280;
+      --unknown: #ef4444;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .hidden { display: none !important; }
+
+    /* ── Screens (unsupported / access prompt / loading) ── */
+    .screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .center-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 40px 48px;
+      text-align: center;
+      max-width: 400px;
+    }
+    .center-card h2 { font-size: 18px; margin-bottom: 10px; }
+    .center-card p { color: var(--muted); margin-bottom: 24px; font-size: 13px; }
+
+    /* ── Buttons ── */
+    button { cursor: pointer; font-size: 12px; border-radius: 4px; border: none; }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 20px;
+      font-size: 13px;
+    }
+    .btn-primary:hover { background: #3a8eef; }
+    .btn { background: var(--surface2); color: var(--text); padding: 5px 12px; border: 1px solid var(--border); }
+    .btn:hover:not(:disabled) { background: #2a2a2a; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-confirm { border-color: var(--success); color: var(--success); }
+    .btn-confirm:hover:not(:disabled) { background: rgba(34,197,94,.1); }
+    .btn-skip { border-color: var(--danger); color: var(--danger); }
+    .btn-skip:hover { background: rgba(239,68,68,.1); }
+    .btn-save {
+      background: var(--accent);
+      color: #fff;
+      padding: 9px 22px;
+      font-size: 13px;
+      border-radius: 4px;
+    }
+    .btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-save:hover:not(:disabled) { background: #3a8eef; }
+
+    /* ── App layout ── */
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+    .tabs {
+      display: flex;
+      gap: 2px;
+      padding: 10px 16px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab {
+      background: none;
+      color: var(--muted);
+      padding: 7px 14px;
+      border-radius: 4px 4px 0 0;
+      border: 1px solid transparent;
+      border-bottom: none;
+      font-size: 13px;
+    }
+    .tab.active {
+      background: var(--bg);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .tab:hover:not(.active) { color: var(--text); }
+    main { flex: 1; overflow-y: auto; padding: 20px 16px; }
+    .view { max-width: 780px; margin: 0 auto; }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .progress-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill { height: 100%; background: var(--accent); transition: width 0.2s; }
+    .progress-label { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      transition: opacity 0.15s;
+    }
+    .card.resolved { opacity: 0.55; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .entity {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+    }
+    .resolution-badge {
+      font-size: 11px;
+      background: rgba(74,158,255,.15);
+      color: var(--accent);
+      border: 1px solid rgba(74,158,255,.3);
+      border-radius: 3px;
+      padding: 1px 7px;
+    }
+    .card-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .source-badge {
+      font-size: 11px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 7px;
+      color: var(--muted);
+    }
+    .card-snippets { color: var(--muted); font-size: 12px; margin-bottom: 10px; line-height: 1.4; }
+    .snippet { display: block; }
+    .snippet + .snippet { margin-top: 4px; }
+    .candidate { font-size: 12px; margin-bottom: 10px; color: var(--muted); }
+    .candidate strong { color: var(--text); }
+    .confidence { opacity: 0.6; }
+    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .card-inline { margin-top: 10px; }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+    }
+    .badge-lead { background: rgba(59,130,246,.2); color: var(--lead); }
+    .badge-customer { background: rgba(34,197,94,.2); color: var(--customer); }
+    .badge-partner { background: rgba(245,158,11,.2); color: var(--partner); }
+    .badge-internal { background: rgba(107,114,128,.2); color: var(--internal); }
+    .badge-unknown { background: rgba(239,68,68,.2); color: var(--unknown); }
+
+    /* ── Inline typeahead ── */
+    .typeahead-wrap { position: relative; }
+    .typeahead-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+    }
+    .typeahead-list {
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      z-index: 10;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .typeahead-item {
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .typeahead-item:hover { background: var(--surface); }
+
+    /* ── Inline new-person form ── */
+    .inline-form { display: flex; flex-direction: column; gap: 8px; }
+    .inline-form label { font-size: 11px; color: var(--muted); }
+    .inline-form input, .inline-form select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      width: 100%;
+      outline: none;
+    }
+    .inline-form input:focus, .inline-form select:focus { border-color: var(--accent); }
+    .inline-form select option { background: var(--surface2); }
+    .form-row { display: flex; gap: 8px; }
+    .form-row > * { flex: 1; }
+    .inline-confirm { font-size: 12px; color: var(--danger); display: flex; gap: 8px; align-items: center; }
+    .inline-confirm span { flex: 1; }
+
+    /* ── Save bar ── */
+    .save-bar {
+      position: sticky;
+      bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 20px -16px -20px;
+    }
+    .save-status { font-size: 12px; color: var(--success); }
+
+    /* ── Registry browser ── */
+    .search-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 14px;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    .registry-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: var(--surface);
+    }
+    .registry-row:hover { background: var(--surface2); }
+    .registry-name { flex: 1; font-size: 13px; }
+    .registry-meta { font-size: 11px; color: var(--muted); }
+    .registry-detail {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 12px;
+      margin-top: -6px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .detail-row { margin-bottom: 5px; }
+    .detail-label { color: var(--muted); margin-right: 6px; }
+    .alias-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .alias-chip {
+      font-family: monospace;
+      font-size: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 6px;
+      color: var(--muted);
+    }
+
+    /* ── Observations view ── */
+    .obs-group { margin-bottom: 18px; }
+    .obs-group-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .obs-entry {
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .obs-entry:last-child { border-bottom: none; }
+    .obs-date { color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+    .obs-type-badge {
+      font-size: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--muted);
+      margin-right: 6px;
+    }
+    .obs-content { color: var(--text); margin-top: 3px; }
+
+    /* ── Empty states ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state h3 { font-size: 15px; margin-bottom: 8px; color: var(--text); }
+    .muted { color: var(--muted); }
+    hr.section-sep { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- Screen: unsupported browser -->
+  <div id="screen-unsupported" class="screen hidden">
+    <div class="center-card">
+      <h2>Unsupported Browser</h2>
+      <p>This tool requires Chrome or Edge (File System Access API).</p>
+    </div>
+  </div>
+
+  <!-- Screen: folder access prompt -->
+  <div id="screen-access" class="screen hidden">
+    <div class="center-card">
+      <h2>People Registry</h2>
+      <p>Select the repo root folder to load registry data.</p>
+      <button class="btn-primary" id="btn-access">Select Repo Folder</button>
+    </div>
+  </div>
+
+  <!-- Screen: loading -->
+  <div id="screen-loading" class="screen hidden">
+    <div class="center-card">
+      <h2>Loading…</h2>
+      <p>Reading registry and unresolved data.</p>
+    </div>
+  </div>
+
+  <!-- App -->
+  <div id="app" class="hidden">
+    <nav class="tabs">
+      <button class="tab active" data-view="pending">Pending <span id="pending-count"></span></button>
+      <button class="tab" data-view="registry">Registry</button>
+      <button class="tab" data-view="observations">Observations</button>
+    </nav>
+    <main>
+      <div id="view-pending" class="view"></div>
+      <div id="view-registry" class="view hidden"></div>
+      <div id="view-observations" class="view hidden"></div>
+    </main>
+  </div>
+
+<script type="module">
+
+// ── Escape helpers ──────────────────────────────────────────────────────────
+const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const el = id => document.getElementById(id);
+
+// ── File System Access ──────────────────────────────────────────────────────
+async function getFileHandle(dirHandle, filePath, create = false) {
+  // STUB — Task 4
+}
+async function readJSON(dirHandle, path) {
+  // STUB — Task 4
+}
+async function writeJSON(dirHandle, path, data) {
+  // STUB — Task 4
+}
+async function readLines(dirHandle, path, limit = null) {
+  // STUB — Task 4
+}
+
+// ── State ───────────────────────────────────────────────────────────────────
+const state = {
+  dir: null,
+  registry: null,        // { version, people: [], skiplist?: [] }
+  unresolvedState: null, // { telegram_message_id, sent_at, entities: [] }
+  unresolvedRich: null,  // { unresolved: [] }
+  observations: null,    // string[] | null
+  decisions: {},         // keyed by entity string
+};
+
+// ── Data loading ────────────────────────────────────────────────────────────
+async function loadData() {
+  // STUB — Task 4
+}
+function joinUnresolved() {
+  // STUB — Task 4
+  return [];
+}
+function findObservationsForEntity(_entity, _candidateId) {
+  // STUB — Task 4
+  return [];
+}
+
+// ── View: Pending Resolutions ───────────────────────────────────────────────
+function renderPendingView() {
+  el('view-pending').innerHTML = '<div class="empty-state"><h3>Loading…</h3></div>';
+}
+function updateProgress(_entries) { /* STUB — Task 5 */ }
+async function saveDecisions() { /* STUB — Task 6 */ }
+
+// ── View: Registry Browser ──────────────────────────────────────────────────
+function renderRegistryView(_filter = '') {
+  el('view-registry').innerHTML = '<div class="empty-state"><h3>Registry</h3><p>Coming soon</p></div>';
+}
+
+// ── View: Recent Observations ───────────────────────────────────────────────
+function renderObservationsView(_filter = '') {
+  el('view-observations').innerHTML = '<div class="empty-state"><h3>Observations</h3><p>Coming soon</p></div>';
+}
+
+// ── Tab navigation ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.view === name)
+  );
+  ['pending','registry','observations'].forEach(v => {
+    el(`view-${v}`).classList.toggle('hidden', v !== name);
+  });
+}
+
+// ── Entry point ─────────────────────────────────────────────────────────────
+async function init() {
+  if (!('showDirectoryPicker' in window)) {
+    el('screen-unsupported').classList.remove('hidden');
+    return;
+  }
+
+  el('screen-access').classList.remove('hidden');
+
+  el('btn-access').addEventListener('click', async () => {
+    try {
+      state.dir = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (e) {
+      if (e.name !== 'AbortError') alert('Could not open folder: ' + e.message);
+      return;
+    }
+    el('screen-access').classList.add('hidden');
+    el('screen-loading').classList.remove('hidden');
+    try {
+      await loadData();
+    } catch (e) {
+      alert('Failed to load registry data: ' + e.message);
+      el('screen-loading').classList.add('hidden');
+      el('screen-access').classList.remove('hidden');
+      return;
+    }
+    el('screen-loading').classList.add('hidden');
+    el('app').classList.remove('hidden');
+    renderPendingView();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const view = tab.dataset.view;
+      switchTab(view);
+      if (view === 'registry') renderRegistryView();
+      if (view === 'observations') renderObservationsView();
+    });
+  });
+}
+
+init();
+</script>
+</body>
+</html>
+```
+
+- [ ] **Step 2: Open in Chrome to verify the skeleton loads**
+
+Open `tools/registry_ui.html` directly in Chrome (File → Open File, or drag into Chrome).
+
+Expected:
+- Page shows "Select Repo Folder" center card with the blue button
+- No console errors
+- Clicking the button triggers the OS folder picker (will error after select since loadData is a stub — that's OK for now)
+- Tabs are visible at top once app div is shown
+
+If the folder picker appears, that confirms File System Access API is working.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: add registry UI HTML skeleton with CSS and tab nav"
+```
+
+---
+
+## Task 4: Data loading layer
+
+**Files:**
+- Modify: `tools/registry_ui.html` — replace 4 file-access stubs and 3 data-loading stubs
+
+- [ ] **Step 1: Replace the four File System Access helper stubs**
+
+In `tools/registry_ui.html`, replace the four stub functions with real implementations. The stubs to find and replace are:
+
+Replace:
+```javascript
+async function getFileHandle(dirHandle, filePath, create = false) {
+  // STUB — Task 4
+}
+async function readJSON(dirHandle, path) {
+  // STUB — Task 4
+}
+async function writeJSON(dirHandle, path, data) {
+  // STUB — Task 4
+}
+async function readLines(dirHandle, path, limit = null) {
+  // STUB — Task 4
+}
+```
+
+With:
+```javascript
+async function getFileHandle(dirHandle, filePath, create = false) {
+  const parts = filePath.split('/');
+  let cur = dirHandle;
+  for (const part of parts.slice(0, -1)) {
+    cur = await cur.getDirectoryHandle(part, { create: false });
+  }
+  return cur.getFileHandle(parts.at(-1), { create });
+}
+
+async function readJSON(dirHandle, path) {
+  const fh = await getFileHandle(dirHandle, path, false);
+  const file = await fh.getFile();
+  return JSON.parse(await file.text());
+}
+
+async function writeJSON(dirHandle, path, data) {
+  const fh = await getFileHandle(dirHandle, path, true);
+  const writable = await fh.createWritable();
+  await writable.write(JSON.stringify(data, null, 2));
+  await writable.close();
+}
+
+async function readLines(dirHandle, path, limit = null) {
+  const fh = await getFileHandle(dirHandle, path, false);
+  const file = await fh.getFile();
+  const text = await file.text();
+  const lines = text.split('\n').filter(l => l.trim());
+  return limit ? lines.slice(-limit) : lines;
+}
+```
+
+- [ ] **Step 2: Replace the three data-loading stubs**
+
+Replace:
+```javascript
+async function loadData() {
+  // STUB — Task 4
+}
+function joinUnresolved() {
+  // STUB — Task 4
+  return [];
+}
+function findObservationsForEntity(_entity, _candidateId) {
+  // STUB — Task 4
+  return [];
+}
+```
+
+With:
+```javascript
+async function loadData() {
+  // Required reads — throw if registry is missing
+  state.registry = await readJSON(state.dir, 'data/people_registry.json');
+
+  // Primary unresolved list — non-fatal
+  state.unresolvedState = await readJSON(state.dir, 'data/people_unresolved_state.json')
+    .catch(() => null);
+
+  // Enrichment file — non-fatal
+  state.unresolvedRich = await readJSON(state.dir, 'data/people_unresolved.json')
+    .catch(() => null);
+
+  // Observations — fully isolated, never blocks the UI
+  try {
+    state.observations = await readLines(state.dir, 'data/memory/observations.jsonl');
+  } catch {
+    state.observations = null;
+  }
+
+  // Session merging: load any existing decisions from a prior save
+  try {
+    const existing = await readJSON(state.dir, 'data/people_resolution_decisions.json');
+    if (Array.isArray(existing?.decisions)) {
+      existing.decisions.forEach(d => { state.decisions[d.entity] = d; });
+    }
+  } catch { /* no prior decisions */ }
+}
+
+function joinUnresolved() {
+  if (!state.unresolvedState?.entities?.length) return [];
+  // Build lookup from enrichment file, keyed by entity string
+  const richMap = {};
+  (state.unresolvedRich?.unresolved ?? []).forEach(e => { richMap[e.entity] = e; });
+  return state.unresolvedState.entities.map(e => ({
+    ...e,
+    source: richMap[e.entity]?.source ?? 'unknown',
+    added: richMap[e.entity]?.added ?? 'unknown',
+    email: richMap[e.entity]?.email ?? null,
+  }));
+}
+
+function findObservationsForEntity(entity, candidateId) {
+  if (!state.observations?.length) return [];
+  const matched = [];
+  for (const line of state.observations) {
+    if (matched.length >= 3) break;
+    try {
+      const obs = JSON.parse(line);
+      if (
+        obs.entity === entity ||
+        (candidateId && obs.primary_person_id === candidateId) ||
+        (candidateId && (obs.related_person_ids ?? []).includes(candidateId))
+      ) {
+        matched.push(obs);
+      }
+    } catch { /* skip malformed lines */ }
+  }
+  return matched;
+}
+```
+
+- [ ] **Step 3: Verify data loading in Chrome**
+
+Open `tools/registry_ui.html` in Chrome, select the repo root. Open DevTools Console (F12).
+
+After selecting the folder, add a temporary `console.log` to `renderPendingView` stub by pasting in the console:
+```javascript
+// In console after page loads:
+console.log('Registry people:', state.registry?.people?.length);
+console.log('Unresolved state entities:', state.unresolvedState?.entities?.length);
+console.log('Unresolved rich count:', state.unresolvedRich?.unresolved?.length);
+console.log('Observations loaded:', state.observations !== null);
+console.log('Joined entries:', joinUnresolved().length);
+```
+
+Expected: registry shows ~37 people, unresolved state may be null (state file is runtime-generated), rich file shows entries, observations may be null (gitignored).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: implement data loading layer for registry UI"
+```
+
+---
+
+## Task 5: Pending Resolutions — card rendering
+
+**Files:**
+- Modify: `tools/registry_ui.html` — replace `renderPendingView` and `updateProgress` stubs; add helper functions
+
+- [ ] **Step 1: Add helper functions before the `renderPendingView` stub**
+
+After the `findObservationsForEntity` function definition (end of data layer), insert these helpers:
+
+```javascript
+// ── Registry lookup helpers ─────────────────────────────────────────────────
+function getPersonById(id) {
+  return (state.registry?.people ?? []).find(p => p.id === id) ?? null;
+}
+
+function getPersonType(id) {
+  return getPersonById(id)?.type ?? 'unknown';
+}
+```
+
+- [ ] **Step 2: Replace the `renderPendingView` and `updateProgress` stubs**
+
+Replace:
+```javascript
+function renderPendingView() {
+  el('view-pending').innerHTML = '<div class="empty-state"><h3>Loading…</h3></div>';
+}
+function updateProgress(_entries) { /* STUB — Task 5 */ }
+```
+
+With:
+```javascript
+function renderPendingView() {
+  const entries = joinUnresolved();
+  const view = el('view-pending');
+
+  if (!entries.length) {
+    view.innerHTML = `
+      <div class="empty-state">
+        <h3>No Pending Resolutions</h3>
+        <p>All entities resolved, or no unresolved state file found.</p>
+      </div>`;
+    el('pending-count').textContent = '';
+    return;
+  }
+
+  el('pending-count').textContent = `(${entries.length})`;
+
+  const cardsHtml = entries.map(e => makeCard(e)).join('');
+  view.innerHTML = `
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-label" id="progress-label">0 of ${entries.length} resolved</span>
+    </div>
+    <div id="cards-container">${cardsHtml}</div>
+    <div class="save-bar">
+      <button class="btn-save" id="btn-save" disabled>Save Decisions</button>
+      <span class="save-status hidden" id="save-status">Saved.</span>
+    </div>`;
+
+  updateProgress(entries);
+  attachCardListeners(entries);
+
+  el('btn-save').addEventListener('click', saveDecisions);
+}
+
+function makeCard(entry) {
+  const decision = state.decisions[entry.entity];
+  const resolved = !!decision;
+
+  // Observation snippet
+  const obs = findObservationsForEntity(entry.entity, entry.candidate_id);
+  const snippetHtml = obs.length
+    ? obs.map(o => `<span class="snippet">${esc(o.content || o.context || '')}</span>`).join('')
+    : `<span class="muted">no observations on file</span>`;
+
+  // Candidate match block
+  const candidatePerson = entry.candidate_id ? getPersonById(entry.candidate_id) : null;
+  const candidateHtml = entry.candidate_id
+    ? `<div class="candidate">
+        Possible match: <strong>${esc(entry.candidate_name)}</strong>
+        <span class="badge badge-${esc(getPersonType(entry.candidate_id))}">${esc(getPersonType(entry.candidate_id))}</span>
+        <span class="confidence">${Math.round((entry.confidence ?? 0) * 100)}%</span>
+      </div>`
+    : `<div class="candidate muted">No match found</div>`;
+
+  const resolutionBadge = resolved
+    ? `<span class="resolution-badge">${esc(decision.action)}</span>` : '';
+
+  return `<div class="card${resolved ? ' resolved' : ''}" data-entity="${esc(entry.entity)}">
+    <div class="card-header">
+      <span class="entity">${esc(entry.entity)}</span>
+      ${resolutionBadge}
+    </div>
+    <div class="card-meta">
+      <span class="source-badge">${esc(entry.source)}</span>
+      <span class="muted">${esc(entry.added)}</span>
+      ${entry.email ? `<span class="muted">${esc(entry.email)}</span>` : ''}
+    </div>
+    <div class="card-snippets">${snippetHtml}</div>
+    ${candidateHtml}
+    <div class="card-actions"${resolved ? ' style="display:none"' : ''}>
+      <button class="btn btn-confirm" data-action="confirm" data-entity="${esc(entry.entity)}"
+        ${!entry.candidate_id ? 'disabled' : ''}>Confirm</button>
+      <button class="btn" data-action="assign" data-entity="${esc(entry.entity)}">Assign to…</button>
+      <button class="btn" data-action="new" data-entity="${esc(entry.entity)}">New Person</button>
+      <button class="btn btn-skip" data-action="skip" data-entity="${esc(entry.entity)}">Skip</button>
+    </div>
+    <div class="card-inline" data-entity="${esc(entry.entity)}"></div>
+  </div>`;
+}
+
+function updateProgress(entries) {
+  const total = entries.length;
+  const done = Object.keys(state.decisions).filter(k =>
+    entries.some(e => e.entity === k)
+  ).length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const fill = document.getElementById('progress-fill');
+  const label = document.getElementById('progress-label');
+  const saveBtn = el('btn-save');
+  if (fill) fill.style.width = pct + '%';
+  if (label) label.textContent = `${done} of ${total} resolved`;
+  if (saveBtn) saveBtn.disabled = done === 0;
+}
+```
+
+- [ ] **Step 3: Add the `attachCardListeners` stub (actions are wired in Task 6)**
+
+After `updateProgress`, add:
+
+```javascript
+function attachCardListeners(_entries) {
+  // STUB — Task 6: wires confirm, assign, new, skip buttons
+}
+```
+
+- [ ] **Step 4: Verify card rendering in Chrome**
+
+To test without a live `people_unresolved_state.json`, open DevTools console after loading the page and inject mock data:
+
+```javascript
+// Paste in DevTools console after folder is selected and app loads:
+state.unresolvedState = {
+  telegram_message_id: "test-123",
+  sent_at: "2026-05-26T09:00:00",
+  entities: [
+    { index: 1, entity: "Summitperformanceinstitute", candidate_id: null,
+      candidate_name: null, confidence: null, type: "no_match" },
+    { index: 2, entity: "Jeff Davidson", candidate_id: "ken",
+      candidate_name: "Ken Hutchins", confidence: 0.71, type: "fuzzy_match" },
+  ]
+};
+state.unresolvedRich = {
+  unresolved: [
+    { entity: "Summitperformanceinstitute", email: null, source: "avoma", added: "2026-05-20" },
+    { entity: "Jeff Davidson", email: null, source: "avoma", added: "2026-05-20" },
+  ]
+};
+renderPendingView();
+```
+
+Expected:
+- Two cards render with dark styling
+- "Summitperformanceinstitute" shows in monospace, source badge "avoma", "no observations on file" in muted text, no candidate section, Confirm button disabled
+- "Jeff Davidson" shows with candidate "Ken Hutchins", a type badge, 71% confidence, Confirm button enabled
+- Progress bar shows "0 of 2 resolved"
+- Save Decisions button is disabled
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: implement pending resolutions card rendering"
+```
+
+---
+
+## Task 6: Action buttons and Save Decisions
+
+**Files:**
+- Modify: `tools/registry_ui.html` — replace `attachCardListeners` stub and `saveDecisions` stub
+
+- [ ] **Step 1: Replace `attachCardListeners` and `saveDecisions` stubs**
+
+Replace:
+```javascript
+function attachCardListeners(_entries) {
+  // STUB — Task 6: wires confirm, assign, new, skip buttons
+}
+```
+
+With:
+```javascript
+function attachCardListeners(entries) {
+  el('cards-container').addEventListener('click', e => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const entity = btn.dataset.entity;
+    const entry = entries.find(en => en.entity === entity);
+    if (!entry) return;
+    const action = btn.dataset.action;
+    if (action === 'confirm') handleConfirm(entry, entries);
+    if (action === 'assign') handleAssign(entry, entries);
+    if (action === 'new') handleNew(entry, entries);
+    if (action === 'skip') handleSkip(entry, entries);
+  });
+}
+
+function resolveCard(entity, decision, entries) {
+  state.decisions[entity] = decision;
+  const card = document.querySelector(`.card[data-entity="${CSS.escape(entity)}"]`);
+  if (!card) return;
+  card.classList.add('resolved');
+  card.querySelector('.card-header').querySelector('.resolution-badge')?.remove();
+  card.querySelector('.card-header').insertAdjacentHTML('beforeend',
+    `<span class="resolution-badge">${esc(decision.action)}</span>`);
+  const actionsDiv = card.querySelector('.card-actions');
+  if (actionsDiv) actionsDiv.style.display = 'none';
+  const inlineDiv = card.querySelector('.card-inline');
+  if (inlineDiv) inlineDiv.innerHTML = '';
+  updateProgress(entries);
+}
+
+function handleConfirm(entry, entries) {
+  resolveCard(entry.entity, {
+    index: entry.index,
+    entity: entry.entity,
+    action: 'confirm',
+    target_id: entry.candidate_id,
+  }, entries);
+}
+
+function handleSkip(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  inlineDiv.innerHTML = `
+    <div class="inline-confirm">
+      <span>Add to permanent skiplist?</span>
+      <button class="btn" data-skip-cancel>Cancel</button>
+      <button class="btn btn-skip" data-skip-confirm>Yes, skip</button>
+    </div>`;
+  inlineDiv.querySelector('[data-skip-cancel]').addEventListener('click', () => {
+    inlineDiv.innerHTML = '';
+  });
+  inlineDiv.querySelector('[data-skip-confirm]').addEventListener('click', () => {
+    resolveCard(entry.entity, { index: entry.index, entity: entry.entity, action: 'skip' }, entries);
+  });
+}
+
+function handleAssign(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  const people = state.registry?.people ?? [];
+  inlineDiv.innerHTML = `
+    <div class="typeahead-wrap">
+      <input class="typeahead-input" placeholder="Search people…" autocomplete="off" />
+      <div class="typeahead-list" id="ta-${esc(entry.entity)}"></div>
+    </div>`;
+  const input = inlineDiv.querySelector('.typeahead-input');
+  const list = inlineDiv.querySelector('.typeahead-list');
+  input.focus();
+
+  function renderMatches(query) {
+    const q = query.toLowerCase();
+    const matches = q.length < 1 ? people.slice(0, 8) : people.filter(p =>
+      p.canonical_name.toLowerCase().includes(q) ||
+      (p.aliases ?? []).some(a => a.toLowerCase().includes(q))
+    ).slice(0, 8);
+    list.innerHTML = matches.map(p =>
+      `<div class="typeahead-item" data-id="${esc(p.id)}">
+        <span>${esc(p.canonical_name)}</span>
+        <span class="badge badge-${esc(p.type)}">${esc(p.type)}</span>
+      </div>`
+    ).join('');
+    list.querySelectorAll('.typeahead-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const person = people.find(p => p.id === item.dataset.id);
+        if (!person) return;
+        resolveCard(entry.entity, {
+          index: entry.index, entity: entry.entity,
+          action: 'assign', target_id: person.id,
+        }, entries);
+      });
+    });
+  }
+
+  renderMatches('');
+  input.addEventListener('input', () => renderMatches(input.value));
+}
+
+function handleNew(entry, entries) {
+  const inlineDiv = document.querySelector(`.card-inline[data-entity="${CSS.escape(entry.entity)}"]`);
+  if (!inlineDiv) return;
+  inlineDiv.innerHTML = `
+    <div class="inline-form">
+      <div class="form-row">
+        <div>
+          <label>Canonical Name *</label>
+          <input id="new-name-${esc(entry.index)}" placeholder="Full Name" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="new-email-${esc(entry.index)}" placeholder="optional" type="email" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div>
+          <label>Type</label>
+          <select id="new-type-${esc(entry.index)}">
+            <option value="unknown">unknown</option>
+            <option value="lead">lead</option>
+            <option value="customer">customer</option>
+            <option value="partner">partner</option>
+            <option value="internal">internal</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:6px">
+          <button class="btn" data-new-cancel>Cancel</button>
+          <button class="btn btn-confirm" data-new-submit>Create</button>
+        </div>
+      </div>
+    </div>`;
+  inlineDiv.querySelector('[data-new-cancel]').addEventListener('click', () => {
+    inlineDiv.innerHTML = '';
+  });
+  inlineDiv.querySelector('[data-new-submit]').addEventListener('click', () => {
+    const name = inlineDiv.querySelector(`#new-name-${entry.index}`).value.trim();
+    if (!name) { inlineDiv.querySelector(`#new-name-${entry.index}`).focus(); return; }
+    resolveCard(entry.entity, {
+      index: entry.index, entity: entry.entity, action: 'new',
+      canonical_name: name,
+      email: inlineDiv.querySelector(`#new-email-${entry.index}`).value.trim() || null,
+      type: inlineDiv.querySelector(`#new-type-${entry.index}`).value,
+    }, entries);
+  });
+}
+```
+
+And replace:
+```javascript
+async function saveDecisions() { /* STUB — Task 6 */ }
+```
+
+With:
+```javascript
+async function saveDecisions() {
+  const btn = el('btn-save');
+  const status = el('save-status');
+  btn.disabled = true;
+
+  const sourceId = state.unresolvedState?.telegram_message_id ?? null;
+  const decisionsArr = Object.values(state.decisions);
+
+  const payload = {
+    decided_at: new Date().toISOString().replace(/\.\d{3}Z$/, ''),
+    source_message_id: sourceId,
+    decisions: decisionsArr,
+  };
+
+  try {
+    await writeJSON(state.dir, 'data/people_resolution_decisions.json', payload);
+    status.classList.remove('hidden');
+    setTimeout(() => status.classList.add('hidden'), 3000);
+  } catch (e) {
+    alert('Failed to save: ' + e.message);
+  } finally {
+    btn.disabled = decisionsArr.length === 0;
+  }
+}
+```
+
+- [ ] **Step 2: Verify actions in Chrome with mock data**
+
+Using the same DevTools injection from Task 5 Step 4 to load mock data, then:
+
+1. Click **Confirm** on "Jeff Davidson" — card should dim and show "confirm" badge. Progress: "1 of 2 resolved".
+2. Click **Skip** on "Summitperformanceinstitute" — inline confirmation appears. Click "Yes, skip" — card dims and shows "skip" badge. Progress: "2 of 2 resolved".
+3. Click **Save Decisions** — browser prompts for write permission if needed. File should be written.
+
+Verify the written file in the repo:
+```bash
+cat /Users/trentluecke/dev/Claude-Projects/chief-of-staff/data/people_resolution_decisions.json
+```
+
+Expected: valid JSON with two decisions (`confirm` and `skip`).
+
+Also test **Assign to…**: reload, inject mock data, click Assign — typeahead should appear, typing filters names, clicking a person resolves the card.
+
+Also test **New Person**: reload, inject, click New Person — form appears, fill name, click Create — card resolves.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: implement action buttons and Save Decisions flow"
+```
+
+---
+
+## Task 7: Registry Browser view
+
+**Files:**
+- Modify: `tools/registry_ui.html` — replace `renderRegistryView` stub
+
+- [ ] **Step 1: Replace `renderRegistryView` stub**
+
+Replace:
+```javascript
+function renderRegistryView(_filter = '') {
+  el('view-registry').innerHTML = '<div class="empty-state"><h3>Registry</h3><p>Coming soon</p></div>';
+}
+```
+
+With:
+```javascript
+function renderRegistryView(filter = '') {
+  const view = el('view-registry');
+  const people = state.registry?.people ?? [];
+  const q = filter.toLowerCase();
+  const filtered = q
+    ? people.filter(p =>
+        p.canonical_name.toLowerCase().includes(q) ||
+        (p.aliases ?? []).some(a => a.toLowerCase().includes(q)) ||
+        (p.email ?? '').toLowerCase().includes(q)
+      )
+    : people;
+
+  view.innerHTML = `
+    <input class="search-input" id="registry-search" placeholder="Search names, aliases, email…" value="${esc(filter)}" />
+    <div id="registry-list"></div>`;
+
+  const list = el('registry-list');
+  list.innerHTML = filtered.length
+    ? filtered.map(p => `
+        <div class="registry-row" data-id="${esc(p.id)}">
+          <span class="registry-name">${esc(p.canonical_name)}</span>
+          <span class="badge badge-${esc(p.type)}">${esc(p.type)}</span>
+          <span class="registry-meta">${esc(p.last_seen ?? '')}</span>
+          <span class="registry-meta muted">${(p.aliases ?? []).length} aliases</span>
+        </div>
+        <div class="registry-detail hidden" id="detail-${esc(p.id)}"></div>`
+      ).join('')
+    : '<div class="empty-state"><p>No results</p></div>';
+
+  // Expand/collapse on row click
+  list.querySelectorAll('.registry-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id = row.dataset.id;
+      const detail = document.getElementById(`detail-${id}`);
+      if (!detail) return;
+      if (!detail.classList.contains('hidden')) {
+        detail.classList.add('hidden');
+        detail.innerHTML = '';
+        return;
+      }
+      const person = people.find(p => p.id === id);
+      if (!person) return;
+
+      // Recent observations for this person
+      const personObs = (state.observations ?? []).reduce((acc, line) => {
+        if (acc.length >= 5) return acc;
+        try {
+          const obs = JSON.parse(line);
+          if (obs.primary_person_id === id ||
+              (obs.related_person_ids ?? []).includes(id)) acc.push(obs);
+        } catch { /* skip */ }
+        return acc;
+      }, []);
+
+      const obsHtml = personObs.length
+        ? personObs.map(o => `
+            <div class="obs-entry">
+              <div class="obs-date">${esc(o.date ?? '')}
+                <span class="obs-type-badge">${esc(o.type ?? '')}</span>
+              </div>
+              <div class="obs-content">${esc((o.content ?? '').slice(0, 200))}</div>
+            </div>`).join('')
+        : '<span class="muted">no observations on file</span>';
+
+      const aliasesHtml = (person.aliases ?? []).length
+        ? `<div class="alias-list">${(person.aliases ?? []).map(a =>
+            `<span class="alias-chip">${esc(a)}</span>`).join('')}</div>`
+        : '<span class="muted">none</span>';
+
+      detail.innerHTML = `
+        <div class="detail-row"><span class="detail-label">ID:</span><span class="alias-chip">${esc(person.id)}</span></div>
+        ${person.email ? `<div class="detail-row"><span class="detail-label">Email:</span>${esc(person.email)}</div>` : ''}
+        ${person.pipeline_record ? `<div class="detail-row"><span class="detail-label">Pipeline:</span>${esc(person.pipeline_record)}</div>` : ''}
+        ${person.people_file ? `<div class="detail-row"><span class="detail-label">File:</span>${esc(person.people_file)}</div>` : ''}
+        <div class="detail-row"><span class="detail-label">Aliases:</span>${aliasesHtml}</div>
+        <div class="detail-row" style="margin-top:8px"><span class="detail-label">Observations:</span></div>
+        ${obsHtml}`;
+      detail.classList.remove('hidden');
+    });
+  });
+
+  // Live search
+  el('registry-search').addEventListener('input', e => {
+    renderRegistryView(e.target.value);
+  });
+  el('registry-search').focus();
+}
+```
+
+- [ ] **Step 2: Verify Registry Browser in Chrome**
+
+Open the UI, select repo folder, click the "Registry" tab.
+
+Expected:
+- Search input at top
+- List of ~37 people, each with type badge, last-seen date, alias count
+- Typing in search filters results live
+- Clicking a row expands it showing aliases, email, observations
+- Clicking again collapses it
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: implement Registry Browser view"
+```
+
+---
+
+## Task 8: Recent Observations view
+
+**Files:**
+- Modify: `tools/registry_ui.html` — replace `renderObservationsView` stub
+
+- [ ] **Step 1: Replace `renderObservationsView` stub**
+
+Replace:
+```javascript
+function renderObservationsView(_filter = '') {
+  el('view-observations').innerHTML = '<div class="empty-state"><h3>Observations</h3><p>Coming soon</p></div>';
+}
+```
+
+With:
+```javascript
+function renderObservationsView(filter = '') {
+  const view = el('view-observations');
+
+  if (!state.observations) {
+    view.innerHTML = `<div class="empty-state"><h3>No Observations File</h3><p>data/memory/observations.jsonl not found.</p></div>`;
+    return;
+  }
+
+  const lines = state.observations.slice(-200);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    .toISOString().slice(0, 10);
+
+  const parsed = [];
+  for (const line of lines) {
+    try {
+      const obs = JSON.parse(line);
+      if ((obs.date ?? '') >= sevenDaysAgo) parsed.push(obs);
+    } catch { /* skip */ }
+  }
+
+  const q = filter.toLowerCase();
+  const filtered = q
+    ? parsed.filter(o =>
+        (o.content ?? '').toLowerCase().includes(q) ||
+        (o.type ?? '').toLowerCase().includes(q) ||
+        (o.primary_person_id ?? '').toLowerCase().includes(q)
+      )
+    : parsed;
+
+  // Group by primary_person_id
+  const grouped = {};
+  const unattributed = [];
+  for (const obs of filtered) {
+    if (obs.primary_person_id) {
+      (grouped[obs.primary_person_id] ??= []).push(obs);
+    } else {
+      unattributed.push(obs);
+    }
+  }
+
+  const renderObs = obs => `
+    <div class="obs-entry">
+      <div class="obs-date">${esc(obs.date ?? '')}
+        <span class="obs-type-badge">${esc(obs.type ?? '')}</span>
+        ${obs.source ? `<span class="obs-type-badge">${esc(obs.source)}</span>` : ''}
+      </div>
+      <div class="obs-content">${esc((obs.content ?? '').slice(0, 300))}</div>
+    </div>`;
+
+  const groupsHtml = Object.entries(grouped).map(([pid, obsList]) => {
+    const person = getPersonById(pid);
+    const label = person ? person.canonical_name : pid;
+    return `<div class="obs-group">
+      <div class="obs-group-header">${esc(label)}</div>
+      ${obsList.map(renderObs).join('')}
+    </div>`;
+  }).join('');
+
+  const unattributedHtml = unattributed.length ? `
+    <hr class="section-sep">
+    <div class="obs-group">
+      <div class="obs-group-header">Unattributed</div>
+      ${unattributed.map(renderObs).join('')}
+    </div>` : '';
+
+  view.innerHTML = `
+    <input class="search-input" id="obs-search" placeholder="Filter by person, type, or content…" value="${esc(filter)}" />
+    ${!filtered.length
+      ? '<div class="empty-state"><p>No observations in last 7 days matching filter.</p></div>'
+      : groupsHtml + unattributedHtml}`;
+
+  el('obs-search').addEventListener('input', e => renderObservationsView(e.target.value));
+  el('obs-search').focus();
+}
+```
+
+- [ ] **Step 2: Verify Observations view in Chrome**
+
+Click the "Observations" tab.
+
+If `observations.jsonl` doesn't exist locally: expected "No Observations File" empty state — no error.
+
+If it exists: expected timeline grouped by person, unattributed section at bottom, filter input works.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add tools/registry_ui.html
+git commit -m "feat: implement Recent Observations view"
+```
+
+---
+
+## Task 9: Smoke test — end-to-end flow
+
+This task has no code changes. It verifies the full user journey from notification to committed registry mutation.
+
+- [ ] **Step 1: Verify the Telegram notification format**
+
+Run the notification builder test:
+
+```bash
+pytest tests/test_resolve_notifications.py -v
+```
+
+Expected: 3 passed.
+
+- [ ] **Step 2: Stage a mock decisions file and run the reconcile-people skill**
+
+Create a test decisions file:
+
+```bash
+cat > /Users/trentluecke/dev/Claude-Projects/chief-of-staff/data/people_resolution_decisions.json << 'EOF'
+{
+  "decided_at": "2026-05-26T10:00:00",
+  "source_message_id": null,
+  "decisions": [
+    {
+      "index": 1,
+      "entity": "smoke-test-entity-do-not-keep",
+      "action": "skip"
+    }
+  ]
+}
+EOF
+```
+
+- [ ] **Step 3: In Claude Code, say "reconcile pending people resolutions"**
+
+The skill should:
+1. Read the decisions file
+2. Read `data/people_registry.json`
+3. Add "smoke-test-entity-do-not-keep" to `registry.skiplist`
+4. Write the registry
+5. Delete the decisions file
+6. Commit and push
+
+- [ ] **Step 4: Verify the registry was updated and decisions file deleted**
+
+```bash
+python3 -c "
+import json
+d = json.load(open('data/people_registry.json'))
+skiplist = d.get('skiplist', [])
+assert 'smoke-test-entity-do-not-keep' in skiplist, f'Not in skiplist: {skiplist}'
+print('skiplist entry confirmed:', 'smoke-test-entity-do-not-keep')
+"
+```
+
+```bash
+ls data/people_resolution_decisions.json 2>/dev/null && echo "ERROR: file not deleted" || echo "OK: decisions file deleted"
+```
+
+- [ ] **Step 5: Clean up the test skiplist entry**
+
+```bash
+python3 -c "
+import json
+from pathlib import Path
+p = Path('data/people_registry.json')
+d = json.loads(p.read_text())
+d['skiplist'] = [e for e in d.get('skiplist', []) if e != 'smoke-test-entity-do-not-keep']
+p.write_text(json.dumps(d, indent=2, ensure_ascii=False) + '\n')
+print('Cleaned up test entry')
+"
+git add data/people_registry.json
+git commit -m "chore: clean up smoke test skiplist entry"
+```
+
+- [ ] **Step 6: End-to-end UI flow**
+
+Open `tools/registry_ui.html` in Chrome, select repo root.
+
+Verify:
+- Pending view shows either cards (if `people_unresolved_state.json` exists) or the "No Pending Resolutions" empty state
+- Registry tab shows all 37+ people, search works, click-to-expand works
+- Observations tab either shows observations or the graceful empty state
+- No console errors
+
+---
+
+## Spec Coverage Checklist
+
+| Requirement | Task |
+|---|---|
+| Simplified Telegram notification | Task 1 |
+| `_build_notification` test coverage | Task 1 |
+| `reconcile-people` skill (all 4 actions) | Task 2 |
+| Skill safety invariants | Task 2 |
+| HTML skeleton + dark theme CSS | Task 3 |
+| Browser support check (Chrome/Edge only) | Task 3 |
+| File System Access folder picker | Task 3 |
+| Tab navigation | Task 3 |
+| File helpers (getFileHandle, readJSON, writeJSON, readLines) | Task 4 |
+| `loadData()` — required files throw, optional files degrade | Task 4 |
+| `joinUnresolved()` — cross-reference two unresolved files on entity string | Task 4 |
+| Source/date "unknown" fallback when entity missing from rich file | Task 4 |
+| `observations.jsonl` isolated try/catch | Task 4 |
+| Session merging (load existing decisions on startup) | Task 4 |
+| Card rendering — entity, source/date, snippet, candidate match | Task 5 |
+| "no observations on file" muted fallback | Task 5 |
+| Progress indicator (live-updating) | Task 5 |
+| Confirm action | Task 6 |
+| Skip action with inline confirmation | Task 6 |
+| Assign to… typeahead | Task 6 |
+| New Person inline form | Task 6 |
+| Save Decisions writes decisions JSON | Task 6 |
+| `source_message_id` from telegram_message_id | Task 6 |
+| Save Decisions disabled until ≥1 decision | Task 6 |
+| Registry Browser — searchable, click-to-expand | Task 7 |
+| Recent Observations — grouped, unattributed, filter | Task 8 |
+| Smoke test | Task 9 |
