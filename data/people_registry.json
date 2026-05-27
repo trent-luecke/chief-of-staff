@@ -614,6 +614,19 @@
       "people_file": null,
       "created": "2026-05-24",
       "last_seen": "2026-05-27"
+    },
+    {
+      "id": "ascendcoachinguk",
+      "canonical_name": "Ascendcoachinguk",
+      "aliases": [
+        "Ascendcoachinguk"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-27",
+      "last_seen": "2026-05-27"
     }
   ]
 }
