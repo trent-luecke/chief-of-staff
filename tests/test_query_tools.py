@@ -26,23 +26,21 @@ def test_add_capture_writes_to_file():
         storage = LocalStorage(tmp)
         result = execute_tool("add_capture", {"capture_type": "todo", "text": "Call Marcus"}, config, storage=storage)
         assert "captured" in result.lower() or "added" in result.lower()
-        with open(config["captures_file"]) as f:
-            content = f.read()
-        assert "Call Marcus" in content
-        assert "[todo]" in content
+        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        assert any("Call Marcus" in t["title"] for t in tasks)
 
 
 def test_complete_task_removes_from_captures():
     with tempfile.TemporaryDirectory() as tmp:
         config = _config(tmp)
         storage = LocalStorage(tmp)
-        with open(config["captures_file"], "w") as f:
-            f.write("## 2026-04-22 10:00 — [todo] Call Marcus\n")
+        # Add task via the task ledger (todos no longer live in captures.md)
+        from lib.tasks import add_task
+        add_task(storage, "Call Marcus")
         result = execute_tool("complete_task", {"description": "Call Marcus"}, config, storage=storage)
         assert "completed" in result.lower()
-        with open(config["captures_file"]) as f:
-            content = f.read()
-        assert "Call Marcus" not in content
+        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        assert any(t["title"] == "Call Marcus" and t["status"] == "completed" for t in tasks)
         # projects file doesn't exist — should not be created
         assert not os.path.exists(config["projects_file"])
 
@@ -323,7 +321,7 @@ def test_tool_schemas_cover_all_expected_tools():
         "update_project_next_action", "create_project", "resolve_issue",
         "update_config", "add_to_backlog", "search_gmail",
         "get_calendar_events", "get_pipeline_lead", "create_email_draft",
-        "set_reminder",
+        "set_reminder", "list_tasks",
         "queue_notion_update", "set_brief_preference", "propose_code_change",
     }
     assert names == expected

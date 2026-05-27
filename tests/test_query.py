@@ -110,8 +110,8 @@ def test_answer_query_with_tools_executes_tool_then_returns_answer():
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 2
-        content = storage.read("captures.md") or ""
-        assert "Call Marcus" in content
+        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        assert any("Call Marcus" in t["title"] for t in tasks)
 
 
 def test_load_local_context_accepts_query_param_without_breaking():
