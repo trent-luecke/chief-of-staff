@@ -215,13 +215,16 @@ def fetch_recent_meetings(
     lookback_hours: int = 96,
     sales_rep_emails: list[str] | None = None,
     filter_internal: bool = True,
+    include_non_os: bool = False,
 ) -> list[AvomaTranscript]:
     """Return analyzed Avoma meetings from the past ``lookback_hours`` hours.
 
     Filters to calls involving ``sales_rep_emails`` (if provided) and
-    external meetings only (if ``filter_internal=True``). Only meetings where
-    Claude determines ``os_interested=True`` are returned. Callers are
-    responsible for UUID-based deduplication.
+    external meetings only (if ``filter_internal=True``). By default, only
+    meetings where Claude determines ``os_interested=True`` are returned.
+    When ``include_non_os=True``, all external calls are returned regardless
+    of os_interested — the field is still populated for downstream branching.
+    Callers are responsible for UUID-based deduplication.
     """
     now = datetime.now(timezone.utc)
     from_dt = now - timedelta(hours=lookback_hours)
@@ -280,7 +283,10 @@ def fetch_recent_meetings(
             title = m.get("subject") or "Untitled Meeting"
 
             result = _analyze_with_claude(anthropic_api_key, model, title, formatted)
-            if not result or not result.get("os_interested"):
+            if not result:
+                continue
+            os_interested = bool(result.get("os_interested"))
+            if not os_interested and not include_non_os:
                 continue
 
             transcripts.append(AvomaTranscript(
@@ -289,7 +295,7 @@ def fetch_recent_meetings(
                 start_at=m.get("start_at", ""),
                 participants=participants,
                 call_type=result.get("call_type", "other"),
-                os_interested=True,
+                os_interested=os_interested,
                 summary=result.get("summary", ""),
                 features_covered=result.get("features_covered", []),
                 gaps=result.get("gaps", []),

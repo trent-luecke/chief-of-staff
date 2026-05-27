@@ -3,6 +3,7 @@
 
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -137,6 +138,46 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
             if bot_token:
                 send_message(bot_token, chat_id, answer)
             print(f"  Notes captured via reply for: {nudge['meeting_name']}")
+            return
+
+    # If this is a reply to an Avoma per-call task proposal, handle approval
+    if reply_to_id:
+        pending_tasks = storage.read_json("state/pending_avoma_tasks.json", default={})
+        if str(reply_to_id) in pending_tasks:
+            from processors.query_tools import _tool_add_capture
+            entry = pending_tasks[str(reply_to_id)]
+            proposed = entry.get("proposed_tasks", [])
+            query_lower = query.strip().lower()
+            # Parse which tasks to add: "yes"/"all" adds all, numbers like "1,3" pick subset, "no"/"skip" cancels
+            if query_lower in ("no", "skip", "cancel", "nope"):
+                tasks_to_add = []
+                reply_msg = "OK, no tasks added."
+            elif re.match(r"^[\d,\s]+$", query_lower):
+                indices = [int(n.strip()) - 1 for n in re.split(r"[,\s]+", query_lower) if n.strip().isdigit()]
+                tasks_to_add = [proposed[i] for i in indices if 0 <= i < len(proposed)]
+                reply_msg = None
+            else:
+                tasks_to_add = proposed
+                reply_msg = None
+            added: list[str] = []
+            for task in tasks_to_add:
+                try:
+                    _tool_add_capture("todo", task, storage, config)
+                    added.append(task)
+                except Exception as e:
+                    print(f"  WARNING: task add failed: {e}", file=sys.stderr)
+            # Clean up pending entry
+            del pending_tasks[str(reply_to_id)]
+            storage.write_json("state/pending_avoma_tasks.json", pending_tasks)
+            if reply_msg is None:
+                if added:
+                    items = "\n".join(f"  ✓ {t}" for t in added)
+                    reply_msg = f"Added {len(added)} task(s):\n{items}"
+                else:
+                    reply_msg = "No tasks added."
+            if bot_token:
+                send_message(bot_token, chat_id, reply_msg)
+            print(f"  Avoma task approval handled: {len(added)} task(s) added.")
             return
 
     # If this is a reply to a people-resolution notification, route to handler
