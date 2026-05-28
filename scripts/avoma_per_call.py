@@ -399,6 +399,12 @@ def _build_notion_prompt(t, lead_name: str) -> str:
 # Pending tasks store
 # ---------------------------------------------------------------------------
 
+def _is_recent(entry: dict, cutoff: int, today: str) -> bool:
+    try:
+        return date.fromisoformat(entry.get("created", today)).toordinal() >= cutoff
+    except (ValueError, TypeError):
+        return True  # keep on parse error rather than silently drop
+
 def _save_pending_tasks(storage, message_id: int, t, proposed_tasks: list[str]) -> None:
     if not message_id or not proposed_tasks:
         return
@@ -421,13 +427,11 @@ def _save_pending_actions(storage, message_id: int, t, resolved_people: list) ->
     # Purge entries older than 14 days
     today = date.today().isoformat()
     cutoff = date.fromisoformat(today).toordinal() - 14
-    pending = {
-        k: v for k, v in pending.items()
-        if date.fromisoformat(v.get("created", today)).toordinal() >= cutoff
-    }
+    pending = {k: v for k, v in pending.items() if _is_recent(v, cutoff, today)}
     external = [r for r in resolved_people if not r["is_internal"] and r["person_id"]]
     pending[str(message_id)] = {
         "call_title": t.title,
+        "call_uuid": t.uuid,
         "call_date": t.start_at[:10] if t.start_at else today,
         "participants": [{"person_id": r["person_id"], "name": r["name"]} for r in external],
         "action_items": t.action_items[:8],
