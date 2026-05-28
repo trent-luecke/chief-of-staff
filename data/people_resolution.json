@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-27T00:00:00",
+  "resolved_at": "2026-05-28T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1162,6 +1162,63 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "350": {
+      "primary_person_id": "ryan-pace",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "351": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "352": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "353": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "354": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "355": {
+      "primary_person_id": "ryan-allwein",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "356": {
+      "primary_person_id": "luke-martin",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "357": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "358": {
+      "primary_person_id": "chris-reynolds",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "359": {
+      "primary_person_id": "hilbre-t",
+      "related_person_ids": [
+        "chris-reynolds"
+      ],
+      "confidence": "embedded"
+    },
+    "360": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -1287,7 +1344,8 @@
     286,
     288,
     298,
-    332
+    332,
+    349
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -1314,6 +1372,7 @@
     "thread:Re: Membership fee for Leela Thumati",
     "thread:Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: [EXTERNAL] Re: Kisi x TeamBuildr Partnership Alignment",
     "thread:Re: TeamBuildrOS <> St. Mary's Episcopal",
-    "thread:Re: Update - Ascend"
+    "thread:Re: Update - Ascend",
+    "thread:Re: Orientation Session Recap_Two-Brain Summit 2026"
   ]
 }
