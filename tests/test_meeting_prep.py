@@ -375,3 +375,40 @@ def test_build_prep_message_recurring_internal(mock_cls, tmp_path):
     result = build_prep_message(event, "recurring_internal", config, api_key="test-key")
     assert "📋" in result
     assert "Luke / Trent" in result
+
+
+import json
+from pathlib import Path
+
+
+def _write_resolved(tmp_path, data: dict):
+    state_dir = tmp_path / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    (state_dir / "resolved_actions.json").write_text(json.dumps(data))
+
+
+def test_load_resolved_for_tokens_matches(tmp_path):
+    from processors.meeting_prep import _load_resolved_for_tokens
+    _write_resolved(tmp_path, {
+        "ryan-pace": {"name": "Ryan Pace", "resolved": [{"text": "Send deck", "resolved_date": "2026-05-28", "call_title": "Demo"}]}
+    })
+    resolved_path = tmp_path / "state" / "resolved_actions.json"
+    results = _load_resolved_for_tokens(resolved_path, ["ryan", "pace"])
+    assert len(results) == 1
+    assert results[0]["text"] == "Send deck"
+
+
+def test_load_resolved_for_tokens_missing_file(tmp_path):
+    from processors.meeting_prep import _load_resolved_for_tokens
+    results = _load_resolved_for_tokens(tmp_path / "state" / "resolved_actions.json", ["anyone"])
+    assert results == []
+
+
+def test_load_resolved_for_tokens_no_match(tmp_path):
+    from processors.meeting_prep import _load_resolved_for_tokens
+    _write_resolved(tmp_path, {
+        "ryan-pace": {"name": "Ryan Pace", "resolved": [{"text": "Send deck", "resolved_date": "2026-05-28", "call_title": "Demo"}]}
+    })
+    resolved_path = tmp_path / "state" / "resolved_actions.json"
+    results = _load_resolved_for_tokens(resolved_path, ["john", "smith"])
+    assert results == []

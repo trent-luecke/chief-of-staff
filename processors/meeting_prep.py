@@ -122,6 +122,20 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
     return lines[-limit:]
 
 
+def _load_resolved_for_tokens(resolved_path, tokens: list[str]) -> list[dict]:
+    try:
+        import json as _json
+        from pathlib import Path as _Path
+        store = _json.loads(_Path(resolved_path).read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError, ValueError):
+        return []
+    results = []
+    for slug, entry in store.items():
+        if any(t in slug for t in tokens):
+            results.extend(entry.get("resolved", []))
+    return results
+
+
 def build_external_context(event: CalendarEvent, config: dict) -> str:
     people_dir = config.get("people_dir", "data/people")
     pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
@@ -160,6 +174,12 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
     obs = _find_observations(obs_path, tokens)
     if obs:
         parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
+
+    resolved_path = config.get("resolved_actions_path", "data/state/resolved_actions.json")
+    resolved = _load_resolved_for_tokens(resolved_path, tokens)
+    if resolved:
+        lines = [f"• {r['text']} (resolved {r['resolved_date']})" for r in resolved]
+        parts.append("## Resolved Action Items (do not surface as open)\n" + "\n".join(lines))
 
     return "\n\n".join(parts)
 
@@ -291,7 +311,7 @@ _SYSTEM_PROMPTS = {
         "Generate a concise pre-meeting brief with exactly these 5 bullets:\n"
         "• Who: [one sentence — who they are and where they're from]\n"
         "• Context: [where they are in the sales process or last interaction]\n"
-        "• Open: [any unresolved item or thing they mentioned previously]\n"
+        "• Open: [any unresolved item — skip anything listed under Resolved Action Items]\n"
         "• Goal: [what a win looks like for this meeting]\n"
         "• Opener: [a natural conversation starter]\n\n"
         "Plain text only. Tight and scannable. No headers."
