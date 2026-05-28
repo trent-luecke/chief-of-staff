@@ -784,6 +784,19 @@
       "people_file": null,
       "created": "2026-05-28",
       "last_seen": "2026-05-28"
+    },
+    {
+      "id": "aharvey",
+      "canonical_name": "Aharvey",
+      "aliases": [
+        "Aharvey"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-28",
+      "last_seen": "2026-05-28"
     }
   ]
 }
