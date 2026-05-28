@@ -308,14 +308,8 @@ def _build_message(t, lead_name: str, resolved_people: list) -> str:
         t.summary or "(no summary)",
     ]
 
-    proposed_tasks = _derive_proposed_tasks(t)
-    if proposed_tasks:
-        lines += ["", "📝 Proposed Action Items (reply 'yes' to add all, or list numbers to pick)"]
-        for i, task in enumerate(proposed_tasks, 1):
-            lines.append(f"  {i}. {task}")
-
     if t.action_items:
-        lines += ["", "✅ All Action Items — reply 'closed 1,2' or 'closed all' once done"]
+        lines += ["", "✅ Action Items — reply 'yes' or '1,2' to add to tasks; 'closed 1,2' or 'closed all' once done"]
         for i, item in enumerate(t.action_items[:8], 1):
             lines.append(f"  {i}. {item}")
 
@@ -475,11 +469,10 @@ def process_transcript(
         print(f"  WARNING: Telegram send failed for {t.uuid}: {e}", file=sys.stderr)
         message_id = None
 
-    # Store proposed tasks for reply-based approval
-    proposed_tasks = _derive_proposed_tasks(t)
-    if message_id and proposed_tasks:
+    # Store action items for reply-based task approval
+    if message_id and t.action_items:
         try:
-            _save_pending_tasks(storage, message_id, t, proposed_tasks)
+            _save_pending_tasks(storage, message_id, t, t.action_items[:8])
         except Exception as e:
             print(f"  WARNING: pending tasks write failed: {e}", file=sys.stderr)
 
