@@ -122,20 +122,6 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
     return lines[-limit:]
 
 
-def _load_resolved_for_tokens(resolved_path, tokens: list[str]) -> list[dict]:
-    try:
-        import json as _json
-        from pathlib import Path as _Path
-        store = _json.loads(_Path(resolved_path).read_text(encoding="utf-8"))
-    except (FileNotFoundError, OSError, ValueError):
-        return []
-    results = []
-    for slug, entry in store.items():
-        if any(t in slug for t in tokens):
-            results.extend(entry.get("resolved", []))
-    return results
-
-
 def build_external_context(event: CalendarEvent, config: dict) -> str:
     people_dir = config.get("people_dir", "data/people")
     pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
@@ -175,8 +161,10 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
     if obs:
         parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
 
-    resolved_path = config.get("resolved_actions_path", "data/state/resolved_actions.json")
-    resolved = _load_resolved_for_tokens(resolved_path, tokens)
+    from lib.storage import LocalStorage
+    from lib.resolved_actions import get_resolved_for_tokens
+    resolved_storage = LocalStorage(base_dir="data")
+    resolved = get_resolved_for_tokens(resolved_storage, tokens)
     if resolved:
         lines = [f"• {r['text']} (resolved {r['resolved_date']})" for r in resolved]
         parts.append("## Resolved Action Items (do not surface as open)\n" + "\n".join(lines))
