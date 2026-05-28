@@ -180,6 +180,48 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
             print(f"  Avoma task approval handled: {len(added)} task(s) added.")
             return
 
+    # Handle "closed N,M" or "closed all" replies for Avoma action item resolution
+    if reply_to_id:
+        pending_actions = storage.read_json("state/pending_avoma_actions.json", default={})
+        if str(reply_to_id) in pending_actions:
+            query_lower = query.strip().lower()
+            if query_lower.startswith("closed"):
+                from lib.resolved_actions import mark_resolved
+                entry = pending_actions[str(reply_to_id)]
+                action_items = entry.get("action_items", [])
+                arg = query_lower[len("closed"):].strip()
+                if not arg or arg == "all":
+                    to_resolve = action_items
+                elif re.match(r"^[\d,\s]+$", arg):
+                    indices = [
+                        int(n.strip()) - 1
+                        for n in re.split(r"[,\s]+", arg)
+                        if n.strip().isdigit()
+                    ]
+                    to_resolve = [action_items[i] for i in indices if 0 <= i < len(action_items)]
+                else:
+                    to_resolve = action_items
+
+                for participant in entry.get("participants", []):
+                    person_id = participant.get("person_id")
+                    person_name = participant.get("name", "")
+                    if person_id:
+                        try:
+                            mark_resolved(storage, person_id, person_name, to_resolve, entry["call_title"])
+                        except Exception as e:
+                            print(f"  WARNING: mark_resolved failed for {person_id}: {e}", file=sys.stderr)
+
+                if to_resolve:
+                    items_str = "\n".join(f"  ✓ {item}" for item in to_resolve)
+                    reply_msg = f"Marked resolved ({len(to_resolve)}):\n{items_str}"
+                else:
+                    reply_msg = "No matching items found."
+
+                if bot_token:
+                    send_message(bot_token, chat_id, reply_msg)
+                print(f"  Action items closed: {len(to_resolve)}")
+                return
+
     # If this is a reply to a people-resolution notification, route to handler
     if reply_to_id:
         resolution_state = storage.read_json("people_unresolved_state.json")
