@@ -8,7 +8,7 @@ description: Opens the people registry UI HTML artifact in Chrome. Trigger phras
 1. Sync observations from R2 to local disk so the UI can show observation snippets:
 
 ```bash
-python3 scripts/sync_observations_local.py
+export $(grep -v '^#' .env | xargs) && python3 scripts/sync_observations_local.py
 ```
 
 2. Open the file in Chrome:
