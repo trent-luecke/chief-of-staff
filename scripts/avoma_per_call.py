@@ -20,6 +20,7 @@ sys.path.insert(0, str(_ROOT))
 
 _LOOKBACK_HOURS = 2  # generous overlap window; UUID dedup prevents doubles
 _PENDING_TASKS_KEY = "state/pending_avoma_tasks.json"
+_PENDING_ACTIONS_KEY = "state/pending_avoma_actions.json"
 _REGISTRY_FILE = _ROOT / "data" / "people_registry.json"
 _FUZZY_THRESHOLD = 85
 _INTERNAL_DOMAIN = "teambuildr.com"
@@ -307,16 +308,16 @@ def _build_message(t, lead_name: str, resolved_people: list) -> str:
         t.summary or "(no summary)",
     ]
 
-    if t.action_items:
-        lines += ["", "✅ Action Items"]
-        for item in t.action_items:
-            lines.append(f"• {item}")
-
     proposed_tasks = _derive_proposed_tasks(t)
     if proposed_tasks:
-        lines += ["", "📝 Proposed Tasks (reply 'yes' to add all, or list numbers to pick)"]
+        lines += ["", "📝 Proposed Action Items (reply 'yes' to add all, or list numbers to pick)"]
         for i, task in enumerate(proposed_tasks, 1):
             lines.append(f"  {i}. {task}")
+
+    if t.action_items:
+        lines += ["", "✅ All Action Items — reply 'closed 1,2' or 'closed all' once done"]
+        for i, item in enumerate(t.action_items[:8], 1):
+            lines.append(f"  {i}. {item}")
 
     new_stubs = [r for r in resolved_people if r["is_new"] and not r["is_internal"]]
     if new_stubs:
@@ -367,18 +368,21 @@ def _build_notion_prompt(t, lead_name: str) -> str:
     if t.call_type == "onboarding":
         completed = "; ".join(t.onboarding_completed) if t.onboarding_completed else "none noted"
         next_steps = "; ".join(t.onboarding_next_steps) if t.onboarding_next_steps else "none noted"
+        action_items_str = "; ".join(t.action_items[:6]) if t.action_items else "none"
         return (
             "📤 Notion Onboarding Update — paste into Claude Desktop\n"
             f"Update the onboarding tracker for {lead_name}. "
             f"Call date: {call_date}. "
             f"Summary: {t.summary} "
             f"Completed: {completed}. "
-            f"Next steps: {next_steps}."
+            f"Next steps: {next_steps}. "
+            f"Action items: {action_items_str}."
         )
     else:
         status = _infer_pipeline_status(t)
         signals = "; ".join(t.buying_signals[:3]) if t.buying_signals else "none"
         objections = "; ".join(t.objections[:3]) if t.objections else "none"
+        action_items_str = "; ".join(t.action_items[:6]) if t.action_items else "none"
         return (
             "📤 Notion Pipeline Update — paste into Claude Desktop\n"
             f"Update the pipeline record for {lead_name}. "
@@ -386,7 +390,8 @@ def _build_notion_prompt(t, lead_name: str) -> str:
             f"Inferred status: {status}. "
             f"Summary: {t.summary} "
             f"Buying signals: {signals}. "
-            f"Objections: {objections}."
+            f"Objections: {objections}. "
+            f"Action items: {action_items_str}."
         )
 
 
@@ -406,6 +411,29 @@ def _save_pending_tasks(storage, message_id: int, t, proposed_tasks: list[str]) 
         "created": date.today().isoformat(),
     }
     storage.write_json(_PENDING_TASKS_KEY, pending)
+
+
+def _save_pending_actions(storage, message_id: int, t, resolved_people: list) -> None:
+    """Store all action items keyed by message_id so the reply handler can resolve them."""
+    if not message_id or not t.action_items:
+        return
+    pending = storage.read_json(_PENDING_ACTIONS_KEY, default={})
+    # Purge entries older than 14 days
+    today = date.today().isoformat()
+    cutoff = date.fromisoformat(today).toordinal() - 14
+    pending = {
+        k: v for k, v in pending.items()
+        if date.fromisoformat(v.get("created", today)).toordinal() >= cutoff
+    }
+    external = [r for r in resolved_people if not r["is_internal"] and r["person_id"]]
+    pending[str(message_id)] = {
+        "call_title": t.title,
+        "call_date": t.start_at[:10] if t.start_at else today,
+        "participants": [{"person_id": r["person_id"], "name": r["name"]} for r in external],
+        "action_items": t.action_items[:8],
+        "created": today,
+    }
+    storage.write_json(_PENDING_ACTIONS_KEY, pending)
 
 
 # ---------------------------------------------------------------------------
@@ -450,6 +478,12 @@ def process_transcript(
             _save_pending_tasks(storage, message_id, t, proposed_tasks)
         except Exception as e:
             print(f"  WARNING: pending tasks write failed: {e}", file=sys.stderr)
+
+    if message_id and t.action_items:
+        try:
+            _save_pending_actions(storage, message_id, t, resolved_people)
+        except Exception as e:
+            print(f"  WARNING: pending actions write failed: {e}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
