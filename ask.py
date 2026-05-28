@@ -190,6 +190,7 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
                 entry = pending_actions[str(reply_to_id)]
                 action_items = entry.get("action_items", [])
                 arg = query_lower[len("closed"):].strip()
+                unrecognized = False
                 if not arg or arg == "all":
                     to_resolve = action_items
                 elif re.match(r"^[\d,\s]+$", arg):
@@ -201,6 +202,7 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
                     to_resolve = [action_items[i] for i in indices if 0 <= i < len(action_items)]
                 else:
                     to_resolve = action_items
+                    unrecognized = True
 
                 for participant in entry.get("participants", []):
                     person_id = participant.get("person_id")
@@ -211,9 +213,18 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
                         except Exception as e:
                             print(f"  WARNING: mark_resolved failed for {person_id}: {e}", file=sys.stderr)
 
+                # Clean up pending entry after partial or full close
+                pending_actions_store = storage.read_json("state/pending_avoma_actions.json", default={})
+                if str(reply_to_id) in pending_actions_store:
+                    del pending_actions_store[str(reply_to_id)]
+                    storage.write_json("state/pending_avoma_actions.json", pending_actions_store)
+
                 if to_resolve:
                     items_str = "\n".join(f"  ✓ {item}" for item in to_resolve)
-                    reply_msg = f"Marked resolved ({len(to_resolve)}):\n{items_str}"
+                    if unrecognized:
+                        reply_msg = f"Unrecognized argument '{arg}' — marked all resolved ({len(to_resolve)}):\n{items_str}"
+                    else:
+                        reply_msg = f"Marked resolved ({len(to_resolve)}):\n{items_str}"
                 else:
                     reply_msg = "No matching items found."
 
