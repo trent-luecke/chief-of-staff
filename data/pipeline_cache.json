@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-05-27T10:30:00.000Z",
+  "fetched_at": "2026-05-28T00:00:00.000Z",
   "leads": [
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
@@ -79,11 +79,22 @@
       "stale": false
     },
     {
-      "name": "The Bullpen Utah",
-      "contact": "William Schlee",
-      "email": "billy@thebullpenut.com",
+      "name": "Brigita Roemer",
+      "contact": "",
+      "email": "",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-05-21",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Cody Coley",
+      "contact": "Cody Coley",
+      "email": "ccoley@cbhs.org",
       "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
+      "priority": "",
       "last_contacted": null,
       "estimated_value": 2000,
       "source": "",
@@ -101,24 +112,24 @@
       "stale": false
     },
     {
-      "name": "Cody Coley",
-      "contact": "Cody Coley",
-      "email": "ccoley@cbhs.org",
+      "name": "Gameready Performance",
+      "contact": "Daniel Chudleigh",
+      "email": "info@grperformance.com.au",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
       "source": "",
       "stale": false
     },
     {
-      "name": "Brigita Roemer",
-      "contact": "",
-      "email": "",
-      "status": "On-Hold",
-      "priority": "",
-      "last_contacted": "2026-05-21",
-      "estimated_value": null,
+      "name": "The Bullpen Utah",
+      "contact": "William Schlee",
+      "email": "billy@thebullpenut.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
       "source": "",
       "stale": false
     },
@@ -130,17 +141,6 @@
       "priority": "",
       "last_contacted": null,
       "estimated_value": 750,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Gameready Performance",
-      "contact": "Daniel Chudleigh",
-      "email": "info@grperformance.com.au",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
       "source": "",
       "stale": false
     },
