@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-28T00:00:00",
+  "resolved_at": "2026-05-29T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1219,6 +1219,69 @@
       "primary_person_id": "trent-luecke",
       "related_person_ids": [],
       "confidence": "embedded"
+    },
+    "362": {
+      "primary_person_id": "ryan-pace",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "363": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "364": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "365": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "366": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "367": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "368": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "369": {
+      "primary_person_id": "ascendcoachinguk",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "370": {
+      "primary_person_id": "roseca",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "371": {
+      "primary_person_id": "ascendcoachinguk",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "372": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -1345,7 +1408,8 @@
     288,
     298,
     332,
-    349
+    349,
+    361
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",

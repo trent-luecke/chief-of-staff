@@ -223,6 +223,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-28"
+    },
+    {
+      "entity": "Quinn Kastle",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-29"
     }
   ],
   "previously_notified": [
