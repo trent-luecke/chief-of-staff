@@ -73,6 +73,16 @@ def filter_automated_threads(
     return [t for t in threads if not _is_automated(t)]
 
 
+def fetch_threads_for_attendee(
+    user_email: str,
+    attendee_email: str,
+    max_results: int = 5,
+) -> list[EmailThread]:
+    """Fetch recent Gmail threads involving a specific attendee email address."""
+    query = f"(from:{attendee_email} OR to:{attendee_email}) newer_than:90d"
+    return fetch_threads_needing_attention(user_email, max_results=max_results, query=query)
+
+
 def fetch_threads_needing_attention(
     user_email: str,
     max_results: int = 15,

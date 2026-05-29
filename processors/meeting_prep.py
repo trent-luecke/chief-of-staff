@@ -122,6 +122,30 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
     return lines[-limit:]
 
 
+def _fetch_gmail_context(event: CalendarEvent, config: dict) -> str:
+    """Fetch Gmail threads for each external attendee and format as context."""
+    user_email = config.get("email", "trent@teambuildr.com")
+    from collectors.gmail import fetch_threads_for_attendee
+
+    parts = []
+    for attendee in event.attendees:
+        if "@teambuildr.com" in attendee.lower():
+            continue
+        try:
+            threads = fetch_threads_for_attendee(user_email, attendee, max_results=5)
+        except Exception:
+            continue
+        if not threads:
+            continue
+        lines = []
+        for t in threads:
+            date_str = t.last_message_date.strftime("%Y-%m-%d") if t.last_message_date else "?"
+            lines.append(f"  [{date_str}] {t.subject} — {t.snippet[:120]}")
+        parts.append(f"## Email History ({attendee})\n" + "\n".join(lines))
+
+    return "\n\n".join(parts)
+
+
 def build_external_context(event: CalendarEvent, config: dict) -> str:
     people_dir = config.get("people_dir", "data/people")
     pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
@@ -168,6 +192,11 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
     if resolved:
         lines = [f"• {r['text']} (resolved {r['resolved_date']})" for r in resolved]
         parts.append("## Resolved Action Items (do not surface as open)\n" + "\n".join(lines))
+
+    if not parts:
+        gmail_context = _fetch_gmail_context(event, config)
+        if gmail_context:
+            parts.append(gmail_context)
 
     return "\n\n".join(parts)
 
@@ -337,11 +366,13 @@ def build_prep_message(
     meeting_type: str,
     config: dict,
     api_key: str,
-) -> str:
+) -> Optional[str]:
     if meeting_type not in _SYSTEM_PROMPTS:
         raise ValueError(f"Unknown meeting_type: {meeting_type!r}. Must be one of: {list(_SYSTEM_PROMPTS)}")
     if meeting_type == "external":
         context = build_external_context(event, config)
+        if not context:
+            return None  # Tier 3: no context from any source — suppress silently
     elif meeting_type == "dept_heads":
         context = build_dept_heads_context(config)
     else:

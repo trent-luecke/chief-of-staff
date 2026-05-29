@@ -91,6 +91,9 @@ def run() -> None:
                     if prep_start <= now <= event.start:
                         try:
                             message = build_prep_message(event, meeting_type, config, api_key)
+                            if message is None:
+                                print(f"  Prep suppressed (no context): {event.summary}")
+                                continue
                             send_message(bot_token, chat_id, message)
                             sent_preps.add(prep_key)
                             print(f"  Prep sent for: {event.summary} ({meeting_type})")
