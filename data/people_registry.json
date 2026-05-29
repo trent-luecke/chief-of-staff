@@ -810,6 +810,19 @@
       "people_file": null,
       "created": "2026-05-29",
       "last_seen": "2026-05-29"
+    },
+    {
+      "id": "casey-randolph",
+      "canonical_name": "Casey Randolph",
+      "aliases": [
+        "Casey Randolph"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-05-29",
+      "last_seen": "2026-05-29"
     }
   ]
 }
