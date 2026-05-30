@@ -231,6 +231,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-29"
+    },
+    {
+      "entity": "Deseanlberger",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-05-30"
     }
   ],
   "previously_notified": [

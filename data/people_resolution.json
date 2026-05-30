@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-29T00:00:00",
+  "resolved_at": "2026-05-30T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1282,6 +1282,74 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "374": {
+      "primary_person_id": "ryan-pace",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "375": {
+      "primary_person_id": "lee-douglas-trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "376": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "377": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "378": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "379": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "380": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "381": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "382": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "383": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "384": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "385": {
+      "primary_person_id": "luke-martin",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "386": {
+      "primary_person_id": "ascendcoachinguk",
+      "related_person_ids": [
+        "quinn-kastle",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -1409,7 +1477,8 @@
     298,
     332,
     349,
-    361
+    361,
+    373
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
