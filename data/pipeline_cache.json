@@ -1,15 +1,15 @@
 {
-  "fetched_at": "2026-05-29T00:00:00.000Z",
+  "fetched_at": "2026-05-30T00:00:00.000Z",
   "leads": [
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -17,10 +17,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -28,10 +28,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -42,7 +42,7 @@
       "priority": "High",
       "last_contacted": "2026-05-14",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -50,10 +50,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-21",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -61,10 +61,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-21",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -72,10 +72,10 @@
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
       "status": "On-Hold",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-04-30",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -83,32 +83,10 @@
       "contact": "",
       "email": "",
       "status": "On-Hold",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-21",
       "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Cody Coley",
-      "contact": "Cody Coley",
-      "email": "ccoley@cbhs.org",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -119,7 +97,29 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Cody Coley",
+      "contact": "Cody Coley",
+      "email": "ccoley@cbhs.org",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": null,
       "stale": false
     },
     {
@@ -130,7 +130,7 @@
       "priority": "Medium",
       "last_contacted": null,
       "estimated_value": 2000,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -138,10 +138,10 @@
       "contact": "Jack Dustin",
       "email": "dustin.sportperformance@gmail.com",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": 750,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -149,10 +149,10 @@
       "contact": "",
       "email": "",
       "status": "Demo Scheduled",
-      "priority": "",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     }
   ]
