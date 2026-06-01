@@ -1,17 +1,6 @@
 {
-  "fetched_at": "2026-05-31T00:00:00.000Z",
+  "fetched_at": "2026-06-01T00:00:00.000Z",
   "leads": [
-    {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
     {
       "name": "David Arcemant",
       "contact": "",
@@ -35,34 +24,23 @@
       "stale": false
     },
     {
-      "name": "Ryan Pace",
-      "contact": "Ryan Pace",
-      "email": "coachpace@realflowperformance.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-05-14",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Lee Douglas / Trent Luecke",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-05-21",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Asher Wojciechowski",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-21",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "High Ground Performance (Taino Fears-Perez)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": null,
       "stale": false
