@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-05-31T00:00:00",
+  "resolved_at": "2026-06-01T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1402,6 +1402,61 @@
       "confidence": "system"
     },
     "399": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "400": {
+      "primary_person_id": "ryan-pace",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "401": {
+      "primary_person_id": "lee-douglas-trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "402": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "403": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "404": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "405": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "406": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "407": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "408": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "409": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "410": {
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
