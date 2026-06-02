@@ -1,10 +1,23 @@
-name: Avoma Per-Call Processor
+name: Avoma Slack Thread Trigger
 
 on:
   workflow_dispatch:
+    inputs:
+      thread_ts:
+        description: "Slack thread timestamp (thread root ts)"
+        required: true
+        type: string
+      channel_id:
+        description: "Slack channel ID"
+        required: true
+        type: string
+      trigger_text:
+        description: "Text of the reply that triggered this run"
+        required: true
+        type: string
 
 jobs:
-  run-avoma-per-call:
+  process:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -27,20 +40,21 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
 
-      - name: Run Avoma per-call processor
+      - name: Run Avoma Slack processor
         env:
+          AVOMA_THREAD_TS: ${{ inputs.thread_ts }}
+          AVOMA_CHANNEL_ID: ${{ inputs.channel_id }}
+          AVOMA_TRIGGER_TEXT: ${{ inputs.trigger_text }}
           AVOMA_API_KEY: ${{ secrets.AVOMA_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
-          SLACK_USER_TOKEN: ${{ secrets.SLACK_USER_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        run: python scripts/avoma_per_call.py
+        run: python scripts/avoma_slack_processor.py
 
       - name: Commit data changes
         run: |
           git add data/people_registry.json 2>/dev/null || true
-          git diff --staged --quiet || git commit -m "chore: avoma per-call registry update [skip ci]"
+          git diff --staged --quiet || git commit -m "chore: avoma slack processor data update [skip ci]"
           git pull --rebase origin main || true
           git push origin main || true

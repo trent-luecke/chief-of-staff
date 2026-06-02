@@ -15,8 +15,22 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
+import re as _re
+
 import anthropic
 import requests
+
+_UUID_RE = _re.compile(
+    r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+    _re.IGNORECASE,
+)
+
+
+def extract_avoma_uuid_from_text(text: str) -> str | None:
+    """Return the first UUID found in text (lowercase), or None."""
+    m = _UUID_RE.search(text or "")
+    return m.group(0).lower() if m else None
+
 
 _BASE_URL = "https://api.avoma.com"
 _TIMEOUT = 15
@@ -183,6 +197,7 @@ def _analyze_with_claude(
     model: str,
     title: str,
     formatted_transcript: str,
+    context_note: str = "",
 ) -> dict | None:
     """Run Claude extraction. Returns the tool input dict, or None on failure."""
     if not formatted_transcript.strip():
@@ -197,7 +212,10 @@ def _analyze_with_claude(
             tool_choice={"type": "tool", "name": "extract_call_analysis"},
             messages=[{
                 "role": "user",
-                "content": f"Meeting title: {title}\n\nTranscript:\n{formatted_transcript}",
+                "content": (
+                    f"Meeting title: {title}\n\nTranscript:\n{formatted_transcript}"
+                    + (f"\n\nNote from rep: {context_note}" if context_note else "")
+                ),
             }],
         )
         for block in response.content:
@@ -312,3 +330,57 @@ def fetch_recent_meetings(
         params = None
 
     return transcripts
+
+
+def fetch_meeting_by_uuid(
+    api_key: str,
+    anthropic_api_key: str,
+    model: str,
+    meeting_uuid: str,
+    context_note: str = "",
+) -> "AvomaTranscript | None":
+    """Fetch and analyze a single Avoma meeting by UUID. Returns None if not found or transcript not ready."""
+    try:
+        m = _get(api_key, f"/v1/meetings/{meeting_uuid}")
+    except Exception:
+        return None
+
+    if not m.get("transcript_ready"):
+        return None
+
+    uuid = m.get("uuid", meeting_uuid)
+    attendees = m.get("attendees", [])
+    participants = [
+        a.get("name") or a.get("email", "")
+        for a in attendees
+        if a.get("name") or a.get("email")
+    ]
+
+    speakers, utterances = _fetch_transcript(api_key, uuid)
+    if not utterances:
+        return None
+
+    formatted = _format_transcript(speakers, utterances)
+    title = m.get("subject") or "Untitled Meeting"
+
+    result = _analyze_with_claude(anthropic_api_key, model, title, formatted, context_note=context_note)
+    if not result:
+        return None
+
+    return AvomaTranscript(
+        uuid=uuid,
+        title=title,
+        start_at=m.get("start_at", ""),
+        participants=participants,
+        call_type=result.get("call_type", "other"),
+        os_interested=bool(result.get("os_interested")),
+        summary=result.get("summary", ""),
+        features_covered=result.get("features_covered", []),
+        gaps=result.get("gaps", []),
+        objections=result.get("objections", []),
+        buying_signals=result.get("buying_signals", []),
+        competitors=result.get("competitors", []),
+        onboarding_completed=result.get("onboarding_completed", []),
+        onboarding_next_steps=result.get("onboarding_next_steps", []),
+        action_items=result.get("action_items", []),
+    )

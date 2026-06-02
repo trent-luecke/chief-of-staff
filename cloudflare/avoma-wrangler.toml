@@ -1,0 +1,12 @@
+name = "chief-of-staff-avoma-bridge"
+main = "avoma-slack-bridge.js"
+compatibility_date = "2024-01-01"
+
+[observability]
+enabled = false
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
