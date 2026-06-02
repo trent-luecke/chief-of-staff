@@ -26,7 +26,7 @@ def _unique_id(base: str, existing_ids: set) -> str:
         candidate = f"{base}-{i}"
         if candidate not in existing_ids:
             return candidate
-    return base
+    raise ValueError(f"Cannot generate unique ID for slug {base!r}: all candidates taken")
 
 
 def add_project(
@@ -81,7 +81,8 @@ def update_project(storage, project_id: str, updates: dict) -> Optional[dict]:
     data = _load(storage)
     for p in data["projects"]:
         if p["id"] == project_id:
-            p.update(updates)
+            safe_updates = {k: v for k, v in updates.items() if k not in ("id", "created")}
+            p.update(safe_updates)
             p["last_seen"] = date.today().isoformat()
             _save(storage, data)
             return p
