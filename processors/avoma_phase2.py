@@ -105,7 +105,7 @@ def _parse_task_indices(trigger_text: str, action_items: list) -> list[str]:
         return list(action_items)
     # Normalise "and" to space so "1 and 3" → "1   3"
     arg = arg.replace("and", " ")
-    indices = [int(n) - 1 for n in re.split(r"[,\s]+", arg) if n.strip().isdigit()]
+    indices = list(dict.fromkeys(int(n) - 1 for n in re.split(r"[,\s]+", arg) if n.strip().isdigit()))
     return [action_items[i] for i in indices if 0 <= i < len(action_items)]
 
 
@@ -171,6 +171,12 @@ def run_phase2(
         return
 
     if _is_task_selection(trigger_text):
+        if pending:
+            post_to_thread(
+                slack_bot_token, channel_id, thread_ts,
+                "There's a pending correction. Reply 'yes' to apply or 'no' to cancel it first.",
+            )
+            return
         _handle_task_selection(thread_ts, trigger_text, state_record, slack_bot_token, channel_id, storage, config)
         return
 

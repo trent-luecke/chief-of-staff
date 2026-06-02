@@ -280,3 +280,46 @@ def test_task_selection_pattern_variants():
     assert _is_task_selection("add 1 2 3")
     assert _is_task_selection("add all")
     assert _is_task_selection("ADD ALL")
+
+
+def test_task_selection_deduplicated_indices(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions(["Send pricing deck", "Schedule follow-up", "Get IT contact"])
+
+    with patch("processors.avoma_phase2.post_to_thread"), \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add 1, 1, 2", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    tasks = get_open_tasks(s)
+    # "1, 1, 2" should add items 1 and 2 once each — not item 1 twice
+    assert len(tasks) == 2
+    titles = {t["title"] for t in tasks}
+    assert titles == {"Send pricing deck", "Schedule follow-up"}
+
+
+def test_task_selection_blocked_when_correction_pending(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    from processors.avoma_thread_state import set_phase1_complete, set_pending_correction, get_thread_record
+    s = _storage(tmp_path)
+    set_phase1_complete(s, "t.123", "uuid-abc", "ts.999", "output", {})
+    set_pending_correction(s, "t.123", {
+        "description": "Fix rep name", "writes": [], "notion_payload": None, "confirmation_prompt": "Reply yes"
+    })
+
+    state_rec = get_thread_record(s, "t.123")
+    # Inject action items into state_rec for the test (not saved, just for routing)
+    state_rec["transcript_json"] = {"action_items": ["Send deck"]}
+
+    with patch("processors.avoma_phase2.post_to_thread") as mock_post:
+        run_phase2("t.123", "add 1", state_rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    # No tasks added — pending correction should block task selection
+    assert len(get_open_tasks(s)) == 0
+    # Bot should have posted a prompt about the pending correction
+    assert mock_post.called
+    assert "pending" in mock_post.call_args[0][3].lower() or "correction" in mock_post.call_args[0][3].lower()
+    # Pending correction should still be set
+    assert get_thread_record(s, "t.123")["pending_correction"] is not None
