@@ -13,7 +13,7 @@ def _save(storage, data: dict) -> None:
     storage.write_json(_TASKS_KEY, data)
 
 
-def add_task(storage, title: str, source: str = "telegram", due_date: Optional[str] = None) -> dict:
+def add_task(storage, title: str, source: str = "telegram", due_date: Optional[str] = None, metadata: Optional[dict] = None) -> dict:
     data = _load(storage)
     task = {
         "id": f"t-{uuid.uuid4().hex[:6]}",
@@ -23,6 +23,7 @@ def add_task(storage, title: str, source: str = "telegram", due_date: Optional[s
         "due_date": due_date,
         "source": source,
         "completed_at": None,
+        "metadata": metadata or {},
     }
     data["tasks"].append(task)
     _save(storage, data)
