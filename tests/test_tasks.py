@@ -28,3 +28,17 @@ def test_add_task_metadata_persisted(tmp_path):
     add_task(s, "Check in", source="avoma", metadata=meta)
     tasks = get_open_tasks(s)
     assert tasks[0]["metadata"] == meta
+
+
+def test_get_open_tasks_legacy_record_no_metadata(tmp_path):
+    s = _storage(tmp_path)
+    # Simulate a pre-existing task record that predates the metadata field
+    s.write_json("tasks.json", {"tasks": [
+        {"id": "t-old", "title": "Old task", "status": "open",
+         "created_at": "2026-01-01", "due_date": None,
+         "source": "telegram", "completed_at": None}
+    ]})
+    tasks = get_open_tasks(s)
+    # get_open_tasks returns legacy records without raising KeyError
+    assert len(tasks) == 1
+    assert tasks[0].get("metadata", {}) == {}

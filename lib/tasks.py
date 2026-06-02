@@ -23,7 +23,7 @@ def add_task(storage, title: str, source: str = "telegram", due_date: Optional[s
         "due_date": due_date,
         "source": source,
         "completed_at": None,
-        "metadata": metadata or {},
+        "metadata": metadata if metadata is not None else {},
     }
     data["tasks"].append(task)
     _save(storage, data)
