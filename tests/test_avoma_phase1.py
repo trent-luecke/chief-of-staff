@@ -57,10 +57,11 @@ def test_run_phase1_posts_output_to_thread(tmp_path):
         run_phase1("t.123", "C-avoma", "ready to process", s, _config(), "avoma-key", "anthropic-key", "slack-tok")
 
     mock_post.assert_called_once()
-    args = mock_post.call_args
-    assert args[0][1] == "C-avoma"  # channel_id
-    assert args[0][2] == "t.123"    # thread_ts
-    assert "Action Items" in args[0][3] or "action" in args[0][3].lower()
+    # First call is the summary message; Notion payload is a second call
+    first_call = mock_post.call_args_list[0]
+    assert first_call[0][1] == "C-avoma"  # channel_id
+    assert first_call[0][2] == "t.123"    # thread_ts
+    assert "Action Items" in first_call[0][3] or "action" in first_call[0][3].lower()
 
 
 def test_run_phase1_sets_processed_state(tmp_path):
@@ -94,8 +95,8 @@ def test_run_phase1_is_idempotent(tmp_path):
         run_phase1("t.123", "C-avoma", "ready to process", s, _config(), "avoma-key", "anthropic-key", "slack-tok")
         run_phase1("t.123", "C-avoma", "second call", s, _config(), "avoma-key", "anthropic-key", "slack-tok")
 
-    # post_to_thread called exactly once — second run skipped
-    assert mock_post.call_count == 1
+    # OS-interested call posts summary + Notion payload (2 calls); second run is skipped entirely
+    assert mock_post.call_count == 2
 
 
 def test_run_phase1_posts_error_when_transcript_not_found(tmp_path):

@@ -252,7 +252,11 @@ def _build_notion_prompt(t, lead_name: str) -> str:
         )
 
 
-def _build_slack_message(t, lead_name: str, resolved_people: list, trigger_text: str) -> str:
+def _build_slack_message(t, lead_name: str, resolved_people: list, trigger_text: str) -> tuple[str, str | None]:
+    """Return (summary_message, notion_payload | None) as separate strings.
+
+    Notion payload is posted as a second message so it is never truncated.
+    """
     call_label = t.call_type.replace("_", " ").title() if t.call_type else "Call"
     external = [r for r in resolved_people if not r["is_internal"]]
     participants_display = ", ".join(r["name"] for r in external) or ", ".join(t.participants[:5])
@@ -275,15 +279,11 @@ def _build_slack_message(t, lead_name: str, resolved_people: list, trigger_text:
         names = ", ".join(r["name"] for r in new_stubs)
         lines += ["", f"⚠️ New contact(s) — stub only, no file yet: {names}"]
 
+    notion_payload = None
     if t.os_interested and t.call_type in ("demo", "follow_up", "onboarding"):
-        notion_block = _build_notion_prompt(t, lead_name)
-        if notion_block:
-            lines += ["", notion_block]
+        notion_payload = _build_notion_prompt(t, lead_name) or None
 
-    msg = "\n".join(lines)
-    if len(msg) > 3000:
-        msg = msg[:2990] + "\n…(truncated)"
-    return msg
+    return "\n".join(lines), notion_payload
 
 
 # ---------------------------------------------------------------------------
@@ -370,8 +370,11 @@ def run_phase1(
         print(f"WARNING: observation write failed for {transcript.uuid}: {e}", file=sys.stderr)
 
     lead_name = _extract_lead_name(transcript.title)
-    output_text = _build_slack_message(transcript, lead_name, resolved_people, trigger_text)
-    output_ts = post_to_thread(slack_bot_token, channel_id, thread_ts, output_text)
+    summary_text, notion_payload = _build_slack_message(transcript, lead_name, resolved_people, trigger_text)
+    output_ts = post_to_thread(slack_bot_token, channel_id, thread_ts, summary_text)
+    if notion_payload:
+        post_to_thread(slack_bot_token, channel_id, thread_ts, notion_payload)
+    output_text = summary_text + ("\n\n" + notion_payload if notion_payload else "")
 
     transcript_json = {
         "uuid": transcript.uuid,
