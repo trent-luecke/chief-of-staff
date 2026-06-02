@@ -297,19 +297,25 @@ def _find_transcript(root_text: str, avoma_api_key: str, anthropic_api_key: str,
     (i.e. anything other than a bare 'ready to process' variant).
     """
     context_note = "" if trigger_text.strip().lower() in _READY_PHRASES else trigger_text.strip()
+    print(f"  [diag] root_text length: {len(root_text)}", file=sys.stderr)
     uuid = extract_avoma_uuid_from_text(root_text)
+    print(f"  [diag] UUID extracted: {uuid!r}", file=sys.stderr)
     if uuid:
         model = config.get("ai_model", "claude-sonnet-4-6")
-        return fetch_meeting_by_uuid(avoma_api_key, anthropic_api_key, model, uuid, context_note=context_note)
+        result = fetch_meeting_by_uuid(avoma_api_key, anthropic_api_key, model, uuid, context_note=context_note)
+        print(f"  [diag] fetch_meeting_by_uuid result: {'found: ' + result.title if result else 'None'}", file=sys.stderr)
+        return result
 
     avoma_cfg = config.get("avoma", {})
     model = config.get("ai_model", "claude-sonnet-4-6")
+    lookback = avoma_cfg.get("slack_trigger_lookback_hours", 168)
+    print(f"  [diag] no UUID, falling back to fetch_recent_meetings (lookback={lookback}h)", file=sys.stderr)
     try:
         transcripts = fetch_recent_meetings(
             api_key=avoma_api_key,
             anthropic_api_key=anthropic_api_key,
             model=model,
-            lookback_hours=avoma_cfg.get("slack_trigger_lookback_hours", 168),
+            lookback_hours=lookback,
             sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
             filter_internal=avoma_cfg.get("filter_internal", True),
             include_non_os=True,
@@ -318,6 +324,7 @@ def _find_transcript(root_text: str, avoma_api_key: str, anthropic_api_key: str,
         print(f"WARNING: fetch_recent_meetings failed: {e}", file=sys.stderr)
         return None
 
+    print(f"  [diag] fetch_recent_meetings returned {len(transcripts)} transcript(s)", file=sys.stderr)
     if not transcripts:
         return None
 
