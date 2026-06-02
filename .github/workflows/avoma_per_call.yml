@@ -1,9 +1,6 @@
 name: Avoma Per-Call Processor
 
 on:
-  schedule:
-    # Every 30 min, Mon–Fri, 1pm–11pm UTC (8am–6pm CDT, UTC-5)
-    - cron: "*/30 13-23 * * 1-5"
   workflow_dispatch:
 
 jobs:
