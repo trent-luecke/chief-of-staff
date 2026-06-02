@@ -138,6 +138,7 @@
     "lookback_hours": 96,
     "filter_internal": true,
     "slack_channel_id": "C07D8MNDKK3",
+    "slack_trigger_lookback_hours": 168,
     "sales_rep_emails": [
       "ryan@teambuildr.com",
       "lmartin@teambuildr.com",

@@ -39,7 +39,8 @@ def test_get_thread_root_text_returns_first_message():
     from lib.slack_post import get_thread_root_text
     with patch("lib.slack_post.WebClient", return_value=_make_replies_client("Avoma meeting text")):
         text = get_thread_root_text("tok", "C123", "t.123")
-    assert text == "Avoma meeting text"
+    # Returns full JSON of the message object so UUIDs in blocks are searchable
+    assert "Avoma meeting text" in text
 
 
 def test_get_thread_root_text_returns_empty_on_error():

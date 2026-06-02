@@ -18,11 +18,19 @@ def post_to_thread(bot_token: str, channel_id: str, thread_ts: str, text: str) -
 
 
 def get_thread_root_text(bot_token: str, channel_id: str, thread_ts: str) -> str:
-    """Return the text of the root message of a Slack thread, or '' on failure."""
+    """Return a searchable text blob for the root message of a Slack thread.
+
+    Rich app messages (like Avoma posts) put content in blocks/attachments rather
+    than the plain text field. We serialize the full message object so that URLs
+    and UUIDs buried in blocks are still findable by regex.
+    """
+    import json as _json
     client = WebClient(token=bot_token)
     try:
         resp = client.conversations_replies(channel=channel_id, ts=thread_ts, limit=1)
         messages = resp.data.get("messages", [])
-        return messages[0].get("text", "") if messages else ""
+        if not messages:
+            return ""
+        return _json.dumps(messages[0])
     except SlackApiError:
         return ""
