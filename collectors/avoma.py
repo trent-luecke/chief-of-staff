@@ -222,9 +222,7 @@ def _analyze_with_claude(
             if block.type == "tool_use" and block.name == "extract_call_analysis":
                 return block.input
         return None
-    except Exception as e:
-        import sys as _sys
-        print(f"  [diag] _analyze_with_claude exception: {type(e).__name__}: {e}", file=_sys.stderr)
+    except Exception:
         return None
 
 
@@ -342,15 +340,11 @@ def fetch_meeting_by_uuid(
     context_note: str = "",
 ) -> "AvomaTranscript | None":
     """Fetch and analyze a single Avoma meeting by UUID. Returns None if not found or transcript not ready."""
-    import sys as _sys
     try:
         m = _get(api_key, f"/v1/meetings/{meeting_uuid}")
-    except Exception as e:
-        print(f"  [diag] fetch_meeting_by_uuid: API error for {meeting_uuid}: {e}", file=_sys.stderr)
+    except Exception:
         return None
 
-    print(f"  [diag] meeting API response keys: {list(m.keys())}", file=_sys.stderr)
-    print(f"  [diag] transcript_ready: {m.get('transcript_ready')}", file=_sys.stderr)
     if not m.get("transcript_ready"):
         return None
 
@@ -363,7 +357,6 @@ def fetch_meeting_by_uuid(
     ]
 
     speakers, utterances = _fetch_transcript(api_key, uuid)
-    print(f"  [diag] _fetch_transcript: {len(speakers)} speakers, {len(utterances)} utterances", file=_sys.stderr)
     if not utterances:
         return None
 
@@ -371,7 +364,6 @@ def fetch_meeting_by_uuid(
     title = m.get("subject") or "Untitled Meeting"
 
     result = _analyze_with_claude(anthropic_api_key, model, title, formatted, context_note=context_note)
-    print(f"  [diag] _analyze_with_claude result: {'ok' if result else 'None'}", file=_sys.stderr)
     if not result:
         return None
 
