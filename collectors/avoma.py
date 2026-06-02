@@ -222,7 +222,9 @@ def _analyze_with_claude(
             if block.type == "tool_use" and block.name == "extract_call_analysis":
                 return block.input
         return None
-    except Exception:
+    except Exception as e:
+        import sys as _sys
+        print(f"  [diag] _analyze_with_claude exception: {type(e).__name__}: {e}", file=_sys.stderr)
         return None
 
 
