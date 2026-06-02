@@ -56,7 +56,6 @@ def test_run_phase1_posts_output_to_thread(tmp_path):
          patch("processors.avoma_phase1._save_registry"):
         run_phase1("t.123", "C-avoma", "ready to process", s, _config(), "avoma-key", "anthropic-key", "slack-tok")
 
-    mock_post.assert_called_once()
     # First call is the summary message; Notion payload is a second call
     first_call = mock_post.call_args_list[0]
     assert first_call[0][1] == "C-avoma"  # channel_id
