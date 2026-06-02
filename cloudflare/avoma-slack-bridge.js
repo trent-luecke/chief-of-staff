@@ -57,10 +57,8 @@ export default {
 
     const body = await request.text();
 
-    // Verify Slack signature before parsing body
-    const valid = await verifySlackSignature(request, body, env.SLACK_SIGNING_SECRET);
-    if (!valid) return new Response("Unauthorized", { status: 401 });
-
+    // Parse body first so we can handle url_verification before signature check.
+    // Slack sends the challenge without a valid signature during initial setup.
     let payload;
     try {
       payload = JSON.parse(body);
@@ -68,12 +66,16 @@ export default {
       return new Response("OK");
     }
 
-    // Handle Slack's initial url_verification challenge
+    // Handle Slack's initial url_verification challenge (no signature required)
     if (payload.type === "url_verification") {
       return new Response(JSON.stringify({ challenge: payload.challenge }), {
         headers: { "Content-Type": "application/json" },
       });
     }
+
+    // Verify Slack signature for all real events
+    const valid = await verifySlackSignature(request, body, env.SLACK_SIGNING_SECRET);
+    if (!valid) return new Response("Unauthorized", { status: 401 });
 
     const event = payload.event;
     if (!event) return new Response("OK");
