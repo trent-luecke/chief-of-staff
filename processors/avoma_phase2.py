@@ -16,6 +16,7 @@ Correction write routing:
 
 from __future__ import annotations
 import json
+import re
 import sys
 from datetime import date
 from pathlib import Path
@@ -23,7 +24,9 @@ from pathlib import Path
 import anthropic
 
 from lib.slack_post import post_to_thread
+from lib.tasks import add_task
 from processors.avoma_thread_state import set_pending_correction, clear_pending_correction
+from processors.query_tools import _sync_canvas
 
 _OBS_KEY = "memory/observations.jsonl"
 
@@ -82,6 +85,66 @@ _PROPOSE_TOOL = {
 _CONFIRMATIONS = frozenset({"yes", "confirm", "confirmed", "ok", "apply", "do it", "yep", "yeah"})
 _REJECTIONS = frozenset({"no", "cancel", "nevermind", "never mind", "skip", "nope", "don't"})
 
+_TASK_ADD_PATTERN = re.compile(
+    r"^add\s+(all|\d[\d,\s]*(?:and\s+\d[\d,\s]*)*)$",
+    re.IGNORECASE,
+)
+
+
+def _is_task_selection(text: str) -> bool:
+    return bool(_TASK_ADD_PATTERN.match(text.strip()))
+
+
+def _parse_task_indices(trigger_text: str, action_items: list) -> list[str]:
+    """Return the action item strings selected by an 'add N [, M ...]' message."""
+    m = re.match(r"^add\s+(.+)$", trigger_text.strip(), re.IGNORECASE)
+    if not m:
+        return []
+    arg = m.group(1).strip().lower()
+    if arg == "all":
+        return list(action_items)
+    # Normalise "and" to space so "1 and 3" → "1   3"
+    arg = arg.replace("and", " ")
+    indices = [int(n) - 1 for n in re.split(r"[,\s]+", arg) if n.strip().isdigit()]
+    return [action_items[i] for i in indices if 0 <= i < len(action_items)]
+
+
+def _handle_task_selection(
+    thread_ts: str,
+    trigger_text: str,
+    state_record: dict,
+    slack_bot_token: str,
+    channel_id: str,
+    storage,
+    config: dict,
+) -> None:
+    transcript_json = state_record.get("transcript_json", {})
+    action_items = transcript_json.get("action_items") or []
+    selected = _parse_task_indices(trigger_text, action_items)
+
+    if not selected:
+        post_to_thread(slack_bot_token, channel_id, thread_ts, "No tasks added (no matching action items).")
+        return
+
+    metadata = {
+        "avoma_uuid": state_record.get("avoma_uuid"),
+        "thread_ts": thread_ts,
+        "call_title": transcript_json.get("title", ""),
+        "call_date": (transcript_json.get("start_at") or "")[:10],
+    }
+    for item in selected:
+        add_task(storage, item, source="avoma", metadata=metadata)
+
+    _sync_canvas(config, storage)
+
+    count = len(selected)
+    noun = "task" if count == 1 else "tasks"
+    items_display = "\n".join(f"  ✓ {t}" for t in selected)
+    post_to_thread(
+        slack_bot_token, channel_id, thread_ts,
+        f"Added {count} {noun}, canvas synced.\n{items_display}",
+    )
+
 
 def run_phase2(
     thread_ts: str,
@@ -105,6 +168,10 @@ def run_phase2(
     if pending and trigger_lower in _REJECTIONS:
         post_to_thread(slack_bot_token, channel_id, thread_ts, "Correction cancelled.")
         clear_pending_correction(storage, thread_ts)
+        return
+
+    if _is_task_selection(trigger_text):
+        _handle_task_selection(thread_ts, trigger_text, state_record, slack_bot_token, channel_id, storage, config)
         return
 
     _handle_fresh_message(thread_ts, trigger_text, state_record, slack_bot_token, channel_id, storage, config, anthropic_api_key)

@@ -143,3 +143,140 @@ def test_phase2_notion_payload_included_in_proposal(tmp_path):
 
     post_text = mock_post.call_args[0][3]
     assert "Notion" in post_text
+
+
+# ---- Task-selection tests ----
+
+def _state_record_with_actions(action_items):
+    return {
+        "phase": 2,
+        "avoma_uuid": "uuid-abc",
+        "processed_at": "2026-06-02T14:00:00+00:00",
+        "output_ts": "ts.999",
+        "phase1_output": "some output",
+        "transcript_json": {
+            "uuid": "uuid-abc",
+            "title": "Demo - Acme Corp",
+            "start_at": "2026-06-01T15:00:00Z",
+            "action_items": action_items,
+        },
+        "pending_correction": None,
+    }
+
+
+def test_task_selection_add_single(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions(["Send pricing deck", "Schedule follow-up", "Get IT contact"])
+
+    with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
+         patch("processors.avoma_phase2._sync_canvas") as mock_canvas:
+        run_phase2("t.123", "add 2", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    tasks = get_open_tasks(s)
+    assert len(tasks) == 1
+    assert tasks[0]["title"] == "Schedule follow-up"
+    assert tasks[0]["source"] == "avoma"
+    assert tasks[0]["metadata"]["avoma_uuid"] == "uuid-abc"
+    assert tasks[0]["metadata"]["thread_ts"] == "t.123"
+    assert tasks[0]["metadata"]["call_title"] == "Demo - Acme Corp"
+    assert tasks[0]["metadata"]["call_date"] == "2026-06-01"
+    mock_canvas.assert_called_once()
+    mock_post.assert_called_once()
+    assert "1 task" in mock_post.call_args[0][3].lower()
+
+
+def test_task_selection_add_multiple_comma(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions(["Send pricing deck", "Schedule follow-up", "Get IT contact"])
+
+    with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add 1, 3", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    tasks = get_open_tasks(s)
+    assert len(tasks) == 2
+    titles = {t["title"] for t in tasks}
+    assert titles == {"Send pricing deck", "Get IT contact"}
+    assert "2 task" in mock_post.call_args[0][3].lower()
+
+
+def test_task_selection_add_with_and(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions(["Send pricing deck", "Schedule follow-up", "Get IT contact"])
+
+    with patch("processors.avoma_phase2.post_to_thread"), \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add 1 and 3", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    tasks = get_open_tasks(s)
+    assert len(tasks) == 2
+
+
+def test_task_selection_add_all(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    items = ["Send pricing deck", "Schedule follow-up", "Get IT contact"]
+    rec = _state_record_with_actions(items)
+
+    with patch("processors.avoma_phase2.post_to_thread"), \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add all", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    assert len(get_open_tasks(s)) == 3
+
+
+def test_task_selection_out_of_range_skipped(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions(["Only one item"])
+
+    with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add 1, 5", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    # index 5 is out of range — only item 1 added
+    assert len(get_open_tasks(s)) == 1
+    assert "1 task" in mock_post.call_args[0][3].lower()
+
+
+def test_task_selection_no_action_items(tmp_path):
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    s = _storage(tmp_path)
+    rec = _state_record_with_actions([])
+
+    with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
+         patch("processors.avoma_phase2._sync_canvas") as mock_canvas:
+        run_phase2("t.123", "add 1", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+
+    assert len(get_open_tasks(s)) == 0
+    mock_canvas.assert_not_called()
+    mock_post.assert_called_once()
+    assert "no" in mock_post.call_args[0][3].lower() or "0" in mock_post.call_args[0][3]
+
+
+def test_task_selection_does_not_intercept_question(tmp_path):
+    """'add me to the call' should NOT be detected as task selection."""
+    from processors.avoma_phase2 import _is_task_selection
+    assert not _is_task_selection("add me to the call")
+    assert not _is_task_selection("add something about pricing")
+    assert not _is_task_selection("can you add a note")
+
+
+def test_task_selection_pattern_variants():
+    from processors.avoma_phase2 import _is_task_selection
+    assert _is_task_selection("add 1")
+    assert _is_task_selection("Add 1")
+    assert _is_task_selection("add 1, 3")
+    assert _is_task_selection("add 1 and 3")
+    assert _is_task_selection("add 1 2 3")
+    assert _is_task_selection("add all")
+    assert _is_task_selection("ADD ALL")
