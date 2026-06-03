@@ -1345,7 +1345,7 @@ async function renderProjectsView() {
     return;
   }
 
-  if (!projects.length) {
+  if (!Array.isArray(projects) || !projects.length) {
     view.innerHTML = '<div class="empty-state"><h3>No Projects</h3><p>No active projects found.</p></div>';
     return;
   }

@@ -155,3 +155,16 @@ def get_recent_completions(storage, days: int = 7) -> list:
         t for t in _replay(storage).values()
         if t["status"] == "completed" and (t.get("completed_at") or "") >= cutoff
     ]
+
+
+def complete_task_by_id(storage, task_id: str) -> Optional[dict]:
+    """Complete a task by exact ID match. Preferred over complete_task for UI use."""
+    tasks = _replay(storage)
+    task = tasks.get(task_id)
+    if not task or task["status"] != "open":
+        return None
+    today = date.today().isoformat()
+    _append(storage, {"event": "complete", "task_id": task_id, "completed_at": today})
+    task["status"] = "completed"
+    task["completed_at"] = today
+    return task

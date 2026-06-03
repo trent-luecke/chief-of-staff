@@ -186,3 +186,28 @@ def test_edit_task_ignores_protected_fields(tmp_path):
     tasks = get_open_tasks(s)
     assert tasks[0]["id"] == original_id
     assert tasks[0]["status"] == "open"
+
+
+# --- complete_task_by_id ---
+
+def test_complete_task_by_id(tmp_path):
+    from lib.tasks import complete_task_by_id
+    s = _s(tmp_path)
+    task = add_task(s, "Complete by ID")
+    result = complete_task_by_id(s, task["id"])
+    assert result is not None
+    assert result["status"] == "completed"
+    assert get_open_tasks(s) == []
+
+
+def test_complete_task_by_id_missing(tmp_path):
+    from lib.tasks import complete_task_by_id
+    assert complete_task_by_id(_s(tmp_path), "t-nope") is None
+
+
+def test_complete_task_by_id_already_completed(tmp_path):
+    from lib.tasks import complete_task_by_id
+    s = _s(tmp_path)
+    task = add_task(s, "Already done")
+    complete_task_by_id(s, task["id"])
+    assert complete_task_by_id(s, task["id"]) is None  # idempotent — returns None for already completed

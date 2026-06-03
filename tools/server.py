@@ -47,6 +47,8 @@ def list_tasks():
 @app.route("/api/tasks", methods=["POST"])
 def create_task():
     body = request.get_json(force=True)
+    if not body or not body.get("title"):
+        return jsonify({"error": "title is required"}), 400
     task = tasks_lib.add_task(
         _storage(),
         title=body["title"],
@@ -70,8 +72,7 @@ def update_task(task_id: str):
 
 @app.route("/api/tasks/<task_id>/complete", methods=["POST"])
 def complete_task(task_id: str):
-    body = request.get_json(force=True) or {}
-    result = tasks_lib.complete_task(_storage(), body.get("match_text", task_id))
+    result = tasks_lib.complete_task_by_id(_storage(), task_id)
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify(result)
@@ -88,6 +89,8 @@ def list_projects():
 @app.route("/api/projects", methods=["POST"])
 def create_project():
     body = request.get_json(force=True)
+    if not body or not body.get("canonical_name"):
+        return jsonify({"error": "canonical_name is required"}), 400
     project = projects_lib.add_project(
         _storage(),
         canonical_name=body["canonical_name"],
