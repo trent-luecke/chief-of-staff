@@ -16,9 +16,9 @@ def _replay(storage) -> dict:
             continue
         try:
             event = json.loads(line)
-        except json.JSONDecodeError:
+            key = (event["project_id"], event["obs_date"], event["obs_entity"])
+        except (json.JSONDecodeError, KeyError):
             continue
-        key = (event["project_id"], event["obs_date"], event["obs_entity"])
         if event["event"] == "link":
             active[key] = {
                 "project_id": event["project_id"],
