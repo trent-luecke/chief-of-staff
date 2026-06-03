@@ -23,6 +23,7 @@ data/*
 !data/brief_prefs.md
 !data/pending_change.json
 !data/tasks.json
+!data/tasks.jsonl
 !data/people_registry.json
 !data/people_resolution.json
 !data/people_unresolved.json
