@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-02T00:00:00",
+  "resolved_at": "2026-06-03T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1510,6 +1510,60 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "421": {
+      "primary_person_id": "drake",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "422": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "423": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "424": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "425": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "426": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "427": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "428": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "429": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "430": {
+      "primary_person_id": "deseanlberger",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
