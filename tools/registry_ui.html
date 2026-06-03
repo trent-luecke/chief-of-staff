@@ -463,6 +463,16 @@
     }
     .btn-add-task:hover { background: #3a8eef; }
     .btn-add-task:disabled { opacity: 0.4; cursor: not-allowed; }
+    .new-proj-form {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .new-proj-form input { flex: 1; min-width: 160px; }
+    .new-proj-status { font-size: 12px; color: var(--muted); }
   </style>
 </head>
 <body>
@@ -1345,23 +1355,71 @@ async function renderProjectsView() {
     return;
   }
 
-  if (!Array.isArray(projects) || !projects.length) {
-    view.innerHTML = '<div class="empty-state"><h3>No Projects</h3><p>No active projects found.</p></div>';
-    return;
+  const listHtml = Array.isArray(projects) && projects.length
+    ? projects.map(p => {
+        const memberCount = (p.members ?? []).length;
+        const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
+        return `
+          <div class="proj-row" data-proj-id="${esc(p.id)}">
+            <span class="proj-name">${esc(p.canonical_name)}</span>
+            <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
+            <span class="proj-meta">${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
+          </div>
+          <div class="proj-detail hidden" id="proj-detail-${esc(p.id)}"></div>`;
+      }).join('')
+    : '<div class="muted" style="padding:16px">No active projects yet.</div>';
+
+  view.innerHTML = `
+    <div class="new-proj-form">
+      <input class="add-task-input" id="new-proj-name" placeholder="Project name…" />
+      <input class="add-task-input" id="new-proj-members" placeholder="Members: nicole-foley:owner, luke-martin:contact" />
+      <button class="btn-add-task" id="new-proj-btn">Create</button>
+      <span class="new-proj-status" id="new-proj-status"></span>
+    </div>
+    <div id="proj-list">${listHtml}</div>`;
+
+  // Wire create form
+  const nameInput = el('new-proj-name');
+  const membersInput = el('new-proj-members');
+  const btn = el('new-proj-btn');
+
+  function parseMembers(raw) {
+    return raw.split(',').map(s => s.trim()).filter(Boolean).map(entry => {
+      const [person_id, role] = entry.split(':').map(p => p.trim());
+      return { person_id, role: role || 'contact' };
+    });
   }
 
-  view.innerHTML = projects.map(p => {
-    const memberCount = (p.members ?? []).length;
-    const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
-    return `
-      <div class="proj-row" data-proj-id="${esc(p.id)}">
-        <span class="proj-name">${esc(p.canonical_name)}</span>
-        <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
-        <span class="proj-meta">${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
-      </div>
-      <div class="proj-detail hidden" id="proj-detail-${esc(p.id)}"></div>`;
-  }).join('');
+  async function submitProject() {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    btn.disabled = true;
+    el('new-proj-status').textContent = 'Creating…';
+    try {
+      const members = parseMembers(membersInput.value);
+      const result = await fetchJSON(`${API}/api/projects`, {
+        method: 'POST',
+        body: JSON.stringify({ canonical_name: name, members }),
+      });
+      nameInput.value = '';
+      membersInput.value = '';
+      await renderProjectsView();
+      const statusEl = el('new-proj-status');
+      if (statusEl) {
+        statusEl.textContent = result.push?.status === 'ok' ? '✓ Created and pushed' : `✓ Created (push failed: ${result.push?.detail ?? ''})`;
+        setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 5000);
+      }
+    } catch (e) {
+      el('new-proj-status').textContent = 'Error: ' + e.message;
+      btn.disabled = false;
+    }
+  }
 
+  btn.addEventListener('click', submitProject);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') membersInput.focus(); });
+  membersInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitProject(); });
+
+  // Wire project row clicks
   view.querySelectorAll('.proj-row').forEach(row => {
     row.addEventListener('click', () => {
       const id = row.dataset.projId;
@@ -1372,7 +1430,7 @@ async function renderProjectsView() {
         detail.innerHTML = '';
         return;
       }
-      const project = projects.find(p => p.id === id);
+      const project = (projects ?? []).find(p => p.id === id);
       if (!project) return;
       openProjectDetail(project, detail);
     });

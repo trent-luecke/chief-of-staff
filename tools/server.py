@@ -7,6 +7,7 @@ backed by lib/tasks.py (JSONL) and lib/projects.py.
 Usage:
     python tools/server.py          # start server at http://localhost:8787
 """
+import subprocess
 import sys
 from pathlib import Path
 
@@ -78,6 +79,34 @@ def complete_task(task_id: str):
     return jsonify(result)
 
 
+def _git_push_projects(project_name: str) -> dict:
+    """Stage, commit, and push projects_registry.json. Non-fatal — project creation succeeds regardless."""
+    try:
+        repo = str(ROOT)
+        subprocess.run(
+            ["git", "add", "data/projects_registry.json"],
+            cwd=repo, check=True, capture_output=True,
+        )
+        commit = subprocess.run(
+            ["git", "commit", "-m", f"data: add project '{project_name}'"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if commit.returncode != 0:
+            out = (commit.stdout + commit.stderr).strip()
+            if "nothing to commit" in out:
+                return {"status": "ok", "detail": "already committed"}
+            return {"status": "commit_failed", "detail": out}
+        push = subprocess.run(
+            ["git", "push"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if push.returncode != 0:
+            return {"status": "push_failed", "detail": push.stderr.strip()}
+        return {"status": "ok", "detail": "committed and pushed"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
 # --- Projects ---
 
 @app.route("/api/projects", methods=["GET"])
@@ -97,7 +126,8 @@ def create_project():
         aliases=body.get("aliases"),
         members=body.get("members"),
     )
-    return jsonify(project), 201
+    push = _git_push_projects(project["canonical_name"])
+    return jsonify({"project": project, "push": push}), 201
 
 
 @app.route("/api/projects/<project_id>", methods=["PATCH"])
