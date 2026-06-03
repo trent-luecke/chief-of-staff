@@ -208,26 +208,34 @@ def _handle_project_link_proposal(
     call_title = transcript_json.get("title", "")
 
     candidate_ids = []
-    for pid in proposal.get("project_ids", []):
-        c = flag_candidate(
-            storage,
-            project_id=pid,
-            obs_date=obs_date,
-            obs_entity=obs_entity,
-            source_thread_ts=thread_ts,
-            call_title=call_title,
-        )
-        candidate_ids.append(c["id"])
+    try:
+        for pid in proposal.get("project_ids", []):
+            c = flag_candidate(
+                storage,
+                project_id=pid,
+                obs_date=obs_date,
+                obs_entity=obs_entity,
+                source_thread_ts=thread_ts,
+                call_title=call_title,
+            )
+            candidate_ids.append(c["id"])
 
-    if proposal.get("project_ids"):
-        set_pending_project_link(storage, thread_ts, {
-            "candidate_ids": candidate_ids,
-            "project_ids": proposal["project_ids"],
-            "obs_date": obs_date,
-            "obs_entity": obs_entity,
-            "call_title": call_title,
-            "confirmation_prompt": "Reply 'yes' to link, 'no' to dismiss.",
-        })
+        if proposal.get("project_ids"):
+            set_pending_project_link(storage, thread_ts, {
+                "candidate_ids": candidate_ids,
+                "project_ids": proposal["project_ids"],
+                "obs_date": obs_date,
+                "obs_entity": obs_entity,
+                "call_title": call_title,
+                "confirmation_prompt": "Reply 'yes' to link, 'no' to dismiss.",
+            })
+    except Exception:
+        from lib.project_candidates import resolve_candidate as _resolve
+        for cid in candidate_ids:
+            _resolve(storage, cid, "dismissed")
+        post_to_thread(slack_bot_token, channel_id, thread_ts,
+                       "Failed to propose project link — please try again.")
+        return
 
     projects_str = ", ".join(proposal["project_ids"])
     msg = (
@@ -291,8 +299,10 @@ def run_phase2(
     pending_link = state_record.get("pending_project_link")
 
     if pending_link and trigger_lower in _CONFIRMATIONS:
-        _apply_project_link(pending_link, storage, slack_bot_token, channel_id, thread_ts)
-        clear_pending_project_link(storage, thread_ts)
+        try:
+            _apply_project_link(pending_link, storage, slack_bot_token, channel_id, thread_ts)
+        finally:
+            clear_pending_project_link(storage, thread_ts)
         return
 
     if pending_link and trigger_lower in _REJECTIONS:
