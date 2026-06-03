@@ -172,3 +172,17 @@ def test_legacy_record_without_project_fields(tmp_path):
     tasks = get_open_tasks(s)
     assert tasks[0].get("project_id") is None
     assert tasks[0].get("collaborators", []) == []
+
+
+def test_edit_task_ignores_protected_fields(tmp_path):
+    s = _s(tmp_path)
+    task = add_task(s, "Protected test")
+    original_id = task["id"]
+    # Patching protected fields should be silently ignored
+    result = edit_task(s, task["id"], {"status": "completed", "id": "t-hacked", "project_id": "proj-x"})
+    assert result["id"] == original_id
+    assert result["status"] == "open"  # not changed
+    assert result["project_id"] == "proj-x"  # non-protected field applied
+    tasks = get_open_tasks(s)
+    assert tasks[0]["id"] == original_id
+    assert tasks[0]["status"] == "open"

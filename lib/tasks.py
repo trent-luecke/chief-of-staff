@@ -136,8 +136,12 @@ def edit_task(storage, task_id: str, patch: dict) -> Optional[dict]:
     tasks = _replay(storage)
     if task_id not in tasks:
         return None
-    _append(storage, {"event": "edit", "task_id": task_id, "patch": patch})
-    tasks[task_id].update(patch)
+    _PROTECTED = {"id", "task_id", "status", "created_at", "completed_at", "source"}
+    safe_patch = {k: v for k, v in patch.items() if k not in _PROTECTED}
+    if not safe_patch:
+        return tasks[task_id]
+    _append(storage, {"event": "edit", "task_id": task_id, "patch": safe_patch})
+    tasks[task_id].update(safe_patch)
     return tasks[task_id]
 
 
