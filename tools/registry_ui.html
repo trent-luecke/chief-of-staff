@@ -342,6 +342,127 @@
     .empty-state h3 { font-size: 15px; margin-bottom: 8px; color: var(--text); }
     .muted { color: var(--muted); }
     hr.section-sep { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* ── Merge UI ── */
+    .merge-heading { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .merge-heading strong { color: var(--text); }
+    .merge-field-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 6px 0 10px; }
+    .merge-field-table th { text-align: left; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; padding: 4px 8px; border-bottom: 1px solid var(--border); }
+    .merge-field-table td { padding: 5px 8px; vertical-align: middle; }
+    .merge-field-table tbody tr:hover td { background: var(--surface2); }
+    .merge-field-label { color: var(--muted); font-size: 11px; width: 100px; }
+    .merge-alias-row { margin: 6px 0 10px; }
+    .merge-actions { display: flex; gap: 8px; }
+    .detail-btns { display: flex; gap: 6px; margin-bottom: 10px; }
+
+    /* ── Registry edit form ── */
+    .btn-edit { background: transparent; color: var(--muted); padding: 3px 10px; border: 1px solid var(--border); font-size: 11px; border-radius: 3px; margin-bottom: 10px; cursor: pointer; }
+    .btn-edit:hover { color: var(--text); border-color: var(--accent); }
+    .edit-form { padding-top: 2px; }
+    .edit-fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+    .edit-form .form-group { display: flex; flex-direction: column; gap: 3px; margin-bottom: 0; }
+    .edit-form label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .edit-form input, .edit-form select { background: var(--surface2); color: var(--text); border: 1px solid var(--border); border-radius: 3px; padding: 5px 7px; font-size: 12px; width: 100%; }
+    .edit-form input:focus, .edit-form select:focus { outline: none; border-color: var(--accent); }
+    .alias-edit-wrap { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; border: 1px solid var(--border); border-radius: 3px; padding: 5px 7px; background: var(--surface2); min-height: 32px; }
+    .alias-chip-rm { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 2px 4px 2px 6px; font-size: 11px; display: inline-flex; align-items: center; gap: 3px; }
+    .alias-chip-rm .rm-btn { background: none; border: none; color: var(--muted); cursor: pointer; padding: 0; line-height: 1; font-size: 13px; }
+    .alias-chip-rm .rm-btn:hover { color: var(--danger); }
+    .alias-add-input { background: none; border: none; color: var(--text); font-size: 12px; padding: 2px 4px; min-width: 80px; flex: 1; }
+    .alias-add-input:focus { outline: none; }
+    .edit-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .edit-pipeline-row { margin-bottom: 8px; }
+
+    /* ── Projects view ── */
+    .offline-banner {
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 4px;
+      color: var(--danger);
+      font-size: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+    .proj-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: var(--surface);
+    }
+    .proj-row:hover { background: var(--surface2); }
+    .proj-name { flex: 1; font-size: 13px; }
+    .proj-meta { font-size: 11px; color: var(--muted); }
+    .badge-active { background: rgba(34,197,94,.2); color: var(--success); }
+    .badge-archived { background: rgba(107,114,128,.2); color: var(--internal); }
+    .proj-detail {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      padding: 14px;
+      margin-top: -6px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .proj-detail-section { margin-bottom: 12px; }
+    .proj-detail-section:last-child { margin-bottom: 0; }
+    .proj-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .task-row:last-child { border-bottom: none; }
+    .task-title { flex: 1; font-size: 12px; }
+    .btn-done {
+      background: transparent;
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 3px;
+    }
+    .btn-done:hover { background: rgba(34,197,94,.1); }
+    .add-task-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .add-task-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      outline: none;
+    }
+    .add-task-input:focus { border-color: var(--accent); }
+    .btn-add-task {
+      background: var(--accent);
+      color: #fff;
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 4px;
+      border: none;
+    }
+    .btn-add-task:hover { background: #3a8eef; }
+    .btn-add-task:disabled { opacity: 0.4; cursor: not-allowed; }
   </style>
 </head>
 <body>
@@ -375,13 +496,15 @@
   <div id="app" class="hidden">
     <nav class="tabs">
       <button class="tab active" data-view="pending">Pending <span id="pending-count"></span></button>
-      <button class="tab" data-view="registry">Registry</button>
+      <button class="tab" data-view="registry">People</button>
       <button class="tab" data-view="observations">Observations</button>
+      <button class="tab" data-view="projects">Projects</button>
     </nav>
     <main>
       <div id="view-pending" class="view"></div>
       <div id="view-registry" class="view hidden"></div>
       <div id="view-observations" class="view hidden"></div>
+      <div id="view-projects" class="view hidden"></div>
     </main>
   </div>
 
@@ -765,6 +888,302 @@ async function saveDecisions() {
   }
 }
 
+// ── Registry detail helpers ─────────────────────────────────────────────────
+function getPersonObs(id) {
+  return (state.observations ?? []).reduce((acc, line) => {
+    if (acc.length >= 5) return acc;
+    try {
+      const obs = JSON.parse(line);
+      if (obs.primary_person_id === id || (obs.related_person_ids ?? []).includes(id)) acc.push(obs);
+    } catch { /* skip */ }
+    return acc;
+  }, []);
+}
+
+function buildDetailReadOnlyHtml(person, personObs) {
+  const aliasesHtml = (person.aliases ?? []).length
+    ? `<div class="alias-list">${(person.aliases ?? []).map(a =>
+        `<span class="alias-chip">${esc(a)}</span>`).join('')}</div>`
+    : '<span class="muted">none</span>';
+  const obsHtml = personObs.length
+    ? personObs.map(o => `
+        <div class="obs-entry">
+          <div class="obs-date">${esc(o.date ?? '')}
+            <span class="obs-type-badge">${esc(o.type ?? '')}</span>
+          </div>
+          <div class="obs-content">${esc((o.content ?? '').slice(0, 200))}</div>
+        </div>`).join('')
+    : '<span class="muted">no observations on file</span>';
+  return `
+    <div class="detail-btns">
+      <button class="btn-edit" data-edit-person>Edit</button>
+      <button class="btn-edit" data-merge-person>Merge with…</button>
+    </div>
+    <div class="detail-row"><span class="detail-label">ID:</span><span class="alias-chip">${esc(person.id)}</span></div>
+    ${person.email ? `<div class="detail-row"><span class="detail-label">Email:</span>${esc(person.email)}</div>` : ''}
+    ${person.pipeline_record ? `<div class="detail-row"><span class="detail-label">Pipeline:</span>${esc(person.pipeline_record)}</div>` : ''}
+    ${person.people_file ? `<div class="detail-row"><span class="detail-label">File:</span>${esc(person.people_file)}</div>` : ''}
+    <div class="detail-row"><span class="detail-label">Aliases:</span>${aliasesHtml}</div>
+    <div class="detail-row" style="margin-top:8px"><span class="detail-label">Observations:</span></div>
+    ${obsHtml}`;
+}
+
+function buildEditFormHtml(person) {
+  const typeOpts = ['unknown', 'lead', 'customer', 'partner', 'internal'];
+  const typeSelectHtml = typeOpts.map(t =>
+    `<option value="${esc(t)}"${(person.type ?? 'unknown') === t ? ' selected' : ''}>${esc(t)}</option>`
+  ).join('');
+  const aliasChipsHtml = (person.aliases ?? []).map(a =>
+    `<span class="alias-chip-rm" data-alias="${esc(a)}">${esc(a)}<button type="button" class="rm-btn" aria-label="remove">×</button></span>`
+  ).join('');
+  return `
+    <div class="edit-form">
+      <div class="edit-fields-grid">
+        <div class="form-group">
+          <label>Canonical Name</label>
+          <input id="ef-name" value="${esc(person.canonical_name ?? '')}">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="ef-type">${typeSelectHtml}</select>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input id="ef-email" type="email" value="${esc(person.email ?? '')}">
+        </div>
+        <div class="form-group">
+          <label>People File</label>
+          <input id="ef-people-file" value="${esc(person.people_file ?? '')}">
+        </div>
+      </div>
+      <div class="form-group edit-pipeline-row">
+        <label>Pipeline Record</label>
+        <input id="ef-pipeline" value="${esc(person.pipeline_record ?? '')}">
+      </div>
+      <div class="form-group">
+        <label>Aliases</label>
+        <div class="alias-edit-wrap" id="ef-aliases">
+          ${aliasChipsHtml}
+          <input class="alias-add-input" id="ef-alias-input" placeholder="Add alias, press Enter…">
+        </div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn" id="ef-cancel">Cancel</button>
+        <button class="btn btn-save" id="ef-save">Save</button>
+      </div>
+    </div>`;
+}
+
+function openDetailReadOnly(person, detail) {
+  detail.innerHTML = buildDetailReadOnlyHtml(person, getPersonObs(person.id));
+  detail.classList.remove('hidden');
+  detail.querySelector('[data-edit-person]').addEventListener('click', () => {
+    openDetailEdit(person, detail);
+  });
+  detail.querySelector('[data-merge-person]').addEventListener('click', () => {
+    openMergeSearch(person, detail);
+  });
+}
+
+function openMergeSearch(person, detail) {
+  const people = state.registry?.people ?? [];
+  detail.innerHTML = `
+    <button class="btn-edit" data-back>← Back</button>
+    <div style="margin-bottom:8px;font-size:12px;color:var(--muted)">Merge <strong style="color:var(--text)">${esc(person.canonical_name)}</strong> with…</div>
+    <div class="typeahead-wrap">
+      <input class="typeahead-input" id="ms-input" placeholder="Search for duplicate…" autocomplete="off" />
+      <div class="typeahead-list" id="ms-list"></div>
+    </div>`;
+
+  detail.querySelector('[data-back]').addEventListener('click', () => openDetailReadOnly(person, detail));
+
+  const input = detail.querySelector('#ms-input');
+  const list = detail.querySelector('#ms-list');
+
+  function renderMatches(query) {
+    const q = query.toLowerCase();
+    const matches = (q.length < 1
+      ? people.filter(p => p.id !== person.id).slice(0, 8)
+      : people.filter(p => p.id !== person.id && (
+          p.canonical_name.toLowerCase().includes(q) ||
+          (p.aliases ?? []).some(a => a.toLowerCase().includes(q))
+        ))
+    ).slice(0, 8);
+    list.innerHTML = matches.map(p =>
+      `<div class="typeahead-item" data-id="${esc(p.id)}">
+        <span>${esc(p.canonical_name)}</span>
+        <span class="badge badge-${esc(p.type)}">${esc(p.type)}</span>
+      </div>`
+    ).join('');
+    list.querySelectorAll('.typeahead-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const target = people.find(p => p.id === item.dataset.id);
+        if (target) openMergeConflict(person, target, detail);
+      });
+    });
+  }
+
+  renderMatches('');
+  input.addEventListener('input', () => renderMatches(input.value));
+  input.focus();
+}
+
+function openMergeConflict(personA, personB, detail) {
+  const FIELDS = [
+    { key: 'canonical_name', label: 'Name' },
+    { key: 'type',           label: 'Type' },
+    { key: 'email',          label: 'Email' },
+    { key: 'people_file',    label: 'People File' },
+    { key: 'pipeline_record',label: 'Pipeline' },
+  ];
+
+  const mergedAliases = [
+    ...(personA.aliases ?? []),
+    ...(personB.aliases ?? []).filter(a => !(personA.aliases ?? []).includes(a)),
+    personB.id,
+  ].filter(Boolean);
+
+  const rowsHtml = FIELDS.map(f => {
+    const valA = personA[f.key] ?? '';
+    const valB = personB[f.key] ?? '';
+    const dispA = valA ? esc(String(valA)) : '<span class="muted">(empty)</span>';
+    const dispB = valB ? esc(String(valB)) : '<span class="muted">(empty)</span>';
+    const selectA = valA || !valB; // prefer A; if A empty and B has value, prefer B
+    return `<tr>
+      <td class="merge-field-label">${esc(f.label)}</td>
+      <td><label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="radio" name="mf-${esc(f.key)}" value="a"${selectA ? ' checked' : ''}> ${dispA}
+      </label></td>
+      <td><label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="radio" name="mf-${esc(f.key)}" value="b"${!selectA ? ' checked' : ''}> ${dispB}
+      </label></td>
+    </tr>`;
+  }).join('');
+
+  const aliasChipsHtml = mergedAliases.map(a => `<span class="alias-chip">${esc(a)}</span>`).join('');
+
+  detail.innerHTML = `
+    <button class="btn-edit" data-back>← Back</button>
+    <div class="merge-heading">Merging <strong>${esc(personA.canonical_name)}</strong> ← <strong>${esc(personB.canonical_name)}</strong><br>
+      <span style="font-size:11px">Surviving record: <strong style="color:var(--text)">${esc(personA.canonical_name)}</strong> — pick which value wins for each field.</span>
+    </div>
+    <table class="merge-field-table">
+      <thead><tr>
+        <th></th>
+        <th>${esc(personA.canonical_name)}</th>
+        <th>${esc(personB.canonical_name)}</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+    <div class="merge-alias-row">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Merged Aliases (always combined)</div>
+      <div class="alias-list">${aliasChipsHtml || '<span class="muted">none</span>'}</div>
+    </div>
+    <div class="merge-actions">
+      <button class="btn" id="mc-cancel">Cancel</button>
+      <button class="btn btn-save" id="mc-confirm">Confirm Merge</button>
+    </div>`;
+
+  detail.querySelector('[data-back]').addEventListener('click', () => openMergeSearch(personA, detail));
+  detail.querySelector('#mc-cancel').addEventListener('click', () => openDetailReadOnly(personA, detail));
+
+  detail.querySelector('#mc-confirm').addEventListener('click', async () => {
+    const surviving = { ...personA };
+    FIELDS.forEach(f => {
+      const choice = detail.querySelector(`input[name="mf-${f.key}"]:checked`)?.value;
+      surviving[f.key] = (choice === 'b' ? personB[f.key] : personA[f.key]) ?? null;
+    });
+    surviving.aliases = mergedAliases;
+
+    state.registry.people = state.registry.people
+      .filter(p => p.id !== personB.id)
+      .map(p => p.id === personA.id ? surviving : p);
+
+    const btn = detail.querySelector('#mc-confirm');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+    } catch (e) {
+      alert('Failed to save: ' + e.message);
+      btn.disabled = false;
+      btn.textContent = 'Confirm Merge';
+      return;
+    }
+
+    const currentFilter = document.getElementById('registry-search')?.value ?? '';
+    renderRegistryView(currentFilter);
+    const row = document.querySelector(`.registry-row[data-id="${CSS.escape(surviving.id)}"]`);
+    if (row) row.click();
+  });
+}
+
+function openDetailEdit(person, detail) {
+  detail.innerHTML = buildEditFormHtml(person);
+
+  detail.querySelectorAll('.rm-btn').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.alias-chip-rm').remove());
+  });
+
+  const aliasInput = detail.querySelector('#ef-alias-input');
+  aliasInput.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const val = aliasInput.value.trim();
+    if (!val) return;
+    const existing = [...detail.querySelectorAll('[data-alias]')].map(el => el.dataset.alias);
+    if (existing.includes(val)) { aliasInput.value = ''; return; }
+    const wrap = detail.querySelector('#ef-aliases');
+    const chip = document.createElement('span');
+    chip.className = 'alias-chip-rm';
+    chip.dataset.alias = val;
+    chip.innerHTML = `${esc(val)}<button type="button" class="rm-btn" aria-label="remove">×</button>`;
+    chip.querySelector('.rm-btn').addEventListener('click', () => chip.remove());
+    wrap.insertBefore(chip, aliasInput);
+    aliasInput.value = '';
+  });
+
+  detail.querySelector('#ef-cancel').addEventListener('click', () => {
+    openDetailReadOnly(person, detail);
+  });
+
+  detail.querySelector('#ef-save').addEventListener('click', async () => {
+    const nameVal = detail.querySelector('#ef-name').value.trim();
+    if (!nameVal) { detail.querySelector('#ef-name').focus(); return; }
+
+    const aliases = [...detail.querySelectorAll('[data-alias]')].map(el => el.dataset.alias);
+    const updated = {
+      ...person,
+      canonical_name: nameVal,
+      type: detail.querySelector('#ef-type').value,
+      email: detail.querySelector('#ef-email').value.trim() || null,
+      people_file: detail.querySelector('#ef-people-file').value.trim() || null,
+      pipeline_record: detail.querySelector('#ef-pipeline').value.trim() || null,
+      aliases,
+    };
+
+    const idx = state.registry.people.findIndex(p => p.id === person.id);
+    if (idx !== -1) state.registry.people[idx] = updated;
+
+    const saveBtn = detail.querySelector('#ef-save');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    try {
+      await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+    } catch (e) {
+      alert('Failed to save: ' + e.message);
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save';
+      return;
+    }
+
+    const currentFilter = document.getElementById('registry-search')?.value ?? '';
+    renderRegistryView(currentFilter);
+    const row = document.querySelector(`.registry-row[data-id="${CSS.escape(updated.id)}"]`);
+    if (row) row.click();
+  });
+}
+
 // ── View: Registry Browser ──────────────────────────────────────────────────
 function renderRegistryView(filter = '') {
   const view = el('view-registry');
@@ -795,7 +1214,6 @@ function renderRegistryView(filter = '') {
       ).join('')
     : '<div class="empty-state"><p>No results</p></div>';
 
-  // Expand/collapse on row click
   list.querySelectorAll('.registry-row').forEach(row => {
     row.addEventListener('click', () => {
       const id = row.dataset.id;
@@ -806,48 +1224,12 @@ function renderRegistryView(filter = '') {
         detail.innerHTML = '';
         return;
       }
-      const person = people.find(p => p.id === id);
+      const person = state.registry.people.find(p => p.id === id);
       if (!person) return;
-
-      // Recent observations for this person
-      const personObs = (state.observations ?? []).reduce((acc, line) => {
-        if (acc.length >= 5) return acc;
-        try {
-          const obs = JSON.parse(line);
-          if (obs.primary_person_id === id ||
-              (obs.related_person_ids ?? []).includes(id)) acc.push(obs);
-        } catch { /* skip */ }
-        return acc;
-      }, []);
-
-      const obsHtml = personObs.length
-        ? personObs.map(o => `
-            <div class="obs-entry">
-              <div class="obs-date">${esc(o.date ?? '')}
-                <span class="obs-type-badge">${esc(o.type ?? '')}</span>
-              </div>
-              <div class="obs-content">${esc((o.content ?? '').slice(0, 200))}</div>
-            </div>`).join('')
-        : '<span class="muted">no observations on file</span>';
-
-      const aliasesHtml = (person.aliases ?? []).length
-        ? `<div class="alias-list">${(person.aliases ?? []).map(a =>
-            `<span class="alias-chip">${esc(a)}</span>`).join('')}</div>`
-        : '<span class="muted">none</span>';
-
-      detail.innerHTML = `
-        <div class="detail-row"><span class="detail-label">ID:</span><span class="alias-chip">${esc(person.id)}</span></div>
-        ${person.email ? `<div class="detail-row"><span class="detail-label">Email:</span>${esc(person.email)}</div>` : ''}
-        ${person.pipeline_record ? `<div class="detail-row"><span class="detail-label">Pipeline:</span>${esc(person.pipeline_record)}</div>` : ''}
-        ${person.people_file ? `<div class="detail-row"><span class="detail-label">File:</span>${esc(person.people_file)}</div>` : ''}
-        <div class="detail-row"><span class="detail-label">Aliases:</span>${aliasesHtml}</div>
-        <div class="detail-row" style="margin-top:8px"><span class="detail-label">Observations:</span></div>
-        ${obsHtml}`;
-      detail.classList.remove('hidden');
+      openDetailReadOnly(person, detail);
     });
   });
 
-  // Live search
   el('registry-search').addEventListener('input', e => {
     renderRegistryView(e.target.value);
   });
@@ -935,8 +1317,172 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
-  ['pending','registry','observations'].forEach(v => {
+  ['pending','registry','observations','projects'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
+  });
+}
+
+// ── View: Projects ──────────────────────────────────────────────────────────
+const API = 'http://localhost:8787';
+
+async function fetchJSON(url, opts = {}) {
+  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function renderProjectsView() {
+  const view = el('view-projects');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading projects…</div>';
+
+  let projects;
+  try {
+    projects = await fetchJSON(`${API}/api/projects`);
+  } catch {
+    view.innerHTML = `
+      <div class="offline-banner">Start tools/server.py to see projects and tasks.</div>
+      <div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
+    return;
+  }
+
+  if (!projects.length) {
+    view.innerHTML = '<div class="empty-state"><h3>No Projects</h3><p>No active projects found.</p></div>';
+    return;
+  }
+
+  view.innerHTML = projects.map(p => {
+    const memberCount = (p.members ?? []).length;
+    const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
+    return `
+      <div class="proj-row" data-proj-id="${esc(p.id)}">
+        <span class="proj-name">${esc(p.canonical_name)}</span>
+        <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
+        <span class="proj-meta">${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="proj-detail hidden" id="proj-detail-${esc(p.id)}"></div>`;
+  }).join('');
+
+  view.querySelectorAll('.proj-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const id = row.dataset.projId;
+      const detail = el(`proj-detail-${id}`);
+      if (!detail) return;
+      if (!detail.classList.contains('hidden')) {
+        detail.classList.add('hidden');
+        detail.innerHTML = '';
+        return;
+      }
+      const project = projects.find(p => p.id === id);
+      if (!project) return;
+      openProjectDetail(project, detail);
+    });
+  });
+}
+
+function openProjectDetail(project, detail) {
+  const aliasesHtml = (project.aliases ?? []).length
+    ? (project.aliases ?? []).map(a => `<span class="alias-chip">${esc(a)}</span>`).join('')
+    : '<span class="muted">none</span>';
+  const membersHtml = (project.members ?? []).length
+    ? (project.members ?? []).map(m => `<span class="alias-chip">${esc(m)}</span>`).join('')
+    : '<span class="muted">none</span>';
+
+  detail.innerHTML = `
+    <div class="proj-detail-section">
+      <div class="proj-section-label">Canonical Name</div>
+      <div>${esc(project.canonical_name)}</div>
+    </div>
+    <div class="proj-detail-section">
+      <div class="proj-section-label">Aliases</div>
+      <div class="alias-list">${aliasesHtml}</div>
+    </div>
+    <div class="proj-detail-section">
+      <div class="proj-section-label">Members</div>
+      <div class="alias-list">${membersHtml}</div>
+    </div>
+    <div class="proj-detail-section">
+      <div class="proj-section-label">Open Tasks</div>
+      <div id="proj-tasks-${esc(project.id)}"><span class="muted">Loading…</span></div>
+      <div class="add-task-form">
+        <input class="add-task-input" id="new-task-input-${esc(project.id)}" placeholder="Add a task…" />
+        <button class="btn-add-task" id="new-task-btn-${esc(project.id)}">Add</button>
+      </div>
+    </div>`;
+
+  detail.classList.remove('hidden');
+  loadProjectTasks(project.id);
+
+  const input = el(`new-task-input-${project.id}`);
+  const btn = el(`new-task-btn-${project.id}`);
+
+  async function submitTask() {
+    const title = input.value.trim();
+    if (!title) { input.focus(); return; }
+    btn.disabled = true;
+    try {
+      await fetchJSON(`${API}/api/tasks`, {
+        method: 'POST',
+        body: JSON.stringify({ title, project_id: project.id, source: 'ui' }),
+      });
+      input.value = '';
+      await loadProjectTasks(project.id);
+    } catch (e) {
+      alert('Failed to add task: ' + e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  btn.addEventListener('click', submitTask);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') submitTask(); });
+}
+
+async function loadProjectTasks(projectId) {
+  const container = el(`proj-tasks-${projectId}`);
+  if (!container) return;
+
+  let tasks;
+  try {
+    tasks = await fetchJSON(`${API}/api/tasks?project_id=${encodeURIComponent(projectId)}`);
+  } catch {
+    container.innerHTML = '<span class="muted">Could not load tasks.</span>';
+    return;
+  }
+
+  if (!tasks.length) {
+    container.innerHTML = '<span class="muted">No open tasks.</span>';
+    return;
+  }
+
+  container.innerHTML = tasks.map(t => `
+    <div class="task-row" id="task-row-${esc(t.id)}">
+      <span class="task-title">${esc(t.title)}</span>
+      ${t.due_date ? `<span class="proj-meta">${esc(t.due_date)}</span>` : ''}
+      <button class="btn-done" data-task-id="${esc(t.id)}" data-task-title="${esc(t.title)}">Done</button>
+    </div>`).join('');
+
+  container.querySelectorAll('.btn-done').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const taskId = btn.dataset.taskId;
+      const taskTitle = btn.dataset.taskTitle;
+      btn.disabled = true;
+      btn.textContent = '…';
+      try {
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, {
+          method: 'POST',
+          body: JSON.stringify({ match_text: taskTitle }),
+        });
+        const row = el(`task-row-${taskId}`);
+        if (row) row.remove();
+        if (!container.querySelector('.task-row')) {
+          container.innerHTML = '<span class="muted">No open tasks.</span>';
+        }
+      } catch (e) {
+        alert('Failed to complete task: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'Done';
+      }
+    });
   });
 }
 
@@ -977,6 +1523,7 @@ async function init() {
       switchTab(view);
       if (view === 'registry') renderRegistryView();
       if (view === 'observations') renderObservationsView();
+      if (view === 'projects') renderProjectsView();
     });
   });
 }
