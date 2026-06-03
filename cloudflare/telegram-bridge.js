@@ -68,9 +68,9 @@ async function handleSlackTask(request, env, ctx) {
     });
   }
 
-  const dueMatch = text.match(/\bdue:(\S+)/i);
-  const dueDateRaw = dueMatch ? dueMatch[1] : "";
-  const title = text.replace(/\bdue:\S+/i, "").trim();
+  const dueMatch = text.match(/\bdue:(.+)$/i);
+  const dueDateRaw = dueMatch ? dueMatch[1].trim() : "";
+  const title = dueMatch ? text.slice(0, dueMatch.index).trim() : text.trim();
 
   if (!title) {
     return Response.json({

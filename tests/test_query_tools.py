@@ -26,7 +26,8 @@ def test_add_capture_writes_to_file():
         storage = LocalStorage(tmp)
         result = execute_tool("add_capture", {"capture_type": "todo", "text": "Call Marcus"}, config, storage=storage)
         assert "captured" in result.lower() or "added" in result.lower()
-        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        from lib.tasks import get_open_tasks
+        tasks = get_open_tasks(storage)
         assert any("Call Marcus" in t["title"] for t in tasks)
 
 
@@ -39,7 +40,8 @@ def test_complete_task_removes_from_captures():
         add_task(storage, "Call Marcus")
         result = execute_tool("complete_task", {"description": "Call Marcus"}, config, storage=storage)
         assert "completed" in result.lower()
-        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        from lib.tasks import get_recent_completions
+        tasks = get_recent_completions(storage, days=9999)
         assert any(t["title"] == "Call Marcus" and t["status"] == "completed" for t in tasks)
         # projects file doesn't exist — should not be created
         assert not os.path.exists(config["projects_file"])

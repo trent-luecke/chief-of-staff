@@ -110,7 +110,8 @@ def test_answer_query_with_tools_executes_tool_then_returns_answer():
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 2
-        tasks = storage.read_json("tasks.json", default={"tasks": []})["tasks"]
+        from lib.tasks import get_open_tasks
+        tasks = get_open_tasks(storage)
         assert any("Call Marcus" in t["title"] for t in tasks)
 
 

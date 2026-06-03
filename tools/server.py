@@ -59,7 +59,8 @@ def create_task():
         project_id=body.get("project_id"),
         collaborators=body.get("collaborators"),
     )
-    return jsonify(task), 201
+    push = _git_push_tasks(f"create task {task['id']}")
+    return jsonify({"task": task, "push": push}), 201
 
 
 @app.route("/api/tasks/<task_id>", methods=["PATCH"])
