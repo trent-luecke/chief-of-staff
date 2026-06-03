@@ -76,6 +76,7 @@ def _build_prompt(
     captures_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
+    storage=None,
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -154,6 +155,31 @@ def _build_prompt(
                         [f"  {m}" for m in meeting_prep])
     sections += section("## Active Projects",
                         [f"  {p.name} [{p.status}] — Next: {p.next_step}" for p in projects[:7]])
+
+    # Structured projects from registry (tasks + recent call history)
+    if storage is not None:
+        try:
+            from lib.projects import project_context_for_brief
+            project_ctx = project_context_for_brief(storage)
+            if project_ctx:
+                proj_lines = []
+                for entry in project_ctx:
+                    p = entry["project"]
+                    proj_lines.append(f"  ### {p['canonical_name']}")
+                    if entry["open_tasks"]:
+                        proj_lines.append("  Open tasks:")
+                        for t in entry["open_tasks"]:
+                            proj_lines.append(f"    - {t['title']}")
+                    if entry["linked_obs"]:
+                        recent = entry["linked_obs"][-3:]
+                        proj_lines.append(f"  Recent calls ({len(entry['linked_obs'])} in last 14 days):")
+                        for lk in recent:
+                            proj_lines.append(f"    - {lk['call_title']} ({lk['obs_date']})")
+                    proj_lines.append("")
+                sections += section("## Structured Projects (tasks + recent calls)", proj_lines)
+        except Exception:
+            pass  # non-fatal — brief continues without this section
+
     sections += section("## Recurring Tasks Due Today",
                         [f"  {t.name} ({t.schedule})" for t in due_tasks])
     if inbox_text and inbox_text.strip():
@@ -190,6 +216,7 @@ def generate_brief(
     captures_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
+    storage=None,
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -206,6 +233,7 @@ def generate_brief(
         captures_context=captures_context,
         brief_feedback_context=brief_feedback_context,
         brief_prefs_context=brief_prefs_context,
+        storage=storage,
     )
     response = client.messages.create(
         model=model,

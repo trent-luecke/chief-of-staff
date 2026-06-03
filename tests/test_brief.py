@@ -184,6 +184,81 @@ def test_build_prompt_omits_memory_section_when_empty():
     assert "Cross-Day Memory" not in prompt
 
 
+def test_brief_includes_project_section(tmp_path):
+    from lib.storage import LocalStorage
+    from lib.projects import add_project
+    from lib.tasks import add_task
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    storage = LocalStorage(str(tmp_path))
+    project = add_project(storage, canonical_name="Vero AI Launch", status="active")
+    add_task(storage, title="Write launch email", project_id=project["id"])
+
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        open_issues=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        storage=storage,
+    )
+
+    assert "Vero AI Launch" in prompt
+    assert "Write launch email" in prompt
+    assert "Structured Projects" in prompt
+
+
+def test_brief_omits_project_section_when_no_projects(tmp_path):
+    from lib.storage import LocalStorage
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    storage = LocalStorage(str(tmp_path))
+
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        open_issues=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        storage=storage,
+    )
+
+    assert "Structured Projects" not in prompt
+
+
+def test_brief_omits_project_section_when_storage_is_none():
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    prompt = _build_prompt(
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        open_issues=[],
+        drafts=[],
+        meeting_prep=[],
+        inbox_text="",
+        storage=None,
+    )
+
+    assert "Structured Projects" not in prompt
+
+
 @pytest.fixture
 def mock_anthropic():
     with patch("processors.brief.anthropic.Anthropic") as mock:

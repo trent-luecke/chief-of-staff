@@ -761,6 +761,7 @@ def generate_and_deliver(
                     captures_context=ctx.captures_context,
                     brief_feedback_context=ctx.brief_feedback_context,
                     brief_prefs_context=ctx.brief_prefs_context,
+                    storage=storage,
                 )
             except Exception as e:
                 _brief_error = str(e)[:200]

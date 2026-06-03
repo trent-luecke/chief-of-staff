@@ -25,7 +25,10 @@ import anthropic
 
 from lib.slack_post import post_to_thread
 from lib.tasks import add_task
-from processors.avoma_thread_state import set_pending_correction, clear_pending_correction
+from processors.avoma_thread_state import (
+    set_pending_correction, clear_pending_correction,
+    set_pending_project_link, clear_pending_project_link,
+)
 from processors.query_tools import _sync_canvas
 
 _OBS_KEY = "memory/observations.jsonl"
@@ -79,6 +82,30 @@ _PROPOSE_TOOL = {
             },
         },
         "required": ["description", "writes", "notion_payload", "confirmation_prompt"],
+    },
+}
+
+_PROPOSE_PROJECT_LINK_TOOL = {
+    "name": "propose_project_link",
+    "description": (
+        "Suggest linking this call's observation to one or more existing projects. "
+        "ONLY call this when a call participant is a known member of the project. "
+        "Do NOT invent links. Bias hard toward missing a link over making a false one."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "project_ids": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "IDs of existing projects this call plausibly relates to.",
+            },
+            "rationale": {
+                "type": "string",
+                "description": "One sentence: which participant triggered the match and why.",
+            },
+        },
+        "required": ["project_ids", "rationale"],
     },
 }
 
@@ -146,6 +173,115 @@ def _handle_task_selection(
     )
 
 
+def _project_context_block(storage) -> str:
+    from lib.projects import list_projects
+    try:
+        projects = list_projects(storage, status="active")
+        if not projects:
+            return ""
+        lines = ["## Active Projects (for link consideration)"]
+        for p in projects:
+            member_ids = [m["person_id"] for m in p.get("members", [])]
+            lines.append(
+                f"- id={p['id']}  name={p['canonical_name']}"
+                f"  members={', '.join(member_ids) or 'none'}"
+            )
+        return "\n".join(lines)
+    except Exception:
+        return ""
+
+
+def _handle_project_link_proposal(
+    proposal: dict,
+    state_record: dict,
+    thread_ts: str,
+    storage,
+    slack_bot_token: str,
+    channel_id: str,
+) -> None:
+    from lib.project_candidates import flag_candidate
+    from processors.avoma_thread_state import set_pending_project_link
+
+    transcript_json = state_record.get("transcript_json", {})
+    obs_date = (transcript_json.get("start_at") or "")[:10] or date.today().isoformat()
+    obs_entity = state_record.get("avoma_uuid") or thread_ts
+    call_title = transcript_json.get("title", "")
+
+    candidate_ids = []
+    try:
+        for pid in proposal.get("project_ids", []):
+            c = flag_candidate(
+                storage,
+                project_id=pid,
+                obs_date=obs_date,
+                obs_entity=obs_entity,
+                source_thread_ts=thread_ts,
+                call_title=call_title,
+            )
+            candidate_ids.append(c["id"])
+
+        if proposal.get("project_ids"):
+            set_pending_project_link(storage, thread_ts, {
+                "candidate_ids": candidate_ids,
+                "project_ids": proposal["project_ids"],
+                "obs_date": obs_date,
+                "obs_entity": obs_entity,
+                "call_title": call_title,
+                "confirmation_prompt": "Reply 'yes' to link, 'no' to dismiss.",
+            })
+    except Exception:
+        from lib.project_candidates import resolve_candidate as _resolve
+        for cid in candidate_ids:
+            _resolve(storage, cid, "dismissed")
+        post_to_thread(slack_bot_token, channel_id, thread_ts,
+                       "Failed to propose project link — please try again.")
+        return
+
+    projects_str = ", ".join(proposal["project_ids"])
+    msg = (
+        f"Project link suggested: {projects_str}\n"
+        f"Reason: {proposal['rationale']}\n\n"
+        "Reply 'yes' to confirm or 'no' to dismiss."
+    )
+    post_to_thread(slack_bot_token, channel_id, thread_ts, msg)
+
+
+def _apply_project_link(
+    pending_link: dict,
+    storage,
+    slack_bot_token: str,
+    channel_id: str,
+    thread_ts: str,
+) -> None:
+    from lib.project_candidates import resolve_candidate
+    from lib.project_links import add_link
+
+    obs_date = pending_link["obs_date"]
+    obs_entity = pending_link["obs_entity"]
+    call_title = pending_link["call_title"]
+    applied = []
+
+    for pid, cid in zip(
+        pending_link.get("project_ids", []),
+        pending_link.get("candidate_ids", []),
+    ):
+        add_link(
+            storage,
+            project_id=pid,
+            obs_date=obs_date,
+            obs_entity=obs_entity,
+            source_thread_ts=thread_ts,
+            call_title=call_title,
+        )
+        resolve_candidate(storage, cid, "confirmed")
+        applied.append(pid)
+
+    post_to_thread(
+        slack_bot_token, channel_id, thread_ts,
+        f"Linked to: {', '.join(applied)}.",
+    )
+
+
 def run_phase2(
     thread_ts: str,
     trigger_text: str,
@@ -159,6 +295,23 @@ def run_phase2(
     """Handle a Phase 2 message. Routes to pending correction check or fresh Claude call."""
     pending = state_record.get("pending_correction")
     trigger_lower = trigger_text.strip().lower()
+
+    pending_link = state_record.get("pending_project_link")
+
+    if pending_link and trigger_lower in _CONFIRMATIONS:
+        try:
+            _apply_project_link(pending_link, storage, slack_bot_token, channel_id, thread_ts)
+        finally:
+            clear_pending_project_link(storage, thread_ts)
+        return
+
+    if pending_link and trigger_lower in _REJECTIONS:
+        from lib.project_candidates import resolve_candidate
+        for cid in pending_link.get("candidate_ids", []):
+            resolve_candidate(storage, cid, "dismissed")
+        clear_pending_project_link(storage, thread_ts)
+        post_to_thread(slack_bot_token, channel_id, thread_ts, "Project link dismissed.")
+        return
 
     if pending and trigger_lower in _CONFIRMATIONS:
         _apply_correction(pending, state_record, storage, slack_bot_token, channel_id, thread_ts)
@@ -197,7 +350,10 @@ def _handle_fresh_message(
     transcript_json = state_record.get("transcript_json", {})
     model = config.get("ai_model", "claude-sonnet-4-6")
 
+    proj_ctx = _project_context_block(storage)
     user_content = (
+        (proj_ctx + "\n\n") if proj_ctx else ""
+    ) + (
         f"## Phase 1 Output\n{phase1_output}\n\n"
         f"## Call Analysis\n{json.dumps(transcript_json, indent=2)}\n\n"
         f"## Trent's message\n{trigger_text}"
@@ -208,15 +364,18 @@ def _handle_fresh_message(
         model=model,
         max_tokens=1000,
         system=_SYSTEM_PROMPT,
-        tools=[_PROPOSE_TOOL],
+        tools=[_PROPOSE_TOOL, _PROPOSE_PROJECT_LINK_TOOL],
         messages=[{"role": "user", "content": user_content}],
     )
 
     correction_input = None
+    project_link_input = None
     text_response = ""
     for block in response.content:
         if block.type == "tool_use" and block.name == "propose_correction":
             correction_input = block.input
+        elif block.type == "tool_use" and block.name == "propose_project_link":
+            project_link_input = block.input
         elif block.type == "text":
             text_response = block.text.strip()
 
@@ -231,8 +390,16 @@ def _handle_fresh_message(
         if correction_input.get("notion_payload"):
             msg += f"\n\n{correction_input['notion_payload']}"
         post_to_thread(slack_bot_token, channel_id, thread_ts, msg)
-    else:
-        post_to_thread(slack_bot_token, channel_id, thread_ts, text_response or "(no response)")
+        return
+
+    if project_link_input:
+        _handle_project_link_proposal(
+            project_link_input, state_record, thread_ts, storage,
+            slack_bot_token, channel_id,
+        )
+        return
+
+    post_to_thread(slack_bot_token, channel_id, thread_ts, text_response or "(no response)")
 
 
 def _apply_correction(

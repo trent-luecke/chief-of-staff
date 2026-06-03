@@ -17,6 +17,14 @@ State schema per thread_ts key:
     "notion_payload": str | null,
     "confirmation_prompt": str,
   }
+  "pending_project_link": null | {
+    "candidate_ids": [str],
+    "project_ids": [str],
+    "obs_date": str,
+    "obs_entity": str,
+    "call_title": str,
+    "confirmation_prompt": str,
+  }
 }
 """
 
@@ -76,4 +84,21 @@ def clear_pending_correction(storage, thread_ts: str) -> None:
     if thread_ts not in state:
         return
     state[thread_ts]["pending_correction"] = None
+    _save(storage, state)
+
+
+def set_pending_project_link(storage, thread_ts: str, link_proposal: dict) -> None:
+    """Store a proposed project link awaiting confirmation."""
+    state = _load(storage)
+    if thread_ts not in state:
+        return
+    state[thread_ts]["pending_project_link"] = link_proposal
+    _save(storage, state)
+
+
+def clear_pending_project_link(storage, thread_ts: str) -> None:
+    state = _load(storage)
+    if thread_ts not in state:
+        return
+    state[thread_ts]["pending_project_link"] = None
     _save(storage, state)
