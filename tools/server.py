@@ -69,9 +69,7 @@ def update_task(task_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     push = _git_push_tasks(f"update task {task_id}")
-    if push["status"] != "ok":
-        return jsonify({"error": f"git push failed: {push['detail']}"}), 500
-    return jsonify(result)
+    return jsonify({"task": result, "push": push})
 
 
 @app.route("/api/tasks/<task_id>/complete", methods=["POST"])
@@ -80,9 +78,7 @@ def complete_task(task_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     push = _git_push_tasks(f"complete task {task_id}")
-    if push["status"] != "ok":
-        return jsonify({"error": f"git push failed: {push['detail']}"}), 500
-    return jsonify(result)
+    return jsonify({"task": result, "push": push})
 
 
 def _git_push_projects(project_name: str) -> dict:
