@@ -45,13 +45,15 @@ async function handleSlackTask(request, env, ctx) {
     ["sign"]
   );
   const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(sigBase));
-  const expected =
-    "v0=" +
-    Array.from(new Uint8Array(mac))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-
-  if (expected !== signature) {
+  const macBytes = new Uint8Array(mac);
+  const sigHex = signature.startsWith("v0=") ? signature.slice(3) : "";
+  const sigBytes = new Uint8Array(
+    (sigHex.match(/../g) || []).map((h) => parseInt(h, 16))
+  );
+  // Constant-time comparison: OR all XOR differences to prevent timing oracle
+  let diff = macBytes.length ^ sigBytes.length;
+  for (let i = 0; i < macBytes.length; i++) diff |= macBytes[i] ^ (sigBytes[i] ?? 0);
+  if (diff !== 0) {
     return new Response("Unauthorized", { status: 401 });
   }
 
