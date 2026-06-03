@@ -71,7 +71,7 @@ def main():
     due_date = parse_due_date(due_date_raw)
     add_task(storage, title=title, source="slack", due_date=due_date)
     post_to_slack(response_url, format_confirmation(title, due_date))
-    print(f"Task added: {title}" + (f" (due {due_date})" if due_date else ""))
+    print(format_confirmation(title, due_date))
 
 
 if __name__ == "__main__":
