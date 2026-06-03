@@ -68,6 +68,9 @@ def update_task(task_id: str):
     result = tasks_lib.edit_task(_storage(), task_id, patch)
     if result is None:
         return jsonify({"error": "not found"}), 404
+    push = _git_push_tasks(f"update task {task_id}")
+    if push["status"] != "ok":
+        return jsonify({"error": f"git push failed: {push['detail']}"}), 500
     return jsonify(result)
 
 
@@ -76,6 +79,9 @@ def complete_task(task_id: str):
     result = tasks_lib.complete_task_by_id(_storage(), task_id)
     if result is None:
         return jsonify({"error": "not found"}), 404
+    push = _git_push_tasks(f"complete task {task_id}")
+    if push["status"] != "ok":
+        return jsonify({"error": f"git push failed: {push['detail']}"}), 500
     return jsonify(result)
 
 
@@ -89,6 +95,34 @@ def _git_push_projects(project_name: str) -> dict:
         )
         commit = subprocess.run(
             ["git", "commit", "-m", f"data: add project '{project_name}'"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if commit.returncode != 0:
+            out = (commit.stdout + commit.stderr).strip()
+            if "nothing to commit" in out:
+                return {"status": "ok", "detail": "already committed"}
+            return {"status": "commit_failed", "detail": out}
+        push = subprocess.run(
+            ["git", "push"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if push.returncode != 0:
+            return {"status": "push_failed", "detail": push.stderr.strip()}
+        return {"status": "ok", "detail": "committed and pushed"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+def _git_push_tasks(detail: str) -> dict:
+    """Stage, commit, and push tasks.jsonl. Returns status dict."""
+    try:
+        repo = str(ROOT)
+        subprocess.run(
+            ["git", "add", "data/tasks.jsonl"],
+            cwd=repo, check=True, capture_output=True,
+        )
+        commit = subprocess.run(
+            ["git", "commit", "-m", f"data: {detail}"],
             cwd=repo, capture_output=True, text=True,
         )
         if commit.returncode != 0:
