@@ -12,3 +12,4 @@
 {"event": "complete", "task_id": "t-000001", "completed_at": "2026-06-04"}
 {"event": "create", "task_id": "t-466c58", "title": "recreate Brigitas member roster and packages sheet to confirm set up prior to upload", "source": "slack", "created_at": "2026-06-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
 {"event": "create", "task_id": "t-51f252", "title": "pull lists from hubspot for Tony", "source": "slack", "created_at": "2026-06-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
+{"event": "create", "task_id": "t-75fe74", "title": "test link access in waiver", "source": "slack", "created_at": "2026-06-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
