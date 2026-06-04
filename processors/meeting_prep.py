@@ -8,6 +8,7 @@ from typing import Optional
 
 import anthropic
 from collectors.calendar import CalendarEvent
+from collectors.gmail import fetch_threads_needing_attention
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event
 
 EXTERNAL_KEYWORDS = {"demo", "reconnect", "intro", "pitch", "walkthrough", "onboarding", "call"}
@@ -77,6 +78,33 @@ def _name_tokens(text: str) -> list[str]:
     return [p for p in parts if len(p) >= 3]
 
 
+def _resolve_person_from_registry(
+    registry_path: str, email: str
+) -> tuple[Optional[str], list[str]]:
+    """Return (person_id, all_known_emails) for the given email.
+
+    Falls back to (None, [email]) when the person isn't found or the registry
+    is absent. all_known_emails always contains at least the queried email.
+    """
+    try:
+        with open(registry_path, encoding="utf-8") as f:
+            data = json.load(f)
+        email_lower = email.lower().strip()
+        for person in data.get("people", []):
+            primary = (person.get("email") or "").lower().strip()
+            alias_emails = [
+                a.lower().strip()
+                for a in person.get("aliases", [])
+                if "@" in a
+            ]
+            all_emails = list({e for e in [primary] + alias_emails if e})
+            if email_lower in all_emails:
+                return person["id"], all_emails
+    except Exception:
+        pass
+    return None, [email]
+
+
 def _find_people_file(people_dir: str, tokens: list[str]) -> Optional[str]:
     if not os.path.isdir(people_dir):
         return None
@@ -102,7 +130,19 @@ def _find_pipeline_lead(pipeline_path: str, tokens: list[str]) -> Optional[dict]
     return None
 
 
-def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list[str]:
+def _find_observations(
+    obs_path: str,
+    tokens: list[str],
+    person_id: Optional[str] = None,
+    limit: int = 5,
+) -> list[str]:
+    """Select relevant observations for a person.
+
+    Observations stamped with primary_person_id are matched by ID only —
+    prevents cross-person leakage and surfaces context that doesn't mention
+    the person's name verbatim. Observations without a stamped ID (pre-migration)
+    fall back to content-token matching.
+    """
     lines = []
     try:
         with open(obs_path) as f:
@@ -115,8 +155,13 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
                 except json.JSONDecodeError:
                     continue
                 content = obs.get("content", "")
-                if any(t in content.lower() for t in tokens):
-                    lines.append(f"{obs.get('date', '?')}: {content}")
+                obs_pid = obs.get("primary_person_id")
+                if obs_pid:
+                    if person_id and obs_pid == person_id:
+                        lines.append(f"{obs.get('date', '?')}: {content}")
+                else:
+                    if any(t in content.lower() for t in tokens):
+                        lines.append(f"{obs.get('date', '?')}: {content}")
     except (FileNotFoundError, PermissionError):
         pass
     return lines[-limit:]
@@ -125,14 +170,21 @@ def _find_observations(obs_path: str, tokens: list[str], limit: int = 5) -> list
 def _fetch_gmail_context(event: CalendarEvent, config: dict) -> str:
     """Fetch Gmail threads for each external attendee and format as context."""
     user_email = config.get("email", "trent@teambuildr.com")
-    from collectors.gmail import fetch_threads_for_attendee
+    registry_path = config.get("registry_path", "data/people_registry.json")
 
     parts = []
     for attendee in event.attendees:
         if "@teambuildr.com" in attendee.lower():
             continue
+        _, all_emails = _resolve_person_from_registry(registry_path, attendee)
+        if len(all_emails) == 1:
+            query = f"(from:{all_emails[0]} OR to:{all_emails[0]}) newer_than:90d"
+        else:
+            froms = " OR ".join(f"from:{e}" for e in all_emails)
+            tos = " OR ".join(f"to:{e}" for e in all_emails)
+            query = f"({froms} OR {tos}) newer_than:90d"
         try:
-            threads = fetch_threads_for_attendee(user_email, attendee, max_results=5)
+            threads = fetch_threads_needing_attention(user_email, max_results=5, query=query)
         except Exception:
             continue
         if not threads:
@@ -150,12 +202,22 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
     people_dir = config.get("people_dir", "data/people")
     pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
     obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
+    registry_path = config.get("registry_path", "data/people_registry.json")
 
     tokens = _name_tokens(event.summary)
     for attendee in event.attendees:
         local = attendee.split("@")[0]
         tokens += _name_tokens(local)
     tokens = list(set(tokens))
+
+    # Resolve primary external attendee to person_id for ID-based observation lookup
+    person_id = None
+    for attendee in event.attendees:
+        if "@teambuildr.com" not in attendee.lower():
+            resolved_id, _ = _resolve_person_from_registry(registry_path, attendee)
+            if resolved_id:
+                person_id = resolved_id
+                break
 
     parts = []
 
@@ -181,7 +243,7 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
             lines.append(f"Est. value: {val}")
         parts.append("## Pipeline Record\n" + "\n".join(lines))
 
-    obs = _find_observations(obs_path, tokens)
+    obs = _find_observations(obs_path, tokens, person_id=person_id)
     if obs:
         parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
 
@@ -193,7 +255,9 @@ def build_external_context(event: CalendarEvent, config: dict) -> str:
         lines = [f"• {r['text']} (resolved {r['resolved_date']})" for r in resolved]
         parts.append("## Resolved Action Items (do not surface as open)\n" + "\n".join(lines))
 
-    if not parts:
+    # Job 3: Gmail fires whenever there is no people file, regardless of pipeline/obs.
+    # Pipeline notes and email threads are complementary sources — always use both.
+    if not people_path:
         gmail_context = _fetch_gmail_context(event, config)
         if gmail_context:
             parts.append(gmail_context)

@@ -482,3 +482,190 @@ def test_build_prep_message_calls_claude_with_gmail_context(mock_cls, tmp_path):
     user_msg = call_kwargs.kwargs["messages"][0]["content"] if call_kwargs.kwargs else call_kwargs[1]["messages"][0]["content"]
     assert "Email History" in user_msg
     assert "Calendly" in user_msg
+
+
+# ── Session 3: person-centric read path ─────────────────────────────────────
+
+import json as _j
+from processors.meeting_prep import _find_observations, _resolve_person_from_registry
+
+
+# Job 1a — stamped observation found by person_id even when content has no name tokens
+
+def test_find_observations_stamped_by_id_found_without_name_in_content(tmp_path):
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(
+        _j.dumps({
+            "date": "2026-05-28",
+            "type": "signal",
+            "content": "Expressed interest in annual plan.",
+            "primary_person_id": "ryan-pace",
+        }) + "\n"
+    )
+    result = _find_observations(str(obs_path), tokens=["xyz-no-match"], person_id="ryan-pace")
+    assert len(result) == 1
+    assert "Expressed interest in annual plan" in result[0]
+
+
+# Job 1b — unstamped observation still found via content tokens (legacy fallback)
+
+def test_find_observations_unstamped_fallback_to_content_tokens(tmp_path):
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(
+        _j.dumps({
+            "date": "2026-05-01",
+            "type": "note",
+            "content": "Ryan Pace demo went well — interested in annual.",
+        }) + "\n"
+    )
+    result = _find_observations(str(obs_path), tokens=["ryan", "pace"], person_id="ryan-pace")
+    assert len(result) == 1
+    assert "Ryan Pace" in result[0]
+
+
+# Job 1c — stamped obs for person-A NOT returned when looking up person-B
+
+def test_find_observations_stamped_obs_not_leaked_across_people(tmp_path):
+    obs_path = tmp_path / "obs.jsonl"
+    obs_path.write_text(
+        _j.dumps({
+            "date": "2026-05-28",
+            "content": "ryan pace discussion.",
+            "primary_person_id": "ryan-pace",
+        }) + "\n"
+    )
+    # Looking up a different person who happens to have "ryan" in their token list
+    result = _find_observations(str(obs_path), tokens=["ryan"], person_id="some-other-person")
+    assert result == []
+
+
+# Job 1d — registry resolver: known email returns person_id and all emails
+
+def test_resolve_person_from_registry_known_email(tmp_path):
+    reg = {
+        "version": 1,
+        "people": [{
+            "id": "ryan-pace",
+            "canonical_name": "Ryan Pace",
+            "email": "coachpace@realflowperformance.com",
+            "aliases": ["Ryan Pace", "coachpace@realflowperformance.com", "pace@old-domain.com"],
+            "type": "lead",
+        }]
+    }
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(_j.dumps(reg))
+    person_id, all_emails = _resolve_person_from_registry(str(reg_path), "coachpace@realflowperformance.com")
+    assert person_id == "ryan-pace"
+    assert "coachpace@realflowperformance.com" in all_emails
+    assert "pace@old-domain.com" in all_emails
+
+
+# Job 1e — registry resolver: unknown email returns (None, [email])
+
+def test_resolve_person_from_registry_unknown_email(tmp_path):
+    reg = {"version": 1, "people": []}
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(_j.dumps(reg))
+    person_id, all_emails = _resolve_person_from_registry(str(reg_path), "unknown@x.com")
+    assert person_id is None
+    assert all_emails == ["unknown@x.com"]
+
+
+# Job 1f — registry resolver: missing registry file returns (None, [email]) gracefully
+
+def test_resolve_person_from_registry_missing_file(tmp_path):
+    person_id, all_emails = _resolve_person_from_registry(str(tmp_path / "missing.json"), "x@x.com")
+    assert person_id is None
+    assert all_emails == ["x@x.com"]
+
+
+# Job 2 — _fetch_gmail_context queries all known addresses, not just calendar email
+
+def test_fetch_gmail_context_queries_all_known_addresses(tmp_path):
+    """When a person has two known addresses, fetch_threads is called with a query covering both."""
+    reg = {
+        "version": 1,
+        "people": [{
+            "id": "ryan-pace",
+            "canonical_name": "Ryan Pace",
+            "email": "coachpace@realflowperformance.com",
+            "aliases": ["Ryan Pace", "coachpace@realflowperformance.com", "rpace@gmail.com"],
+            "type": "lead",
+        }]
+    }
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(_j.dumps(reg))
+
+    config = {
+        "email": "trent@teambuildr.com",
+        "registry_path": str(reg_path),
+    }
+    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
+
+    with _upatch("processors.meeting_prep.fetch_threads_needing_attention", return_value=[]) as mock_fetch:
+        from processors.meeting_prep import _fetch_gmail_context
+        _fetch_gmail_context(event, config)
+
+    assert mock_fetch.called
+    call_args = mock_fetch.call_args
+    query = call_args.kwargs.get("query", "")
+    assert "rpace@gmail.com" in query
+    assert "coachpace@realflowperformance.com" in query
+
+
+# Job 3 — Gmail fires when pipeline record exists but no people file
+
+def test_build_external_context_gmail_fires_with_pipeline_but_no_people_file(tmp_path):
+    pipeline = {"leads": [{"name": "Ryan Pace", "status": "In-Trial", "contact": "Ryan Pace",
+                           "email": "coachpace@realflowperformance.com", "days_since_contact": 5,
+                           "estimated_value": 2000, "stale": False, "priority": "High",
+                           "last_contacted": "2026-05-20", "source": None}]}
+    pipeline_path = tmp_path / "pipeline.json"
+    pipeline_path.write_text(_j.dumps(pipeline))
+
+    config = {
+        "email": "trent@teambuildr.com",
+        "people_dir": str(tmp_path / "people"),
+        "pipeline": {"cache_path": str(pipeline_path)},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+        "registry_path": str(tmp_path / "registry.json"),
+    }
+    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
+
+    with _upatch("processors.meeting_prep._fetch_gmail_context",
+                 return_value="## Email History\n  [2026-05-20] Calendly confirmed") as mock_gmail:
+        result = build_external_context(event, config)
+
+    mock_gmail.assert_called_once()
+    assert "Email History" in result
+    assert "Pipeline Record" in result  # pipeline and Gmail both present
+
+
+# Job 3 — Gmail still suppressed when people file IS found (Tier 1 unchanged)
+
+def test_build_external_context_gmail_suppressed_when_people_file_found_job3(tmp_path):
+    people_dir = tmp_path / "people"
+    people_dir.mkdir()
+    (people_dir / "ryan-pace.md").write_text("Ryan Pace — Real Flow Performance coach.")
+
+    pipeline = {"leads": [{"name": "Ryan Pace", "status": "In-Trial", "contact": "",
+                           "email": "coachpace@realflowperformance.com", "days_since_contact": 5,
+                           "estimated_value": 2000, "stale": False, "priority": "High",
+                           "last_contacted": "2026-05-20", "source": None}]}
+    pipeline_path = tmp_path / "pipeline.json"
+    pipeline_path.write_text(_j.dumps(pipeline))
+
+    config = {
+        "email": "trent@teambuildr.com",
+        "people_dir": str(people_dir),
+        "pipeline": {"cache_path": str(pipeline_path)},
+        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
+        "registry_path": str(tmp_path / "registry.json"),
+    }
+    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
+
+    with _upatch("processors.meeting_prep._fetch_gmail_context") as mock_gmail:
+        result = build_external_context(event, config)
+
+    mock_gmail.assert_not_called()
+    assert "Ryan Pace" in result
