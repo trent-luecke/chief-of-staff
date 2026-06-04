@@ -1,5 +1,4 @@
 # tests/test_pipeline_collector.py
-import pytest
 from collectors.pipeline import count_late_stage, PipelineLead
 
 
@@ -12,7 +11,7 @@ def _lead(status: str) -> PipelineLead:
     )
 
 
-LATE_STAGE = ["In-Trial / Post Demo", "No Trial / Post Demo"]
+LATE_STAGE = ["In-Trial / Post Demo", "No Trial / Post Demo"]  # mirrors config.json pipeline.late_stage_statuses
 
 
 def test_count_late_stage_counts_matching_statuses():
