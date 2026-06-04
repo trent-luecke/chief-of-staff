@@ -14,6 +14,10 @@ on:
         description: "Raw due date string (e.g. 'friday', 'next tuesday')"
         required: false
         default: ""
+      owner_raw:
+        description: "Raw owner name to fuzzy-match against people registry (defaults to Trent)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -39,6 +43,7 @@ jobs:
           TASK_TITLE: ${{ inputs.title }}
           RESPONSE_URL: ${{ inputs.response_url }}
           DUE_DATE_RAW: ${{ inputs.due_date_raw }}
+          OWNER_RAW: ${{ inputs.owner_raw }}
         run: python scripts/slack_add_task.py
 
       - name: Commit and push
