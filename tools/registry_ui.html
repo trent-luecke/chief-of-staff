@@ -1711,17 +1711,19 @@ function openEditPanel(project, people, groupEl) {
   let draftMembers = JSON.parse(JSON.stringify(project.members || []));
 
   const render = () => {
+    const draftName   = document.getElementById(`edit-name-${project.id}`)?.value ?? project.canonical_name;
+    const draftStatus = document.getElementById(`edit-status-${project.id}`)?.value ?? (project.status ?? 'active');
     panelEl.innerHTML = `
       <div class="proj-edit-section-label">Edit Project</div>
       <div class="proj-edit-field">
         <div class="proj-edit-field-label">Name</div>
-        <input class="proj-edit-input" id="edit-name-${esc(project.id)}" value="${esc(project.canonical_name)}" />
+        <input class="proj-edit-input" id="edit-name-${esc(project.id)}" value="${esc(draftName)}" />
       </div>
       <div class="proj-edit-field">
         <div class="proj-edit-field-label">Status</div>
         <select class="proj-edit-select" id="edit-status-${esc(project.id)}">
-          <option value="active"${(project.status ?? 'active') === 'active' ? ' selected' : ''}>active</option>
-          <option value="archived"${project.status === 'archived' ? ' selected' : ''}>archived</option>
+          <option value="active"${draftStatus === 'active' ? ' selected' : ''}>active</option>
+          <option value="archived"${draftStatus === 'archived' ? ' selected' : ''}>archived</option>
         </select>
       </div>
       <div class="proj-edit-field">
@@ -1996,10 +1998,13 @@ async function renderWorkView() {
   }
 
   // Re-open edit panels that were active before re-render
-  workState.editing.forEach(projId => {
+  [...workState.editing].forEach(projId => {
     const project = (projects || []).find(p => p.id === projId);
     const groupEl = document.getElementById(`group-${projId}`);
-    if (project && groupEl) openEditPanel(project, people, groupEl);
+    if (project && groupEl) {
+      workState.editing.delete(projId);
+      openEditPanel(project, people, groupEl);
+    }
   });
 }
 
