@@ -6,3 +6,4 @@
 {"event": "create", "task_id": "t-fd113e", "title": "ask Will about error message when creating a membership without first having set up a waiver", "source": "slack", "created_at": "2026-06-03", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
 {"event": "create", "task_id": "t-cbfce8", "title": "check in with sales rep", "source": "slack", "created_at": "2026-06-03", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "ryan-allwein"}
 {"event": "create", "task_id": "t-2dd079", "title": "follow up with lead", "source": "slack", "created_at": "2026-06-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "ryan-allwein"}
+{"event": "complete", "task_id": "t-cbfce8", "completed_at": "2026-06-04"}
