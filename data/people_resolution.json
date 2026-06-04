@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-03T00:00:00",
+  "resolved_at": "2026-06-04T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1564,6 +1564,54 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "432": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "433": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "434": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "435": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "436": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "437": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "438": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "439": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "440": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [
+        "coachbrigitaroemer",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -1694,7 +1742,8 @@
     361,
     373,
     387,
-    388
+    388,
+    431
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -1723,6 +1772,7 @@
     "thread:Re: TeamBuildrOS <> St. Mary's Episcopal",
     "thread:Re: Update - Ascend",
     "thread:Re: Orientation Session Recap_Two-Brain Summit 2026",
-    "thread:Accepted: Bre / Trent / Quinn @ Fri May 29, 2026 12:30pm - 1pm (CDT) (Trent Luecke)"
+    "thread:Accepted: Bre / Trent / Quinn @ Fri May 29, 2026 12:30pm - 1pm (CDT) (Trent Luecke)",
+    "thread:Re: Free Shirt!"
   ]
 }
