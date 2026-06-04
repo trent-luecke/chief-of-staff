@@ -211,3 +211,36 @@ def test_complete_task_by_id_already_completed(tmp_path):
     task = add_task(s, "Already done")
     complete_task_by_id(s, task["id"])
     assert complete_task_by_id(s, task["id"]) is None  # idempotent — returns None for already completed
+
+
+def test_add_task_default_owner_is_none(tmp_path):
+    task = add_task(_s(tmp_path), "Send deck")
+    assert task["owner"] is None
+
+
+def test_add_task_with_owner(tmp_path):
+    task = add_task(_s(tmp_path), "Draft doc", owner="nicole-foley")
+    assert task["owner"] == "nicole-foley"
+
+
+def test_owner_persisted_and_replayed(tmp_path):
+    s = _s(tmp_path)
+    add_task(s, "Draft doc", owner="nicole-foley")
+    assert get_open_tasks(s)[0]["owner"] == "nicole-foley"
+
+
+def test_edit_task_owner(tmp_path):
+    s = _s(tmp_path)
+    task = add_task(s, "Solo task")
+    edit_task(s, task["id"], {"owner": "luke-martin"})
+    assert get_open_tasks(s)[0]["owner"] == "luke-martin"
+
+
+def test_legacy_record_without_owner_field(tmp_path):
+    s = _s(tmp_path)
+    (tmp_path / "tasks.jsonl").write_text(
+        '{"event": "create", "task_id": "t-old", "title": "Old", '
+        '"source": "telegram", "created_at": "2026-01-01", '
+        '"due_date": null, "metadata": {}}\n'
+    )
+    assert get_open_tasks(s)[0].get("owner") is None

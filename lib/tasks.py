@@ -68,6 +68,7 @@ def _replay(storage) -> dict:
                 "metadata": event.get("metadata") or {},
                 "project_id": event.get("project_id"),
                 "collaborators": event.get("collaborators") or [],
+                "owner": event.get("owner"),
             }
         elif etype == "complete" and task_id in tasks:
             tasks[task_id]["status"] = "completed"
@@ -89,6 +90,7 @@ def add_task(
     metadata: Optional[dict] = None,
     project_id: Optional[str] = None,
     collaborators: Optional[list] = None,
+    owner: Optional[str] = None,
 ) -> dict:
     _migrate_if_needed(storage)
     task_id = f"t-{uuid.uuid4().hex[:6]}"
@@ -103,6 +105,7 @@ def add_task(
         "metadata": metadata if metadata is not None else {},
         "project_id": project_id,
         "collaborators": collaborators or [],
+        "owner": owner,
     }
     _append(storage, event)
     return {
@@ -116,6 +119,7 @@ def add_task(
         "metadata": metadata if metadata is not None else {},
         "project_id": project_id,
         "collaborators": collaborators or [],
+        "owner": owner,
     }
 
 
