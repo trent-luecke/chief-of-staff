@@ -138,7 +138,7 @@ def post_ambiguous_message(
         buttons.append({
             "type": "button",
             "text": {"type": "plain_text", "text": person["canonical_name"]},
-            "action_id": "assign_owner",
+            "action_id": f"assign_owner_{person['id']}",
             "value": value,
         })
 
@@ -146,7 +146,7 @@ def post_ambiguous_message(
     buttons.append({
         "type": "button",
         "text": {"type": "plain_text", "text": "Assign to me"},
-        "action_id": "assign_owner",
+        "action_id": "assign_owner_self",
         "value": assign_to_me_value,
     })
 

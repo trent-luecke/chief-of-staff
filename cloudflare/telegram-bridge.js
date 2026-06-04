@@ -124,7 +124,7 @@ async function handleSlackInteractive(request, env, ctx) {
   }
 
   const action = payload.actions?.[0];
-  if (!action || action.action_id !== "assign_owner") {
+  if (!action || !action.action_id.startsWith("assign_owner")) {
     return Response.json({ text: "Unknown action." });
   }
 
