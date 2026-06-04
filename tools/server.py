@@ -58,6 +58,7 @@ def create_task():
         metadata=body.get("metadata"),
         project_id=body.get("project_id"),
         collaborators=body.get("collaborators"),
+        owner=body.get("owner"),
     )
     push = _git_push_tasks(f"create task {task['id']}")
     return jsonify({"task": task, "push": push}), 201
@@ -168,6 +169,18 @@ def update_project(project_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify(result)
+
+
+# --- People ---
+
+@app.route("/api/people", methods=["GET"])
+def list_people():
+    registry = _storage().read_json("people_registry.json", default={"people": []})
+    people = [
+        {"id": p["id"], "name": p.get("canonical_name", p["id"])}
+        for p in registry.get("people", [])
+    ]
+    return jsonify(people)
 
 
 if __name__ == "__main__":
