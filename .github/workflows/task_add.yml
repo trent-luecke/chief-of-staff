@@ -22,6 +22,10 @@ on:
         description: "Slack channel ID for posting interactive messages"
         required: false
         default: ""
+      user_id:
+        description: "Slack user ID of the person who ran the command"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -49,6 +53,7 @@ jobs:
           DUE_DATE_RAW: ${{ inputs.due_date_raw }}
           OWNER_RAW: ${{ inputs.owner_raw }}
           CHANNEL_ID: ${{ inputs.channel_id }}
+          USER_ID: ${{ inputs.user_id }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: python scripts/slack_add_task.py
 

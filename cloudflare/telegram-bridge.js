@@ -57,6 +57,7 @@ async function handleSlackTask(request, env, ctx) {
   const text = (params.get("text") || "").trim();
   const responseUrl = params.get("response_url") || "";
   const channelId = params.get("channel_id") || "";
+  const userId = params.get("user_id") || "";
 
   if (!text) {
     return Response.json({
@@ -91,6 +92,7 @@ async function handleSlackTask(request, env, ctx) {
       due_date_raw: dueDateRaw,
       owner_raw: ownerRaw,
       channel_id: channelId,
+      user_id: userId,
     })
   );
 
