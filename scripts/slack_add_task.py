@@ -96,36 +96,12 @@ def post_to_slack(response_url: str, text: str) -> None:
     _post_json(response_url, {"response_type": "ephemeral", "text": text})
 
 
-def _open_dm(user_id: str, bot_token: str) -> str | None:
-    """Open a DM with user_id via conversations.open and return the channel ID."""
-    data = json.dumps({"users": user_id}).encode()
-    req = urllib.request.Request(
-        "https://slack.com/api/conversations.open",
-        data=data,
-        headers={"Content-Type": "application/json; charset=utf-8", "Authorization": f"Bearer {bot_token}"},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            result = json.loads(resp.read())
-            if result.get("ok"):
-                return result["channel"]["id"]
-            print(f"Warning: conversations.open failed: {result.get('error')}", file=sys.stderr)
-    except Exception as e:
-        print(f"Warning: conversations.open error: {e}", file=sys.stderr)
-    return None
-
-
 def post_ambiguous_message(
-    user_id: str, bot_token: str, raw_name: str, matches: list, title: str, due_date_raw: str
+    response_url: str, raw_name: str, matches: list, title: str, due_date_raw: str
 ) -> None:
-    """Open a DM with the user and post an interactive message with a button per candidate owner."""
-    if not user_id or not bot_token:
-        print("Warning: missing user_id or SLACK_BOT_TOKEN — cannot post interactive message", file=sys.stderr)
-        return
-
-    dm_channel = _open_dm(user_id, bot_token)
-    if not dm_channel:
+    """Post an interactive message via response_url with a button per candidate owner."""
+    if not response_url:
+        print("Warning: missing response_url — cannot post interactive message", file=sys.stderr)
         return
 
     # Slack allows max 5 elements per actions block; reserve 1 for "Assign to me"
@@ -151,7 +127,7 @@ def post_ambiguous_message(
     })
 
     payload = {
-        "channel": dm_channel,
+        "response_type": "ephemeral",
         "text": f"Multiple matches for '{raw_name}' — who did you mean?",
         "blocks": [
             {
@@ -167,20 +143,7 @@ def post_ambiguous_message(
             },
         ],
     }
-    data = json.dumps(payload).encode()
-    req = urllib.request.Request(
-        "https://slack.com/api/chat.postMessage",
-        data=data,
-        headers={"Content-Type": "application/json; charset=utf-8", "Authorization": f"Bearer {bot_token}"},
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            result = json.loads(resp.read())
-            if not result.get("ok"):
-                print(f"Warning: chat.postMessage failed: {result.get('error')}", file=sys.stderr)
-    except Exception as e:
-        print(f"Warning: failed to post interactive message: {e}", file=sys.stderr)
+    _post_json(response_url, payload)
 
 
 def main():
@@ -209,13 +172,13 @@ def main():
             owner_id = matches[0]["id"]
         else:
             # Ambiguous — prompt via buttons; don't create the task yet
-            if user_id and bot_token:
-                post_ambiguous_message(user_id, bot_token, owner_raw, matches, title, due_date_raw)
+            if response_url:
+                post_ambiguous_message(response_url, owner_raw, matches, title, due_date_raw)
                 print(f"Ambiguous owner '{owner_raw}': {[m['canonical_name'] for m in matches]} — posted buttons, task not created")
                 return
             else:
                 # No channel to prompt in; fall back to first match
-                print(f"Warning: multiple matches for '{owner_raw}', no user_id/token — using first: {matches[0]['canonical_name']}", file=sys.stderr)
+                print(f"Warning: multiple matches for '{owner_raw}', no response_url — using first: {matches[0]['canonical_name']}", file=sys.stderr)
                 owner_id = matches[0]["id"]
     else:
         owner_id = TRENT_ID
