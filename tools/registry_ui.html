@@ -1470,7 +1470,7 @@ function switchTab(name) {
   });
 }
 
-// ── View: Projects ──────────────────────────────────────────────────────────
+// ── View: Work ──────────────────────────────────────────────────────────────
 const API = 'http://localhost:8787';
 
 async function fetchJSON(url, opts = {}) {
@@ -1479,13 +1479,365 @@ async function fetchJSON(url, opts = {}) {
   return res.json();
 }
 
-async function renderProjectsView() {
-  const view = el('view-projects');
-  view.innerHTML = '<div class="muted" style="padding:20px">Loading projects…</div>';
+// ── Work tab state ───────────────────────────────────────────────────────────
+const workState = { expanded: new Set(), editing: new Set() };
 
-  let projects;
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function formatDate(iso) {
+  const [, m, d] = iso.split('-');
+  return `${'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ')[+m - 1]} ${+d}`;
+}
+
+function sortTasks(tasks) {
+  const today = new Date().toISOString().slice(0, 10);
+  return [...tasks].sort((a, b) => {
+    const aOver = !!(a.due_date && a.due_date < today);
+    const bOver = !!(b.due_date && b.due_date < today);
+    if (aOver !== bOver) return aOver ? -1 : 1;
+    if (a.due_date && b.due_date) return a.due_date < b.due_date ? -1 : 1;
+    if (a.due_date !== b.due_date) return a.due_date ? -1 : 1;
+    return (a.created_at || '') < (b.created_at || '') ? -1 : 1;
+  });
+}
+
+function ownerName(ownerId, people) {
+  if (!ownerId) return null;
+  const p = (people || []).find(x => x.id === ownerId);
+  return p ? p.name.split(' ')[0] : ownerId;
+}
+
+function renderDueDateChip(task) {
+  if (!task.due_date) return '';
+  const today = new Date().toISOString().slice(0, 10);
+  const cls = task.due_date < today ? 'overdue' : 'upcoming';
+  const label = cls === 'overdue' ? 'Overdue' : formatDate(task.due_date);
+  return `<span class="due-chip ${cls}" data-task-id="${esc(task.id)}" data-due="${esc(task.due_date)}">${esc(label)}</span>`;
+}
+
+function renderOwnerChip(task, people) {
+  if (task.owner) {
+    return `<span class="owner-chip" data-task-id="${esc(task.id)}">→ ${esc(ownerName(task.owner, people))}</span>`;
+  }
+  return `<span class="assign-ghost" data-task-id="${esc(task.id)}">+ assign</span>`;
+}
+
+function renderTaskRow(task, people, withLinkProj = false) {
+  const linkChip = withLinkProj
+    ? `<span class="link-proj-ghost" data-task-id="${esc(task.id)}">→ Project</span>`
+    : '';
+  return `
+    <div class="task-row" id="task-row-${esc(task.id)}">
+      <button class="btn-done" data-task-id="${esc(task.id)}">Done</button>
+      <span class="task-title">${esc(task.title)}</span>
+      ${renderDueDateChip(task)}
+      <span style="position:relative;display:inline-flex;align-items:center">
+        ${renderOwnerChip(task, people)}
+      </span>
+      ${linkChip}
+    </div>`;
+}
+
+function showOwnerDropdown(anchor, taskId, people, onSelect) {
+  document.querySelectorAll('.owner-dropdown').forEach(d => d.remove());
+  const dropdown = document.createElement('div');
+  dropdown.className = 'owner-dropdown';
+  dropdown.innerHTML =
+    `<div class="owner-dropdown-option clear" data-owner="">— Clear owner</div>` +
+    (people || []).map(p =>
+      `<div class="owner-dropdown-option" data-owner="${esc(p.id)}">${esc(p.name.split(' ')[0])}</div>`
+    ).join('');
+  anchor.parentElement.style.position = 'relative';
+  anchor.parentElement.appendChild(dropdown);
+  dropdown.addEventListener('click', async e => {
+    const opt = e.target.closest('.owner-dropdown-option');
+    if (!opt) return;
+    dropdown.remove();
+    await onSelect(opt.dataset.owner || null);
+  });
+  setTimeout(() => {
+    const close = e => {
+      if (!dropdown.contains(e.target) && e.target !== anchor) {
+        dropdown.remove();
+        document.removeEventListener('click', close);
+      }
+    };
+    document.addEventListener('click', close);
+  }, 0);
+}
+
+function wireTaskInteractions(container, people, onChanged) {
+  container.addEventListener('click', async e => {
+    if (e.target.matches('.btn-done')) {
+      const taskId = e.target.dataset.taskId;
+      e.target.disabled = true; e.target.textContent = '…';
+      try {
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST', body: '{}' });
+        const row = document.getElementById(`task-row-${taskId}`);
+        if (row) row.remove();
+        if (!container.querySelector('.task-row')) onChanged();
+      } catch (err) {
+        alert('Failed: ' + err.message);
+        e.target.disabled = false; e.target.textContent = 'Done';
+      }
+      return;
+    }
+    if (e.target.matches('.due-chip')) {
+      const taskId = e.target.dataset.taskId;
+      const cur = e.target.dataset.due;
+      const input = document.createElement('input');
+      input.type = 'date'; input.value = cur; input.className = 'due-chip-input';
+      e.target.replaceWith(input); input.focus();
+      const save = async () => {
+        if (input.value && input.value !== cur) {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ due_date: input.value }),
+          }).catch(() => {});
+        }
+        onChanged();
+      };
+      input.addEventListener('blur', save);
+      input.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); } });
+      return;
+    }
+    if (e.target.matches('.owner-chip') || e.target.matches('.assign-ghost')) {
+      const taskId = e.target.dataset.taskId;
+      showOwnerDropdown(e.target, taskId, people, async newOwner => {
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+          method: 'PATCH', body: JSON.stringify({ owner: newOwner }),
+        }).catch(() => {});
+        onChanged();
+      });
+    }
+  });
+}
+
+function renderAddTaskForm(projectId, people) {
+  const formId = projectId ? `atf-${projectId}` : 'atf-standalone';
+  const peopleOptions = (people || []).map(p =>
+    `<option value="${esc(p.id)}">${esc(p.name.split(' ')[0])}</option>`
+  ).join('');
+  return `
+    <div class="add-task-form-row" id="${formId}">
+      <input class="add-task-input" id="${formId}-title" placeholder="Add a task…" style="flex:1" />
+      <input class="add-task-input" id="${formId}-due" placeholder="Due date" style="width:90px" />
+      <select class="add-task-assign" id="${formId}-owner">
+        <option value="">Me</option>
+        ${peopleOptions}
+      </select>
+      <button class="btn-add-task" id="${formId}-btn">Add</button>
+    </div>`;
+}
+
+function wireAddTaskForm(formId, projectId, onAdded) {
+  const titleInput = document.getElementById(`${formId}-title`);
+  const dueInput   = document.getElementById(`${formId}-due`);
+  const ownerSel   = document.getElementById(`${formId}-owner`);
+  const btn        = document.getElementById(`${formId}-btn`);
+  if (!titleInput || !btn) return;
+  const submit = async () => {
+    const title = titleInput.value.trim();
+    if (!title) { titleInput.focus(); return; }
+    btn.disabled = true;
+    try {
+      await fetchJSON(`${API}/api/tasks`, {
+        method: 'POST',
+        body: JSON.stringify({
+          title,
+          source: 'ui',
+          project_id: projectId || null,
+          due_date: dueInput.value || null,
+          owner: ownerSel.value || null,
+        }),
+      });
+      titleInput.value = ''; dueInput.value = ''; ownerSel.value = '';
+      await onAdded();
+    } catch (err) {
+      alert('Failed to add task: ' + err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  };
+  btn.addEventListener('click', submit);
+  titleInput.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+}
+
+// ── Edit panel ───────────────────────────────────────────────────────────────
+function renderMemberChips(members, people) {
+  const chips = (members || []).map(m => {
+    const personId = m.id || m.person_id || '';
+    const role = m.role || 'contact';
+    const person = (people || []).find(p => p.id === personId);
+    const label = person ? person.name.split(' ')[0] : personId;
+    return `
+      <span class="member-chip">
+        ${esc(label)}
+        <span class="member-chip-role">${esc(role)}</span>
+        <span class="member-chip-remove" data-person-id="${esc(personId)}" title="Remove">×</span>
+      </span>`;
+  }).join('');
+  return chips + `<button class="btn-add-member">+ Add</button>`;
+}
+
+function openEditPanel(project, people, groupEl) {
+  const panelEl = groupEl.querySelector('.proj-edit-panel');
+  const headerEl = groupEl.querySelector('.proj-group-header');
+  const bodyEl = groupEl.querySelector('.proj-group-body');
+  const editBtn = groupEl.querySelector('.proj-group-edit-btn');
+
+  // Toggle off if already editing
+  if (workState.editing.has(project.id)) {
+    workState.editing.delete(project.id);
+    panelEl.innerHTML = '';
+    panelEl.classList.add('hidden');
+    headerEl.classList.remove('edit-active');
+    bodyEl.classList.remove('edit-active');
+    editBtn.classList.remove('active');
+    return;
+  }
+
+  workState.editing.add(project.id);
+  headerEl.classList.add('edit-active');
+  bodyEl.classList.add('edit-active');
+  editBtn.classList.add('active');
+
+  // Make sure body is expanded
+  if (!workState.expanded.has(project.id)) {
+    workState.expanded.add(project.id);
+    bodyEl.classList.remove('hidden');
+    groupEl.querySelector('.proj-group-chevron').textContent = '▼';
+    headerEl.classList.add('expanded');
+  }
+
+  let draftMembers = JSON.parse(JSON.stringify(project.members || []));
+
+  const render = () => {
+    panelEl.innerHTML = `
+      <div class="proj-edit-section-label">Edit Project</div>
+      <div class="proj-edit-field">
+        <div class="proj-edit-field-label">Name</div>
+        <input class="proj-edit-input" id="edit-name-${esc(project.id)}" value="${esc(project.canonical_name)}" />
+      </div>
+      <div class="proj-edit-field">
+        <div class="proj-edit-field-label">Status</div>
+        <select class="proj-edit-select" id="edit-status-${esc(project.id)}">
+          <option value="active"${(project.status ?? 'active') === 'active' ? ' selected' : ''}>active</option>
+          <option value="archived"${project.status === 'archived' ? ' selected' : ''}>archived</option>
+        </select>
+      </div>
+      <div class="proj-edit-field">
+        <div class="proj-edit-field-label">Members</div>
+        <div class="member-chips">${renderMemberChips(draftMembers, people)}</div>
+        <div id="member-picker-${esc(project.id)}"></div>
+      </div>
+      <div class="proj-edit-actions">
+        <button class="btn-save" id="edit-save-${esc(project.id)}">Save</button>
+        <button class="btn-cancel" id="edit-cancel-${esc(project.id)}">Cancel</button>
+      </div>`;
+    panelEl.classList.remove('hidden');
+
+    // Wire member remove — calls render() to avoid stacked listeners
+    panelEl.querySelectorAll('.member-chip-remove').forEach(x => {
+      x.addEventListener('click', () => {
+        draftMembers = draftMembers.filter(m => (m.id || m.person_id) !== x.dataset.personId);
+        render();
+      });
+    });
+
+    // Wire add member
+    panelEl.querySelector('.btn-add-member').addEventListener('click', showPersonPicker);
+
+    function showPersonPicker() {
+      const pickerEl = document.getElementById(`member-picker-${project.id}`);
+      const addedIds = new Set(draftMembers.map(m => m.id || m.person_id));
+      pickerEl.innerHTML = `
+        <div class="people-picker-dropdown">
+          <input class="people-picker-search" id="picker-search-${esc(project.id)}" placeholder="Search…" />
+          ${(people || []).map(p => `
+            <div class="people-picker-option ${addedIds.has(p.id) ? 'already-added' : ''}"
+                 data-person-id="${esc(p.id)}" data-person-name="${esc(p.name)}">
+              ${esc(p.name)}${addedIds.has(p.id) ? ' — already added' : ''}
+            </div>`).join('')}
+        </div>`;
+
+      document.getElementById(`picker-search-${project.id}`).addEventListener('input', e => {
+        const q = e.target.value.toLowerCase();
+        pickerEl.querySelectorAll('.people-picker-option').forEach(opt => {
+          opt.style.display = opt.dataset.personName.toLowerCase().includes(q) ? '' : 'none';
+        });
+      });
+
+      pickerEl.querySelectorAll('.people-picker-option:not(.already-added)').forEach(opt => {
+        opt.addEventListener('click', () => {
+          pickerEl.innerHTML = '';
+          showRolePicker(opt.dataset.personId, opt.dataset.personName);
+        });
+      });
+    }
+
+    function showRolePicker(personId, personName) {
+      const pickerEl = document.getElementById(`member-picker-${project.id}`);
+      const roles = [
+        { value: 'owner',        label: 'owner',        desc: 'accountable, drives it' },
+        { value: 'contact',      label: 'contact',      desc: 'point of contact, keep informed' },
+        { value: 'collaborator', label: 'collaborator', desc: 'working on it' },
+      ];
+      pickerEl.innerHTML = `
+        <div class="role-picker">
+          <div class="role-picker-header">${esc(personName.split(' ')[0])} — select role:</div>
+          ${roles.map(r => `
+            <div class="role-option" data-role="${r.value}">
+              ${esc(r.label)} <span class="role-option-desc">${esc(r.desc)}</span>
+            </div>`).join('')}
+        </div>`;
+      pickerEl.querySelectorAll('.role-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          draftMembers.push({ id: personId, role: opt.dataset.role });
+          render();  // re-render panel to show new chip, re-wire all listeners fresh
+        });
+      });
+    }
+
+    // Save
+    document.getElementById(`edit-save-${project.id}`).addEventListener('click', async () => {
+      const name   = document.getElementById(`edit-name-${project.id}`).value.trim();
+      const status = document.getElementById(`edit-status-${project.id}`).value;
+      if (!name) return;
+      try {
+        await fetchJSON(`${API}/api/projects/${encodeURIComponent(project.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ canonical_name: name, status, members: draftMembers }),
+        });
+        workState.editing.delete(project.id);
+        renderWorkView();
+      } catch (err) { alert('Save failed: ' + err.message); }
+    });
+
+    // Cancel
+    document.getElementById(`edit-cancel-${project.id}`).addEventListener('click', () => {
+      workState.editing.delete(project.id);
+      panelEl.innerHTML = '';
+      panelEl.classList.add('hidden');
+      headerEl.classList.remove('edit-active');
+      bodyEl.classList.remove('edit-active');
+      editBtn.classList.remove('active');
+    });
+  };
+
+  render();
+}
+
+// ── renderWorkView ───────────────────────────────────────────────────────────
+async function renderWorkView() {
+  const view = el('view-work');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
+
+  let projects, allTasks, people;
   try {
-    projects = await fetchJSON(`${API}/api/projects`);
+    [projects, allTasks, people] = await Promise.all([
+      fetchJSON(`${API}/api/projects`),
+      fetchJSON(`${API}/api/tasks`),
+      fetchJSON(`${API}/api/people`),
+    ]);
   } catch {
     view.innerHTML = `
       <div class="offline-banner">Start tools/server.py to see projects and tasks.</div>
@@ -1493,192 +1845,161 @@ async function renderProjectsView() {
     return;
   }
 
-  const listHtml = Array.isArray(projects) && projects.length
-    ? projects.map(p => {
-        const memberCount = (p.members ?? []).length;
+  const activeProjects = (projects || []).filter(p => p.status !== 'archived');
+  const standaloneTasks = sortTasks((allTasks || []).filter(t => !t.project_id));
+
+  // ── Projects section ────────────────────────────────────────────────────
+  const projGroupsHtml = activeProjects.length
+    ? activeProjects.map(p => {
+        const pTasks = sortTasks((allTasks || []).filter(t => t.project_id === p.id));
+        const isExpanded = workState.expanded.has(p.id);
         const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
+        const taskRowsHtml = pTasks.length
+          ? pTasks.map(t => renderTaskRow(t, people)).join('')
+          : '<span class="muted" style="font-size:12px">No open tasks.</span>';
         return `
-          <div class="proj-row" data-proj-id="${esc(p.id)}">
-            <span class="proj-name">${esc(p.canonical_name)}</span>
-            <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
-            <span class="proj-meta">${memberCount} member${memberCount !== 1 ? 's' : ''}</span>
-          </div>
-          <div class="proj-detail hidden" id="proj-detail-${esc(p.id)}"></div>`;
+          <div class="proj-group" id="group-${esc(p.id)}">
+            <div class="proj-group-header${isExpanded ? ' expanded' : ''}${workState.editing.has(p.id) ? ' edit-active' : ''}" data-proj-id="${esc(p.id)}">
+              <span class="proj-group-chevron">${isExpanded ? '▼' : '▶'}</span>
+              <span class="proj-group-name">${esc(p.canonical_name)}</span>
+              <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
+              <span class="proj-group-count">${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}</span>
+              <button class="proj-group-edit-btn${workState.editing.has(p.id) ? ' active' : ''}" data-proj-id="${esc(p.id)}" title="Edit project">✎</button>
+            </div>
+            <div class="proj-group-body${workState.editing.has(p.id) ? ' edit-active' : ''}${isExpanded ? '' : ' hidden'}" id="group-body-${esc(p.id)}">
+              <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
+              <div id="group-tasks-${esc(p.id)}">${taskRowsHtml}</div>
+              ${renderAddTaskForm(p.id, people)}
+            </div>
+          </div>`;
       }).join('')
-    : '<div class="muted" style="padding:16px">No active projects yet.</div>';
+    : '<div class="muted" style="padding:8px 0">No active projects.</div>';
+
+  // ── Standalone section ──────────────────────────────────────────────────
+  const standaloneHtml = standaloneTasks.length
+    ? standaloneTasks.map(t => renderTaskRow(t, people, true)).join('')
+    : '<div class="muted" style="font-size:12px">No standalone tasks.</div>';
 
   view.innerHTML = `
-    <div class="new-proj-form">
-      <input class="add-task-input" id="new-proj-name" placeholder="Project name…" />
-      <input class="add-task-input" id="new-proj-members" placeholder="Members: nicole-foley:owner, luke-martin:contact" />
-      <button class="btn-add-task" id="new-proj-btn">Create</button>
+    <div class="work-section-header">
+      <span class="work-section-label">Projects</span>
+      <button class="btn-new-proj" id="new-proj-toggle">+ New Project</button>
+    </div>
+    <div class="new-proj-inline hidden" id="new-proj-inline">
+      <input class="add-task-input" id="new-proj-name" placeholder="Project name…" style="flex:1" />
+      <button class="btn-add-task" id="new-proj-submit">Create</button>
       <span class="new-proj-status" id="new-proj-status"></span>
     </div>
-    <div id="proj-list">${listHtml}</div>`;
-
-  // Wire create form
-  const nameInput = el('new-proj-name');
-  const membersInput = el('new-proj-members');
-  const btn = el('new-proj-btn');
-
-  function parseMembers(raw) {
-    return raw.split(',').map(s => s.trim()).filter(Boolean).map(entry => {
-      const [person_id, role] = entry.split(':').map(p => p.trim());
-      return { person_id, role: role || 'contact' };
-    });
-  }
-
-  async function submitProject() {
-    const name = nameInput.value.trim();
-    if (!name) { nameInput.focus(); return; }
-    btn.disabled = true;
-    el('new-proj-status').textContent = 'Creating…';
-    try {
-      const members = parseMembers(membersInput.value);
-      const result = await fetchJSON(`${API}/api/projects`, {
-        method: 'POST',
-        body: JSON.stringify({ canonical_name: name, members }),
-      });
-      nameInput.value = '';
-      membersInput.value = '';
-      await renderProjectsView();
-      const statusEl = el('new-proj-status');
-      if (statusEl) {
-        statusEl.textContent = result.push?.status === 'ok' ? '✓ Created and pushed' : `✓ Created (push failed: ${result.push?.detail ?? ''})`;
-        setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 5000);
-      }
-    } catch (e) {
-      el('new-proj-status').textContent = 'Error: ' + e.message;
-      btn.disabled = false;
-    }
-  }
-
-  btn.addEventListener('click', submitProject);
-  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') membersInput.focus(); });
-  membersInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitProject(); });
-
-  // Wire project row clicks
-  view.querySelectorAll('.proj-row').forEach(row => {
-    row.addEventListener('click', () => {
-      const id = row.dataset.projId;
-      const detail = el(`proj-detail-${id}`);
-      if (!detail) return;
-      if (!detail.classList.contains('hidden')) {
-        detail.classList.add('hidden');
-        detail.innerHTML = '';
-        return;
-      }
-      const project = (projects ?? []).find(p => p.id === id);
-      if (!project) return;
-      openProjectDetail(project, detail);
-    });
-  });
-}
-
-function openProjectDetail(project, detail) {
-  const aliasesHtml = (project.aliases ?? []).length
-    ? (project.aliases ?? []).map(a => `<span class="alias-chip">${esc(a)}</span>`).join('')
-    : '<span class="muted">none</span>';
-  const membersHtml = (project.members ?? []).length
-    ? (project.members ?? []).map(m => `<span class="alias-chip">${esc(m)}</span>`).join('')
-    : '<span class="muted">none</span>';
-
-  detail.innerHTML = `
-    <div class="proj-detail-section">
-      <div class="proj-section-label">Canonical Name</div>
-      <div>${esc(project.canonical_name)}</div>
-    </div>
-    <div class="proj-detail-section">
-      <div class="proj-section-label">Aliases</div>
-      <div class="alias-list">${aliasesHtml}</div>
-    </div>
-    <div class="proj-detail-section">
-      <div class="proj-section-label">Members</div>
-      <div class="alias-list">${membersHtml}</div>
-    </div>
-    <div class="proj-detail-section">
-      <div class="proj-section-label">Open Tasks</div>
-      <div id="proj-tasks-${esc(project.id)}"><span class="muted">Loading…</span></div>
-      <div class="add-task-form">
-        <input class="add-task-input" id="new-task-input-${esc(project.id)}" placeholder="Add a task…" />
-        <button class="btn-add-task" id="new-task-btn-${esc(project.id)}">Add</button>
+    <div id="work-proj-list">${projGroupsHtml}</div>
+    <div class="standalone-section">
+      <div class="work-section-header">
+        <span class="work-section-label">Standalone</span>
       </div>
+      <div id="standalone-tasks">${standaloneHtml}</div>
+      ${renderAddTaskForm(null, people)}
     </div>`;
 
-  detail.classList.remove('hidden');
-  loadProjectTasks(project.id);
-
-  const input = el(`new-task-input-${project.id}`);
-  const btn = el(`new-task-btn-${project.id}`);
-
-  async function submitTask() {
-    const title = input.value.trim();
-    if (!title) { input.focus(); return; }
-    btn.disabled = true;
+  // ── Wire new project form ───────────────────────────────────────────────
+  el('new-proj-toggle').addEventListener('click', () => {
+    el('new-proj-inline').classList.toggle('hidden');
+    el('new-proj-name').focus();
+  });
+  const submitNewProject = async () => {
+    const name = el('new-proj-name').value.trim();
+    if (!name) { el('new-proj-name').focus(); return; }
+    el('new-proj-submit').disabled = true;
+    el('new-proj-status').textContent = 'Creating…';
     try {
-      await fetchJSON(`${API}/api/tasks`, {
+      await fetchJSON(`${API}/api/projects`, {
         method: 'POST',
-        body: JSON.stringify({ title, project_id: project.id, source: 'ui' }),
+        body: JSON.stringify({ canonical_name: name, members: [] }),
       });
-      input.value = '';
-      await loadProjectTasks(project.id);
-    } catch (e) {
-      alert('Failed to add task: ' + e.message);
-    } finally {
-      btn.disabled = false;
+      await renderWorkView();
+    } catch (err) {
+      el('new-proj-status').textContent = 'Error: ' + err.message;
+      el('new-proj-submit').disabled = false;
     }
-  }
+  };
+  el('new-proj-submit').addEventListener('click', submitNewProject);
+  el('new-proj-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitNewProject(); });
 
-  btn.addEventListener('click', submitTask);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') submitTask(); });
-}
-
-async function loadProjectTasks(projectId) {
-  const container = el(`proj-tasks-${projectId}`);
-  if (!container) return;
-
-  let tasks;
-  try {
-    tasks = await fetchJSON(`${API}/api/tasks?project_id=${encodeURIComponent(projectId)}`);
-  } catch {
-    container.innerHTML = '<span class="muted">Could not load tasks.</span>';
-    return;
-  }
-
-  if (!tasks.length) {
-    container.innerHTML = '<span class="muted">No open tasks.</span>';
-    return;
-  }
-
-  container.innerHTML = tasks.map(t => `
-    <div class="task-row" id="task-row-${esc(t.id)}">
-      <span class="task-title">${esc(t.title)}</span>
-      ${t.due_date ? `<span class="proj-meta">${esc(t.due_date)}</span>` : ''}
-      <button class="btn-done" data-task-id="${esc(t.id)}" data-task-title="${esc(t.title)}">Done</button>
-    </div>`).join('');
-
-  container.querySelectorAll('.btn-done').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const taskId = btn.dataset.taskId;
-      const taskTitle = btn.dataset.taskTitle;
-      btn.disabled = true;
-      btn.textContent = '…';
-      try {
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, {
-          method: 'POST',
-          body: JSON.stringify({ match_text: taskTitle }),
-        });
-        const row = el(`task-row-${taskId}`);
-        if (row) row.remove();
-        if (!container.querySelector('.task-row')) {
-          container.innerHTML = '<span class="muted">No open tasks.</span>';
-        }
-      } catch (e) {
-        alert('Failed to complete task: ' + e.message);
-        btn.disabled = false;
-        btn.textContent = 'Done';
+  // ── Wire project group expand/collapse and edit ─────────────────────────
+  view.querySelectorAll('.proj-group-header').forEach(header => {
+    header.addEventListener('click', e => {
+      // Edit button handled separately
+      if (e.target.matches('.proj-group-edit-btn')) return;
+      const projId = header.dataset.projId;
+      const bodyEl  = document.getElementById(`group-body-${projId}`);
+      const chevron = header.querySelector('.proj-group-chevron');
+      if (workState.expanded.has(projId)) {
+        workState.expanded.delete(projId);
+        bodyEl.classList.add('hidden');
+        chevron.textContent = '▶';
+        header.classList.remove('expanded');
+      } else {
+        workState.expanded.add(projId);
+        bodyEl.classList.remove('hidden');
+        chevron.textContent = '▼';
+        header.classList.add('expanded');
       }
     });
+  });
+
+  view.querySelectorAll('.proj-group-edit-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const projId  = btn.dataset.projId;
+      const project = (projects || []).find(p => p.id === projId);
+      const groupEl = document.getElementById(`group-${projId}`);
+      if (project && groupEl) openEditPanel(project, people, groupEl);
+    });
+  });
+
+  // ── Wire task interactions — project groups ─────────────────────────────
+  activeProjects.forEach(p => {
+    const container = document.getElementById(`group-tasks-${p.id}`);
+    if (container) {
+      wireTaskInteractions(container, people, () => renderWorkView());
+      wireAddTaskForm(`atf-${p.id}`, p.id, () => renderWorkView());
+    }
+  });
+
+  // ── Wire task interactions — standalone ─────────────────────────────────
+  const standaloneContainer = el('standalone-tasks');
+  if (standaloneContainer) {
+    wireTaskInteractions(standaloneContainer, people, () => renderWorkView());
+
+    // Link to project
+    standaloneContainer.addEventListener('click', async e => {
+      if (!e.target.matches('.link-proj-ghost')) return;
+      const taskId = e.target.dataset.taskId;
+      const options = activeProjects.map(p =>
+        `<option value="${esc(p.id)}">${esc(p.canonical_name)}</option>`
+      ).join('');
+      if (!options) { alert('No active projects to link to.'); return; }
+      const sel = document.createElement('select');
+      sel.innerHTML = `<option value="">Pick a project…</option>${options}`;
+      sel.className = 'add-task-assign';
+      e.target.replaceWith(sel);
+      sel.focus();
+      sel.addEventListener('change', async () => {
+        const projId = sel.value;
+        if (!projId) return;
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+          method: 'PATCH', body: JSON.stringify({ project_id: projId }),
+        }).catch(() => {});
+        renderWorkView();
+      });
+    });
+
+    wireAddTaskForm('atf-standalone', null, () => renderWorkView());
+  }
+
+  // Re-open edit panels that were active before re-render
+  workState.editing.forEach(projId => {
+    const project = (projects || []).find(p => p.id === projId);
+    const groupEl = document.getElementById(`group-${projId}`);
+    if (project && groupEl) openEditPanel(project, people, groupEl);
   });
 }
 
