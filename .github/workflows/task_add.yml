@@ -18,6 +18,10 @@ on:
         description: "Raw owner name to fuzzy-match against people registry (defaults to Trent)"
         required: false
         default: ""
+      channel_id:
+        description: "Slack channel ID for posting interactive messages"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -44,6 +48,8 @@ jobs:
           RESPONSE_URL: ${{ inputs.response_url }}
           DUE_DATE_RAW: ${{ inputs.due_date_raw }}
           OWNER_RAW: ${{ inputs.owner_raw }}
+          CHANNEL_ID: ${{ inputs.channel_id }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: python scripts/slack_add_task.py
 
       - name: Commit and push

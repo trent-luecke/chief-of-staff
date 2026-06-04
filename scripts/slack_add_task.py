@@ -97,9 +97,13 @@ def post_to_slack(response_url: str, text: str) -> None:
 
 
 def post_ambiguous_message(
-    response_url: str, raw_name: str, matches: list, title: str, due_date_raw: str
+    channel_id: str, bot_token: str, raw_name: str, matches: list, title: str, due_date_raw: str
 ) -> None:
-    """Post an interactive ephemeral message with a button per candidate owner."""
+    """Post an interactive ephemeral message via chat.postMessage with a button per candidate owner."""
+    if not channel_id or not bot_token:
+        print("Warning: missing channel_id or SLACK_BOT_TOKEN — cannot post interactive message", file=sys.stderr)
+        return
+
     # Slack allows max 5 elements per actions block; reserve 1 for "Assign to me"
     capped = matches[:4]
     overflow_note = f"\n_Showing first 4 of {len(matches)} matches._" if len(matches) > 4 else ""
@@ -122,8 +126,8 @@ def post_ambiguous_message(
         "value": assign_to_me_value,
     })
 
-    _post_json(response_url, {
-        "response_type": "ephemeral",
+    payload = {
+        "channel": channel_id,
         "text": f"Multiple matches for '{raw_name}' — who did you mean?",
         "blocks": [
             {
@@ -138,7 +142,21 @@ def post_ambiguous_message(
                 "elements": buttons,
             },
         ],
-    })
+    }
+    data = json.dumps(payload).encode()
+    req = urllib.request.Request(
+        "https://slack.com/api/chat.postMessage",
+        data=data,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {bot_token}"},
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            result = json.loads(resp.read())
+            if not result.get("ok"):
+                print(f"Warning: chat.postMessage failed: {result.get('error')}", file=sys.stderr)
+    except Exception as e:
+        print(f"Warning: failed to post interactive message: {e}", file=sys.stderr)
 
 
 def main():
@@ -146,6 +164,8 @@ def main():
     response_url = os.environ.get("RESPONSE_URL", "")
     due_date_raw = os.environ.get("DUE_DATE_RAW", "")
     owner_raw = os.environ.get("OWNER_RAW", "").strip()
+    channel_id = os.environ.get("CHANNEL_ID", "").strip()
+    bot_token = os.environ.get("SLACK_BOT_TOKEN", "").strip()
 
     if not title:
         print("Error: TASK_TITLE is required", file=sys.stderr)
@@ -165,13 +185,13 @@ def main():
             owner_id = matches[0]["id"]
         else:
             # Ambiguous — prompt via buttons; don't create the task yet
-            if response_url:
-                post_ambiguous_message(response_url, owner_raw, matches, title, due_date_raw)
+            if channel_id and bot_token:
+                post_ambiguous_message(channel_id, bot_token, owner_raw, matches, title, due_date_raw)
                 print(f"Ambiguous owner '{owner_raw}': {[m['canonical_name'] for m in matches]} — posted buttons, task not created")
                 return
             else:
                 # No channel to prompt in; fall back to first match
-                print(f"Warning: multiple matches for '{owner_raw}', no response_url — using first: {matches[0]['canonical_name']}", file=sys.stderr)
+                print(f"Warning: multiple matches for '{owner_raw}', no channel_id/token — using first: {matches[0]['canonical_name']}", file=sys.stderr)
                 owner_id = matches[0]["id"]
     else:
         owner_id = TRENT_ID
