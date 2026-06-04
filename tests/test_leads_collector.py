@@ -2,8 +2,6 @@
 from datetime import date
 from unittest.mock import MagicMock
 
-import pytest
-
 from collectors.sheets import fetch_leads_mtd
 
 

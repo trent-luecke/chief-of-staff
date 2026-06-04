@@ -155,7 +155,7 @@ def fetch_leads_mtd(
     entries = []
 
     for row in rows[1:]:  # skip header
-        date_str = row[0].strip() if row else ""
+        date_str = row[0].strip() if len(row) > 0 else ""
         if not date_str or "/" not in date_str:
             continue
         try:
