@@ -147,10 +147,16 @@ async function handleSlackInteractive(request, env, ctx) {
     })
   );
 
-  // Replace the buttons with a simple acknowledgement immediately
+  // Replace the buttons immediately with a visible processing state
   return Response.json({
     replace_original: true,
-    text: `Got it — adding task and assigning to ${owner_raw}...`,
+    text: `⏳ Assigning to ${owner_raw}...`,
+    blocks: [
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: `⏳ Assigning *${title}* to ${owner_raw}...` },
+      },
+    ],
   });
 }
 

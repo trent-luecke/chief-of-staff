@@ -92,8 +92,11 @@ def _post_json(response_url: str, payload: dict) -> None:
         print(f"Warning: failed to post to Slack response_url: {e}", file=sys.stderr)
 
 
-def post_to_slack(response_url: str, text: str) -> None:
-    _post_json(response_url, {"response_type": "ephemeral", "text": text})
+def post_to_slack(response_url: str, text: str, replace: bool = False) -> None:
+    payload = {"response_type": "ephemeral", "text": text}
+    if replace:
+        payload["replace_original"] = True
+    _post_json(response_url, payload)
 
 
 def post_ambiguous_message(
@@ -189,7 +192,8 @@ def main():
     # Only surface owner name in confirmation when explicitly assigned to someone else
     display_owner = owner_name if owner_raw else None
     confirmation = format_confirmation(title, due_date, display_owner)
-    post_to_slack(response_url, confirmation)
+    # replace_original=True swaps out the ⏳ processing message posted by the button handler
+    post_to_slack(response_url, confirmation, replace=bool(owner_raw))
     print(confirmation)
 
 
