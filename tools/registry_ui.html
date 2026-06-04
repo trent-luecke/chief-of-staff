@@ -508,13 +508,13 @@
       <button class="tab active" data-view="pending">Pending <span id="pending-count"></span></button>
       <button class="tab" data-view="registry">People</button>
       <button class="tab" data-view="observations">Observations</button>
-      <button class="tab" data-view="projects">Projects</button>
+      <button class="tab" data-view="work">Work</button>
     </nav>
     <main>
       <div id="view-pending" class="view"></div>
       <div id="view-registry" class="view hidden"></div>
       <div id="view-observations" class="view hidden"></div>
-      <div id="view-projects" class="view hidden"></div>
+      <div id="view-work" class="view hidden"></div>
     </main>
   </div>
 
@@ -1327,7 +1327,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
-  ['pending','registry','observations','projects'].forEach(v => {
+  ['pending','registry','observations','work'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
   });
 }
@@ -1581,7 +1581,7 @@ async function init() {
       switchTab(view);
       if (view === 'registry') renderRegistryView();
       if (view === 'observations') renderObservationsView();
-      if (view === 'projects') renderProjectsView();
+      if (view === 'work') renderWorkView();
     });
   });
 }
