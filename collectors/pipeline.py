@@ -28,6 +28,12 @@ _ATTENTION_STATUSES = {
 }
 
 
+def count_late_stage(leads: list[PipelineLead], statuses: list[str]) -> int:
+    """Count leads whose status is in the late-stage list from config."""
+    status_set = set(statuses)
+    return sum(1 for lead in leads if lead.status in status_set)
+
+
 def load_activity_overrides(activity_path: str) -> dict[str, str]:
     """Returns {email_lower: last_email_date} from the watcher's activity file."""
     try:

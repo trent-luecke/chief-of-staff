@@ -39,7 +39,8 @@
     "cache_path": "data/pipeline_cache.json",
     "trial_followup_after_days": 5,
     "stale_after_days": 14,
-    "cache_stale_warn_days": 7
+    "cache_stale_warn_days": 7,
+    "late_stage_statuses": ["In-Trial / Post Demo", "No Trial / Post Demo"]
   },
   "gym_scout": {
     "enabled": true,
@@ -124,7 +125,9 @@
   },
   "sheets": {
     "cancellations_spreadsheet_id": "1BYMMVKw19Y9pwp7oFYMvUC4Webk-NI-Y-kevj7CX6D4",
-    "cancellations_tab_name": "MONTHLY Cancellations"
+    "cancellations_tab_name": "MONTHLY Cancellations",
+    "kpi_spreadsheet_id": "1bLCODxa01csvvBDFEHXP89S-5bh_Hg70UStCaIogNwo",
+    "kpi_leads_tab_name": "Leads"
   },
   "storage": {
     "r2": {
