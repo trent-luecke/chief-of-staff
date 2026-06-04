@@ -29,8 +29,17 @@ def _storage():
     return LocalStorage(base_dir=str(DATA_DIR))
 
 
+def _git_pull() -> None:
+    """Pull latest from remote. Non-fatal — UI still loads if pull fails."""
+    subprocess.run(
+        ["git", "pull", "--ff-only"],
+        cwd=str(ROOT), capture_output=True,
+    )
+
+
 @app.route("/")
 def index():
+    _git_pull()
     return send_file(str(UI_PATH))
 
 
