@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-04T00:00:00",
+  "resolved_at": "2026-06-05T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1612,6 +1612,61 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "444": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "445": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "446": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "447": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "448": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "449": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "450": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "451": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "452": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "453": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "454": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -1743,7 +1798,10 @@
     373,
     387,
     388,
-    431
+    431,
+    441,
+    442,
+    443
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -1773,6 +1831,9 @@
     "thread:Re: Update - Ascend",
     "thread:Re: Orientation Session Recap_Two-Brain Summit 2026",
     "thread:Accepted: Bre / Trent / Quinn @ Fri May 29, 2026 12:30pm - 1pm (CDT) (Trent Luecke)",
-    "thread:Re: Free Shirt!"
+    "thread:Re: Free Shirt!",
+    "thread:Re: Wise Up x Teambuildr",
+    "thread:Canceled event with note: TMB Email Outreach @ Wed Jun 3, 2026 10:30am - 11am (CDT) (trent@teambuildr.com)",
+    "thread:Re: TeamBuildr OS Content Shoot"
   ]
 }
