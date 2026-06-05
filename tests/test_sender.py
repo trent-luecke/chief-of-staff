@@ -27,16 +27,22 @@ def test_build_html_email_contains_act_today():
     assert "All GTM metrics in range" in html
 
 
-def test_build_html_email_contains_no_open_loops_message():
+def test_build_html_email_contains_no_metric_data_fallback():
+    brief_no_flags = BriefContent(
+        act_today=[],
+        what_moved=[],
+        metric_flags=[],
+    )
     html = build_html_email(
-        brief=make_brief(),
+        brief=brief_no_flags,
         today_events=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         template_dir="templates",
     )
-    assert "No open loops" in html
+    assert "No metric data available" in html
+    assert "Nothing urgent today" in html
 
 
 def test_send_brief_email_calls_gmail_api(mock_gmail_service):
