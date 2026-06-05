@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-06-05T02:07:00Z",
+  "synced_at": "2026-06-05T11:12:05Z",
   "records": [
     {
       "page_id": "36424bca-36d7-818e-89c2-c7f76faef238",
@@ -38,6 +38,16 @@
       "status": "Live",
       "current_phase": "Phase 1 — Initial Setup",
       "sales_rep": "Trent",
+      "start_date": null,
+      "target_go_live_date": null
+    },
+    {
+      "page_id": "30c24bca-36d7-80bd-9485-def34fcee111",
+      "customer_name": "📋 TEMPLATE — Duplicate for New Customer (2)",
+      "customer_email": null,
+      "status": "Not Started",
+      "current_phase": "Phase 1 — Initial Setup",
+      "sales_rep": null,
       "start_date": null,
       "target_go_live_date": null
     }
