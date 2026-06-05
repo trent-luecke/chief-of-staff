@@ -91,3 +91,105 @@ def _month_business_days(today: date) -> tuple[int, int]:
     elapsed = _count_business_days(first, today)
     total = _count_business_days(first, last)
     return elapsed, total
+
+
+# ── Breach functions ──────────────────────────────────────────────────────────
+
+
+def pace_breach(
+    current: int,
+    target: int,
+    today: date,
+    early_guard_pct: float,
+    sales_frame: bool = False,
+) -> tuple[bool, str]:
+    """Linear month-pace breach. Returns (is_breach, reason).
+
+    No breach emitted before early_guard_pct of the month's business days have elapsed.
+    sales_frame=True reframes the reason to point at the demo pipeline, not today's closes.
+    """
+    elapsed, total = _month_business_days(today)
+    if total == 0 or elapsed == 0:
+        return False, ""
+
+    pct_elapsed = elapsed / total
+    if pct_elapsed < early_guard_pct:
+        return False, ""
+
+    projected = current * (total / elapsed)
+    if projected < target:
+        pct_str = f"{pct_elapsed:.0%}"
+        if sales_frame:
+            reason = (
+                f"on pace for {projected:.0f} closes vs {target} target "
+                f"({pct_str} of month) — pipeline is the lever"
+            )
+        else:
+            reason = (
+                f"on pace for {projected:.0f} vs target {target} "
+                f"({pct_str} of month)"
+            )
+        return True, reason
+
+    return False, ""
+
+
+def _parse_month_day(date_str: str, year: int) -> date | None:
+    """Parse 'M/D' string to a date using the given year. Returns None on failure."""
+    try:
+        parts = (date_str or "").strip().split("/")
+        if len(parts) < 2:
+            return None
+        return date(year, int(parts[0]), int(parts[1]))
+    except (ValueError, TypeError):
+        return None
+
+
+def redflag_breach(
+    metric_id: str,
+    current: int = 0,
+    threshold: int = 0,
+    entries: list[dict] | None = None,
+    window_days: int = 30,
+    reason_threshold: int = 2,
+    today: date | None = None,
+) -> tuple[bool, str]:
+    """State-condition breach. Returns (is_breach, reason).
+
+    onboarding_coverage: breach if current < threshold.
+    churn_count: breach if current > threshold.
+    churn_reasons: breach if same reason appears >= reason_threshold times
+        within window_days of today in entries[].reason.
+    """
+    _today = today or date.today()
+
+    if metric_id == "onboarding_coverage":
+        if current < threshold:
+            return True, f"{current} customers in onboarding (minimum: {threshold})"
+        return False, ""
+
+    if metric_id == "churn_count":
+        if current > threshold:
+            return True, f"{current} cancellations this month (threshold: {threshold})"
+        return False, ""
+
+    if metric_id == "churn_reasons":
+        if not entries:
+            return False, ""
+        window_start = _today - timedelta(days=window_days)
+        counts: dict[str, int] = {}
+        for entry in entries:
+            d = _parse_month_day(entry.get("date", ""), _today.year)
+            if d is None or d < window_start or d > _today:
+                continue
+            r = (entry.get("reason") or "").strip()
+            if r:
+                counts[r] = counts.get(r, 0) + 1
+        repeated = [(r, c) for r, c in counts.items() if c >= reason_threshold]
+        if repeated:
+            repeated.sort(key=lambda x: -x[1])
+            details = "; ".join(f'"{r}" ×{c}' for r, c in repeated)
+            return True, f"repeated churn reasons (last {window_days}d): {details}"
+        return False, ""
+
+    return False, ""

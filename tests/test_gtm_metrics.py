@@ -7,6 +7,8 @@ from lib.gtm_metrics import (
     METRIC_DEFS,
     _count_business_days,
     _month_business_days,
+    pace_breach,
+    redflag_breach,
 )
 
 
@@ -89,3 +91,143 @@ class TestMetricResult:
         )
         assert r.stale is False
         assert r.stale_reason == ""
+
+
+class TestPaceBreach:
+    MID = date(2026, 6, 15)   # 50% of month elapsed, past guard
+    EARLY = date(2026, 6, 2)  # ~9% elapsed, below 25% guard
+
+    def test_no_breach_when_on_pace(self):
+        # projected = 12 * (22/11) = 24 >= 20
+        breach, reason = pace_breach(12, 20, self.MID, early_guard_pct=0.25)
+        assert breach is False
+        assert reason == ""
+
+    def test_breach_when_behind_pace(self):
+        # projected = 5 * (22/11) = 10 < 20
+        breach, reason = pace_breach(5, 20, self.MID, early_guard_pct=0.25)
+        assert breach is True
+        assert "10" in reason
+        assert "20" in reason
+
+    def test_early_guard_suppresses_breach(self):
+        breach, reason = pace_breach(0, 20, self.EARLY, early_guard_pct=0.25)
+        assert breach is False
+        assert reason == ""
+
+    def test_sales_frame_mentions_pipeline(self):
+        breach, reason = pace_breach(5, 20, self.MID, early_guard_pct=0.25, sales_frame=True)
+        assert breach is True
+        assert "pipeline" in reason.lower()
+
+    def test_non_sales_frame_does_not_mention_pipeline(self):
+        breach, reason = pace_breach(5, 20, self.MID, early_guard_pct=0.25, sales_frame=False)
+        assert breach is True
+        assert "pipeline" not in reason.lower()
+
+    def test_exactly_on_target_no_breach(self):
+        # projected = 11 * (22/11) = 22 >= 22
+        breach, _ = pace_breach(11, 22, self.MID, early_guard_pct=0.25)
+        assert breach is False
+
+    def test_zero_current_above_guard_is_breach(self):
+        breach, _ = pace_breach(0, 20, self.MID, early_guard_pct=0.25)
+        assert breach is True
+
+
+class TestRedflagOnboarding:
+    def test_breach_below_threshold(self):
+        breach, reason = redflag_breach("onboarding_coverage", current=4, threshold=5)
+        assert breach is True
+        assert "4" in reason
+        assert "5" in reason
+
+    def test_no_breach_at_threshold(self):
+        breach, _ = redflag_breach("onboarding_coverage", current=5, threshold=5)
+        assert breach is False
+
+    def test_no_breach_above_threshold(self):
+        breach, _ = redflag_breach("onboarding_coverage", current=7, threshold=5)
+        assert breach is False
+
+
+class TestRedflagChurnCount:
+    def test_breach_above_threshold(self):
+        breach, reason = redflag_breach("churn_count", current=3, threshold=2)
+        assert breach is True
+        assert "3" in reason
+
+    def test_no_breach_at_threshold(self):
+        breach, _ = redflag_breach("churn_count", current=2, threshold=2)
+        assert breach is False
+
+    def test_no_breach_below_threshold(self):
+        breach, _ = redflag_breach("churn_count", current=1, threshold=2)
+        assert breach is False
+
+
+class TestRedflagChurnReasons:
+    TODAY = date(2026, 6, 15)
+
+    def _e(self, date_str: str, reason: str) -> dict:
+        return {"date": date_str, "reason": reason, "account_name": "Test"}
+
+    def test_breach_on_repeated_reason(self):
+        entries = [
+            self._e("6/5", "Business Changes"),
+            self._e("6/8", "Business Changes"),
+            self._e("6/10", "Price"),
+        ]
+        breach, reason = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is True
+        assert "Business Changes" in reason
+
+    def test_no_breach_all_different_reasons(self):
+        entries = [
+            self._e("6/5", "Business Changes"),
+            self._e("6/8", "Price"),
+            self._e("6/10", "Feature Gap"),
+        ]
+        breach, _ = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is False
+
+    def test_entries_outside_window_excluded(self):
+        # window=10d from June 15 → starts June 5; May entries excluded
+        entries = [
+            self._e("5/20", "Business Changes"),
+            self._e("5/25", "Business Changes"),
+        ]
+        breach, _ = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=10, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is False
+
+    def test_empty_entries_no_breach(self):
+        breach, _ = redflag_breach(
+            "churn_reasons", entries=[],
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is False
+
+    def test_none_entries_no_breach(self):
+        breach, _ = redflag_breach(
+            "churn_reasons", entries=None,
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is False
+
+    def test_reason_count_shown_in_message(self):
+        entries = [self._e("6/5", "BC"), self._e("6/6", "BC"), self._e("6/7", "BC")]
+        breach, reason = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is True
+        assert "×3" in reason or "x3" in reason.lower() or "3" in reason
