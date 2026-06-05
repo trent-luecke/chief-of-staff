@@ -42,6 +42,12 @@
     "cache_stale_warn_days": 7,
     "late_stage_statuses": ["In-Trial / Post Demo", "No Trial / Post Demo"]
   },
+  "onboarding": {
+    "cache_path": "data/onboarding_cache.json",
+    "database_id": "d4904af6-77b0-4507-8655-353ae4eadbd2",
+    "active_statuses": ["In Progress", "Awaiting Customer", "Ready to Go Live"],
+    "cache_stale_warn_days": 2
+  },
   "gym_scout": {
     "enabled": true,
     "results_csv": "data/gym_scout_results.csv",
