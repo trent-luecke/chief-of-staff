@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import sys
+from html import escape as _esc
 from pathlib import Path
 
 _ROOT = Path(__file__).parent.parent
@@ -40,12 +41,12 @@ def render_html(results: list[MetricResult], generated_at: str) -> str:
     def _row(r: MetricResult) -> str:
         detail = ""
         if r.stale and r.stale_reason:
-            detail = f'<div class="det stale-det">⚠ {r.stale_reason}</div>'
+            detail = f'<div class="det stale-det">⚠ {_esc(r.stale_reason)}</div>'
         elif r.breach and r.breach_reason:
-            detail = f'<div class="det breach-det">▲ {r.breach_reason}</div>'
+            detail = f'<div class="det breach-det">▲ {_esc(r.breach_reason)}</div>'
         row = (
             f'<tr class="{"breach-row" if r.breach else "stale-row" if r.stale else ""}">'
-            f'<td class="lbl" data-metric-id="{r.id}">{r.label}</td>'
+            f'<td class="lbl" data-metric-id="{_esc(r.id, quote=True)}">{_esc(r.label)}</td>'
             f'<td>{_val(r.current)}</td>'
             f'<td>{_val(r.target)}</td>'
             f'<td>{_badge(r)}</td>'
@@ -88,7 +89,7 @@ def render_html(results: list[MetricResult], generated_at: str) -> str:
 </style>
 </head>
 <body>
-<div class="hdr"><h1>GTM Metrics</h1><div class="ts">Generated {generated_at}</div></div>
+<div class="hdr"><h1>GTM Metrics</h1><div class="ts">Generated {_esc(generated_at)}</div></div>
 <div class="bdy">
 <table>
 <thead><tr><th>Metric</th><th>Current</th><th>Target</th><th>Status</th><th>Horizon</th></tr></thead>
@@ -105,6 +106,10 @@ def render_html(results: list[MetricResult], generated_at: str) -> str:
 def main() -> None:
     snapshot_path = Path(sys.argv[1]) if len(sys.argv) > 1 else _SNAPSHOT
     output_path = Path(sys.argv[2]) if len(sys.argv) > 2 else _OUTPUT
+
+    if not _CONFIG.exists():
+        print(f"config.json not found: {_CONFIG}", file=sys.stderr)
+        sys.exit(1)
 
     cfg_gtm = json.loads(_CONFIG.read_text()).get("gtm", {})
 

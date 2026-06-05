@@ -79,3 +79,13 @@ def test_render_no_data_badge():
                              breach=False, breach_reason="no data", horizon="next-month")]
     html = render_html(results, "2026-06-15")
     assert "NO DATA" in html
+
+
+def test_render_escapes_html_in_reason():
+    results = [MetricResult(id="demos_mtd", label="Demos MTD", current=5, target=30,
+                             breach=True,
+                             breach_reason='<script>alert("xss")</script>',
+                             horizon="next-month")]
+    html = render_html(results, "2026-06-15")
+    assert "<script>" not in html
+    assert "&lt;script&gt;" in html
