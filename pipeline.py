@@ -87,6 +87,7 @@ class CollectedData:
     # Sheets
     sales_data: dict | None = None
     demos_data: dict | None = None
+    leads_data: dict | None = None
     cancellations: dict = field(default_factory=lambda: {"count": 0, "entries": []})
 
     # Slack
@@ -485,7 +486,7 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
             _err = None
             with timed() as t:
                 try:
-                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, month_label
+                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, fetch_leads_mtd, month_label
                     from lib.google_auth import build_sheets_service
                     sheets_svc = build_sheets_service()
                     if cancel_sheet_id:
@@ -498,6 +499,11 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                     if demos_sheet_id:
                         data.demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
                         print(f"   Demos MTD: {data.demos_data['count']}")
+                    kpi_sheet_id = sheets_cfg.get("kpi_spreadsheet_id", "")
+                    kpi_leads_tab = sheets_cfg.get("kpi_leads_tab_name", "Leads")
+                    if kpi_sheet_id:
+                        data.leads_data = fetch_leads_mtd(sheets_svc, kpi_sheet_id, kpi_leads_tab)
+                        print(f"   Leads MTD: {data.leads_data['count']} lead(s)")
                 except Exception as e:
                     _err = str(e)[:200]
                     print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
