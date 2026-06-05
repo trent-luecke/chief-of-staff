@@ -397,3 +397,17 @@ class TestEvaluateMetrics:
         cov = next(r for r in results if r.id == "onboarding_coverage")
         assert cov.current == 0
         assert cov.breach is True  # 0 < threshold=5
+
+    def test_leads_future_date_not_treated_as_stale(self):
+        # An entry with a future date should not prevent staleness detection on real entries
+        inputs = _healthy_inputs()
+        inputs["leads_data"] = {
+            "count": 2,
+            "entries": [
+                {"date": "6/30", "name": "Future Lead", "source": "Web"},  # future date, today=6/15
+                {"date": "6/10", "name": "Old Lead", "source": "Web"},     # 5d ago, stale
+            ],
+        }
+        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
+        # future entry ignored; last_updated = 6/10 = 5d ago > stale_days=3 → stale
+        assert leads.stale is True

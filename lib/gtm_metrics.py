@@ -201,12 +201,13 @@ def redflag_breach(
 # ── Leads staleness helper ────────────────────────────────────────────────────
 
 
-def _leads_last_updated(entries: list[dict], year: int) -> date | None:
-    """Return date of most recent entry in leads data, or None."""
+def _leads_last_updated(entries: list[dict], year: int, today: date | None = None) -> date | None:
+    """Return date of most recent non-future entry in leads data, or None."""
+    _today = today or date.today()
     latest: date | None = None
     for e in entries:
         d = _parse_month_day(e.get("date", ""), year)
-        if d is not None and (latest is None or d > latest):
+        if d is not None and d <= _today and (latest is None or d > latest):
             latest = d
     return latest
 
@@ -239,6 +240,8 @@ def evaluate_metrics(
     _today = today or date.today()
     guard = cfg.get("pace_early_month_guard_pct", 0.25)
     stale_days = cfg.get("leads_stale_days", 3)
+    # NOTE: Results are built by hardcoded blocks below, one per MetricDef.
+    # Adding a MetricDef requires a matching evaluation block here. breach_fn is documentation only.
     results: list[MetricResult] = []
 
     # ── 1. Leads MTD ──────────────────────────────────────────────────────────
@@ -261,7 +264,7 @@ def evaluate_metrics(
                 horizon="next-month",
             ))
         else:
-            last_updated = _leads_last_updated(entries, _today.year)
+            last_updated = _leads_last_updated(entries, _today.year, today=_today)
             is_stale = (
                 last_updated is not None
                 and (_today - last_updated).days > stale_days
