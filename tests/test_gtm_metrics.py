@@ -183,7 +183,7 @@ class TestRedflagChurnReasons:
             window_days=30, reason_threshold=2, today=self.TODAY,
         )
         assert breach is True
-        assert "Business Changes" in reason
+        assert "business changes" in reason.lower()
 
     def test_no_breach_all_different_reasons(self):
         entries = [
@@ -231,3 +231,29 @@ class TestRedflagChurnReasons:
         )
         assert breach is True
         assert "×3" in reason or "x3" in reason.lower() or "3" in reason
+
+    def test_year_boundary_december_entry_counted_in_january(self):
+        # January 15 with 30-day window → window starts Dec 16
+        # Entry "12/20" should be counted (Dec 20 of prior year is in window)
+        jan_today = date(2026, 1, 15)
+        entries = [
+            self._e("12/20", "Business Changes"),
+            self._e("12/22", "Business Changes"),
+        ]
+        breach, reason = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=30, reason_threshold=2, today=jan_today,
+        )
+        assert breach is True
+        assert "business changes" in reason.lower()
+
+    def test_case_insensitive_reason_matching(self):
+        entries = [
+            self._e("6/5", "Business Changes"),
+            self._e("6/8", "business changes"),
+        ]
+        breach, reason = redflag_breach(
+            "churn_reasons", entries=entries,
+            window_days=30, reason_threshold=2, today=self.TODAY,
+        )
+        assert breach is True

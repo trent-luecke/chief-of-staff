@@ -180,9 +180,12 @@ def redflag_breach(
         counts: dict[str, int] = {}
         for entry in entries:
             d = _parse_month_day(entry.get("date", ""), _today.year)
+            if d is not None and d > _today:
+                d = _parse_month_day(entry.get("date", ""), _today.year - 1)
             if d is None or d < window_start or d > _today:
                 continue
-            r = (entry.get("reason") or "").strip()
+            r_raw = (entry.get("reason") or "").strip()
+            r = r_raw.lower()
             if r:
                 counts[r] = counts.get(r, 0) + 1
         repeated = [(r, c) for r, c in counts.items() if c >= reason_threshold]
