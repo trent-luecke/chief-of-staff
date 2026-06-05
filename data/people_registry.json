@@ -836,6 +836,32 @@
       "people_file": null,
       "created": "2026-05-30",
       "last_seen": "2026-06-05"
+    },
+    {
+      "id": "info",
+      "canonical_name": "Info",
+      "aliases": [
+        "Info"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-05",
+      "last_seen": "2026-06-05"
+    },
+    {
+      "id": "jake",
+      "canonical_name": "Jake",
+      "aliases": [
+        "Jake"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-05",
+      "last_seen": "2026-06-05"
     }
   ]
 }
