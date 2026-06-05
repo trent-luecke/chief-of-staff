@@ -295,6 +295,7 @@ def evaluate_metrics(
                 ))
 
     # ── 2. Demos MTD ──────────────────────────────────────────────────────────
+    # count=0 is a valid value (automated sheet); unlike leads (manual), zero here means no activity this month.
     demos_target = cfg.get("demos_mtd_target")
     if demos_data is None:
         results.append(MetricResult(
@@ -317,6 +318,7 @@ def evaluate_metrics(
         ))
 
     # ── 3. Sales MTD (Closes) ─────────────────────────────────────────────────
+    # count=0 is a valid value (automated sheet); zero means no closes yet this month.
     sales_target = cfg.get("sales_mtd_target")
     if sales_data is None:
         results.append(MetricResult(
@@ -340,7 +342,7 @@ def evaluate_metrics(
 
     # ── 4. Onboarding Coverage ────────────────────────────────────────────────
     cov_threshold = cfg.get("onboarding_coverage_threshold", 5)
-    cov_count = len(onboarding_active)
+    cov_count = len(onboarding_active or [])
     breach, reason = redflag_breach(
         "onboarding_coverage", current=cov_count, threshold=cov_threshold, today=_today,
     )

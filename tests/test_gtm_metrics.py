@@ -389,3 +389,11 @@ class TestEvaluateMetrics:
         churn = next(r for r in results if r.id == "churn_count")
         assert churn.current == 0
         assert churn.breach is False
+
+    def test_onboarding_active_none_no_crash(self):
+        inputs = _healthy_inputs()
+        inputs["onboarding_active"] = None
+        results = evaluate_metrics(**inputs)
+        cov = next(r for r in results if r.id == "onboarding_coverage")
+        assert cov.current == 0
+        assert cov.breach is True  # 0 < threshold=5
