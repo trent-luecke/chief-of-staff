@@ -237,7 +237,7 @@ def generate_brief(
     except json.JSONDecodeError as e:
         raise ValueError(f"Claude returned non-JSON response: {e}\nRaw response: {raw[:200]}") from e
     return BriefContent(
-        act_today=data.get("act_today", []),
-        what_moved=data.get("what_moved", []),
+        act_today=data.get("act_today") or [],
+        what_moved=data.get("what_moved") or [],
         metric_flags=metric_flags or [],
     )
