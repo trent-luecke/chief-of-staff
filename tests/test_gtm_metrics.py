@@ -9,6 +9,7 @@ from lib.gtm_metrics import (
     _month_business_days,
     pace_breach,
     redflag_breach,
+    evaluate_metrics,
 )
 
 
@@ -257,3 +258,134 @@ class TestRedflagChurnReasons:
             window_days=30, reason_threshold=2, today=self.TODAY,
         )
         assert breach is True
+
+
+_CFG = {
+    "leads_mtd_target": 20,
+    "demos_mtd_target": 30,
+    "sales_mtd_target": 15,
+    "onboarding_coverage_threshold": 5,
+    "churn_count_threshold": 2,
+    "churn_reason_cluster_threshold": 2,
+    "churn_reason_window_days": 30,
+    "pace_early_month_guard_pct": 0.25,
+    "leads_stale_days": 3,
+}
+_MID = date(2026, 6, 15)
+
+
+def _healthy_inputs():
+    """All-green inputs evaluated at June 15. No metric should breach."""
+    return dict(
+        leads_data={"count": 12, "entries": [{"date": "6/14", "name": "A", "source": "B"}]},
+        demos_data={"count": 20, "entries": []},
+        sales_data={"count": 10, "entries": []},
+        onboarding_active=[{} for _ in range(6)],
+        cancellations={"count": 1, "entries": [{"date": "6/5", "reason": "Price"}]},
+        cfg=_CFG,
+        today=_MID,
+    )
+
+
+class TestEvaluateMetrics:
+    def test_returns_six_results(self):
+        results = evaluate_metrics(**_healthy_inputs())
+        assert len(results) == 6
+
+    def test_result_ids_match_metric_def_order(self):
+        results = evaluate_metrics(**_healthy_inputs())
+        assert [r.id for r in results] == [m.id for m in METRIC_DEFS]
+
+    def test_no_breach_when_all_healthy(self):
+        # leads projected 24>=20; demos 40>=30; sales 20>=15; cov 6>=5; churn 1<=2
+        results = evaluate_metrics(**_healthy_inputs())
+        for r in results:
+            assert r.breach is False, f"{r.id} unexpectedly breached: {r.breach_reason}"
+
+    def test_leads_none_shows_not_configured(self):
+        inputs = _healthy_inputs()
+        inputs["leads_data"] = None
+        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
+        assert leads.current is None
+        assert "not configured" in leads.breach_reason
+
+    def test_leads_zero_count_shows_no_data(self):
+        inputs = _healthy_inputs()
+        inputs["leads_data"] = {"count": 0, "entries": []}
+        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
+        assert leads.current is None
+        assert "no data" in leads.breach_reason
+
+    def test_leads_stale_suppresses_breach(self):
+        # last entry June 10 = 5 days before June 15; stale_days=3
+        inputs = _healthy_inputs()
+        inputs["leads_data"] = {
+            "count": 4,
+            "entries": [{"date": "6/10", "name": "Old Lead", "source": "Web"}],
+        }
+        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
+        assert leads.stale is True
+        assert leads.breach is False
+
+    def test_leads_pace_breach_when_fresh(self):
+        # last entry June 14 (1 day ago, not stale); count=4 → projected 8 < 20
+        inputs = _healthy_inputs()
+        inputs["leads_data"] = {
+            "count": 4,
+            "entries": [{"date": "6/14", "name": "A", "source": "B"}],
+        }
+        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
+        assert leads.breach is True
+        assert leads.stale is False
+
+    def test_onboarding_coverage_breach(self):
+        inputs = _healthy_inputs()
+        inputs["onboarding_active"] = [{} for _ in range(4)]  # 4 < 5
+        cov = next(r for r in evaluate_metrics(**inputs) if r.id == "onboarding_coverage")
+        assert cov.breach is True
+
+    def test_churn_count_breach(self):
+        inputs = _healthy_inputs()
+        inputs["cancellations"] = {"count": 3, "entries": [
+            {"date": "6/5", "reason": "A"},
+            {"date": "6/6", "reason": "B"},
+            {"date": "6/7", "reason": "C"},
+        ]}
+        churn = next(r for r in evaluate_metrics(**inputs) if r.id == "churn_count")
+        assert churn.breach is True
+
+    def test_churn_reason_cluster_breach(self):
+        inputs = _healthy_inputs()
+        inputs["cancellations"] = {"count": 3, "entries": [
+            {"date": "6/5", "reason": "Business Changes"},
+            {"date": "6/8", "reason": "Business Changes"},
+            {"date": "6/10", "reason": "Price"},
+        ]}
+        reasons = next(r for r in evaluate_metrics(**inputs) if r.id == "churn_reasons")
+        assert reasons.breach is True
+        assert "business changes" in reasons.breach_reason.lower()
+
+    def test_sales_breach_reason_mentions_pipeline(self):
+        inputs = _healthy_inputs()
+        inputs["sales_data"] = {"count": 2, "entries": []}
+        sales = next(r for r in evaluate_metrics(**inputs) if r.id == "sales_mtd")
+        assert sales.breach is True
+        assert "pipeline" in sales.breach_reason.lower()
+
+    def test_horizons_correct(self):
+        results = evaluate_metrics(**_healthy_inputs())
+        h = {r.id: r.horizon for r in results}
+        assert h["leads_mtd"] == "next-month"
+        assert h["demos_mtd"] == "next-month"
+        assert h["sales_mtd"] == "this-month"
+        assert h["onboarding_coverage"] == "this-month"
+        assert h["churn_count"] == "this-month"
+        assert h["churn_reasons"] == "this-month"
+
+    def test_cancellations_none_no_crash(self):
+        inputs = _healthy_inputs()
+        inputs["cancellations"] = None
+        results = evaluate_metrics(**inputs)
+        churn = next(r for r in results if r.id == "churn_count")
+        assert churn.current == 0
+        assert churn.breach is False

@@ -196,3 +196,190 @@ def redflag_breach(
         return False, ""
 
     return False, ""
+
+
+# ── Leads staleness helper ────────────────────────────────────────────────────
+
+
+def _leads_last_updated(entries: list[dict], year: int) -> date | None:
+    """Return date of most recent entry in leads data, or None."""
+    latest: date | None = None
+    for e in entries:
+        d = _parse_month_day(e.get("date", ""), year)
+        if d is not None and (latest is None or d > latest):
+            latest = d
+    return latest
+
+
+# ── Main evaluation ───────────────────────────────────────────────────────────
+
+
+def evaluate_metrics(
+    leads_data: dict | None,
+    demos_data: dict | None,
+    sales_data: dict | None,
+    onboarding_active: list[dict],
+    cancellations: dict | None,
+    cfg: dict,
+    today: date | None = None,
+) -> list[MetricResult]:
+    """Evaluate all six GTM metrics and return MetricResult objects.
+
+    Args:
+        leads_data: from fetch_leads_mtd; None if collector not configured.
+        demos_data: from fetch_demos_mtd; None if collector not configured.
+        sales_data: from fetch_sales_mtd; None if collector not configured.
+        onboarding_active: pre-filtered list from load_onboarding_active.
+        cancellations: from fetch_cancellations_mtd; None if not configured.
+        cfg: the "gtm" sub-block from config.json.
+        today: override date for testing.
+
+    Returns list of six MetricResult objects in METRIC_DEFS order.
+    """
+    _today = today or date.today()
+    guard = cfg.get("pace_early_month_guard_pct", 0.25)
+    stale_days = cfg.get("leads_stale_days", 3)
+    results: list[MetricResult] = []
+
+    # ── 1. Leads MTD ──────────────────────────────────────────────────────────
+    leads_target = cfg.get("leads_mtd_target")
+    if leads_data is None:
+        results.append(MetricResult(
+            id="leads_mtd", label="Leads MTD",
+            current=None, target=leads_target,
+            breach=False, breach_reason="collector not configured",
+            horizon="next-month",
+        ))
+    else:
+        entries = leads_data.get("entries", [])
+        count = leads_data.get("count", len(entries))
+        if count == 0:
+            results.append(MetricResult(
+                id="leads_mtd", label="Leads MTD",
+                current=None, target=leads_target,
+                breach=False, breach_reason="no data",
+                horizon="next-month",
+            ))
+        else:
+            last_updated = _leads_last_updated(entries, _today.year)
+            is_stale = (
+                last_updated is not None
+                and (_today - last_updated).days > stale_days
+            )
+            if is_stale:
+                results.append(MetricResult(
+                    id="leads_mtd", label="Leads MTD",
+                    current=count, target=leads_target,
+                    breach=False, breach_reason="",
+                    horizon="next-month",
+                    stale=True,
+                    stale_reason=(
+                        f"last entry {(_today - last_updated).days}d ago "
+                        f"(threshold: {stale_days}d) — pace flag suppressed"
+                    ),
+                ))
+            elif leads_target is not None:
+                breach, reason = pace_breach(count, leads_target, _today, guard)
+                results.append(MetricResult(
+                    id="leads_mtd", label="Leads MTD",
+                    current=count, target=leads_target,
+                    breach=breach, breach_reason=reason,
+                    horizon="next-month",
+                ))
+            else:
+                results.append(MetricResult(
+                    id="leads_mtd", label="Leads MTD",
+                    current=count, target=None,
+                    breach=False, breach_reason="no target configured",
+                    horizon="next-month",
+                ))
+
+    # ── 2. Demos MTD ──────────────────────────────────────────────────────────
+    demos_target = cfg.get("demos_mtd_target")
+    if demos_data is None:
+        results.append(MetricResult(
+            id="demos_mtd", label="Demos MTD",
+            current=None, target=demos_target,
+            breach=False, breach_reason="collector not configured",
+            horizon="next-month",
+        ))
+    else:
+        count = demos_data.get("count", 0)
+        if demos_target is not None:
+            breach, reason = pace_breach(count, demos_target, _today, guard)
+        else:
+            breach, reason = False, "no target configured"
+        results.append(MetricResult(
+            id="demos_mtd", label="Demos MTD",
+            current=count, target=demos_target,
+            breach=breach, breach_reason=reason,
+            horizon="next-month",
+        ))
+
+    # ── 3. Sales MTD (Closes) ─────────────────────────────────────────────────
+    sales_target = cfg.get("sales_mtd_target")
+    if sales_data is None:
+        results.append(MetricResult(
+            id="sales_mtd", label="Sales MTD (Closes)",
+            current=None, target=sales_target,
+            breach=False, breach_reason="collector not configured",
+            horizon="this-month",
+        ))
+    else:
+        count = sales_data.get("count", 0)
+        if sales_target is not None:
+            breach, reason = pace_breach(count, sales_target, _today, guard, sales_frame=True)
+        else:
+            breach, reason = False, "no target configured"
+        results.append(MetricResult(
+            id="sales_mtd", label="Sales MTD (Closes)",
+            current=count, target=sales_target,
+            breach=breach, breach_reason=reason,
+            horizon="this-month",
+        ))
+
+    # ── 4. Onboarding Coverage ────────────────────────────────────────────────
+    cov_threshold = cfg.get("onboarding_coverage_threshold", 5)
+    cov_count = len(onboarding_active)
+    breach, reason = redflag_breach(
+        "onboarding_coverage", current=cov_count, threshold=cov_threshold, today=_today,
+    )
+    results.append(MetricResult(
+        id="onboarding_coverage", label="Onboarding Coverage",
+        current=cov_count, target=cov_threshold,
+        breach=breach, breach_reason=reason,
+        horizon="this-month",
+    ))
+
+    # ── 5. Churn Count MTD ────────────────────────────────────────────────────
+    churn_threshold = cfg.get("churn_count_threshold", 2)
+    cancel_count = (cancellations or {}).get("count", 0)
+    breach, reason = redflag_breach(
+        "churn_count", current=cancel_count, threshold=churn_threshold, today=_today,
+    )
+    results.append(MetricResult(
+        id="churn_count", label="Churn Count MTD",
+        current=cancel_count, target=churn_threshold,
+        breach=breach, breach_reason=reason,
+        horizon="this-month",
+    ))
+
+    # ── 6. Churn Reason Cluster ───────────────────────────────────────────────
+    reason_threshold = cfg.get("churn_reason_cluster_threshold", 2)
+    window_days = cfg.get("churn_reason_window_days", 30)
+    cancel_entries = (cancellations or {}).get("entries", [])
+    breach, reason = redflag_breach(
+        "churn_reasons",
+        entries=cancel_entries,
+        window_days=window_days,
+        reason_threshold=reason_threshold,
+        today=_today,
+    )
+    results.append(MetricResult(
+        id="churn_reasons", label="Churn Reason Cluster",
+        current=None, target=reason_threshold,
+        breach=breach, breach_reason=reason,
+        horizon="this-month",
+    ))
+
+    return results
