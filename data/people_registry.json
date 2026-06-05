@@ -862,6 +862,32 @@
       "people_file": null,
       "created": "2026-06-05",
       "last_seen": "2026-06-05"
+    },
+    {
+      "id": "tex",
+      "canonical_name": "Tex",
+      "aliases": [
+        "Tex"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-05",
+      "last_seen": "2026-06-05"
+    },
+    {
+      "id": "rachel-hodgson",
+      "canonical_name": "Rachel Hodgson",
+      "aliases": [
+        "Rachel Hodgson"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-05",
+      "last_seen": "2026-06-05"
     }
   ]
 }
