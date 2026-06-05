@@ -10,10 +10,13 @@ from processors.loops import LoopSummary
 
 
 MOCK_BRIEF_JSON = {
-    "executive_summary": "Today is focused on demos and follow-ups.",
-    "top_3_priorities": ["Close Apex Fitness", "Reply to contract renewal email", "Review pipeline"],
-    "watch_outs": ["Apex trial ends Friday"],
-    "schedule_notes": "Back-to-back demos 9-11am — no buffer",
+    "act_today": [
+        "Close Apex Fitness — trial ends Friday, send contract today",
+        "Reply to renewal email from SportsPlex — 3 days stale",
+    ],
+    "what_moved": [
+        "CrossFit Box had a demo — strong interest in OS pricing",
+    ],
 }
 
 
@@ -42,10 +45,10 @@ def test_generate_brief_returns_content(mock_anthropic):
         loop_summary=LoopSummary(),
     )
 
-    assert content.executive_summary == "Today is focused on demos and follow-ups."
-    assert len(content.top_3_priorities) == 3
-    assert content.watch_outs == ["Apex trial ends Friday"]
-    assert content.schedule_notes == "Back-to-back demos 9-11am — no buffer"
+    assert len(content.act_today) == 2
+    assert "Apex Fitness" in content.act_today[0]
+    assert content.what_moved == ["CrossFit Box had a demo — strong interest in OS pricing"]
+    assert content.metric_flags == []
 
 
 def test_generate_brief_handles_markdown_wrapped_json(mock_anthropic):
@@ -62,7 +65,27 @@ def test_generate_brief_handles_markdown_wrapped_json(mock_anthropic):
         due_tasks=[],
         loop_summary=LoopSummary(),
     )
-    assert content.executive_summary == "Today is focused on demos and follow-ups."
+    assert len(content.act_today) == 2
+
+
+def test_generate_brief_stores_metric_flags(mock_anthropic):
+    mock_anthropic.return_value.messages.create.return_value = make_mock_claude_response(
+        json.dumps(MOCK_BRIEF_JSON)
+    )
+    flags = ["Leads MTD: tracking 40% below pace — next month tracking light"]
+
+    content = generate_brief(
+        api_key="sk-test",
+        model="claude-haiku-4-5-20251001",
+        today_events=[],
+        tomorrow_events=[],
+        email_threads=[],
+        projects=[],
+        due_tasks=[],
+        loop_summary=LoopSummary(),
+        metric_flags=flags,
+    )
+    assert content.metric_flags == flags
 
 
 def test_generate_brief_uses_correct_model(mock_anthropic):
