@@ -35,7 +35,7 @@ Raises on failure — does not swallow errors. The caller decides whether to exi
 
 ### 2. `scripts/avoma_sync.py`
 
-**Config:** Add `avoma.slack_dm_channel_id: "D04EQ4BBW2H"` to `config.json`. The script reads this field (falling back to the literal if absent). This makes the destination visible in config rather than buried in code.
+**Config:** Add `avoma.slack_dm_channel_id: "D04EQ4BBW2H"` to `config.json`. The script reads this field and errors if absent. This makes the destination visible in config rather than buried in code.
 
 **Message builder:** Rename `build_telegram_message()` → `build_slack_message()`. Drop the 4000-char truncation guard (Slack's limit is 40k). Content and mrkdwn formatting remain the same — Slack renders `*bold*` and `•` bullets identically.
 
