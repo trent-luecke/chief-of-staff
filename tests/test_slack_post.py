@@ -60,3 +60,28 @@ def test_get_thread_root_text_returns_empty_on_no_messages():
     client.conversations_replies.return_value = resp
     with patch("lib.slack_post.WebClient", return_value=client):
         assert get_thread_root_text("tok", "C123", "t.123") == ""
+
+
+def test_post_message_returns_ts():
+    from lib.slack_post import post_message
+    with patch("lib.slack_post.WebClient", return_value=_make_post_client("ts.001")):
+        result = post_message("tok", "D04EQ4BBW2H", "hello")
+    assert result == "ts.001"
+
+
+def test_post_message_raises_on_slack_error():
+    from lib.slack_post import post_message
+    client = MagicMock()
+    client.chat_postMessage.side_effect = SlackApiError("fail", {"error": "not_in_channel"})
+    with patch("lib.slack_post.WebClient", return_value=client):
+        with pytest.raises(SlackApiError):
+            post_message("tok", "D04EQ4BBW2H", "hello")
+
+
+def test_post_message_calls_correct_channel():
+    from lib.slack_post import post_message
+    with patch("lib.slack_post.WebClient", return_value=_make_post_client()) as mock_wc:
+        post_message("tok", "D04EQ4BBW2H", "test message")
+    mock_wc.return_value.chat_postMessage.assert_called_once_with(
+        channel="D04EQ4BBW2H", text="test message"
+    )
