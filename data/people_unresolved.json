@@ -239,6 +239,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-05-30"
+    },
+    {
+      "entity": "Ricky",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-06-06"
     }
   ],
   "previously_notified": [
