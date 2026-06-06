@@ -16,46 +16,25 @@ from processors.drafts import Draft
 SYSTEM_PROMPT = """\
 You are an AI Chief of Staff for Trent Luecke — VP of Sales at TeamBuildr OS (B2B SaaS for strength and conditioning coaches) and founder of Vero (gym AI side project). You also help with his personal life, LinkedIn content, and a weekly content podcast.
 
-Deliver a concise, actionable morning brief. Be direct. No filler. Prioritize ruthlessly. Omit sections with nothing meaningful to say.
+Deliver a morning brief readable in ~2 minutes. Two blocks only (metric flags are pre-computed and not your responsibility).
 
-Rules:
-- Open issues from prior days belong in top_3_priorities — write them as plain action sentences that include the relevant context inline (e.g. "The Midwest deal has been stalled 3 days — follow up today"), not as tagged metadata like "[ISSUE: N days, Slack #channel]"
-- Issues are the highest-priority items if they are multi-day or involve customer-facing problems
-- recurring_due lists tasks due today by name and cadence — do not bury these in priorities
-- drafts_ready lists email drafts generated and waiting for review — just name and context
-- personal_items lists any personal or life items needing attention — brief, not buried
-- meeting_prep lists prep notes for internal meetings today — last session summary and open items
-- inbox contains raw quick-capture notes from iPhone — surface urgent items in top_3_priorities, map ideas to active projects where relevant, flag anything actionable today
-- pipeline_attention lists open opportunities that have gone cold or need a nudge — surface the highest-priority ones; trial follow-up drafts appear in drafts_ready
-- gym_scout_leads lists new gym leads found this week — remind to check and send outreach drafts from the Gym Scout email
-- emails lists recent work threads with snippets; threads marked [AWAITING REPLY] are ones where you sent last — surface only if the silence looks meaningful (stale lead, pending decision, someone who owes you a response); unmarked threads need a reply from you — surface only if a response or action is actually required, otherwise omit
+act_today — everything that needs Trent today. Collapse priorities, watch-outs, drafts, meeting prep, and pipeline attention into one ruthlessly prioritized list. Max 7 items. Each item is a plain action sentence with context and urgency woven in naturally — no brackets, no source tags. Multi-day open issues and customer-facing problems are highest priority. Issues with age (from the Open Issues section) belong here as plain sentences: "The Midwest deal has been stalled 3 days — follow up today." Omit if genuinely nothing to do.
+
+what_moved — read-only awareness of what changed since yesterday. Only restate items from the "What Moved Yesterday" section of the prompt. Do not invent or infer events not listed there. One plain sentence per item, past tense. If no events section was provided, return an empty list. Max 7 items.
 
 Respond ONLY in JSON with these exact keys:
 {
-  "executive_summary": "2-3 sentence synthesis of the day ahead",
-  "top_3_priorities": ["3 action items as plain sentences — context and urgency woven in naturally, no brackets or source tags"],
-  "watch_outs": ["0-3 risks or things that could go wrong today"],
-  "schedule_notes": "one sentence about schedule shape",
-  "personal_items": ["personal email items needing attention, empty list if none"],
-  "recurring_due": ["recurring tasks due today with cadence"],
-  "drafts_ready": ["drafts ready to review and send"],
-  "meeting_prep": ["prep notes for today's internal meetings, empty list if none"],
-  "pipeline_attention": ["open pipeline opps needing a nudge, empty list if none"]
+  "act_today": ["action items as plain sentences — context and urgency woven in"],
+  "what_moved": ["read-only awareness items, past tense, one sentence each"]
 }
 """
 
 
 @dataclass
 class BriefContent:
-    executive_summary: str
-    top_3_priorities: list[str] = field(default_factory=list)
-    watch_outs: list[str] = field(default_factory=list)
-    schedule_notes: str = ""
-    personal_items: list[str] = field(default_factory=list)
-    recurring_due: list[str] = field(default_factory=list)
-    drafts_ready: list[str] = field(default_factory=list)
-    meeting_prep: list[str] = field(default_factory=list)
-    pipeline_attention: list[str] = field(default_factory=list)
+    act_today: list[str] = field(default_factory=list)
+    what_moved: list[str] = field(default_factory=list)
+    metric_flags: list[str] = field(default_factory=list)
 
 
 def _build_prompt(
@@ -77,6 +56,7 @@ def _build_prompt(
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
+    what_moved_context: str = "",
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -190,6 +170,8 @@ def _build_prompt(
                      captures_context, ""]
     sections += section("## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
                         [fmt_attention_lead(l) for l in (attention_leads or [])])
+    if what_moved_context and what_moved_context.strip():
+        sections += [what_moved_context, ""]
     sections += section("## Gym Scout — New Leads This Week (outreach reminder)",
                         [fmt_gym_lead(g) for g in (gym_scout_leads or [])])
 
@@ -217,6 +199,8 @@ def generate_brief(
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
+    metric_flags: list[str] = None,
+    what_moved_context: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -234,6 +218,7 @@ def generate_brief(
         brief_feedback_context=brief_feedback_context,
         brief_prefs_context=brief_prefs_context,
         storage=storage,
+        what_moved_context=what_moved_context,
     )
     response = client.messages.create(
         model=model,
@@ -252,13 +237,7 @@ def generate_brief(
     except json.JSONDecodeError as e:
         raise ValueError(f"Claude returned non-JSON response: {e}\nRaw response: {raw[:200]}") from e
     return BriefContent(
-        executive_summary=data.get("executive_summary", ""),
-        top_3_priorities=data.get("top_3_priorities", []),
-        watch_outs=data.get("watch_outs", []),
-        schedule_notes=data.get("schedule_notes", ""),
-        personal_items=data.get("personal_items", []),
-        recurring_due=data.get("recurring_due", []),
-        drafts_ready=data.get("drafts_ready", []),
-        meeting_prep=data.get("meeting_prep", []),
-        pipeline_attention=data.get("pipeline_attention", []),
+        act_today=data.get("act_today") or [],
+        what_moved=data.get("what_moved") or [],
+        metric_flags=metric_flags or [],
     )

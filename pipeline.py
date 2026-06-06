@@ -87,6 +87,7 @@ class CollectedData:
     # Sheets
     sales_data: dict | None = None
     demos_data: dict | None = None
+    leads_data: dict | None = None
     cancellations: dict = field(default_factory=lambda: {"count": 0, "entries": []})
 
     # Slack
@@ -485,7 +486,7 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
             _err = None
             with timed() as t:
                 try:
-                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, month_label
+                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, fetch_leads_mtd, month_label
                     from lib.google_auth import build_sheets_service
                     sheets_svc = build_sheets_service()
                     if cancel_sheet_id:
@@ -498,6 +499,11 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                     if demos_sheet_id:
                         data.demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
                         print(f"   Demos MTD: {data.demos_data['count']}")
+                    kpi_sheet_id = sheets_cfg.get("kpi_spreadsheet_id", "")
+                    kpi_leads_tab = sheets_cfg.get("kpi_leads_tab_name", "Leads")
+                    if kpi_sheet_id:
+                        data.leads_data = fetch_leads_mtd(sheets_svc, kpi_sheet_id, kpi_leads_tab)
+                        print(f"   Leads MTD: {data.leads_data['count']} lead(s)")
                 except Exception as e:
                     _err = str(e)[:200]
                     print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
@@ -720,6 +726,22 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
 # Stage 3: Generate & Deliver
 # ---------------------------------------------------------------------------
 
+def _format_metric_flags(metric_results: list, dashboard_path: str) -> list[str]:
+    """Format MetricResult objects into brief-ready flag strings."""
+    breached = [r for r in metric_results if r.breach]
+    stale = [r for r in metric_results if r.stale and not r.breach]
+    if not breached and not stale:
+        return [f"All GTM metrics in range — dashboard: {dashboard_path}"]
+    flags = []
+    horizon_label = {"next-month": "next month tracking", "this-month": "this month"}
+    for r in breached:
+        label = horizon_label.get(r.horizon, r.horizon)
+        flags.append(f"{r.label}: {r.breach_reason} ({label})")
+    for r in stale:
+        flags.append(f"{r.label}: {r.stale_reason}")
+    return flags
+
+
 def generate_and_deliver(
     config: dict,
     ctx: ProcessedContext,
@@ -735,6 +757,65 @@ def generate_and_deliver(
     stage = StageResult(name="generate_and_deliver")
 
     with timed() as stage_timer:
+
+        # GTM metrics evaluation
+        _metric_results = []
+        _metric_flags = []
+        try:
+            from lib.gtm_metrics import evaluate_metrics
+            from collectors.onboarding import load_onboarding_active
+            gtm_cfg = config.get("gtm", {})
+            onboarding_cfg = config.get("onboarding", {})
+            active_statuses = onboarding_cfg.get("active_statuses", ["In Progress", "Awaiting Customer", "Ready to Go Live"])
+            onboarding_cache_path = onboarding_cfg.get("cache_path", "data/onboarding_cache.json")
+            onboarding_active = load_onboarding_active(onboarding_cache_path, active_statuses)
+            _metric_results = evaluate_metrics(
+                leads_data=collected.leads_data,
+                demos_data=collected.demos_data,
+                sales_data=collected.sales_data,
+                onboarding_active=onboarding_active,
+                cancellations=collected.cancellations if collected.cancellations.get("count", 0) > 0 else None,
+                cfg=gtm_cfg,
+            )
+            _metric_flags = _format_metric_flags(_metric_results, config.get("dashboard_path", "output/dashboard.html"))
+        except Exception as e:
+            print(f"⚠️  Metric evaluation error (non-fatal): {e}", file=sys.stderr)
+
+        # What Moved context (snapshot diff)
+        _onboarding_all = []
+        _pipeline_all = []
+        _what_moved_context = ""
+        try:
+            import json as _json
+            from processors.what_moved import build_what_moved_context
+            onboarding_cache_path = config.get("onboarding", {}).get("cache_path", "data/onboarding_cache.json")
+            try:
+                with open(onboarding_cache_path) as _f:
+                    _onboarding_all = _json.load(_f).get("records", [])
+            except (FileNotFoundError, _json.JSONDecodeError):
+                _onboarding_all = []
+            _onboarding_prev = storage.read_json("state/onboarding_prev.json") or []
+            try:
+                with open("data/pipeline_cache.json") as _f:
+                    _pipeline_all = _json.load(_f).get("leads", [])
+            except (FileNotFoundError, _json.JSONDecodeError):
+                _pipeline_all = []
+            _pipeline_prev = storage.read_json("state/pipeline_prev.json") or []
+            _what_moved_context = build_what_moved_context(
+                cancellations=collected.cancellations,
+                avoma_transcripts=collected.avoma_transcripts,
+                onboarding_current=_onboarding_all,
+                onboarding_prev=_onboarding_prev,
+                pipeline_current=_pipeline_all,
+                pipeline_prev=_pipeline_prev,
+            )
+            # Snapshot writes on success path — co-located with the data they depend on
+            if _onboarding_all:
+                storage.write_json("state/onboarding_prev.json", _onboarding_all)
+            if _pipeline_all:
+                storage.write_json("state/pipeline_prev.json", _pipeline_all)
+        except Exception as e:
+            print(f"⚠️  What Moved context error (non-fatal): {e}", file=sys.stderr)
 
         # Brief generation
         _brief_error = None
@@ -762,14 +843,18 @@ def generate_and_deliver(
                     brief_feedback_context=ctx.brief_feedback_context,
                     brief_prefs_context=ctx.brief_prefs_context,
                     storage=storage,
+                    metric_flags=_metric_flags,
+                    what_moved_context=_what_moved_context,
                 )
             except Exception as e:
                 _brief_error = str(e)[:200]
                 print(f"ERROR: Failed to generate brief: {e}", file=sys.stderr)
                 brief = BriefContent(
-                    executive_summary="Brief generation failed — check logs.",
-                    top_3_priorities=["Check logs", "Retry: python main.py --no-email"],
-                    watch_outs=[str(e)[:200]],
+                    act_today=[
+                        "Brief generation failed — check logs.",
+                        "Retry: python main.py --no-email",
+                    ],
+                    metric_flags=[f"Brief error: {str(e)[:150]}"],
                 )
         stage.collectors.append(CollectorResult(
             name="brief_generation",
@@ -782,20 +867,20 @@ def generate_and_deliver(
 
         # Inject watch-outs and mirror them to health warnings
         if ctx.memory_cold_start_msg:
-            brief.watch_outs = [ctx.memory_cold_start_msg] + (brief.watch_outs or [])
+            brief.act_today.insert(0, ctx.memory_cold_start_msg)
             if health is not None:
                 health.add_warning(ctx.memory_cold_start_msg)
 
         if collected.calendar_failed:
             _cal_warn = "⚠️ Calendar API unavailable — schedule data is missing. Enable Google Calendar API at console.cloud.google.com for project 859502323558."
-            brief.watch_outs = [_cal_warn] + (brief.watch_outs or [])
+            brief.act_today.insert(0, _cal_warn)
             if health is not None:
                 health.add_warning(_cal_warn)
 
         pipeline_stale_days = config.get("pipeline", {}).get("cache_stale_warn_days", 7)
         if collected.pipeline_cache_age_days is not None and collected.pipeline_cache_age_days >= pipeline_stale_days:
             _stale_warn = f"Pipeline cache is {collected.pipeline_cache_age_days} days old — open Claude Code and ask to re-sync the pipeline cache from Notion."
-            brief.watch_outs.append(_stale_warn)
+            brief.act_today.append(_stale_warn)
             if health is not None:
                 health.add_warning(_stale_warn)
 
@@ -808,6 +893,7 @@ def generate_and_deliver(
             due_tasks=collected.due_tasks,
             loop_summary=ctx.loop_summary,
             output_path=config["dashboard_path"],
+            metric_results=_metric_results,
         )
 
         # Email send
@@ -942,14 +1028,18 @@ def generate_and_deliver(
         health.stages.append(stage)
 
     print("\n✅ Brief complete.")
-    print(f"\nSummary: {brief.executive_summary}")
-    print("\nTop Priorities:")
-    for i, p in enumerate(brief.top_3_priorities, 1):
-        print(f"  {i}. {p}")
-    if brief.watch_outs:
-        print("\nWatch Outs:")
-        for w in brief.watch_outs:
-            print(f"  ⚠️  {w}")
+    if brief.metric_flags:
+        print("\nMetric Flags:")
+        for f in brief.metric_flags:
+            print(f"  {f}")
+    if brief.act_today:
+        print("\nAct Today:")
+        for i, p in enumerate(brief.act_today, 1):
+            print(f"  {i}. {p}")
+    if brief.what_moved:
+        print("\nWhat Moved:")
+        for w in brief.what_moved:
+            print(f"  - {w}")
     if collected.open_issues:
         print(f"\nOpen Issues: {len(collected.open_issues)}")
     if ctx.todays_drafts:
