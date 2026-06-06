@@ -1,6 +1,17 @@
 {
-  "fetched_at": "2026-06-05T00:00:00.000Z",
+  "fetched_at": "2026-06-06T00:00:00Z",
   "leads": [
+    {
+      "name": "High Ground Performance (Taino Fears-Perez)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
     {
       "name": "David Arcemant",
       "contact": "",
@@ -35,17 +46,6 @@
       "stale": false
     },
     {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Dante Perez",
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
@@ -64,17 +64,6 @@
       "priority": null,
       "last_contacted": "2026-05-21",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Gameready Performance",
-      "contact": "Daniel Chudleigh",
-      "email": "info@grperformance.com.au",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
       "source": null,
       "stale": false
     },
@@ -119,6 +108,17 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": 750,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Gameready Performance",
+      "contact": "Daniel Chudleigh",
+      "email": "info@grperformance.com.au",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
       "source": null,
       "stale": false
     },
