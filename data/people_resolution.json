@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-05T00:00:00",
+  "resolved_at": "2026-06-06T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1667,6 +1667,90 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "455": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "456": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "457": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "458": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "459": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "460": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "461": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "462": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "463": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "464": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "465": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "466": {
+      "primary_person_id": "chris-reynolds",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "467": {
+      "primary_person_id": "chris-reynolds",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "468": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [
+        "nicole-foley"
+      ],
+      "confidence": "embedded"
+    },
+    "469": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [
+        "coachbrigitaroemer",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
