@@ -493,6 +493,18 @@
     .proj-group-chevron { font-size: 10px; color: var(--muted); width: 10px; flex-shrink: 0; }
     .proj-group-name { flex: 1; font-size: 13px; }
     .proj-group-count { font-size: 11px; color: var(--muted); }
+    .btn-delete-task {
+      font-size: 13px; color: var(--muted); background: none; border: none;
+      padding: 0 4px; opacity: 0; cursor: pointer; border-radius: 3px; line-height: 1; flex-shrink: 0;
+    }
+    .task-row:hover .btn-delete-task { opacity: 1; }
+    .btn-delete-task:hover { color: var(--danger); background: rgba(239,68,68,.1); }
+    .btn-delete-proj {
+      font-size: 11px; color: var(--muted); background: none; border: none;
+      padding: 2px 5px; cursor: pointer; border-radius: 3px; display: none;
+    }
+    .proj-group-header:hover .btn-delete-proj { display: inline; }
+    .btn-delete-proj:hover { color: var(--danger); }
     .proj-group-edit-btn {
       background: transparent; border: none; color: var(--muted);
       font-size: 13px; cursor: pointer; padding: 0 4px; line-height: 1;
@@ -574,6 +586,36 @@
       font-size: 11px; background: var(--surface); border: 1px solid var(--accent);
       color: var(--text); padding: 2px 5px; border-radius: 3px; width: 110px;
     }
+    .date-picker-popup {
+      position: fixed; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; z-index: 2000; padding: 10px; width: 224px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.6);
+    }
+    .dp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .dp-month-label { font-size: 12px; font-weight: 600; color: var(--text); }
+    .dp-nav {
+      background: none; border: none; color: var(--muted); padding: 2px 8px;
+      font-size: 16px; cursor: pointer; border-radius: 3px; line-height: 1;
+    }
+    .dp-nav:hover { background: var(--surface2); color: var(--text); }
+    .dp-weekdays {
+      display: grid; grid-template-columns: repeat(7, 1fr); text-align: center;
+      font-size: 10px; color: var(--muted); margin-bottom: 3px;
+    }
+    .dp-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+    .dp-day {
+      text-align: center; font-size: 11px; padding: 5px 2px; border-radius: 3px;
+      cursor: pointer; color: var(--text); line-height: 1;
+    }
+    .dp-day:hover { background: var(--surface2); }
+    .dp-day.other-month { color: var(--muted); opacity: 0.45; }
+    .dp-day.today { color: var(--accent); font-weight: 700; }
+    .dp-day.selected { background: var(--accent); color: #fff !important; font-weight: 600; }
+    .dp-clear {
+      margin-top: 8px; text-align: center; font-size: 11px; color: var(--muted);
+      cursor: pointer; padding: 5px 4px 2px; border-top: 1px solid var(--border);
+    }
+    .dp-clear:hover { color: var(--text); }
     .owner-chip {
       font-size: 10px; color: #818cf8; background: rgba(129,140,248,.1);
       border: 1px solid rgba(129,140,248,.3); border-radius: 3px; padding: 1px 6px;
@@ -583,8 +625,13 @@
       font-size: 10px; color: var(--muted); border: 1px dashed var(--border);
       border-radius: 3px; padding: 1px 6px; cursor: pointer; display: none;
     }
+    .due-ghost {
+      font-size: 10px; color: var(--muted); border: 1px dashed var(--border);
+      border-radius: 3px; padding: 1px 6px; cursor: pointer; display: none;
+    }
     .task-row:hover .assign-ghost,
-    .task-row:hover .link-proj-ghost { display: inline; }
+    .task-row:hover .link-proj-ghost,
+    .task-row:hover .due-ghost { display: inline; }
     .owner-dropdown {
       position: absolute; background: var(--surface); border: 1px solid var(--accent);
       border-radius: 4px; z-index: 100; min-width: 140px; overflow: hidden;
@@ -1346,8 +1393,9 @@ function renderRegistryView(filter = '') {
     : people;
 
   view.innerHTML = `
-    <input class="search-input" id="registry-search" placeholder="Search names, aliases, email…" value="${esc(filter)}" />
+    <input class="search-input" id="registry-search" placeholder="Search names, aliases, email…" />
     <div id="registry-list"></div>`;
+  el('registry-search').value = filter;
 
   const list = el('registry-list');
   list.innerHTML = filtered.length
@@ -1451,10 +1499,11 @@ function renderObservationsView(filter = '') {
     </div>` : '';
 
   view.innerHTML = `
-    <input class="search-input" id="obs-search" placeholder="Filter by person, type, or content…" value="${esc(filter)}" />
+    <input class="search-input" id="obs-search" placeholder="Filter by person, type, or content…" />
     ${!filtered.length
       ? '<div class="empty-state"><p>No observations in last 7 days matching filter.</p></div>'
       : groupsHtml + unattributedHtml}`;
+  el('obs-search').value = filter;
 
   el('obs-search').addEventListener('input', e => renderObservationsView(e.target.value));
   el('obs-search').focus();
@@ -1529,11 +1578,12 @@ function renderTaskRow(task, people, withLinkProj = false) {
     <div class="task-row" id="task-row-${esc(task.id)}">
       <button class="btn-done" data-task-id="${esc(task.id)}">Done</button>
       <span class="task-title">${esc(task.title)}</span>
-      ${renderDueDateChip(task)}
+      ${task.due_date ? renderDueDateChip(task) : `<span class="due-ghost" data-task-id="${esc(task.id)}">+ due</span>`}
       <span style="position:relative;display:inline-flex;align-items:center">
         ${renderOwnerChip(task, people)}
       </span>
       ${linkChip}
+      <button class="btn-delete-task" data-task-id="${esc(task.id)}" title="Delete task">×</button>
     </div>`;
 }
 
@@ -1565,6 +1615,90 @@ function showOwnerDropdown(anchor, taskId, people, onSelect) {
   }, 0);
 }
 
+let _dpPopup = null;
+
+function showDatePicker(anchorEl, currentValue, onSelect) {
+  if (_dpPopup) { _dpPopup.remove(); _dpPopup = null; }
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const initDate = currentValue ? new Date(currentValue + 'T00:00:00') : new Date();
+  let viewYear = initDate.getFullYear();
+  let viewMonth = initDate.getMonth();
+  let selected = currentValue || null;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function buildGrid() {
+    const first = new Date(viewYear, viewMonth, 1);
+    const last  = new Date(viewYear, viewMonth + 1, 0);
+    const days  = [];
+    for (let i = first.getDay() - 1; i >= 0; i--) {
+      const d = new Date(viewYear, viewMonth, -i);
+      days.push({ iso: d.toISOString().slice(0, 10), n: d.getDate(), other: true });
+    }
+    for (let n = 1; n <= last.getDate(); n++) {
+      const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(n).padStart(2, '0')}`;
+      days.push({ iso, n, other: false });
+    }
+    const rem = (7 - days.length % 7) % 7;
+    for (let n = 1; n <= rem; n++) {
+      const d = new Date(viewYear, viewMonth + 1, n);
+      days.push({ iso: d.toISOString().slice(0, 10), n: d.getDate(), other: true });
+    }
+    return days.map(d => {
+      const cls = ['dp-day', d.other ? 'other-month' : '', d.iso === todayStr ? 'today' : '', d.iso === selected ? 'selected' : ''].filter(Boolean).join(' ');
+      return `<div class="${cls}" data-date="${d.iso}">${d.n}</div>`;
+    }).join('');
+  }
+
+  function render() {
+    return `
+      <div class="dp-header">
+        <button class="dp-nav" id="dp-prev">&#8249;</button>
+        <span class="dp-month-label">${MONTHS[viewMonth]} ${viewYear}</span>
+        <button class="dp-nav" id="dp-next">&#8250;</button>
+      </div>
+      <div class="dp-weekdays"><div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div></div>
+      <div class="dp-grid">${buildGrid()}</div>
+      ${selected ? '<div class="dp-clear" id="dp-clear">Clear date</div>' : ''}`;
+  }
+
+  _dpPopup = document.createElement('div');
+  _dpPopup.className = 'date-picker-popup';
+  _dpPopup.innerHTML = render();
+  document.body.appendChild(_dpPopup);
+
+  const r = anchorEl.getBoundingClientRect();
+  let top = r.bottom + 4, left = r.left;
+  if (left + 228 > window.innerWidth) left = window.innerWidth - 232;
+  if (top + 290 > window.innerHeight) top = r.top - 294;
+  _dpPopup.style.top = top + 'px';
+  _dpPopup.style.left = left + 'px';
+
+  function close() {
+    if (_dpPopup) { _dpPopup.remove(); _dpPopup = null; }
+    document.removeEventListener('mousedown', outside, true);
+  }
+  function outside(e) {
+    if (_dpPopup && !_dpPopup.contains(e.target) && e.target !== anchorEl) close();
+  }
+
+  _dpPopup.addEventListener('mousedown', e => {
+    e.preventDefault(); e.stopPropagation();
+    if (e.target.id === 'dp-prev') {
+      if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
+      _dpPopup.innerHTML = render();
+    } else if (e.target.id === 'dp-next') {
+      if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
+      _dpPopup.innerHTML = render();
+    } else if (e.target.id === 'dp-clear') {
+      selected = null; onSelect(null); close();
+    } else if (e.target.classList.contains('dp-day')) {
+      selected = e.target.dataset.date; onSelect(selected); close();
+    }
+  });
+
+  setTimeout(() => document.addEventListener('mousedown', outside, true), 0);
+}
+
 function wireTaskInteractions(container, people, onChanged) {
   container.addEventListener('click', async e => {
     if (e.target.matches('.btn-done')) {
@@ -1581,22 +1715,27 @@ function wireTaskInteractions(container, people, onChanged) {
       }
       return;
     }
-    if (e.target.matches('.due-chip')) {
+    if (e.target.matches('.btn-delete-task')) {
       const taskId = e.target.dataset.taskId;
-      const cur = e.target.dataset.due;
-      const input = document.createElement('input');
-      input.type = 'date'; input.value = cur; input.className = 'due-chip-input';
-      e.target.replaceWith(input); input.focus();
-      const save = async () => {
-        if (input.value && input.value !== cur) {
+      const row = document.getElementById(`task-row-${taskId}`);
+      const title = row?.querySelector('.task-title')?.textContent || taskId;
+      if (!confirm(`Delete task "${title}"? This cannot be undone.`)) return;
+      e.target.disabled = true;
+      await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE' }).catch(() => {});
+      onChanged();
+      return;
+    }
+    if (e.target.matches('.due-chip') || e.target.matches('.due-ghost')) {
+      const taskId = e.target.dataset.taskId;
+      const cur = e.target.dataset.due || null;
+      showDatePicker(e.target, cur, async iso => {
+        if (iso !== cur) {
           await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-            method: 'PATCH', body: JSON.stringify({ due_date: input.value }),
+            method: 'PATCH', body: JSON.stringify({ due_date: iso }),
           }).catch(() => {});
         }
         onChanged();
-      };
-      input.addEventListener('blur', save);
-      input.addEventListener('keydown', ev => { if (ev.key === 'Enter') { ev.preventDefault(); input.blur(); } });
+      });
       return;
     }
     if (e.target.matches('.owner-chip') || e.target.matches('.assign-ghost')) {
@@ -1619,7 +1758,7 @@ function renderAddTaskForm(projectId, people) {
   return `
     <div class="add-task-form-row" id="${formId}">
       <input class="add-task-input" id="${formId}-title" placeholder="Add a task…" style="flex:1" />
-      <input class="add-task-input" id="${formId}-due" placeholder="Due date" style="width:90px" />
+      <input class="add-task-input add-task-due" id="${formId}-due" placeholder="Due date" style="width:90px;cursor:pointer;caret-color:transparent" readonly />
       <select class="add-task-assign" id="${formId}-owner">
         <option value="">Me</option>
         ${peopleOptions}
@@ -1634,6 +1773,16 @@ function wireAddTaskForm(formId, projectId, onAdded) {
   const ownerSel   = document.getElementById(`${formId}-owner`);
   const btn        = document.getElementById(`${formId}-btn`);
   if (!titleInput || !btn) return;
+
+  if (dueInput) {
+    dueInput.addEventListener('click', () => {
+      showDatePicker(dueInput, dueInput.dataset.isoDate || '', iso => {
+        dueInput.dataset.isoDate = iso || '';
+        dueInput.value = iso ? formatDate(iso) : '';
+      });
+    });
+  }
+
   const submit = async () => {
     const title = titleInput.value.trim();
     if (!title) { titleInput.focus(); return; }
@@ -1645,11 +1794,11 @@ function wireAddTaskForm(formId, projectId, onAdded) {
           title,
           source: 'ui',
           project_id: projectId || null,
-          due_date: dueInput.value || null,
+          due_date: dueInput.dataset.isoDate || null,
           owner: ownerSel.value || null,
         }),
       });
-      titleInput.value = ''; dueInput.value = ''; ownerSel.value = '';
+      titleInput.value = ''; dueInput.value = ''; dueInput.dataset.isoDate = ''; ownerSel.value = '';
       await onAdded();
     } catch (err) {
       alert('Failed to add task: ' + err.message);
@@ -1867,6 +2016,7 @@ async function renderWorkView() {
               <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
               <span class="proj-group-count">${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}</span>
               <button class="proj-group-edit-btn${workState.editing.has(p.id) ? ' active' : ''}" data-proj-id="${esc(p.id)}" title="Edit project">✎</button>
+              <button class="btn-delete-proj" data-proj-id="${esc(p.id)}" title="Delete project">✕</button>
             </div>
             <div class="proj-group-body${workState.editing.has(p.id) ? ' edit-active' : ''}${isExpanded ? '' : ' hidden'}" id="group-body-${esc(p.id)}">
               <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
@@ -1928,8 +2078,7 @@ async function renderWorkView() {
   // ── Wire project group expand/collapse and edit ─────────────────────────
   view.querySelectorAll('.proj-group-header').forEach(header => {
     header.addEventListener('click', e => {
-      // Edit button handled separately
-      if (e.target.matches('.proj-group-edit-btn')) return;
+      if (e.target.matches('.proj-group-edit-btn') || e.target.matches('.btn-delete-proj')) return;
       const projId = header.dataset.projId;
       const bodyEl  = document.getElementById(`group-body-${projId}`);
       const chevron = header.querySelector('.proj-group-chevron');
@@ -1954,6 +2103,21 @@ async function renderWorkView() {
       const project = (projects || []).find(p => p.id === projId);
       const groupEl = document.getElementById(`group-${projId}`);
       if (project && groupEl) openEditPanel(project, people, groupEl);
+    });
+  });
+
+  view.querySelectorAll('.btn-delete-proj').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const projId  = btn.dataset.projId;
+      const project = (projects || []).find(p => p.id === projId);
+      const name    = project ? project.canonical_name : projId;
+      const pTasks  = (tasks || []).filter(t => t.project_id === projId);
+      const taskNote = pTasks.length ? ` and its ${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}` : '';
+      if (!confirm(`Delete project "${name}"${taskNote}? This cannot be undone.`)) return;
+      btn.disabled = true;
+      await fetchJSON(`${API}/api/projects/${encodeURIComponent(projId)}`, { method: 'DELETE' }).catch(() => {});
+      renderWorkView();
     });
   });
 

@@ -92,6 +92,15 @@ def complete_task(task_id: str):
     return jsonify({"task": result, "push": push})
 
 
+@app.route("/api/tasks/<task_id>", methods=["DELETE"])
+def delete_task(task_id: str):
+    result = tasks_lib.delete_task_by_id(_storage(), task_id)
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    push = _git_push_tasks(f"delete task {task_id}")
+    return jsonify({"task": result, "push": push})
+
+
 def _git_push_projects(project_name: str) -> dict:
     """Stage, commit, and push projects_registry.json. Non-fatal — project creation succeeds regardless."""
     try:
@@ -148,6 +157,34 @@ def _git_push_tasks(detail: str) -> dict:
         return {"status": "error", "detail": str(e)}
 
 
+def _git_push_both(msg: str) -> dict:
+    """Stage both data files in a single commit and push. Used when a project deletion also clears tasks."""
+    try:
+        repo = str(ROOT)
+        subprocess.run(
+            ["git", "add", "data/projects_registry.json", "data/tasks.jsonl"],
+            cwd=repo, check=True, capture_output=True,
+        )
+        commit = subprocess.run(
+            ["git", "commit", "-m", msg],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if commit.returncode != 0:
+            out = (commit.stdout + commit.stderr).strip()
+            if "nothing to commit" in out:
+                return {"status": "ok", "detail": "already committed"}
+            return {"status": "commit_failed", "detail": out}
+        push = subprocess.run(
+            ["git", "push"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if push.returncode != 0:
+            return {"status": "push_failed", "detail": push.stderr.strip()}
+        return {"status": "ok", "detail": "committed and pushed"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
 # --- Projects ---
 
 @app.route("/api/projects", methods=["GET"])
@@ -178,6 +215,20 @@ def update_project(project_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify(result)
+
+
+@app.route("/api/projects/<project_id>", methods=["DELETE"])
+def delete_project(project_id: str):
+    storage = _storage()
+    open_tasks = tasks_lib.get_open_tasks(storage)
+    proj_tasks = [t for t in open_tasks if t.get("project_id") == project_id]
+    for t in proj_tasks:
+        tasks_lib.delete_task_by_id(storage, t["id"])
+    deleted = projects_lib.delete_project(storage, project_id)
+    if not deleted:
+        return jsonify({"error": "not found"}), 404
+    push = _git_push_both(f"data: delete project {project_id}")
+    return jsonify({"deleted": project_id, "tasks_deleted": len(proj_tasks), "push": push})
 
 
 # --- People ---

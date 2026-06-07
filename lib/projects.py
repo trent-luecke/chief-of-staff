@@ -89,6 +89,16 @@ def update_project(storage, project_id: str, updates: dict) -> Optional[dict]:
     return None
 
 
+def delete_project(storage, project_id: str) -> bool:
+    data = _load(storage)
+    before = len(data["projects"])
+    data["projects"] = [p for p in data["projects"] if p["id"] != project_id]
+    if len(data["projects"]) == before:
+        return False
+    _save(storage, data)
+    return True
+
+
 def project_context_for_brief(storage, observation_days: int = 14) -> list[dict]:
     """Active projects with open tasks and recently linked observations."""
     from lib.tasks import get_open_tasks
