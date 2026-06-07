@@ -180,7 +180,7 @@ def main() -> None:
     load_dotenv(_ROOT / ".env")
 
     from collectors.avoma import fetch_recent_meetings
-    from lib.slack_post import post_message
+    from lib.slack_post import open_dm, post_message
 
     avoma_key = os.environ.get("AVOMA_API_KEY", "")
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
@@ -200,9 +200,9 @@ def main() -> None:
         config = json.load(f)
 
     avoma_cfg = config.get("avoma", {})
-    slack_channel = avoma_cfg.get("slack_dm_channel_id", "")
-    if not slack_channel:
-        print("ERROR: avoma.slack_dm_channel_id not set in config.json — avoma_sync cannot run.", file=sys.stderr)
+    slack_user_id = avoma_cfg.get("slack_user_id", "")
+    if not slack_user_id:
+        print("ERROR: avoma.slack_user_id not set in config.json — avoma_sync cannot run.", file=sys.stderr)
         return
     ai_model = config.get("ai_model", "claude-sonnet-4-6")
 
@@ -284,6 +284,7 @@ def main() -> None:
     # Build and send Slack DM
     slack_text = build_slack_message(pipeline_updates, onboarding_updates, today)
     try:
+        slack_channel = open_dm(slack_token, slack_user_id)
         post_message(slack_token, slack_channel, slack_text)
         print("   Slack DM sent.")
     except Exception as exc:
