@@ -33,7 +33,6 @@ from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_s
 from processors.loops import build_loop_summary
 from processors.issues import get_open_issues, auto_resolve_issues
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event, load_last_session_summary
-from processors.drafts import generate_demo_followup, generate_trial_followup, save_draft, load_todays_drafts
 from processors.brief import generate_brief, BriefContent
 from processors.people import enrich_people
 from outputs.sender import build_html_email, send_brief_email
@@ -109,7 +108,6 @@ class ProcessedContext:
     memory_context: str = ""
     memory_cold_start_msg: str | None = None
     meeting_prep: list = field(default_factory=list)
-    todays_drafts: list = field(default_factory=list)
     loop_summary: dict = field(default_factory=dict)
     captures_context: str = ""
     brief_feedback_context: str = ""
@@ -205,31 +203,6 @@ def _scan_outbound_pipeline_contacts(config: dict, storage) -> int:
         print(f"   Notion backfilled for {backfilled} lead(s) with stale dates")
 
     return new_contacts
-
-
-def generate_pipeline_drafts(config: dict, storage, trial_leads: list) -> None:
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    model = config["ai_model"]
-    for lead in trial_leads:
-        if not lead.email:
-            continue
-        days = lead.days_since_contact or 0
-        name = lead.contact or lead.name
-        draft = generate_trial_followup(api_key, model, name, lead.email, days)
-        if draft:
-            save_draft(draft, storage)
-            print(f"   Draft: trial follow-up for {lead.name} ({days}d since last contact)")
-
-
-def generate_daily_drafts(config: dict, storage, today_events) -> None:
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    model = config["ai_model"]
-    for event in today_events:
-        if "demo" in event.summary.lower() and event.attendees:
-            draft = generate_demo_followup(api_key, model, event)
-            if draft:
-                save_draft(draft, storage)
-                print(f"   Draft: demo follow-up for {event.summary}")
 
 
 # ---------------------------------------------------------------------------
@@ -389,7 +362,7 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                     )
                     try:
                         _cache = storage.read_json("pipeline_cache.json") or {}
-                        synced_at = _cache.get("synced_at", "")
+                        synced_at = _cache.get("synced_at") or _cache.get("fetched_at", "")
                         if synced_at:
                             synced_date = date.fromisoformat(synced_at[:10])
                             data.pipeline_cache_age_days = (date.today() - synced_date).days
@@ -596,25 +569,6 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
         meeting_configs = load_meeting_index(config.get("meeting_index_file", "data/meeting_index.json"))
         ctx.meeting_prep = build_meeting_prep(collected.today_events, meeting_configs, storage)
 
-        # Draft generation (demo + trial follow-ups)
-        _err = None
-        print("✍️  Generating demo follow-up drafts...")
-        with timed() as t:
-            try:
-                generate_daily_drafts(config, storage, collected.today_events)
-                if collected.trial_leads:
-                    print("✍️  Generating trial follow-up drafts...")
-                    generate_pipeline_drafts(config, storage, collected.trial_leads)
-            except Exception as e:
-                _err = str(e)[:200]
-                print(f"⚠️ Draft generation error (non-fatal): {e}", file=sys.stderr)
-        stage.collectors.append(CollectorResult(
-            name="draft_generation",
-            status="error" if _err else "ok",
-            error=_err,
-            duration_ms=t.elapsed_ms,
-        ))
-
         # People enrichment
         _err = None
         print("🧠  Enriching people store...")
@@ -690,9 +644,6 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
                 error=_err,
                 duration_ms=t.elapsed_ms,
             ))
-
-        # Load today's drafts
-        ctx.todays_drafts = load_todays_drafts(storage)
 
         # Loop resolution
         print("🔄  Resolving open loops...")
@@ -827,12 +778,10 @@ def generate_and_deliver(
                     model=config["ai_model"],
                     today_events=collected.today_events,
                     tomorrow_events=collected.tomorrow_events,
-                    email_threads=collected.email_threads,
                     projects=collected.projects,
                     due_tasks=collected.due_tasks,
                     loop_summary=ctx.loop_summary,
                     open_issues=collected.open_issues,
-                    drafts=ctx.todays_drafts,
                     meeting_prep=ctx.meeting_prep,
                     inbox_text=collected.inbox_text,
                     attention_leads=collected.attention_leads,
@@ -1042,5 +991,3 @@ def generate_and_deliver(
             print(f"  - {w}")
     if collected.open_issues:
         print(f"\nOpen Issues: {len(collected.open_issues)}")
-    if ctx.todays_drafts:
-        print(f"\nDrafts Ready: {len(ctx.todays_drafts)}")
