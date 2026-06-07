@@ -121,7 +121,7 @@ Submits with `project_id: null`.
 ### Tasks — new `owner` field
 
 - Type: nullable string (person slug, e.g. `"nicole-foley"`)
-- Display: first name only (looked up from people list)
+- Display: first name only (looked up from `/api/people`; falls back to raw slug if no match)
 - `lib/tasks.py`:
   - `add_task` gains `owner: Optional[str] = None` param
   - `_replay` includes `owner` in the task dict (defaults to `None`)
