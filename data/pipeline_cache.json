@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-06T00:00:00Z",
+  "fetched_at": "2026-06-07T00:00:00.000Z",
   "leads": [
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
@@ -90,6 +90,17 @@
       "stale": false
     },
     {
+      "name": "Gameready Performance",
+      "contact": "Daniel Chudleigh",
+      "email": "info@grperformance.com.au",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": null,
+      "stale": false
+    },
+    {
       "name": "The Bullpen Utah",
       "contact": "William Schlee",
       "email": "billy@thebullpenut.com",
@@ -108,17 +119,6 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": 750,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Gameready Performance",
-      "contact": "Daniel Chudleigh",
-      "email": "info@grperformance.com.au",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
       "source": null,
       "stale": false
     },
