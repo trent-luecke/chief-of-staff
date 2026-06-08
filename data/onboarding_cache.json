@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-06-07T07:04:13Z",
+  "synced_at": "2026-06-08T07:04:13Z",
   "records": [
     {
       "page_id": "36424bca-36d7-818e-89c2-c7f76faef238",
@@ -9,6 +9,16 @@
       "current_phase": "Phase 3 — Payment / Stripe Transfer",
       "sales_rep": "Trent",
       "start_date": "2026-05-15",
+      "target_go_live_date": null
+    },
+    {
+      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
+      "customer_name": "Strength House",
+      "customer_email": null,
+      "status": "Live",
+      "current_phase": "Phase 1 — Initial Setup",
+      "sales_rep": "Trent",
+      "start_date": null,
       "target_go_live_date": null
     },
     {
@@ -50,16 +60,6 @@
       "sales_rep": "Trent",
       "start_date": "2026-01-29",
       "target_go_live_date": "2026-03-01"
-    },
-    {
-      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
-      "customer_name": "Strength House",
-      "customer_email": null,
-      "status": "Live",
-      "current_phase": "Phase 1 — Initial Setup",
-      "sales_rep": "Trent",
-      "start_date": null,
-      "target_go_live_date": null
     }
   ]
 }
