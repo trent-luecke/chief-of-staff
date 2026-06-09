@@ -16,6 +16,21 @@ async function dispatchToGitHub(env, workflow, inputs) {
   );
   if (!resp.ok) {
     console.error(`GitHub API error: ${resp.status} ${await resp.text()}`);
+    return false;
+  }
+  return true;
+}
+
+async function postEphemeral(responseUrl, text) {
+  if (!responseUrl) return;
+  try {
+    await fetch(responseUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ response_type: "ephemeral", replace_original: true, text }),
+    });
+  } catch (e) {
+    console.error(`Failed to post ephemeral to Slack: ${e}`);
   }
 }
 
@@ -93,6 +108,8 @@ async function handleSlackTask(request, env, ctx) {
       owner_raw: ownerRaw,
       channel_id: channelId,
       user_id: userId,
+    }).then(ok => {
+      if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue task — GitHub dispatch error. Try again or check the PAT.");
     })
   );
 
@@ -144,6 +161,8 @@ async function handleSlackInteractive(request, env, ctx) {
       response_url: responseUrl,
       due_date_raw,
       owner_raw,
+    }).then(ok => {
+      if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue task — GitHub dispatch error. Try again or check the PAT.");
     })
   );
 
