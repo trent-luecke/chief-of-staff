@@ -24,3 +24,4 @@
 {"event": "edit", "task_id": "t-11a0a8", "patch": {"due_date": "2026-06-11"}}
 {"event": "edit", "task_id": "t-7b3cb8", "patch": {"due_date": "2026-06-17"}}
 {"event": "complete", "task_id": "t-466c58", "completed_at": "2026-06-09"}
+{"event": "complete", "task_id": "t-fd113e", "completed_at": "2026-06-09"}
