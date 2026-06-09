@@ -1,5 +1,5 @@
 {
-  "synced_at": "2026-06-05T11:12:30Z",
+  "synced_at": "2026-06-08T07:04:13Z",
   "records": [
     {
       "page_id": "36424bca-36d7-818e-89c2-c7f76faef238",
@@ -9,6 +9,36 @@
       "current_phase": "Phase 3 — Payment / Stripe Transfer",
       "sales_rep": "Trent",
       "start_date": "2026-05-15",
+      "target_go_live_date": null
+    },
+    {
+      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
+      "customer_name": "Strength House",
+      "customer_email": null,
+      "status": "Live",
+      "current_phase": "Phase 1 — Initial Setup",
+      "sales_rep": "Trent",
+      "start_date": null,
+      "target_go_live_date": null
+    },
+    {
+      "page_id": "37624bca-36d7-816a-bf9c-c504179cbe0a",
+      "customer_name": "Preston Sports Performance",
+      "customer_email": null,
+      "status": "Awaiting Customer",
+      "current_phase": "Phase 2 — Member Profile Upload",
+      "sales_rep": "Jeff",
+      "start_date": null,
+      "target_go_live_date": "2026-08-01"
+    },
+    {
+      "page_id": "37624bca-36d7-81b2-b1d5-dcc2fda839ba",
+      "customer_name": "ForceLab Training (Brigita)",
+      "customer_email": null,
+      "status": "In Progress",
+      "current_phase": "Phase 1 — Initial Setup",
+      "sales_rep": "Jeff",
+      "start_date": null,
       "target_go_live_date": null
     },
     {
@@ -30,16 +60,6 @@
       "sales_rep": "Trent",
       "start_date": "2026-01-29",
       "target_go_live_date": "2026-03-01"
-    },
-    {
-      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
-      "customer_name": "Strength House",
-      "customer_email": null,
-      "status": "Live",
-      "current_phase": "Phase 1 — Initial Setup",
-      "sales_rep": "Trent",
-      "start_date": null,
-      "target_go_live_date": null
     }
   ]
 }

@@ -17,6 +17,20 @@ def post_to_thread(bot_token: str, channel_id: str, thread_ts: str, text: str) -
         return None
 
 
+def open_dm(bot_token: str, user_id: str) -> str:
+    """Open (or retrieve) the DM channel between the bot and a user. Returns channel ID."""
+    client = WebClient(token=bot_token)
+    resp = client.conversations_open(users=[user_id])
+    return resp["channel"]["id"]
+
+
+def post_message(bot_token: str, channel_id: str, text: str) -> str:
+    """Post a top-level message to a Slack channel or DM. Returns message ts. Raises SlackApiError on failure."""
+    client = WebClient(token=bot_token)
+    resp = client.chat_postMessage(channel=channel_id, text=text)
+    return resp.data["ts"]
+
+
 def get_thread_root_text(bot_token: str, channel_id: str, thread_ts: str) -> str:
     """Return a searchable text blob for the root message of a Slack thread.
 

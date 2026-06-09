@@ -142,7 +142,7 @@ def _patch_cache_last_contacted(cache_path: Path, pipeline_updates: list[dict]) 
     return changed
 
 
-def build_telegram_message(
+def build_slack_message(
     pipeline_updates: list[dict],
     onboarding_updates: list[dict],
     today: str,
@@ -172,11 +172,7 @@ def build_telegram_message(
             )
             parts.append(line)
 
-    msg = "\n".join(parts)
-    # Telegram hard limit is 4096 chars; truncate gracefully
-    if len(msg) > 4000:
-        msg = msg[:3990] + "\n…(truncated)"
-    return msg
+    return "\n".join(parts)
 
 
 def main() -> None:
@@ -184,18 +180,16 @@ def main() -> None:
     load_dotenv(_ROOT / ".env")
 
     from collectors.avoma import fetch_recent_meetings
-    from lib.telegram import send_message
+    from lib.slack_post import open_dm, post_message
 
     avoma_key = os.environ.get("AVOMA_API_KEY", "")
     anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    telegram_chat = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
+    slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
 
     for name, val in [
         ("AVOMA_API_KEY", avoma_key),
         ("ANTHROPIC_API_KEY", anthropic_key),
-        ("TELEGRAM_BOT_TOKEN", telegram_token),
-        ("TELEGRAM_ALLOWED_CHAT_ID", telegram_chat),
+        ("SLACK_BOT_TOKEN", slack_token),
     ]:
         if not val:
             print(f"ERROR: {name} not set — avoma_sync cannot run.", file=sys.stderr)
@@ -206,6 +200,10 @@ def main() -> None:
         config = json.load(f)
 
     avoma_cfg = config.get("avoma", {})
+    slack_user_id = avoma_cfg.get("slack_user_id", "")
+    if not slack_user_id:
+        print("ERROR: avoma.slack_user_id not set in config.json — avoma_sync cannot run.", file=sys.stderr)
+        return
     ai_model = config.get("ai_model", "claude-sonnet-4-6")
 
     # Load pipeline cache for lead matching
@@ -283,13 +281,15 @@ def main() -> None:
         else:
             print("   Pipeline cache: no name matches found — no patch applied.")
 
-    # Build and send Telegram message
-    telegram_text = build_telegram_message(pipeline_updates, onboarding_updates, today)
+    # Build and send Slack DM
+    slack_text = build_slack_message(pipeline_updates, onboarding_updates, today)
     try:
-        send_message(telegram_token, telegram_chat, telegram_text)
-        print("   Telegram message sent.")
+        slack_channel = open_dm(slack_token, slack_user_id)
+        post_message(slack_token, slack_channel, slack_text)
+        print("   Slack DM sent.")
     except Exception as exc:
-        print(f"WARNING: Telegram send failed: {exc}", file=sys.stderr)
+        print(f"ERROR: Slack send failed: {exc}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
