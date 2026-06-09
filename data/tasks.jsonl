@@ -18,13 +18,6 @@
 {"event": "create", "task_id": "t-86de4c", "title": "Rachel & Nicole to sync with Heather (marketing ops) to confirm late July launch timeline fits the broader marketing calendar", "source": "ui", "created_at": "2026-06-05", "due_date": null, "metadata": {}, "project_id": "captains-coaches-coaches-course", "collaborators": [], "owner": "rachel"}
 {"event": "create", "task_id": "t-f61889", "title": "Nicole to update the existing Captains & Coaches case study with new imagery once available", "source": "ui", "created_at": "2026-06-05", "due_date": null, "metadata": {}, "project_id": "captains-coaches-coaches-course", "collaborators": [], "owner": "nicole-foley"}
 {"event": "create", "task_id": "t-1b4f22", "title": "create a clean MRR calculation method", "source": "ui", "created_at": "2026-06-06", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
-{"event": "create", "task_id": "t-11a0a8", "title": "plan out end to end flow with Claude in desktop app", "source": "ui", "created_at": "2026-06-07", "due_date": "06/10/2026", "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": null}
-{"event": "create", "task_id": "t-7b3cb8", "title": "build working demo", "source": "ui", "created_at": "2026-06-07", "due_date": "06/17/2026", "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": null}
-{"event": "edit", "task_id": "t-7b3cb8", "patch": {"due_date": "2026-06-11"}}
-{"event": "edit", "task_id": "t-11a0a8", "patch": {"due_date": "2026-06-11"}}
-{"event": "edit", "task_id": "t-7b3cb8", "patch": {"due_date": "2026-06-17"}}
-{"event": "complete", "task_id": "t-466c58", "completed_at": "2026-06-09"}
-{"event": "complete", "task_id": "t-fd113e", "completed_at": "2026-06-09"}
-{"event": "delete", "task_id": "t-488053"}
-{"event": "create", "task_id": "t-791746", "title": "look at finance tracker to figure out rent conversation", "source": "ui", "created_at": "2026-06-09", "due_date": "2026-06-11", "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
-{"event": "create", "task_id": "t-bbf28b", "title": "pay TWRU", "source": "ui", "created_at": "2026-06-09", "due_date": "2026-06-09", "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
+{"event": "create", "task_id": "t-ac1686", "title": "set meeting with Bre", "source": "slack", "created_at": "2026-06-09", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
+{"event": "create", "task_id": "t-62c153", "title": "set up Truman DBat profile", "source": "slack", "created_at": "2026-06-09", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
+{"event": "create", "task_id": "t-61a05b", "title": "traing Claude on OS vernacular", "source": "ui", "created_at": "2026-06-09", "due_date": null, "metadata": {}, "project_id": "claude-assisted-onboarding", "collaborators": [], "owner": null}
