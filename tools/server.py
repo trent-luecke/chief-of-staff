@@ -243,6 +243,12 @@ def list_people():
     return jsonify(people)
 
 
+@app.route("/api/registry", methods=["GET"])
+def get_registry():
+    registry = _storage().read_json("people_registry.json", default={"people": []})
+    return jsonify(registry)
+
+
 if __name__ == "__main__":
     print("Entity UI → http://localhost:8787")
     app.run(port=8787, debug=False)

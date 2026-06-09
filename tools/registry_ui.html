@@ -2174,6 +2174,23 @@ async function renderWorkView() {
 
 // ── Entry point ─────────────────────────────────────────────────────────────
 async function init() {
+  // Server mode: skip folder picker and load directly from the Flask API.
+  if (window.location.port === '8787') {
+    el('screen-loading').classList.remove('hidden');
+    try {
+      state.registry = await fetchJSON(`${API}/api/registry`);
+    } catch (e) {
+      alert('Failed to load registry data from server: ' + e.message);
+      el('screen-loading').classList.add('hidden');
+      return;
+    }
+    el('screen-loading').classList.add('hidden');
+    el('app').classList.remove('hidden');
+    renderPendingView();
+    setupTabs();
+    return;
+  }
+
   if (!('showDirectoryPicker' in window)) {
     el('screen-unsupported').classList.remove('hidden');
     return;
@@ -2203,6 +2220,10 @@ async function init() {
     renderPendingView();
   });
 
+  setupTabs();
+}
+
+function setupTabs() {
   document.querySelectorAll('.tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const view = tab.dataset.view;
