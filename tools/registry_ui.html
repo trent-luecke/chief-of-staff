@@ -2421,6 +2421,183 @@ function setupTabs() {
 }
 
 init();
+
+// ── Notes tab state ──────────────────────────────────────────────────────────
+const notesState = {
+  search: '',
+  activeTags: new Set(),
+  sortAsc: false,
+  groupByDate: false,
+  compact: false,
+  showTagMgmt: false,
+  _tags: [],
+  _people: [],
+  _tasks: [],
+};
+
+// ── renderNoteCard ────────────────────────────────────────────────────────────
+function renderNoteCard(note, tags, people, tasks) {
+  const tagObjects = (note.tags || []).map(tid => tags.find(t => t.id === tid)).filter(Boolean);
+  const borderColor = tagObjects.length ? tagObjects[0].color : 'var(--border)';
+  const tagHtml = tagObjects.map(t =>
+    `<span class="note-tag-chip" style="color:${t.color};border-color:${t.color}">${esc(t.id)}</span>`
+  ).join('');
+  const twoDaysAgo = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+  const showBrief = note.brief && note.brief_flagged_date && note.brief_flagged_date >= twoDaysAgo;
+  const personName = note.person_id ? (people.find(p => p.id === note.person_id)?.name || null) : null;
+  const taskTitle = note.task_id ? (tasks.find(t => t.id === note.task_id)?.title || null) : null;
+  const shortTs = note.ts.slice(0, 16).replace('T', ' ');
+  return `
+    <div class="note-card" data-note-id="${esc(note.id)}" style="border-left-color:${borderColor}">
+      <div class="note-card-ts">
+        ${esc(shortTs)}
+        ${note.pinned ? '<span class="note-pin-icon">📌</span>' : ''}
+        ${showBrief ? '<span class="note-brief-badge">brief</span>' : ''}
+      </div>
+      ${tagHtml ? `<div class="note-tag-list">${tagHtml}</div>` : ''}
+      <div class="note-body">${esc(note.body)}</div>
+      ${personName ? `<div class="note-link">→ ${esc(personName)}</div>` : ''}
+      ${taskTitle ? `<div class="note-link">↗ ${esc(taskTitle.slice(0, 50))}${taskTitle.length > 50 ? '…' : ''}</div>` : ''}
+    </div>`;
+}
+
+// ── renderNotesView ───────────────────────────────────────────────────────────
+async function renderNotesView() {
+  const view = el('view-notes');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
+
+  let notes, tags, people, tasks;
+  try {
+    [notes, tags, people, tasks] = await Promise.all([
+      fetchJSON(`${API}/api/notes`),
+      fetchJSON(`${API}/api/notes/tags`),
+      fetchJSON(`${API}/api/people`),
+      fetchJSON(`${API}/api/tasks`),
+    ]);
+  } catch {
+    view.innerHTML = `<div class="offline-banner">Start tools/server.py to see notes.</div>
+      <div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
+    return;
+  }
+  notesState._tags = tags;
+  notesState._people = people;
+  notesState._tasks = tasks;
+
+  // Filter
+  let filtered = notes.filter(n => {
+    if (notesState.search) {
+      const q = notesState.search.toLowerCase();
+      if (!n.body.toLowerCase().includes(q) && !n.ts.includes(q)) return false;
+    }
+    if (notesState.activeTags.size > 0) {
+      for (const t of notesState.activeTags) {
+        if (!(n.tags || []).includes(t)) return false;
+      }
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    const cmp = a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0;
+    return notesState.sortAsc ? cmp : -cmp;
+  });
+
+  const pinned = filtered.filter(n => n.pinned);
+  const unpinned = filtered.filter(n => !n.pinned);
+
+  // Header bar HTML
+  const tagFilterChips = tags.map(t => {
+    const active = notesState.activeTags.has(t.id);
+    return `<button class="notes-filter-chip${active ? ' active' : ''}" data-tag-id="${esc(t.id)}"
+      style="${active ? `border-color:${t.color};color:${t.color}` : ''}">${esc(t.id)}</button>`;
+  }).join('');
+
+  // Tag mgmt panel
+  const tagMgmtHtml = notesState.showTagMgmt ? renderTagMgmtPanel(tags) : '';
+
+  // Pinned section
+  const pinnedHtml = pinned.length ? `
+    <div class="note-pinned-section">
+      <div class="note-pinned-label">Pinned</div>
+      <div class="note-pinned-grid">${pinned.map(n => renderNoteCard(n, tags, people, tasks)).join('')}</div>
+    </div>` : '';
+
+  // Main grid (with optional date grouping)
+  let mainGridHtml;
+  if (notesState.groupByDate && unpinned.length) {
+    const byDate = {};
+    for (const n of unpinned) {
+      const d = n.ts.slice(0, 10);
+      (byDate[d] = byDate[d] || []).push(n);
+    }
+    mainGridHtml = Object.entries(byDate).map(([d, grp]) => `
+      <div class="notes-date-group">
+        <div class="notes-date-label">${esc(d)}</div>
+        <div class="note-masonry${notesState.compact ? ' compact' : ''}">${grp.map(n => renderNoteCard(n, tags, people, tasks)).join('')}</div>
+      </div>`
+    ).join('');
+  } else {
+    mainGridHtml = `<div class="note-masonry${notesState.compact ? ' compact' : ''}">${unpinned.map(n => renderNoteCard(n, tags, people, tasks)).join('')}</div>`;
+  }
+
+  const emptyHtml = (pinned.length === 0 && unpinned.length === 0)
+    ? '<div class="empty-state"><h3>No notes yet</h3><p>Click + to capture your first note.</p></div>'
+    : '';
+
+  view.innerHTML = `
+    <div class="notes-header">
+      <input class="notes-search" id="notes-search-input" placeholder="Search notes…" value="${esc(notesState.search)}" />
+      <div class="notes-filter-chips">${tagFilterChips}</div>
+      <button class="notes-manage-tags-btn${notesState.showTagMgmt ? ' active' : ''}" id="notes-manage-tags-btn">Manage Tags</button>
+      <button class="notes-sort-btn${notesState.sortAsc ? ' active' : ''}" id="notes-sort-btn">${notesState.sortAsc ? 'Oldest first' : 'Newest first'}</button>
+      <button class="notes-group-btn${notesState.groupByDate ? ' active' : ''}" id="notes-group-btn">Group by date</button>
+      <button class="notes-compact-btn${notesState.compact ? ' active' : ''}" id="notes-compact-btn">Compact</button>
+    </div>
+    ${tagMgmtHtml}
+    ${pinnedHtml}
+    ${emptyHtml || mainGridHtml}`;
+
+  // Wire header controls
+  el('notes-search-input').addEventListener('input', e => {
+    notesState.search = e.target.value;
+    renderNotesView();
+  });
+  view.querySelectorAll('.notes-filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const tid = chip.dataset.tagId;
+      if (notesState.activeTags.has(tid)) notesState.activeTags.delete(tid);
+      else notesState.activeTags.add(tid);
+      renderNotesView();
+    });
+  });
+  el('notes-manage-tags-btn').addEventListener('click', () => {
+    notesState.showTagMgmt = !notesState.showTagMgmt;
+    renderNotesView();
+  });
+  el('notes-sort-btn').addEventListener('click', () => {
+    notesState.sortAsc = !notesState.sortAsc;
+    renderNotesView();
+  });
+  el('notes-group-btn').addEventListener('click', () => {
+    notesState.groupByDate = !notesState.groupByDate;
+    renderNotesView();
+  });
+  el('notes-compact-btn').addEventListener('click', () => {
+    notesState.compact = !notesState.compact;
+    renderNotesView();
+  });
+
+  if (notesState.showTagMgmt) wireTagMgmt(view, tags);
+
+  // Wire card clicks → edit modal
+  view.querySelectorAll('.note-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const note = notes.find(n => n.id === card.dataset.noteId);
+      if (note) openNoteModal(note);
+    });
+  });
+}
 </script>
 
   <!-- Floating note capture button (visible on all tabs) -->
