@@ -13,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -46,17 +47,29 @@ def _git_push_notes(detail: str) -> dict:
 
 
 def _sync_tasks_from_main() -> None:
-    """Overwrite local tasks.jsonl with the authoritative copy from origin/main. Non-fatal."""
-    subprocess.run(["git", "fetch", "origin", "main"], cwd=str(ROOT), capture_output=True)
-    subprocess.run(
-        ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
-        cwd=str(ROOT), capture_output=True,
-    )
+    """Overwrite local tasks.jsonl with the authoritative copy from origin/main. Non-fatal.
+
+    Bounded by a short timeout so an offline/slow network can't hang the page load
+    (the dev server would otherwise block all other requests behind this fetch).
+    """
+    try:
+        subprocess.run(
+            ["git", "fetch", "origin", "main"],
+            cwd=str(ROOT), capture_output=True, timeout=8,
+        )
+        subprocess.run(
+            ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
+            cwd=str(ROOT), capture_output=True, timeout=8,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        pass  # offline or git unavailable — serve local copy
 
 
 @app.route("/")
 def index():
-    _sync_tasks_from_main()
+    # Pull latest tasks from origin/main in the background so the page serves
+    # instantly even when offline / on a slow network.
+    threading.Thread(target=_sync_tasks_from_main, daemon=True).start()
     return send_file(str(UI_PATH))
 
 
@@ -402,4 +415,4 @@ def delete_note_tag(tag_id: str):
 
 if __name__ == "__main__":
     print("Entity UI → http://localhost:8787")
-    app.run(port=8787, debug=False)
+    app.run(port=8787, debug=False, threaded=True)

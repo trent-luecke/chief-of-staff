@@ -1699,7 +1699,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
-  ['pending','registry','observations','work'].forEach(v => {
+  ['pending','registry','observations','work','notes'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
   });
 }
