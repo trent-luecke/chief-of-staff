@@ -694,12 +694,14 @@
       <button class="tab" data-view="registry">People</button>
       <button class="tab" data-view="observations">Observations</button>
       <button class="tab" data-view="work">Work</button>
+      <button class="tab" data-view="notes">Notes</button>
     </nav>
     <main>
       <div id="view-pending" class="view"></div>
       <div id="view-registry" class="view hidden"></div>
       <div id="view-observations" class="view hidden"></div>
       <div id="view-work" class="view hidden"></div>
+      <div id="view-notes" class="view hidden"></div>
     </main>
   </div>
 
@@ -2237,5 +2239,61 @@ function setupTabs() {
 
 init();
 </script>
+
+  <!-- Floating note capture button (visible on all tabs) -->
+  <button id="note-fab" class="note-fab" title="New note">+</button>
+
+  <!-- Note capture/edit modal -->
+  <div id="note-modal-overlay" class="note-modal-overlay hidden">
+    <div class="note-modal">
+      <div class="note-modal-header">
+        <span id="note-modal-title">New Note</span>
+        <button class="note-modal-close" id="note-modal-close">×</button>
+      </div>
+      <div class="note-modal-body">
+        <div class="note-field-label">Note</div>
+        <textarea id="note-body-input" class="note-body-input" placeholder="Write a note…" rows="4"></textarea>
+
+        <div class="note-field-label">Tags</div>
+        <div id="note-modal-tag-chips" class="note-modal-tag-chips"></div>
+        <div id="note-new-tag-form" class="note-new-tag-form hidden">
+          <input id="note-new-tag-name" class="note-field-input" placeholder="TAG_NAME" maxlength="20" style="width:120px" />
+          <input id="note-new-tag-color" type="color" value="#555555" style="width:32px;height:28px;border:none;cursor:pointer;background:none" />
+          <button class="btn-save" id="note-new-tag-save" style="font-size:11px;padding:3px 10px">Add</button>
+          <button class="btn-cancel" id="note-new-tag-cancel">Cancel</button>
+        </div>
+        <button id="note-add-tag-btn" class="note-ghost-btn">+ New Tag</button>
+
+        <div class="note-field-label" style="margin-top:10px">Person (optional)</div>
+        <div class="note-picker-wrap">
+          <input id="note-person-input" class="note-field-input" placeholder="Search people…" autocomplete="off" />
+          <div id="note-person-dropdown" class="note-picker-dropdown hidden"></div>
+        </div>
+        <input type="hidden" id="note-person-id" />
+
+        <div class="note-field-label" style="margin-top:10px">Task (optional)</div>
+        <div class="note-picker-wrap">
+          <input id="note-task-input" class="note-field-input" placeholder="Search tasks…" autocomplete="off" />
+          <div id="note-task-dropdown" class="note-picker-dropdown hidden"></div>
+        </div>
+        <input type="hidden" id="note-task-id" />
+
+        <label class="note-brief-label" style="margin-top:10px;display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="note-brief-check" />
+          Include in brief
+        </label>
+      </div>
+      <div class="note-modal-footer">
+        <div class="note-modal-footer-left">
+          <button id="note-delete-btn" class="btn-danger hidden">Delete</button>
+          <button id="note-pin-btn" class="btn-pin hidden">Pin</button>
+        </div>
+        <div class="note-modal-footer-right">
+          <button id="note-cancel-btn" class="btn-cancel">Cancel</button>
+          <button id="note-save-btn" class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
