@@ -53,7 +53,7 @@ Event-sourced JSONL, same pattern as `data/tasks.jsonl`. Server replays events t
 |-------|------|----------|-------|
 | `event` | string | yes | `"create"` |
 | `id` | string | yes | `n-<hex>` prefix |
-| `ts` | ISO datetime | yes | Creation timestamp — used for brief bucketing |
+| `ts` | ISO datetime | yes | Creation timestamp |
 | `body` | string | yes | Note text |
 | `tags` | string[] | yes | Tag IDs from `notes_tags.json`; may be empty |
 | `person_id` | string\|null | yes | Slug from `people_registry.json` |
@@ -63,7 +63,7 @@ Event-sourced JSONL, same pattern as `data/tasks.jsonl`. Server replays events t
 
 `person_id` and `task_id` are nullable — linking is always optional. The slug is the join key for future Pinecone integration (follow-on spec).
 
-**Important:** `brief: true` is never auto-cleared in the JSONL. The brief flag is treated as expired by the UI and `main.py` based on `creation_date` relative to today's date (see Brief Integration section). This preserves full history and allows re-flagging to resurface a note.
+**Important:** `brief: true` is never auto-cleared in the JSONL. When replaying events, the server derives a `brief_flagged_date` field for each note: the calendar date of the most recent event that set `brief: true` (either the `create` event if flagged at creation, or the most recent `update` event that set `brief: true`). Brief bucketing and the UI badge both use `brief_flagged_date`, not the creation date. This means re-flagging an old note resets the 2-day window from the date of re-flagging.
 
 ### `data/notes_tags.json`
 
@@ -108,7 +108,7 @@ A 5th tab added to `registry_ui.html` after Work. Header bar + masonry grid belo
 - Body text — full content, no truncation
 - If `person_id` is set: `→ [Person Name]` link indicator
 - If `task_id` is set: `↗ [Task Title]` link indicator
-- If `brief: true` AND `creation_date >= today - 2 days` (calendar): brief badge shown
+- If `brief: true` AND `brief_flagged_date >= today - 2 days` (calendar): brief badge shown
 - If pinned: pin icon top-right
 
 Clicking a card opens the edit modal.
@@ -151,7 +151,7 @@ Save in edit modal writes an `update` event with only changed fields.
 Accessed via `Manage Tags` button in Notes tab header. Opens an inline panel listing all tags from `notes_tags.json`.
 
 **Per-tag actions:**
-- Rename — edits the `id` field; updates tag references on existing notes in-memory (UI re-renders with new name; backend patches affected notes in JSONL)
+- Rename — `PATCH /api/notes/tags/<id>` updates the tag name in `notes_tags.json`, then writes `update` events to every note in `notes.jsonl` that carried the old tag ID, replacing it with the new name in their `tags` array
 - Recolor — opens color picker inline
 - Delete — removes from `notes_tags.json`; existing notes retain the tag string but render it in grey (no color treatment)
 
@@ -182,13 +182,13 @@ Existing endpoints used by the Notes tab (no changes needed):
 
 ## Brief Integration (`main.py`)
 
-At brief generation time, `main.py` replays `data/notes.jsonl` and filters for notes where `brief: true`. Notes are bucketed by **calendar date** of creation relative to the brief run date:
+At brief generation time, `main.py` replays `data/notes.jsonl` and filters for notes where `brief: true`. Notes are bucketed by **`brief_flagged_date`** (the date the note was most recently flagged for the brief) relative to the brief run date:
 
 ```
 brief_date = date the brief runs (today)
 
-todays_notes    = notes where brief=True AND creation_date == brief_date - 1 day
-yesterdays_notes = notes where brief=True AND creation_date == brief_date - 2 days
+todays_notes    = notes where brief=True AND brief_flagged_date == brief_date - 1 day
+yesterdays_notes = notes where brief=True AND brief_flagged_date == brief_date - 2 days
 ```
 
 If at least one bucket is non-empty, a **Notes** section is injected into the brief with subsections:
@@ -201,7 +201,7 @@ If both buckets are empty, the Notes section is omitted from the brief.
 
 **Each note in the brief includes:** body text, tags, and person/task link name if present.
 
-**Re-surfacing:** If a note needs to appear in a future brief (e.g., a note from 6/1 needs to be in the 6/15 brief), the user re-flags it from the Registry UI. The `ts` field on the new `update` event is NOT used for bucketing — bucketing always uses the original `create` event timestamp.
+**Re-surfacing:** If a note needs to appear in a future brief (e.g., a note from 6/1 needs to be in the 6/15 brief), the user re-flags it from the Registry UI. The `update` event's `ts` becomes the new `brief_flagged_date`, resetting the 2-day window from that date.
 
 ---
 
