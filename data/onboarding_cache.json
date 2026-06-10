@@ -1,35 +1,25 @@
 {
-  "synced_at": "2026-06-09T07:04:54Z",
+  "synced_at": "2026-06-10T07:05:01Z",
   "records": [
-    {
-      "page_id": "36d24bca-36d7-81ec-89d4-dcae4f05901c",
-      "customer_name": "Bre Kirk",
-      "customer_email": "hilbre.t.kirk@gmail.com",
-      "status": "In Progress",
-      "current_phase": "Phase 2 — Member Profile Upload",
-      "sales_rep": "Ryan",
-      "start_date": null,
-      "target_go_live_date": "2026-06-01"
-    },
     {
       "page_id": "36424bca-36d7-818e-89c2-c7f76faef238",
       "customer_name": "Drake Cook — Camp BBA",
       "customer_email": null,
-      "status": "Awaiting Customer",
+      "status": "Live",
       "current_phase": "Phase 3 — Payment / Stripe Transfer",
       "sales_rep": "Trent",
       "start_date": "2026-05-15",
       "target_go_live_date": null
     },
     {
-      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
-      "customer_name": "Strength House",
-      "customer_email": null,
+      "page_id": "36d24bca-36d7-81ec-89d4-dcae4f05901c",
+      "customer_name": "Bre Kirk",
+      "customer_email": "hilbre.t.kirk@gmail.com",
       "status": "Live",
-      "current_phase": "Phase 1 — Initial Setup",
-      "sales_rep": "Trent",
+      "current_phase": "Phase 2 — Member Profile Upload",
+      "sales_rep": "Ryan",
       "start_date": null,
-      "target_go_live_date": null
+      "target_go_live_date": "2026-06-01"
     },
     {
       "page_id": "31024bca-36d7-812e-99da-fb082f7dca39",
@@ -42,10 +32,20 @@
       "target_go_live_date": "2026-03-01"
     },
     {
+      "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
+      "customer_name": "Strength House",
+      "customer_email": null,
+      "status": "Live",
+      "current_phase": "Phase 1 — Initial Setup",
+      "sales_rep": "Trent",
+      "start_date": null,
+      "target_go_live_date": null
+    },
+    {
       "page_id": "37624bca-36d7-816a-bf9c-c504179cbe0a",
       "customer_name": "Preston Sports Performance",
       "customer_email": null,
-      "status": "Awaiting Customer",
+      "status": "Live",
       "current_phase": "Phase 2 — Member Profile Upload",
       "sales_rep": "Jeff",
       "start_date": null,
@@ -55,7 +55,7 @@
       "page_id": "37624bca-36d7-81b2-b1d5-dcc2fda839ba",
       "customer_name": "ForceLab Training (Brigita)",
       "customer_email": null,
-      "status": "In Progress",
+      "status": "Awaiting Customer",
       "current_phase": "Phase 1 — Initial Setup",
       "sales_rep": "Jeff",
       "start_date": null,
