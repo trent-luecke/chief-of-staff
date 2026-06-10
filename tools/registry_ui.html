@@ -818,7 +818,7 @@
     .note-field-input:focus { border-color: var(--accent); }
     .note-picker-wrap { position: relative; }
     .note-picker-dropdown {
-      position: absolute; top: 100%; left: 0; right: 0; z-index: 200;
+      position: fixed; z-index: 2100;
       background: var(--surface); border: 1px solid var(--accent);
       border-radius: 4px; max-height: 160px; overflow-y: auto;
     }
@@ -2619,20 +2619,35 @@ async function renderNotesView() {
 
 // ── Typeahead picker ──────────────────────────────────────────────────────────
 function wireTypeahead(inputEl, dropdownEl, hiddenEl, items) {
+  // Use fixed positioning so the dropdown escapes the modal's overflow clipping context
+  function showDropdown(html) {
+    const rect = inputEl.getBoundingClientRect();
+    Object.assign(dropdownEl.style, {
+      position: 'fixed',
+      top: rect.bottom + 'px',
+      left: rect.left + 'px',
+      width: rect.width + 'px',
+      right: 'auto',
+    });
+    dropdownEl.innerHTML = html;
+    dropdownEl.classList.remove('hidden');
+  }
   inputEl.oninput = () => {
     const q = inputEl.value.toLowerCase().trim();
     dropdownEl.classList.add('hidden');
     dropdownEl.innerHTML = '';
     if (!q) { hiddenEl.value = ''; return; }
     const matches = items.filter(i => i.label.toLowerCase().includes(q)).slice(0, 8);
-    if (!matches.length) return;
-    dropdownEl.innerHTML = matches.map(i =>
+    if (!matches.length) {
+      showDropdown('<div class="note-picker-option" style="color:var(--muted);cursor:default;font-style:italic">No matches</div>');
+      return;
+    }
+    showDropdown(matches.map(i =>
       `<div class="note-picker-option" data-id="${esc(i.id)}">${esc(i.label)}</div>`
-    ).join('');
-    dropdownEl.classList.remove('hidden');
+    ).join(''));
   };
   dropdownEl.onmousedown = e => {
-    const opt = e.target.closest('.note-picker-option');
+    const opt = e.target.closest('[data-id]');
     if (!opt) return;
     e.preventDefault();
     hiddenEl.value = opt.dataset.id;
