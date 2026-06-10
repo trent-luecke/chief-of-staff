@@ -269,6 +269,38 @@ def get_registry():
     return jsonify(registry)
 
 
+# --- Notes ---
+
+@app.route("/api/notes", methods=["GET"])
+def list_notes():
+    return jsonify(_replay_notes_lib(NOTES_JSONL))
+
+
+@app.route("/api/notes", methods=["POST"])
+def create_note():
+    body = request.get_json(force=True)
+    if not body or not body.get("body"):
+        return jsonify({"error": "body is required"}), 400
+    note_id = "n-" + secrets.token_hex(3)
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    ev = {
+        "event": "create",
+        "id": note_id,
+        "ts": ts,
+        "body": body["body"],
+        "tags": body.get("tags", []),
+        "person_id": body.get("person_id"),
+        "task_id": body.get("task_id"),
+        "brief": body.get("brief", False),
+        "pinned": body.get("pinned", False),
+    }
+    with open(NOTES_JSONL, "a") as f:
+        f.write(json.dumps(ev) + "\n")
+    push = _git_push_notes(f"create note {note_id}")
+    note_out = {**ev, "brief_flagged_date": ts[:10] if ev["brief"] else None}
+    return jsonify({"note": note_out, "push": push}), 201
+
+
 if __name__ == "__main__":
     print("Entity UI → http://localhost:8787")
     app.run(port=8787, debug=False)
