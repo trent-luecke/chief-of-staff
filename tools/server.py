@@ -336,6 +336,70 @@ def delete_note(note_id: str):
     return jsonify({"deleted": note_id, "push": push})
 
 
+# --- Notes Tags ---
+
+@app.route("/api/notes/tags", methods=["GET"])
+def list_note_tags():
+    if not NOTES_TAGS_JSON.exists():
+        NOTES_TAGS_JSON.write_text(json.dumps([]))
+    return jsonify(json.loads(NOTES_TAGS_JSON.read_text()))
+
+
+@app.route("/api/notes/tags", methods=["POST"])
+def create_note_tag():
+    body = request.get_json(force=True)
+    if not body or not body.get("id"):
+        return jsonify({"error": "id is required"}), 400
+    tag_id = body["id"].upper().replace(" ", "_")
+    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
+    if any(t["id"] == tag_id for t in tags):
+        return jsonify({"error": "tag already exists"}), 409
+    tag = {"id": tag_id, "color": body.get("color", "#555555")}
+    tags.append(tag)
+    NOTES_TAGS_JSON.write_text(json.dumps(tags, indent=2))
+    _git_commit_push(["data/notes_tags.json"], f"data: create tag {tag_id}")
+    return jsonify({"tag": tag}), 201
+
+
+@app.route("/api/notes/tags/<tag_id>", methods=["PATCH"])
+def update_note_tag(tag_id: str):
+    body = request.get_json(force=True)
+    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
+    tag = next((t for t in tags if t["id"] == tag_id), None)
+    if tag is None:
+        return jsonify({"error": "not found"}), 404
+    new_id = body.get("id", tag_id).upper().replace(" ", "_")
+    new_color = body.get("color", tag.get("color", "#555555"))
+    for t in tags:
+        if t["id"] == tag_id:
+            t["id"] = new_id
+            t["color"] = new_color
+    NOTES_TAGS_JSON.write_text(json.dumps(tags, indent=2))
+    commit_files = ["data/notes_tags.json"]
+    if new_id != tag_id and NOTES_JSONL.exists():
+        affected = [n for n in _replay_notes_lib(NOTES_JSONL) if tag_id in n.get("tags", [])]
+        if affected:
+            ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+            with open(NOTES_JSONL, "a") as f:
+                for note in affected:
+                    new_tags = [new_id if t == tag_id else t for t in note["tags"]]
+                    f.write(json.dumps({"event": "update", "id": note["id"], "ts": ts, "tags": new_tags}) + "\n")
+            commit_files.append("data/notes.jsonl")
+    _git_commit_push(commit_files, f"data: rename tag {tag_id} -> {new_id}")
+    return jsonify({"tag": {"id": new_id, "color": new_color}})
+
+
+@app.route("/api/notes/tags/<tag_id>", methods=["DELETE"])
+def delete_note_tag(tag_id: str):
+    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
+    new_tags = [t for t in tags if t["id"] != tag_id]
+    if len(new_tags) == len(tags):
+        return jsonify({"error": "not found"}), 404
+    NOTES_TAGS_JSON.write_text(json.dumps(new_tags, indent=2))
+    _git_commit_push(["data/notes_tags.json"], f"data: delete tag {tag_id}")
+    return jsonify({"deleted": tag_id})
+
+
 if __name__ == "__main__":
     print("Entity UI → http://localhost:8787")
     app.run(port=8787, debug=False)

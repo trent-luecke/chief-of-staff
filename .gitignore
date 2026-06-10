@@ -28,6 +28,7 @@ data/*
 !data/people_resolution.json
 !data/people_unresolved.json
 !data/onboarding_cache.json
+!data/notes_tags.json
 !data/memory/
 data/memory/*
 !data/memory/decisions.md
