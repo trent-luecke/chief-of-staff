@@ -94,6 +94,19 @@ def test_replay_update_partial_patch(tmp_path):
     assert notes[0]["tags"] == ["SALES", "ACTION"]
 
 
+def test_replay_update_clears_brief_flagged_date(tmp_path):
+    p = _write_jsonl(tmp_path, [
+        {"event": "create", "id": "n-aaa111", "ts": "2026-06-01T10:00:00",
+         "body": "x", "tags": [], "person_id": None, "task_id": None,
+         "brief": True, "pinned": False},
+        {"event": "update", "id": "n-aaa111", "ts": "2026-06-09T10:00:00",
+         "brief": False},
+    ])
+    notes = replay_notes(p)
+    assert notes[0]["brief"] is False
+    assert notes[0]["brief_flagged_date"] is None
+
+
 # ── load_notes_for_brief ──────────────────────────────────────────────────────
 
 class _FakeStorage:

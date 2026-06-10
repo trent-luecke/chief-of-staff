@@ -21,7 +21,10 @@ def replay_notes(path: Path) -> list[dict]:
         raw = raw.strip()
         if not raw:
             continue
-        ev = json.loads(raw)
+        try:
+            ev = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
         nid = ev["id"]
         etype = ev["event"]
         if etype == "create":
@@ -42,6 +45,8 @@ def replay_notes(path: Path) -> list[dict]:
             notes[nid].update(patch)
             if ev.get("brief") is True:
                 brief_flagged_dates[nid] = ev["ts"][:10]
+            elif ev.get("brief") is False:
+                brief_flagged_dates.pop(nid, None)
         elif etype == "pin" and nid in notes:
             notes[nid]["pinned"] = ev.get("pinned", True)
         elif etype == "delete":
@@ -100,6 +105,7 @@ def load_notes_for_brief(storage) -> str:
 
 
 def _format_note_line(note: dict, people_by_id: dict) -> str:
+    """Format a single note as a brief-ready bullet line."""
     extras = []
     if note.get("tags"):
         extras.append(f"[{', '.join(note['tags'])}]")
