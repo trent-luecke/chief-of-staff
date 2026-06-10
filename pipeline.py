@@ -110,6 +110,7 @@ class ProcessedContext:
     meeting_prep: list = field(default_factory=list)
     loop_summary: dict = field(default_factory=dict)
     captures_context: str = ""
+    notes_context: str = ""
     brief_feedback_context: str = ""
     brief_prefs_context: str = ""
 
@@ -662,6 +663,11 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
 
         # Captures + brief feedback
         ctx.captures_context = load_recent_captures(storage)
+        try:
+            from lib.notes import load_notes_for_brief
+            ctx.notes_context = load_notes_for_brief(storage)
+        except Exception as e:
+            print(f"⚠️  Notes context error (non-fatal): {e}", file=sys.stderr)
         ctx.brief_feedback_context = load_brief_feedback(storage)
         ctx.brief_prefs_context = load_brief_prefs(config)
 
@@ -789,6 +795,7 @@ def generate_and_deliver(
                     people_context=ctx.people_context,
                     memory_context=ctx.memory_context,
                     captures_context=ctx.captures_context,
+                    notes_context=ctx.notes_context,
                     brief_feedback_context=ctx.brief_feedback_context,
                     brief_prefs_context=ctx.brief_prefs_context,
                     storage=storage,

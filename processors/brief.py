@@ -49,6 +49,7 @@ def _build_prompt(
     people_context: str = "",
     memory_context: str = "",
     captures_context: str = "",
+    notes_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
@@ -152,6 +153,9 @@ def _build_prompt(
     if captures_context and captures_context.strip():
         sections += ["## Action Captures (logged via Telegram — surface relevant items)",
                      captures_context, ""]
+    if notes_context and notes_context.strip():
+        sections += ["## Notes (flagged for today's brief — surface as context or priorities)",
+                     notes_context, ""]
     sections += section("## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
                         [fmt_attention_lead(l) for l in (attention_leads or [])])
     if what_moved_context and what_moved_context.strip():
@@ -178,6 +182,7 @@ def generate_brief(
     people_context: str = "",
     memory_context: str = "",
     captures_context: str = "",
+    notes_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
@@ -196,6 +201,7 @@ def generate_brief(
         people_context=people_context,
         memory_context=memory_context,
         captures_context=captures_context,
+        notes_context=notes_context,
         brief_feedback_context=brief_feedback_context,
         brief_prefs_context=brief_prefs_context,
         storage=storage,
