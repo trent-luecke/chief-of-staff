@@ -2436,20 +2436,7 @@ const notesState = {
   _tasks: [],
 };
 
-el('note-fab').addEventListener('click', async () => {
-  // Ensure notesState cache is populated even if Notes tab hasn't been visited
-  if (!notesState._tags.length) {
-    try {
-      const [tags, people, tasks] = await Promise.all([
-        fetchJSON(`${API}/api/notes/tags`),
-        fetchJSON(`${API}/api/people`),
-        fetchJSON(`${API}/api/tasks`),
-      ]);
-      notesState._tags = tags;
-      notesState._people = people;
-      notesState._tasks = tasks;
-    } catch { /* FAB works with empty state, pickers just won't populate */ }
-  }
+el('note-fab').addEventListener('click', () => {
   openNoteModal(null);
 });
 
@@ -2683,8 +2670,27 @@ function closeNoteModal() {
   el('note-modal-overlay').classList.add('hidden');
 }
 
-function openNoteModal(note) {
+async function openNoteModal(note) {
   const isEdit = !!note;
+
+  // Always ensure people and tasks are loaded — the cache may be empty if
+  // the Notes tab was never visited and tags were pre-seeded (so _tags.length > 0
+  // bypasses the FAB's pre-load guard).
+  if (!notesState._people.length || !notesState._tasks.length) {
+    try {
+      const [tags, people, tasks] = await Promise.all([
+        fetchJSON(`${API}/api/notes/tags`),
+        fetchJSON(`${API}/api/people`),
+        fetchJSON(`${API}/api/tasks`),
+      ]);
+      notesState._tags = tags;
+      notesState._people = people;
+      notesState._tasks = tasks;
+    } catch (e) {
+      console.warn('Could not load people/tasks for modal pickers:', e.message);
+    }
+  }
+
   const tags = notesState._tags;
   const people = notesState._people;
   const tasks = notesState._tasks;
