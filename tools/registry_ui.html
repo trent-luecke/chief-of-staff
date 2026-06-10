@@ -2791,6 +2791,102 @@ document.addEventListener('keydown', e => {
     closeNoteModal();
   }
 });
+
+// ── Tag management panel ──────────────────────────────────────────────────────
+function renderTagMgmtPanel(tags) {
+  if (!tags.length) {
+    return `<div class="notes-tag-mgmt-panel" id="notes-tag-mgmt-panel">
+      <div class="notes-tag-mgmt-header">Manage Tags</div>
+      <span class="muted" style="font-size:12px">No tags yet. Create one via the + modal.</span>
+    </div>`;
+  }
+  const rows = tags.map(t => `
+    <div class="notes-tag-mgmt-row" data-tag-id="${esc(t.id)}">
+      <div class="notes-tag-color-dot" style="background:${t.color}"></div>
+      <span class="notes-tag-name" data-tag-name>${esc(t.id)}</span>
+      <input type="color" class="notes-tag-color-input" value="${t.color}" data-tag-color />
+      <button class="notes-tag-action-btn" data-action="rename">Rename</button>
+      <button class="notes-tag-action-btn notes-tag-delete-btn" data-action="delete">Delete</button>
+    </div>`
+  ).join('');
+  return `<div class="notes-tag-mgmt-panel" id="notes-tag-mgmt-panel">
+    <div class="notes-tag-mgmt-header">Manage Tags</div>
+    ${rows}
+  </div>`;
+}
+
+function wireTagMgmt(view, tags) {
+  const panel = view.querySelector('#notes-tag-mgmt-panel');
+  if (!panel) return;
+
+  // Color changes
+  panel.querySelectorAll('[data-tag-color]').forEach(input => {
+    const row = input.closest('.notes-tag-mgmt-row');
+    const tagId = row.dataset.tagId;
+    input.addEventListener('change', async () => {
+      try {
+        await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
+          method: 'PATCH', body: JSON.stringify({ color: input.value }),
+        });
+        renderNotesView();
+      } catch (err) {
+        alert('Color update failed: ' + err.message);
+      }
+    });
+  });
+
+  // Rename and delete
+  panel.querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const row = btn.closest('.notes-tag-mgmt-row');
+      const tagId = row.dataset.tagId;
+
+      if (btn.dataset.action === 'delete') {
+        if (!confirm(`Delete tag "${tagId}"? Notes that use it will retain the label but lose color.`)) return;
+        try {
+          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, { method: 'DELETE' });
+          renderNotesView();
+        } catch (err) {
+          alert('Delete failed: ' + err.message);
+        }
+        return;
+      }
+
+      // Rename: swap span → input
+      const nameEl = row.querySelector('[data-tag-name]');
+      const colorInput = row.querySelector('[data-tag-color]');
+      const currentName = nameEl.textContent;
+      const input = document.createElement('input');
+      input.className = 'notes-tag-rename-input';
+      input.value = currentName;
+      nameEl.replaceWith(input);
+      input.focus();
+      input.select();
+
+      let committed = false;
+      const doRename = async () => {
+        if (committed) return;
+        committed = true;
+        const newName = input.value.trim().toUpperCase().replace(/\s+/g, '_');
+        if (!newName || newName === tagId) { renderNotesView(); return; }
+        try {
+          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
+            method: 'PATCH', body: JSON.stringify({ id: newName, color: colorInput.value }),
+          });
+          renderNotesView();
+        } catch (err) {
+          alert('Rename failed: ' + err.message);
+          renderNotesView();
+        }
+      };
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') doRename();
+        if (e.key === 'Escape') { committed = true; renderNotesView(); }
+      });
+      input.addEventListener('blur', () => setTimeout(doRename, 200));
+    });
+  });
+}
 </script>
 
   <!-- Floating note capture button (visible on all tabs) -->
