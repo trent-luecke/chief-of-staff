@@ -104,6 +104,6 @@ def _format_note_line(note: dict, people_by_id: dict) -> str:
     if note.get("tags"):
         extras.append(f"[{', '.join(note['tags'])}]")
     if note.get("person_id") and note["person_id"] in people_by_id:
-        extras.append(f"-> {people_by_id[note['person_id']]}")
+        extras.append(f"→ {people_by_id[note['person_id']]}")
     suffix = f"  ({' '.join(extras)})" if extras else ""
     return f"  - {note['body']}{suffix}"
