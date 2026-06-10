@@ -2594,7 +2594,7 @@ async function renderNotesView() {
   view.querySelectorAll('.note-card').forEach(card => {
     card.addEventListener('click', () => {
       const note = notes.find(n => n.id === card.dataset.noteId);
-      if (note) openNoteModal(note);
+      if (note && typeof openNoteModal === 'function') openNoteModal(note);
     });
   });
 }
