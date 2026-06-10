@@ -7,8 +7,13 @@ backed by lib/tasks.py (JSONL) and lib/projects.py.
 Usage:
     python tools/server.py          # start server at http://localhost:8787
 """
+import json
+import secrets
+import shutil
 import subprocess
 import sys
+import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
@@ -18,9 +23,12 @@ from flask import Flask, jsonify, request, send_file
 import lib.tasks as tasks_lib
 import lib.projects as projects_lib
 from lib.storage import LocalStorage
+from lib.notes import replay_notes as _replay_notes_lib
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
 DATA_DIR = ROOT / "data"
+NOTES_JSONL = DATA_DIR / "notes.jsonl"
+NOTES_TAGS_JSON = DATA_DIR / "notes_tags.json"
 
 app = Flask(__name__)
 
@@ -29,17 +37,26 @@ def _storage():
     return LocalStorage(base_dir=str(DATA_DIR))
 
 
-def _git_pull() -> None:
-    """Pull latest from remote. Non-fatal — UI still loads if pull fails."""
+def _git_push_notes(detail: str) -> dict:
+    """Commit notes files to the current branch."""
+    files = ["data/notes.jsonl"]
+    if NOTES_TAGS_JSON.exists():
+        files.append("data/notes_tags.json")
+    return _git_commit_push(files, f"data: {detail}")
+
+
+def _sync_tasks_from_main() -> None:
+    """Overwrite local tasks.jsonl with the authoritative copy from origin/main. Non-fatal."""
+    subprocess.run(["git", "fetch", "origin", "main"], cwd=str(ROOT), capture_output=True)
     subprocess.run(
-        ["git", "pull", "--ff-only"],
+        ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
         cwd=str(ROOT), capture_output=True,
     )
 
 
 @app.route("/")
 def index():
-    _git_pull()
+    _sync_tasks_from_main()
     return send_file(str(UI_PATH))
 
 
@@ -101,70 +118,11 @@ def delete_task(task_id: str):
     return jsonify({"task": result, "push": push})
 
 
-def _git_push_projects(project_name: str) -> dict:
-    """Stage, commit, and push projects_registry.json. Non-fatal — project creation succeeds regardless."""
+def _git_commit_push(files: list, msg: str) -> dict:
+    """Stage files, commit with msg, and push to the current branch's tracking remote."""
     try:
         repo = str(ROOT)
-        subprocess.run(
-            ["git", "add", "data/projects_registry.json"],
-            cwd=repo, check=True, capture_output=True,
-        )
-        commit = subprocess.run(
-            ["git", "commit", "-m", f"data: add project '{project_name}'"],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if commit.returncode != 0:
-            out = (commit.stdout + commit.stderr).strip()
-            if "nothing to commit" in out:
-                return {"status": "ok", "detail": "already committed"}
-            return {"status": "commit_failed", "detail": out}
-        push = subprocess.run(
-            ["git", "push"],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if push.returncode != 0:
-            return {"status": "push_failed", "detail": push.stderr.strip()}
-        return {"status": "ok", "detail": "committed and pushed"}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
-
-def _git_push_tasks(detail: str) -> dict:
-    """Stage, commit, and push tasks.jsonl. Returns status dict."""
-    try:
-        repo = str(ROOT)
-        subprocess.run(
-            ["git", "add", "data/tasks.jsonl"],
-            cwd=repo, check=True, capture_output=True,
-        )
-        commit = subprocess.run(
-            ["git", "commit", "-m", f"data: {detail}"],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if commit.returncode != 0:
-            out = (commit.stdout + commit.stderr).strip()
-            if "nothing to commit" in out:
-                return {"status": "ok", "detail": "already committed"}
-            return {"status": "commit_failed", "detail": out}
-        push = subprocess.run(
-            ["git", "push"],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if push.returncode != 0:
-            return {"status": "push_failed", "detail": push.stderr.strip()}
-        return {"status": "ok", "detail": "committed and pushed"}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
-
-def _git_push_both(msg: str) -> dict:
-    """Stage both data files in a single commit and push. Used when a project deletion also clears tasks."""
-    try:
-        repo = str(ROOT)
-        subprocess.run(
-            ["git", "add", "data/projects_registry.json", "data/tasks.jsonl"],
-            cwd=repo, check=True, capture_output=True,
-        )
+        subprocess.run(["git", "add"] + files, cwd=repo, check=True, capture_output=True)
         commit = subprocess.run(
             ["git", "commit", "-m", msg],
             cwd=repo, capture_output=True, text=True,
@@ -174,13 +132,74 @@ def _git_push_both(msg: str) -> dict:
             if "nothing to commit" in out:
                 return {"status": "ok", "detail": "already committed"}
             return {"status": "commit_failed", "detail": out}
-        push = subprocess.run(
-            ["git", "push"],
-            cwd=repo, capture_output=True, text=True,
-        )
+        push = subprocess.run(["git", "push"], cwd=repo, capture_output=True, text=True)
         if push.returncode != 0:
             return {"status": "push_failed", "detail": push.stderr.strip()}
         return {"status": "ok", "detail": "committed and pushed"}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+def _git_push_projects(project_name: str) -> dict:
+    return _git_commit_push(["data/projects_registry.json"], f"data: add project '{project_name}'")
+
+
+def _git_push_tasks(detail: str) -> dict:
+    """Commit tasks.jsonl directly on main via a temp worktree and push. Never touches the current branch."""
+    repo = str(ROOT)
+    tasks_path = ROOT / "data" / "tasks.jsonl"
+    try:
+        subprocess.run(["git", "fetch", "origin", "main"], cwd=repo, check=True, capture_output=True)
+
+        # Union-merge: add any lines from origin/main not yet in local file (handles concurrent GHA writes)
+        remote = subprocess.run(
+            ["git", "show", "origin/main:data/tasks.jsonl"],
+            cwd=repo, capture_output=True, text=True,
+        )
+        if remote.returncode == 0 and remote.stdout.strip():
+            local_set = set(tasks_path.read_text().strip().splitlines()) if tasks_path.exists() else set()
+            new_lines = [l for l in remote.stdout.strip().splitlines() if l not in local_set]
+            if new_lines:
+                with open(tasks_path, "a") as f:
+                    for line in new_lines:
+                        f.write(line + "\n")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            wt = tmp + "/wt"
+            subprocess.run(
+                ["git", "worktree", "add", "--detach", wt, "origin/main"],
+                cwd=repo, check=True, capture_output=True,
+            )
+            try:
+                shutil.copy(str(tasks_path), wt + "/data/tasks.jsonl")
+                subprocess.run(["git", "add", "data/tasks.jsonl"], cwd=wt, check=True, capture_output=True)
+                commit = subprocess.run(
+                    ["git", "commit", "-m", f"data: {detail}"],
+                    cwd=wt, capture_output=True, text=True,
+                )
+                if commit.returncode != 0:
+                    out = (commit.stdout + commit.stderr).strip()
+                    if "nothing to commit" in out:
+                        return {"status": "ok", "detail": "already committed"}
+                    return {"status": "commit_failed", "detail": out}
+                push = subprocess.run(
+                    ["git", "push", "origin", "HEAD:refs/heads/main"],
+                    cwd=wt, capture_output=True, text=True,
+                )
+                if push.returncode != 0:
+                    return {"status": "push_failed", "detail": push.stderr.strip()}
+            finally:
+                subprocess.run(
+                    ["git", "worktree", "remove", "--force", wt],
+                    cwd=repo, capture_output=True,
+                )
+
+        # Reset local index to match the just-pushed main so the working tree stays clean
+        subprocess.run(
+            ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
+            cwd=repo, capture_output=True,
+        )
+        return {"status": "ok", "detail": "committed and pushed to main"}
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
@@ -227,8 +246,9 @@ def delete_project(project_id: str):
     deleted = projects_lib.delete_project(storage, project_id)
     if not deleted:
         return jsonify({"error": "not found"}), 404
-    push = _git_push_both(f"data: delete project {project_id}")
-    return jsonify({"deleted": project_id, "tasks_deleted": len(proj_tasks), "push": push})
+    task_push = _git_push_tasks(f"delete project {project_id} tasks") if proj_tasks else {"status": "ok", "detail": "no tasks"}
+    proj_push = _git_commit_push(["data/projects_registry.json"], f"data: delete project {project_id}")
+    return jsonify({"deleted": project_id, "tasks_deleted": len(proj_tasks), "push": {"tasks": task_push, "projects": proj_push}})
 
 
 # --- People ---
