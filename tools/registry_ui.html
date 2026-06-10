@@ -2601,7 +2601,7 @@ async function renderNotesView() {
 
 // ── Typeahead picker ──────────────────────────────────────────────────────────
 function wireTypeahead(inputEl, dropdownEl, hiddenEl, items) {
-  inputEl.addEventListener('input', () => {
+  inputEl.oninput = () => {
     const q = inputEl.value.toLowerCase().trim();
     dropdownEl.classList.add('hidden');
     dropdownEl.innerHTML = '';
@@ -2612,19 +2612,19 @@ function wireTypeahead(inputEl, dropdownEl, hiddenEl, items) {
       `<div class="note-picker-option" data-id="${esc(i.id)}">${esc(i.label)}</div>`
     ).join('');
     dropdownEl.classList.remove('hidden');
-  });
-  dropdownEl.addEventListener('mousedown', e => {
+  };
+  dropdownEl.onmousedown = e => {
     const opt = e.target.closest('.note-picker-option');
     if (!opt) return;
     e.preventDefault();
     hiddenEl.value = opt.dataset.id;
     inputEl.value = items.find(i => i.id === opt.dataset.id)?.label || '';
     dropdownEl.classList.add('hidden');
-  });
-  inputEl.addEventListener('blur', () => {
+  };
+  inputEl.onblur = () => {
     setTimeout(() => dropdownEl.classList.add('hidden'), 200);
     if (!inputEl.value.trim()) hiddenEl.value = '';
-  });
+  };
 }
 
 // ── Modal tag chips re-render ─────────────────────────────────────────────────
@@ -2697,7 +2697,7 @@ function openNoteModal(note) {
         if (JSON.stringify(payload.tags.sort()) !== JSON.stringify((note.tags || []).slice().sort())) patch.tags = payload.tags;
         if (payload.person_id !== note.person_id) patch.person_id = payload.person_id;
         if (payload.task_id !== note.task_id) patch.task_id = payload.task_id;
-        if (payload.brief !== note.brief) patch.brief = payload.brief;
+        if (payload.brief !== !!note.brief) patch.brief = payload.brief;
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
           method: 'PATCH',
           body: JSON.stringify({ event_type: 'update', ...patch }),
