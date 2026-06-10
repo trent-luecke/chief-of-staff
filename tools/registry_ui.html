@@ -2598,6 +2598,199 @@ async function renderNotesView() {
     });
   });
 }
+
+// ── Typeahead picker ──────────────────────────────────────────────────────────
+function wireTypeahead(inputEl, dropdownEl, hiddenEl, items) {
+  inputEl.addEventListener('input', () => {
+    const q = inputEl.value.toLowerCase().trim();
+    dropdownEl.classList.add('hidden');
+    dropdownEl.innerHTML = '';
+    if (!q) { hiddenEl.value = ''; return; }
+    const matches = items.filter(i => i.label.toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) return;
+    dropdownEl.innerHTML = matches.map(i =>
+      `<div class="note-picker-option" data-id="${esc(i.id)}">${esc(i.label)}</div>`
+    ).join('');
+    dropdownEl.classList.remove('hidden');
+  });
+  dropdownEl.addEventListener('mousedown', e => {
+    const opt = e.target.closest('.note-picker-option');
+    if (!opt) return;
+    e.preventDefault();
+    hiddenEl.value = opt.dataset.id;
+    inputEl.value = items.find(i => i.id === opt.dataset.id)?.label || '';
+    dropdownEl.classList.add('hidden');
+  });
+  inputEl.addEventListener('blur', () => {
+    setTimeout(() => dropdownEl.classList.add('hidden'), 200);
+    if (!inputEl.value.trim()) hiddenEl.value = '';
+  });
+}
+
+// ── Modal tag chips re-render ─────────────────────────────────────────────────
+function renderModalTagChips(tags, selectedTags) {
+  const container = el('note-modal-tag-chips');
+  container.innerHTML = tags.map(t => {
+    const sel = selectedTags.has(t.id);
+    return `<button class="note-tag-chip-toggle${sel ? ' selected' : ''}" data-tag-id="${esc(t.id)}"
+      style="${sel ? `border-color:${t.color};color:${t.color}` : ''}">${esc(t.id)}</button>`;
+  }).join('');
+  container.querySelectorAll('.note-tag-chip-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tid = btn.dataset.tagId;
+      if (selectedTags.has(tid)) selectedTags.delete(tid);
+      else selectedTags.add(tid);
+      renderModalTagChips(tags, selectedTags);
+    });
+  });
+}
+
+// ── Note modal ────────────────────────────────────────────────────────────────
+function closeNoteModal() {
+  el('note-modal-overlay').classList.add('hidden');
+}
+
+function openNoteModal(note) {
+  const isEdit = !!note;
+  const tags = notesState._tags;
+  const people = notesState._people;
+  const tasks = notesState._tasks;
+
+  el('note-modal-title').textContent = isEdit ? 'Edit Note' : 'New Note';
+  el('note-body-input').value = isEdit ? note.body : '';
+  el('note-brief-check').checked = isEdit ? !!note.brief : false;
+
+  const selectedTags = new Set(isEdit ? (note.tags || []) : []);
+  renderModalTagChips(tags, selectedTags);
+
+  el('note-person-input').value = isEdit && note.person_id
+    ? (people.find(p => p.id === note.person_id)?.name || note.person_id) : '';
+  el('note-person-id').value = isEdit ? (note.person_id || '') : '';
+
+  el('note-task-input').value = isEdit && note.task_id
+    ? (tasks.find(t => t.id === note.task_id)?.title || note.task_id) : '';
+  el('note-task-id').value = isEdit ? (note.task_id || '') : '';
+
+  el('note-delete-btn').classList.toggle('hidden', !isEdit);
+  el('note-pin-btn').classList.toggle('hidden', !isEdit);
+  if (isEdit) el('note-pin-btn').textContent = note.pinned ? 'Unpin' : 'Pin';
+
+  el('note-new-tag-form').classList.add('hidden');
+  el('note-modal-overlay').classList.remove('hidden');
+  el('note-body-input').focus();
+
+  // Save
+  el('note-save-btn').onclick = async () => {
+    const body = el('note-body-input').value.trim();
+    if (!body) { el('note-body-input').focus(); return; }
+    const payload = {
+      body,
+      tags: [...selectedTags],
+      person_id: el('note-person-id').value || null,
+      task_id: el('note-task-id').value || null,
+      brief: el('note-brief-check').checked,
+    };
+    try {
+      if (isEdit) {
+        const patch = {};
+        if (payload.body !== note.body) patch.body = payload.body;
+        if (JSON.stringify(payload.tags.sort()) !== JSON.stringify((note.tags || []).slice().sort())) patch.tags = payload.tags;
+        if (payload.person_id !== note.person_id) patch.person_id = payload.person_id;
+        if (payload.task_id !== note.task_id) patch.task_id = payload.task_id;
+        if (payload.brief !== note.brief) patch.brief = payload.brief;
+        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ event_type: 'update', ...patch }),
+        });
+      } else {
+        await fetchJSON(`${API}/api/notes`, { method: 'POST', body: JSON.stringify(payload) });
+      }
+      closeNoteModal();
+      renderNotesView();
+    } catch (err) {
+      alert('Save failed: ' + err.message);
+    }
+  };
+
+  // Delete
+  if (isEdit) {
+    el('note-delete-btn').onclick = async () => {
+      if (!confirm('Delete this note?')) return;
+      try {
+        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE' });
+        closeNoteModal();
+        renderNotesView();
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    };
+
+    // Pin / Unpin
+    el('note-pin-btn').onclick = async () => {
+      try {
+        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ event_type: 'pin', pinned: !note.pinned }),
+        });
+        closeNoteModal();
+        renderNotesView();
+      } catch (err) {
+        alert('Pin failed: ' + err.message);
+      }
+    };
+  }
+
+  // + New Tag inline form
+  el('note-add-tag-btn').onclick = () => {
+    el('note-new-tag-form').classList.remove('hidden');
+    el('note-new-tag-name').value = '';
+    el('note-new-tag-name').focus();
+  };
+  el('note-new-tag-cancel').onclick = () => el('note-new-tag-form').classList.add('hidden');
+  el('note-new-tag-save').onclick = async () => {
+    const name = el('note-new-tag-name').value.trim().toUpperCase().replace(/\s+/g, '_');
+    const color = el('note-new-tag-color').value;
+    if (!name) return;
+    try {
+      await fetchJSON(`${API}/api/notes/tags`, {
+        method: 'POST', body: JSON.stringify({ id: name, color }),
+      });
+      const freshTags = await fetchJSON(`${API}/api/notes/tags`);
+      notesState._tags = freshTags;
+      selectedTags.add(name);
+      renderModalTagChips(freshTags, selectedTags);
+      el('note-new-tag-form').classList.add('hidden');
+    } catch (err) {
+      alert('Failed to create tag: ' + err.message);
+    }
+  };
+  el('note-new-tag-name').addEventListener('keydown', e => {
+    if (e.key === 'Enter') el('note-new-tag-save').click();
+    if (e.key === 'Escape') el('note-new-tag-form').classList.add('hidden');
+  });
+
+  // Typeahead pickers
+  wireTypeahead(
+    el('note-person-input'), el('note-person-dropdown'), el('note-person-id'),
+    people.map(p => ({ id: p.id, label: p.name }))
+  );
+  wireTypeahead(
+    el('note-task-input'), el('note-task-dropdown'), el('note-task-id'),
+    tasks.map(t => ({ id: t.id, label: t.title }))
+  );
+}
+
+// ── Global modal close handlers ───────────────────────────────────────────────
+el('note-modal-close').addEventListener('click', closeNoteModal);
+el('note-cancel-btn').addEventListener('click', closeNoteModal);
+el('note-modal-overlay').addEventListener('click', e => {
+  if (e.target === el('note-modal-overlay')) closeNoteModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !el('note-modal-overlay').classList.contains('hidden')) {
+    closeNoteModal();
+  }
+});
 </script>
 
   <!-- Floating note capture button (visible on all tabs) -->
