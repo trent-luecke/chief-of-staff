@@ -301,6 +301,41 @@ def create_note():
     return jsonify({"note": note_out, "push": push}), 201
 
 
+@app.route("/api/notes/<note_id>", methods=["PATCH"])
+def patch_note(note_id: str):
+    body = request.get_json(force=True)
+    notes = _replay_notes_lib(NOTES_JSONL)
+    if not any(n["id"] == note_id for n in notes):
+        return jsonify({"error": "not found"}), 404
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    event_type = body.pop("event_type", "update")
+    if event_type == "pin":
+        ev = {"event": "pin", "id": note_id, "ts": ts, "pinned": body.get("pinned", True)}
+    else:
+        ev = {
+            "event": "update", "id": note_id, "ts": ts,
+            **{k: v for k, v in body.items() if k not in ("event", "id", "ts")},
+        }
+    with open(NOTES_JSONL, "a") as f:
+        f.write(json.dumps(ev) + "\n")
+    push = _git_push_notes(f"update note {note_id}")
+    updated = next(n for n in _replay_notes_lib(NOTES_JSONL) if n["id"] == note_id)
+    return jsonify({"note": updated, "push": push})
+
+
+@app.route("/api/notes/<note_id>", methods=["DELETE"])
+def delete_note(note_id: str):
+    notes = _replay_notes_lib(NOTES_JSONL)
+    if not any(n["id"] == note_id for n in notes):
+        return jsonify({"error": "not found"}), 404
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    ev = {"event": "delete", "id": note_id, "ts": ts}
+    with open(NOTES_JSONL, "a") as f:
+        f.write(json.dumps(ev) + "\n")
+    push = _git_push_notes(f"delete note {note_id}")
+    return jsonify({"deleted": note_id, "push": push})
+
+
 if __name__ == "__main__":
     print("Entity UI → http://localhost:8787")
     app.run(port=8787, debug=False)
