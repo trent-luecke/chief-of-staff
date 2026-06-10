@@ -2606,8 +2606,6 @@ async function renderNotesView() {
 
 // ── Typeahead picker ──────────────────────────────────────────────────────────
 function wireTypeahead(inputEl, dropdownEl, hiddenEl, items) {
-  // DEBUG: remove after diagnosing typeahead issue
-  console.log('[wireTypeahead]', inputEl.id, '— items:', items.length, items.slice(0,2));
   // Use fixed positioning so the dropdown escapes the modal's overflow clipping context
   function showDropdown(html) {
     const rect = inputEl.getBoundingClientRect();
@@ -2678,7 +2676,6 @@ async function openNoteModal(note) {
   // Always ensure people and tasks are loaded — the cache may be empty if
   // the Notes tab was never visited and tags were pre-seeded (so _tags.length > 0
   // bypasses the FAB's pre-load guard).
-  console.log('[openNoteModal] cache before fetch check — _people:', notesState._people.length, '_tasks:', notesState._tasks.length);
   if (!notesState._people.length || !notesState._tasks.length) {
     try {
       const [tags, people, tasks] = await Promise.all([
@@ -2689,9 +2686,8 @@ async function openNoteModal(note) {
       notesState._tags = tags;
       notesState._people = people;
       notesState._tasks = tasks;
-      console.log('[openNoteModal] fetched — _people:', notesState._people.length, '_tasks:', notesState._tasks.length);
     } catch (e) {
-      console.error('[openNoteModal] FETCH FAILED:', e.message);
+      console.error('[openNoteModal] fetch failed:', e.message);
     }
   }
 
