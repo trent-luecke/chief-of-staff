@@ -37,3 +37,4 @@
 {"event": "delete", "task_id": "t-41ed36"}
 {"event": "complete", "task_id": "t-62c153", "completed_at": "2026-06-11"}
 {"event": "complete", "task_id": "t-61373f", "completed_at": "2026-06-11"}
+{"event": "complete", "task_id": "t-e48bb1", "completed_at": "2026-06-11"}
