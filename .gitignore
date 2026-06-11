@@ -41,3 +41,6 @@ market-intel/config/seen_urls.json
 
 # Archived planning docs — completed work, not needed for operation
 docs/archive/
+
+# Local Claude Code worktrees & settings
+.claude/
