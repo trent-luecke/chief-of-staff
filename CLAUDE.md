@@ -66,17 +66,22 @@ Google APIs use OAuth2 refresh token — no service account. Credentials in `cre
 
 ## Data Persistence
 
-`data/` is committed back to repo at end of each GitHub Actions run.
+`data/` is committed back to repo at end of each GitHub Actions run. `.gitignore` ignores `data/*` by default and explicitly un-ignores the tracked files below (see the `!data/...` allow-list).
 
 Tracked in git:
 - `data/people/` — contact files
 - `data/projects.md`, `data/recurring.json`, `data/meeting_index.json` — user config
 - `data/memory/decisions.md` — durable decisions
 - `data/captures.md` — quick-capture inbox
+- Registry entity stores (read/written by the Registry UI, see below): `data/tasks.jsonl`, `data/projects_registry.json`, `data/notes.jsonl`, `data/notes_tags.json`, `data/people_registry.json` (+ `people_resolution.json`, `people_unresolved.json`, `onboarding_cache.json`). `tasks.jsonl` uses a `merge=union` driver (`.gitattributes`) so concurrent appends never conflict.
 
 Gitignored (machine-written state):
 - `data/memory/*.md` (except `decisions.md`)
 - `data/state/`, `data/drafts/`, `data/logs/`
+
+## Registry UI (main-anchored data layer)
+
+`tools/server.py` (Flask) + `tools/registry_ui.html` serve the People / Work UI (tasks, projects, people, notes, tags). It treats **`origin/main` as the single source of truth**: reads come from an in-memory snapshot of `git show origin/main:<file>`; every create/edit/delete is written to `origin/main` via a throwaway git worktree (`lib/git_sync.py` + `lib/main_storage.py`) — it never mutates the working tree. Offline → HTTP 503 + UI banner; a failed push → HTTP 502 (no phantom success). Launch via the `registry-ui` skill or `python3 tools/server.py` (port 8787). Because the UI commits straight to `origin/main`, the registry data files on `main` are authoritative — don't hand-commit divergent working-tree copies.
 
 ## Vector Memory (Pinecone + Voyage AI)
 
