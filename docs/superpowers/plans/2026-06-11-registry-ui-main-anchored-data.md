@@ -8,6 +8,8 @@
 
 **Tech Stack:** Python 3.14, Flask 3.1, pytest 8.3, git, vanilla JS (no build step).
 
+> ⚠️ **The manual-verification steps in Tasks 7 and 8 are NOT dry runs.** They start the real server and create/complete/delete real tasks, projects, and notes, which push actual commits to `origin/main` (that is the system's normal behavior — CI consumers read `main`). If you want to verify without writing to `main`, use throwaway records you then delete, or rely on the mocked integration tests (Task 6) which never touch git. The offline-simulation step (Task 7, Step 5) renames the `origin` remote — make sure to restore it.
+
 ---
 
 ## Spec
@@ -1264,6 +1266,8 @@ At the very start of `async function init()` (line 2361), immediately after the 
 ```
 
 - [ ] **Step 4: Manual verification — online path**
+
+> ⚠️ This step pushes real commits to `origin/main`. Use a throwaway task you delete afterward if you don't want it to persist.
 
 Run:
 ```bash
