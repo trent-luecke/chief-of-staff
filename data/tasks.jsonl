@@ -33,3 +33,4 @@
 {"event": "delete", "task_id": "t-51f252"}
 {"event": "create", "task_id": "t-d7be47", "title": "use musings and notes from Two Brain to create a stream of LinkedIn content. Each post is dedicated to one thought or observation. Use Claude to pull out stories from full upload of notes", "source": "slack", "created_at": "2026-06-10", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
 {"event": "create", "task_id": "t-67798a", "title": "finish beta", "source": "ui", "created_at": "2026-06-11", "due_date": "2026-06-15", "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": null}
+{"event": "create", "task_id": "t-41ed36", "title": "tester task", "source": "ui", "created_at": "2026-06-11", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
