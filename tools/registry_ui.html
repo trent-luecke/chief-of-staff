@@ -1378,7 +1378,7 @@ function buildEditFormHtml(person) {
     </div>`;
 }
 
-function openDetailReadOnly(person, detail) {
+async function openDetailReadOnly(person, detail) {
   detail.innerHTML = buildDetailReadOnlyHtml(person, getPersonObs(person.id));
   detail.classList.remove('hidden');
   detail.querySelector('[data-edit-person]').addEventListener('click', () => {
@@ -1387,6 +1387,33 @@ function openDetailReadOnly(person, detail) {
   detail.querySelector('[data-merge-person]').addEventListener('click', () => {
     openMergeSearch(person, detail);
   });
+  await appendLinkedNotesForPerson(person, detail);
+}
+
+// Fetch notes + tags, render the notes linked to this person, and wire edit clicks.
+async function appendLinkedNotesForPerson(person, detail) {
+  let notes, tags;
+  try {
+    [notes, tags] = await Promise.all([
+      fetchJSON(`${API}/api/notes`),
+      fetchJSON(`${API}/api/notes/tags`),
+    ]);
+  } catch {
+    return; // server offline — silently skip the notes section
+  }
+  notesState._projects = notesState._projects.length
+    ? notesState._projects
+    : await fetchJSON(`${API}/api/projects`).catch(() => []);
+  const linked = notes
+    .filter(n => n.person_id === person.id)
+    .sort((a, b) => (a.ts < b.ts ? 1 : -1));
+  if (!linked.length) return;
+  const section = document.createElement('div');
+  section.className = 'linked-notes-section';
+  section.innerHTML = `<div class="linked-notes-label">Linked Notes (${linked.length})</div>`
+    + linkedNoteLinesHtml(linked, tags);
+  detail.appendChild(section);
+  wireLinkedNoteClicks(section, notes, () => openDetailReadOnly(person, detail));
 }
 
 function openMergeSearch(person, detail) {
