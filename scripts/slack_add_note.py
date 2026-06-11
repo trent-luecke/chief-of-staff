@@ -27,17 +27,26 @@ def _load(path: Path, default):
 
 
 def fuzzy_match_people(raw_name: str, registry_path: Path) -> list:
-    """Return [{id, canonical_name}] for every person whose name/aliases match raw_name."""
+    """Return [{id, canonical_name}] for people whose name/aliases match raw_name.
+
+    An exact (case-insensitive) name/alias match wins outright over fuzzy substring
+    matches. This guarantees the interactive-disambiguation loop terminates: when a
+    button re-dispatches with the chosen canonical name, that name resolves to exactly
+    one person even if a shorter name (e.g. "Jon") is a substring of it ("Jon Smith").
+    """
     if not raw_name or not raw_name.strip():
         return []
     registry = _load(registry_path, {})
-    needle = raw_name.lower()
-    matches = []
+    needle = raw_name.lower().strip()
+    exact, fuzzy = [], []
     for person in registry.get("people", []):
         candidates = [person.get("canonical_name", "")] + person.get("aliases", [])
-        if any(needle in c.lower() or c.lower() in needle for c in candidates if c):
-            matches.append({"id": person["id"], "canonical_name": person.get("canonical_name", person["id"])})
-    return matches
+        entry = {"id": person["id"], "canonical_name": person.get("canonical_name", person["id"])}
+        if any(needle == c.lower().strip() for c in candidates if c):
+            exact.append(entry)
+        elif any(needle in c.lower() or c.lower() in needle for c in candidates if c):
+            fuzzy.append(entry)
+    return exact if exact else fuzzy
 
 
 def best_match_project(raw_name: str, registry_path: Path):

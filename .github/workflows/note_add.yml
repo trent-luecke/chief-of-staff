@@ -67,5 +67,22 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/notes.jsonl
-          git diff --staged --quiet || git commit -m "chore: add note from slack [skip ci]"
-          git push origin main || true
+          if git diff --staged --quiet; then
+            echo "No note changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: add note from slack [skip ci]"
+          # Race-safe push: another writer (Registry UI or a concurrent /note) may have
+          # advanced main. Rebase onto the latest main — the data/notes.jsonl merge=union
+          # driver resolves concurrent appends — then retry. Fail loudly if it can't land.
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — fetching and rebasing onto origin/main."
+            git fetch origin main
+            git rebase origin/main || { echo "Rebase failed."; exit 1; }
+          done
+          echo "Failed to push note after 5 attempts."
+          exit 1

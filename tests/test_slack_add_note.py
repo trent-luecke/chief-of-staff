@@ -56,6 +56,18 @@ def test_fuzzy_match_people_none(tmp_path):
     assert fuzzy_match_people("zzz", reg) == []
 
 
+def test_fuzzy_match_people_exact_wins_over_substring(tmp_path):
+    # "Jon" is a substring of "Jon Smith"; an exact match on the full name must
+    # resolve to exactly one person so the disambiguation loop terminates.
+    reg = _write_people(tmp_path, [
+        {"id": "jon", "canonical_name": "Jon", "aliases": []},
+        {"id": "jon-smith", "canonical_name": "Jon Smith", "aliases": []},
+    ])
+    matches = fuzzy_match_people("Jon Smith", reg)
+    assert len(matches) == 1
+    assert matches[0]["id"] == "jon-smith"
+
+
 # ── best_match_project ────────────────────────────────────────────────────────
 
 def test_best_match_project_hit(tmp_path):
