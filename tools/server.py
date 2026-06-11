@@ -9,11 +9,7 @@ Usage:
 """
 import json
 import secrets
-import shutil
-import subprocess
 import sys
-import tempfile
-import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,54 +19,97 @@ sys.path.insert(0, str(ROOT))
 from flask import Flask, jsonify, request, send_file
 import lib.tasks as tasks_lib
 import lib.projects as projects_lib
-from lib.storage import LocalStorage
-from lib.notes import replay_notes as _replay_notes_lib
+import lib.git_sync as git_sync
+from lib.main_storage import MainStorage
+from lib.notes import replay_notes_content
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
-DATA_DIR = ROOT / "data"
-NOTES_JSONL = DATA_DIR / "notes.jsonl"
-NOTES_TAGS_JSON = DATA_DIR / "notes_tags.json"
 
 app = Flask(__name__)
 
 
-def _storage():
-    return LocalStorage(base_dir=str(DATA_DIR))
+# --- Snapshot of origin/main (the single source of truth) ---
+
+class _Snapshot:
+    def __init__(self):
+        self.online = False
+        self.fetched_at = None
+        self.tasks = []
+        self.projects = []
+        self.people = {"people": []}
+        self.notes = []
+        self.tags = []
 
 
-def _git_push_notes(detail: str) -> dict:
-    """Commit notes files to the current branch."""
-    files = ["data/notes.jsonl"]
-    if NOTES_TAGS_JSON.exists():
-        files.append("data/notes_tags.json")
-    return _git_commit_push(files, f"data: {detail}")
+SNAPSHOT = _Snapshot()
 
 
-def _sync_tasks_from_main() -> None:
-    """Overwrite local tasks.jsonl with the authoritative copy from origin/main. Non-fatal.
+def _read_store() -> MainStorage:
+    """A MainStorage that reads from origin/main (current local ref)."""
+    return MainStorage(read_blob=git_sync.show_main)
 
-    Bounded by a short timeout so an offline/slow network can't hang the page load
-    (the dev server would otherwise block all other requests behind this fetch).
+
+def rebuild_snapshot(known_online=None) -> None:
+    """Re-read every dataset from origin/main into SNAPSHOT.
+
+    If known_online is None, fetch origin/main first (the fetch result is the
+    connectivity signal). Pass True to skip the fetch (e.g. right after a write
+    that already updated the ref).
     """
-    try:
-        subprocess.run(
-            ["git", "fetch", "origin", "main"],
-            cwd=str(ROOT), capture_output=True, timeout=8,
-        )
-        subprocess.run(
-            ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
-            cwd=str(ROOT), capture_output=True, timeout=8,
-        )
-    except (subprocess.TimeoutExpired, OSError):
-        pass  # offline or git unavailable — serve local copy
+    online = git_sync.fetch_main() if known_online is None else known_online
+    store = _read_store()
+    SNAPSHOT.tasks = tasks_lib.get_open_tasks(store)
+    SNAPSHOT.projects = projects_lib.list_projects(store, status=None)
+    SNAPSHOT.people = store.read_json("people_registry.json", default={"people": []})
+    SNAPSHOT.notes = replay_notes_content(store.read("notes.jsonl") or "")
+    SNAPSHOT.tags = store.read_json("notes_tags.json", default=[])
+    SNAPSHOT.online = online
+    SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
+
+
+def _write_main(mutate, msg_fn):
+    """Apply mutate(store) against origin/main and commit the result.
+
+    Returns (result, push, http_status). When main is unreachable, returns
+    (None, {"status":"offline"}, 503) WITHOUT attempting any commit.
+    msg_fn is a commit message string, or a callable taking the mutate result.
+    """
+    if not git_sync.fetch_main():
+        return None, {"status": "offline", "detail": "cannot reach main"}, 503
+    store = _read_store()
+    result = mutate(store)
+    msg = msg_fn(result) if callable(msg_fn) else msg_fn
+    push = git_sync.commit_files_to_main(store.dirty(), msg)
+    if push.get("status") == "ok":
+        rebuild_snapshot(known_online=True)
+    return result, push, 200
+
+
+def _people_list():
+    return [
+        {"id": p["id"], "name": p.get("canonical_name", p["id"])}
+        for p in SNAPSHOT.people.get("people", [])
+    ]
 
 
 @app.route("/")
 def index():
-    # Pull latest tasks from origin/main in the background so the page serves
-    # instantly even when offline / on a slow network.
-    threading.Thread(target=_sync_tasks_from_main, daemon=True).start()
     return send_file(str(UI_PATH))
+
+
+@app.route("/api/bootstrap", methods=["GET"])
+@app.route("/api/refresh", methods=["POST"])
+def bootstrap():
+    rebuild_snapshot()
+    return jsonify({
+        "online": SNAPSHOT.online,
+        "fetched_at": SNAPSHOT.fetched_at,
+        "tasks": SNAPSHOT.tasks,
+        "projects": SNAPSHOT.projects,
+        "people": _people_list(),
+        "notes": SNAPSHOT.notes,
+        "tags": SNAPSHOT.tags,
+    })
 
 
 # --- Tasks ---
