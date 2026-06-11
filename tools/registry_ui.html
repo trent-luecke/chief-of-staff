@@ -2498,6 +2498,7 @@ const notesState = {
   _tags: [],
   _people: [],
   _tasks: [],
+  _projects: [],
 };
 
 el('note-fab').addEventListener('click', () => {
@@ -2535,13 +2536,14 @@ async function renderNotesView() {
   const view = el('view-notes');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
 
-  let notes, tags, people, tasks;
+  let notes, tags, people, tasks, projects;
   try {
-    [notes, tags, people, tasks] = await Promise.all([
+    [notes, tags, people, tasks, projects] = await Promise.all([
       fetchJSON(`${API}/api/notes`),
       fetchJSON(`${API}/api/notes/tags`),
       fetchJSON(`${API}/api/people`),
       fetchJSON(`${API}/api/tasks`),
+      fetchJSON(`${API}/api/projects`),
     ]);
   } catch {
     view.innerHTML = `<div class="offline-banner">Start tools/server.py to see notes.</div>
@@ -2551,6 +2553,7 @@ async function renderNotesView() {
   notesState._tags = tags;
   notesState._people = people;
   notesState._tasks = tasks;
+  notesState._projects = projects;
 
   // Filter
   let filtered = notes.filter(n => {
@@ -2740,16 +2743,18 @@ async function openNoteModal(note) {
   // Always ensure people and tasks are loaded — the cache may be empty if
   // the Notes tab was never visited and tags were pre-seeded (so _tags.length > 0
   // bypasses the FAB's pre-load guard).
-  if (!notesState._people.length || !notesState._tasks.length) {
+  if (!notesState._people.length || !notesState._tasks.length || !notesState._projects.length) {
     try {
-      const [tags, people, tasks] = await Promise.all([
+      const [tags, people, tasks, projects] = await Promise.all([
         fetchJSON(`${API}/api/notes/tags`),
         fetchJSON(`${API}/api/people`),
         fetchJSON(`${API}/api/tasks`),
+        fetchJSON(`${API}/api/projects`),
       ]);
       notesState._tags = tags;
       notesState._people = people;
       notesState._tasks = tasks;
+      notesState._projects = projects;
     } catch (e) {
       console.error('[openNoteModal] fetch failed:', e.message);
     }
@@ -2758,6 +2763,7 @@ async function openNoteModal(note) {
   const tags = notesState._tags;
   const people = notesState._people;
   const tasks = notesState._tasks;
+  const projects = notesState._projects;
 
   el('note-modal-title').textContent = isEdit ? 'Edit Note' : 'New Note';
   el('note-body-input').value = isEdit ? note.body : '';
@@ -2773,6 +2779,10 @@ async function openNoteModal(note) {
   el('note-task-input').value = isEdit && note.task_id
     ? (tasks.find(t => t.id === note.task_id)?.title || note.task_id) : '';
   el('note-task-id').value = isEdit ? (note.task_id || '') : '';
+
+  el('note-project-input').value = isEdit && note.project_id
+    ? (projects.find(p => p.id === note.project_id)?.canonical_name || note.project_id) : '';
+  el('note-project-id').value = isEdit ? (note.project_id || '') : '';
 
   el('note-delete-btn').classList.toggle('hidden', !isEdit);
   el('note-pin-btn').classList.toggle('hidden', !isEdit);
@@ -2790,6 +2800,7 @@ async function openNoteModal(note) {
       body,
       tags: [...selectedTags],
       person_id: el('note-person-id').value || null,
+      project_id: el('note-project-id').value || null,
       task_id: el('note-task-id').value || null,
       brief: el('note-brief-check').checked,
     };
@@ -2800,6 +2811,7 @@ async function openNoteModal(note) {
         if (JSON.stringify(payload.tags.sort()) !== JSON.stringify((note.tags || []).slice().sort())) patch.tags = payload.tags;
         if (payload.person_id !== note.person_id) patch.person_id = payload.person_id;
         if (payload.task_id !== note.task_id) patch.task_id = payload.task_id;
+        if (payload.project_id !== note.project_id) patch.project_id = payload.project_id;
         if (payload.brief !== !!note.brief) patch.brief = payload.brief;
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
           method: 'PATCH',
@@ -2880,6 +2892,10 @@ async function openNoteModal(note) {
   wireTypeahead(
     el('note-task-input'), el('note-task-dropdown'), el('note-task-id'),
     tasks.map(t => ({ id: t.id, label: t.title }))
+  );
+  wireTypeahead(
+    el('note-project-input'), el('note-project-dropdown'), el('note-project-id'),
+    projects.map(p => ({ id: p.id, label: p.canonical_name }))
   );
 }
 
@@ -3022,6 +3038,13 @@ function wireTagMgmt(view, tags) {
           <div id="note-person-dropdown" class="note-picker-dropdown hidden"></div>
         </div>
         <input type="hidden" id="note-person-id" />
+
+        <div class="note-field-label" style="margin-top:10px">Project (optional)</div>
+        <div class="note-picker-wrap">
+          <input id="note-project-input" class="note-field-input" placeholder="Search projects…" autocomplete="off" />
+          <div id="note-project-dropdown" class="note-picker-dropdown hidden"></div>
+        </div>
+        <input type="hidden" id="note-project-id" />
 
         <div class="note-field-label" style="margin-top:10px">Task (optional)</div>
         <div class="note-picker-wrap">
