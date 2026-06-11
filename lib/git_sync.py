@@ -88,7 +88,19 @@ def commit_files_to_main(files: dict, msg: str) -> dict:
                         target.write_text(_union_merge_lines(existing, content))
                     else:
                         target.write_text(content)
-                subprocess.run(["git", "add"] + list(files.keys()), cwd=wt, check=True, capture_output=True)
+                add = subprocess.run(
+                    ["git", "add", "--"] + list(files.keys()),
+                    cwd=wt, capture_output=True, text=True,
+                )
+                if add.returncode != 0:
+                    ignored = subprocess.run(
+                        ["git", "check-ignore", "--"] + list(files.keys()),
+                        cwd=wt, capture_output=True, text=True,
+                    ).stdout.split()
+                    if ignored:
+                        return {"status": "ignored",
+                                "detail": "refused: gitignored on main, not persisted: " + ", ".join(ignored)}
+                    return {"status": "add_failed", "detail": add.stderr.strip()}
                 commit = subprocess.run(["git", "commit", "-m", msg], cwd=wt, capture_output=True, text=True)
                 if commit.returncode != 0:
                     out = (commit.stdout + commit.stderr).strip()
