@@ -1707,8 +1707,65 @@ function switchTab(name) {
 // ── View: Work ──────────────────────────────────────────────────────────────
 const API = 'http://localhost:8787';
 
+// --- Connectivity state (main is the single source of truth) ---
+if (typeof state !== 'undefined') { state.online = (typeof state.online === 'boolean') ? state.online : true; }
+
+function ensureConnectivityChrome() {
+  if (document.getElementById('conn-chrome')) return;
+  const bar = document.createElement('div');
+  bar.id = 'conn-chrome';
+  bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;'
+    + 'align-items:center;gap:12px;padding:6px 12px;font:13px system-ui;'
+    + 'background:#b00020;color:#fff;transform:translateY(-100%);transition:transform .2s;';
+  const msg = document.createElement('span');
+  msg.id = 'conn-msg';
+  msg.textContent = '⚠ Offline — can’t reach main. Showing last-known data; editing disabled.';
+  const btn = document.createElement('button');
+  btn.id = 'conn-refresh';
+  btn.textContent = '↻ Refresh';
+  btn.style.cssText = 'margin-left:auto;cursor:pointer;padding:2px 10px;border-radius:4px;'
+    + 'border:1px solid #fff;background:transparent;color:#fff;';
+  btn.onclick = () => refreshFromMain();
+  bar.appendChild(msg);
+  bar.appendChild(btn);
+  document.body.appendChild(bar);
+}
+
+function applyOnlineState() {
+  ensureConnectivityChrome();
+  const bar = document.getElementById('conn-chrome');
+  const offline = state.online === false;
+  document.body.classList.toggle('offline', offline);
+  bar.style.transform = offline ? 'translateY(0)' : 'translateY(-100%)';
+}
+
+async function refreshFromMain() {
+  try {
+    const boot = await fetch(`${API}/api/refresh`, { method: 'POST' }).then(r => r.json());
+    state.online = boot.online;
+  } catch (e) {
+    state.online = false;
+  }
+  applyOnlineState();
+  if (typeof rerenderCurrentView === 'function') {
+    rerenderCurrentView();
+  } else {
+    location.reload();
+  }
+}
+
 async function fetchJSON(url, opts = {}) {
+  const method = (opts.method || 'GET').toUpperCase();
+  if (method !== 'GET' && typeof state !== 'undefined' && state.online === false) {
+    applyOnlineState();
+    throw new Error('offline: editing disabled until main is reachable');
+  }
   const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
+  if (res.status === 503) {
+    if (typeof state !== 'undefined') { state.online = false; }
+    applyOnlineState();
+    throw new Error('offline: write rejected by server');
+  }
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
@@ -2359,6 +2416,13 @@ async function renderWorkView() {
 
 // ── Entry point ─────────────────────────────────────────────────────────────
 async function init() {
+  try {
+    const boot = await fetch(`${API}/api/bootstrap`).then(r => r.json());
+    state.online = boot.online;
+  } catch (e) {
+    state.online = false;
+  }
+  applyOnlineState();
   // Server mode: skip folder picker and load directly from the Flask API.
   if (window.location.port === '8787') {
     el('screen-loading').classList.remove('hidden');
