@@ -32,10 +32,7 @@ def client(monkeypatch):
         for rel, content in files.items():
             if rel.endswith(".jsonl"):
                 existing = main.get(rel, "")
-                seen = set(l for l in existing.splitlines() if l.strip())
-                merged = [l for l in existing.splitlines() if l.strip()]
-                merged += [l for l in content.splitlines() if l.strip() and l not in seen]
-                main[rel] = "\n".join(merged) + ("\n" if merged else "")
+                main[rel] = server.git_sync._union_merge_lines(existing, content)
             else:
                 main[rel] = content
         committed.append(msg)
@@ -89,6 +86,7 @@ def test_create_note_and_list(client):
     client.post("/api/notes", json={"body": "remember this", "tags": []})
     notes = client.get("/api/notes").get_json()
     assert any(n["body"] == "remember this" for n in notes)
+    assert "remember this" in client._main["data/notes.jsonl"]
 
 
 def test_create_task_push_failure_returns_502(client, monkeypatch):
@@ -107,3 +105,15 @@ def test_commit_offline_returns_503(client, monkeypatch):
                         lambda files, msg: {"status": "offline", "detail": "git fetch timed out"})
     r = client.post("/api/tasks", json={"title": "late"})
     assert r.status_code == 503
+
+
+def test_complete_task_returns_200_with_push_ok(client):
+    created = client.post("/api/tasks", json={"title": "finish me"}).get_json()["task"]
+    r = client.post(f"/api/tasks/{created['id']}/complete")
+    assert r.status_code == 200
+    assert r.get_json()["push"]["status"] == "ok"
+
+
+def test_delete_missing_task_returns_404(client):
+    r = client.delete("/api/tasks/t-doesnotexist")
+    assert r.status_code == 404
