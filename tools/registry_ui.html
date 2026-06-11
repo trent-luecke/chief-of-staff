@@ -669,6 +669,30 @@
       border-left-width: 3px; border-radius: 4px; padding: 10px 12px; cursor: pointer;
     }
     .note-card:hover { background: var(--surface2); }
+    /* Linked notes (People + Work tabs) */
+    .linked-notes-section { margin-top: 10px; }
+    .linked-notes-label {
+      font-size: 10px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
+    }
+    .linked-note-line {
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+      padding: 4px 6px; border-left: 2px solid var(--border);
+      margin-bottom: 4px; cursor: pointer; border-radius: 0 3px 3px 0;
+    }
+    .linked-note-line:hover { background: var(--surface2); }
+    .linked-note-ts { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+    .linked-note-body { font-size: 12px; color: var(--text); line-height: 1.4; }
+    /* Task-row note affordance */
+    .task-note-toggle {
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      padding: 0 4px; user-select: none;
+    }
+    .task-note-toggle:hover { color: var(--accent); }
+    .task-note-drawer {
+      flex-basis: 100%; margin: 4px 0 2px 0; padding-left: 8px;
+    }
+    .task-note-drawer.hidden { display: none; }
     .note-card-ts { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
     .note-tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
     .note-tag-chip {
@@ -2505,6 +2529,34 @@ el('note-fab').addEventListener('click', () => {
   openNoteModal(null);
 });
 
+// ── Shared linked-notes rendering (People + Work tabs) ────────────────────────
+function linkedNoteLinesHtml(notes, tags) {
+  return notes.map(n => {
+    const tagObjects = (n.tags || []).map(tid => tags.find(t => t.id === tid)).filter(Boolean);
+    const tagHtml = tagObjects.map(t =>
+      `<span class="note-tag-chip" style="color:${t.color};border-color:${t.color}">${esc(t.id)}</span>`
+    ).join('');
+    const shortTs = (n.ts || '').slice(0, 16).replace('T', ' ');
+    return `<div class="linked-note-line" data-note-id="${esc(n.id)}">
+      <span class="linked-note-ts">${esc(shortTs)}</span>
+      ${tagHtml}
+      <span class="linked-note-body">${esc(n.body)}</span>
+    </div>`;
+  }).join('');
+}
+
+// Wire click → edit modal for any .linked-note-line inside containerEl.
+// allNotes: the full notes array; onChange: re-render callback after edit/save.
+function wireLinkedNoteClicks(containerEl, allNotes, onChange) {
+  containerEl.querySelectorAll('.linked-note-line').forEach(line => {
+    line.addEventListener('click', e => {
+      e.stopPropagation();
+      const note = allNotes.find(n => n.id === line.dataset.noteId);
+      if (note) openNoteModal(note, onChange);
+    });
+  });
+}
+
 // ── renderNoteCard ────────────────────────────────────────────────────────────
 function renderNoteCard(note, tags, people, tasks) {
   const tagObjects = (note.tags || []).map(tid => tags.find(t => t.id === tid)).filter(Boolean);
@@ -2516,6 +2568,7 @@ function renderNoteCard(note, tags, people, tasks) {
   const showBrief = note.brief && note.brief_flagged_date && note.brief_flagged_date >= twoDaysAgo;
   const personName = note.person_id ? (people.find(p => p.id === note.person_id)?.name || null) : null;
   const taskTitle = note.task_id ? (tasks.find(t => t.id === note.task_id)?.title || null) : null;
+  const projectName = note.project_id ? (notesState._projects.find(p => p.id === note.project_id)?.canonical_name || null) : null;
   const shortTs = note.ts.slice(0, 16).replace('T', ' ');
   return `
     <div class="note-card" data-note-id="${esc(note.id)}" style="border-left-color:${borderColor}">
@@ -2527,6 +2580,7 @@ function renderNoteCard(note, tags, people, tasks) {
       ${tagHtml ? `<div class="note-tag-list">${tagHtml}</div>` : ''}
       <div class="note-body">${esc(note.body)}</div>
       ${personName ? `<div class="note-link">→ ${esc(personName)}</div>` : ''}
+      ${projectName ? `<div class="note-link">⊕ ${esc(projectName)}</div>` : ''}
       ${taskTitle ? `<div class="note-link">↗ ${esc(taskTitle.slice(0, 50))}${taskTitle.length > 50 ? '…' : ''}</div>` : ''}
     </div>`;
 }
@@ -2737,7 +2791,8 @@ function closeNoteModal() {
   el('note-modal-overlay').classList.add('hidden');
 }
 
-async function openNoteModal(note) {
+async function openNoteModal(note, onChange) {
+  const afterChange = onChange || renderNotesView;
   const isEdit = !!note;
 
   // Always ensure people and tasks are loaded — the cache may be empty if
@@ -2821,7 +2876,7 @@ async function openNoteModal(note) {
         await fetchJSON(`${API}/api/notes`, { method: 'POST', body: JSON.stringify(payload) });
       }
       closeNoteModal();
-      renderNotesView();
+      afterChange();
     } catch (err) {
       alert('Save failed: ' + err.message);
     }
@@ -2834,7 +2889,7 @@ async function openNoteModal(note) {
       try {
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE' });
         closeNoteModal();
-        renderNotesView();
+        afterChange();
       } catch (err) {
         alert('Delete failed: ' + err.message);
       }
@@ -2848,7 +2903,7 @@ async function openNoteModal(note) {
           body: JSON.stringify({ event_type: 'pin', pinned: !note.pinned }),
         });
         closeNoteModal();
-        renderNotesView();
+        afterChange();
       } catch (err) {
         alert('Pin failed: ' + err.message);
       }
