@@ -421,6 +421,7 @@
     }
     .task-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
       padding: 6px 0;
@@ -1401,6 +1402,8 @@ async function appendLinkedNotesForPerson(person, detail) {
   } catch {
     return; // server offline — silently skip the notes section
   }
+  // Pre-warm _projects so openNoteModal has project names if a note is opened
+  // from this tab before the Notes/Work tab has populated the cache.
   notesState._projects = notesState._projects.length
     ? notesState._projects
     : await fetchJSON(`${API}/api/projects`).catch(() => []);
@@ -2331,6 +2334,9 @@ async function renderWorkView() {
         const taskRowsHtml = pTasks.length
           ? pTasks.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')
           : '<span class="muted" style="font-size:12px">No open tasks.</span>';
+        // projTaskIds only covers OPEN tasks (allNotes roll-up mirrors what the
+        // Work tab shows, since /api/tasks returns open tasks only). Notes linked
+        // to completed tasks are intentionally excluded from the roll-up.
         const projTaskIds = new Set(pTasks.map(t => t.id));
         const projNotes = (allNotes || [])
           .filter(n => n.project_id === p.id || (n.task_id && projTaskIds.has(n.task_id)))
