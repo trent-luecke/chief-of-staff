@@ -28,6 +28,9 @@ data/*
 !data/people_resolution.json
 !data/people_unresolved.json
 !data/onboarding_cache.json
+!data/notes_tags.json
+!data/projects_registry.json
+!data/notes.jsonl
 !data/memory/
 data/memory/*
 !data/memory/decisions.md
@@ -40,3 +43,6 @@ market-intel/config/seen_urls.json
 
 # Archived planning docs — completed work, not needed for operation
 docs/archive/
+
+# Local Claude Code worktrees & settings
+.claude/
