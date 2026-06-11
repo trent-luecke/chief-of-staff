@@ -1863,9 +1863,29 @@ function renderOwnerChip(task, people) {
   return `<span class="assign-ghost" data-task-id="${esc(task.id)}">+ assign</span>`;
 }
 
-function renderTaskRow(task, people, withLinkProj = false) {
+// Compact note lines for a task drawer (no tag chips — keeps renderTaskRow tag-agnostic).
+function linkedNoteLinesHtmlForTask(notes) {
+  return notes
+    .slice()
+    .sort((a, b) => (a.ts < b.ts ? 1 : -1))
+    .map(n => {
+      const shortTs = (n.ts || '').slice(0, 16).replace('T', ' ');
+      return `<div class="linked-note-line" data-note-id="${esc(n.id)}">
+        <span class="linked-note-ts">${esc(shortTs)}</span>
+        <span class="linked-note-body">${esc(n.body)}</span>
+      </div>`;
+    }).join('');
+}
+
+function renderTaskRow(task, people, withLinkProj = false, notesForTask = []) {
   const linkChip = withLinkProj
     ? `<span class="link-proj-ghost" data-task-id="${esc(task.id)}">→ Project</span>`
+    : '';
+  const noteToggle = notesForTask.length
+    ? `<span class="task-note-toggle" data-task-id="${esc(task.id)}" title="Show linked notes">💬 ${notesForTask.length}</span>`
+    : '';
+  const noteDrawer = notesForTask.length
+    ? `<div class="task-note-drawer hidden" id="task-notes-${esc(task.id)}">${linkedNoteLinesHtmlForTask(notesForTask)}</div>`
     : '';
   return `
     <div class="task-row" id="task-row-${esc(task.id)}">
@@ -1876,7 +1896,9 @@ function renderTaskRow(task, people, withLinkProj = false) {
         ${renderOwnerChip(task, people)}
       </span>
       ${linkChip}
+      ${noteToggle}
       <button class="btn-delete-task" data-task-id="${esc(task.id)}" title="Delete task">×</button>
+      ${noteDrawer}
     </div>`;
 }
 
@@ -2275,18 +2297,26 @@ async function renderWorkView() {
   const view = el('view-work');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
 
-  let projects, allTasks, people;
+  let projects, allTasks, people, allNotes, noteTags;
   try {
-    [projects, allTasks, people] = await Promise.all([
+    [projects, allTasks, people, allNotes, noteTags] = await Promise.all([
       fetchJSON(`${API}/api/projects`),
       fetchJSON(`${API}/api/tasks`),
       fetchJSON(`${API}/api/people`),
+      fetchJSON(`${API}/api/notes`),
+      fetchJSON(`${API}/api/notes/tags`),
     ]);
   } catch {
     view.innerHTML = `
       <div class="offline-banner">Start tools/server.py to see projects and tasks.</div>
       <div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
     return;
+  }
+
+  notesState._projects = projects || [];
+  const notesByTask = {};
+  for (const n of (allNotes || [])) {
+    if (n.task_id) (notesByTask[n.task_id] = notesByTask[n.task_id] || []).push(n);
   }
 
   const activeProjects = (projects || []).filter(p => p.status !== 'archived');
@@ -2299,8 +2329,18 @@ async function renderWorkView() {
         const isExpanded = workState.expanded.has(p.id);
         const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
         const taskRowsHtml = pTasks.length
-          ? pTasks.map(t => renderTaskRow(t, people)).join('')
+          ? pTasks.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')
           : '<span class="muted" style="font-size:12px">No open tasks.</span>';
+        const projTaskIds = new Set(pTasks.map(t => t.id));
+        const projNotes = (allNotes || [])
+          .filter(n => n.project_id === p.id || (n.task_id && projTaskIds.has(n.task_id)))
+          .sort((a, b) => (a.ts < b.ts ? 1 : -1));
+        const projNotesHtml = projNotes.length
+          ? `<div class="linked-notes-section" id="proj-notes-${esc(p.id)}">
+               <div class="linked-notes-label">Notes (${projNotes.length})</div>
+               ${linkedNoteLinesHtml(projNotes, noteTags || [])}
+             </div>`
+          : '';
         return `
           <div class="proj-group" id="group-${esc(p.id)}">
             <div class="proj-group-header${isExpanded ? ' expanded' : ''}${workState.editing.has(p.id) ? ' edit-active' : ''}" data-proj-id="${esc(p.id)}">
@@ -2315,6 +2355,7 @@ async function renderWorkView() {
               <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
               <div id="group-tasks-${esc(p.id)}">${taskRowsHtml}</div>
               ${renderAddTaskForm(p.id, people)}
+              ${projNotesHtml}
             </div>
           </div>`;
       }).join('')
@@ -2322,7 +2363,7 @@ async function renderWorkView() {
 
   // ── Standalone section ──────────────────────────────────────────────────
   const standaloneHtml = standaloneTasks.length
-    ? standaloneTasks.map(t => renderTaskRow(t, people, true)).join('')
+    ? standaloneTasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')
     : '<div class="muted" style="font-size:12px">No standalone tasks.</div>';
 
   view.innerHTML = `
@@ -2462,6 +2503,24 @@ async function renderWorkView() {
       workState.editing.delete(projId);
       openEditPanel(project, people, groupEl);
     }
+  });
+
+  // Wire project-level linked notes → edit modal
+  activeProjects.forEach(p => {
+    const sec = document.getElementById(`proj-notes-${p.id}`);
+    if (sec) wireLinkedNoteClicks(sec, allNotes, () => renderWorkView());
+  });
+
+  // Wire task-row note toggles (expand/collapse) and drawer note clicks
+  view.querySelectorAll('.task-note-toggle').forEach(toggle => {
+    toggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const drawer = document.getElementById(`task-notes-${toggle.dataset.taskId}`);
+      if (drawer) drawer.classList.toggle('hidden');
+    });
+  });
+  view.querySelectorAll('.task-note-drawer').forEach(drawer => {
+    wireLinkedNoteClicks(drawer, allNotes, () => renderWorkView());
   });
 }
 
