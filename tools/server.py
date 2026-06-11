@@ -117,10 +117,10 @@ def bootstrap():
 @app.route("/api/tasks", methods=["GET"])
 def list_tasks():
     project_id = request.args.get("project_id")
-    open_tasks = tasks_lib.get_open_tasks(_storage())
+    tasks = SNAPSHOT.tasks
     if project_id:
-        open_tasks = [t for t in open_tasks if t.get("project_id") == project_id]
-    return jsonify(open_tasks)
+        tasks = [t for t in tasks if t.get("project_id") == project_id]
+    return jsonify(tasks)
 
 
 @app.route("/api/tasks", methods=["POST"])
@@ -128,132 +128,63 @@ def create_task():
     body = request.get_json(force=True)
     if not body or not body.get("title"):
         return jsonify({"error": "title is required"}), 400
-    task = tasks_lib.add_task(
-        _storage(),
-        title=body["title"],
-        source=body.get("source", "ui"),
-        due_date=body.get("due_date"),
-        metadata=body.get("metadata"),
-        project_id=body.get("project_id"),
-        collaborators=body.get("collaborators"),
-        owner=body.get("owner"),
-    )
-    push = _git_push_tasks(f"create task {task['id']}")
+
+    def mutate(store):
+        return tasks_lib.add_task(
+            store,
+            title=body["title"],
+            source=body.get("source", "ui"),
+            due_date=body.get("due_date"),
+            metadata=body.get("metadata"),
+            project_id=body.get("project_id"),
+            collaborators=body.get("collaborators"),
+            owner=body.get("owner"),
+        )
+
+    task, push, status = _write_main(mutate, lambda t: f"data: create task {t['id']}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
     return jsonify({"task": task, "push": push}), 201
 
 
 @app.route("/api/tasks/<task_id>", methods=["PATCH"])
 def update_task(task_id: str):
     patch = request.get_json(force=True)
-    result = tasks_lib.edit_task(_storage(), task_id, patch)
-    if result is None:
+    task, push, status = _write_main(
+        lambda store: tasks_lib.edit_task(store, task_id, patch),
+        f"data: update task {task_id}",
+    )
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if task is None:
         return jsonify({"error": "not found"}), 404
-    push = _git_push_tasks(f"update task {task_id}")
-    return jsonify({"task": result, "push": push})
+    return jsonify({"task": task, "push": push})
 
 
 @app.route("/api/tasks/<task_id>/complete", methods=["POST"])
 def complete_task(task_id: str):
-    result = tasks_lib.complete_task_by_id(_storage(), task_id)
-    if result is None:
+    task, push, status = _write_main(
+        lambda store: tasks_lib.complete_task_by_id(store, task_id),
+        f"data: complete task {task_id}",
+    )
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if task is None:
         return jsonify({"error": "not found"}), 404
-    push = _git_push_tasks(f"complete task {task_id}")
-    return jsonify({"task": result, "push": push})
+    return jsonify({"task": task, "push": push})
 
 
 @app.route("/api/tasks/<task_id>", methods=["DELETE"])
 def delete_task(task_id: str):
-    result = tasks_lib.delete_task_by_id(_storage(), task_id)
-    if result is None:
+    task, push, status = _write_main(
+        lambda store: tasks_lib.delete_task_by_id(store, task_id),
+        f"data: delete task {task_id}",
+    )
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if task is None:
         return jsonify({"error": "not found"}), 404
-    push = _git_push_tasks(f"delete task {task_id}")
-    return jsonify({"task": result, "push": push})
-
-
-def _git_commit_push(files: list, msg: str) -> dict:
-    """Stage files, commit with msg, and push to the current branch's tracking remote."""
-    try:
-        repo = str(ROOT)
-        subprocess.run(["git", "add"] + files, cwd=repo, check=True, capture_output=True)
-        commit = subprocess.run(
-            ["git", "commit", "-m", msg],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if commit.returncode != 0:
-            out = (commit.stdout + commit.stderr).strip()
-            if "nothing to commit" in out:
-                return {"status": "ok", "detail": "already committed"}
-            return {"status": "commit_failed", "detail": out}
-        push = subprocess.run(["git", "push"], cwd=repo, capture_output=True, text=True)
-        if push.returncode != 0:
-            return {"status": "push_failed", "detail": push.stderr.strip()}
-        return {"status": "ok", "detail": "committed and pushed"}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
-
-
-def _git_push_projects(project_name: str) -> dict:
-    return _git_commit_push(["data/projects_registry.json"], f"data: add project '{project_name}'")
-
-
-def _git_push_tasks(detail: str) -> dict:
-    """Commit tasks.jsonl directly on main via a temp worktree and push. Never touches the current branch."""
-    repo = str(ROOT)
-    tasks_path = ROOT / "data" / "tasks.jsonl"
-    try:
-        subprocess.run(["git", "fetch", "origin", "main"], cwd=repo, check=True, capture_output=True)
-
-        # Union-merge: add any lines from origin/main not yet in local file (handles concurrent GHA writes)
-        remote = subprocess.run(
-            ["git", "show", "origin/main:data/tasks.jsonl"],
-            cwd=repo, capture_output=True, text=True,
-        )
-        if remote.returncode == 0 and remote.stdout.strip():
-            local_set = set(tasks_path.read_text().strip().splitlines()) if tasks_path.exists() else set()
-            new_lines = [l for l in remote.stdout.strip().splitlines() if l not in local_set]
-            if new_lines:
-                with open(tasks_path, "a") as f:
-                    for line in new_lines:
-                        f.write(line + "\n")
-
-        with tempfile.TemporaryDirectory() as tmp:
-            wt = tmp + "/wt"
-            subprocess.run(
-                ["git", "worktree", "add", "--detach", wt, "origin/main"],
-                cwd=repo, check=True, capture_output=True,
-            )
-            try:
-                shutil.copy(str(tasks_path), wt + "/data/tasks.jsonl")
-                subprocess.run(["git", "add", "data/tasks.jsonl"], cwd=wt, check=True, capture_output=True)
-                commit = subprocess.run(
-                    ["git", "commit", "-m", f"data: {detail}"],
-                    cwd=wt, capture_output=True, text=True,
-                )
-                if commit.returncode != 0:
-                    out = (commit.stdout + commit.stderr).strip()
-                    if "nothing to commit" in out:
-                        return {"status": "ok", "detail": "already committed"}
-                    return {"status": "commit_failed", "detail": out}
-                push = subprocess.run(
-                    ["git", "push", "origin", "HEAD:refs/heads/main"],
-                    cwd=wt, capture_output=True, text=True,
-                )
-                if push.returncode != 0:
-                    return {"status": "push_failed", "detail": push.stderr.strip()}
-            finally:
-                subprocess.run(
-                    ["git", "worktree", "remove", "--force", wt],
-                    cwd=repo, capture_output=True,
-                )
-
-        # Reset local index to match the just-pushed main so the working tree stays clean
-        subprocess.run(
-            ["git", "checkout", "origin/main", "--", "data/tasks.jsonl"],
-            cwd=repo, capture_output=True,
-        )
-        return {"status": "ok", "detail": "committed and pushed to main"}
-    except Exception as e:
-        return {"status": "error", "detail": str(e)}
+    return jsonify({"task": task, "push": push})
 
 
 # --- Projects ---
@@ -261,7 +192,10 @@ def _git_push_tasks(detail: str) -> dict:
 @app.route("/api/projects", methods=["GET"])
 def list_projects():
     status = request.args.get("status", "active")
-    return jsonify(projects_lib.list_projects(_storage(), status=status or None))
+    projects = SNAPSHOT.projects
+    if status:
+        projects = [p for p in projects if p.get("status") == status]
+    return jsonify(projects)
 
 
 @app.route("/api/projects", methods=["POST"])
@@ -269,63 +203,72 @@ def create_project():
     body = request.get_json(force=True)
     if not body or not body.get("canonical_name"):
         return jsonify({"error": "canonical_name is required"}), 400
-    project = projects_lib.add_project(
-        _storage(),
-        canonical_name=body["canonical_name"],
-        aliases=body.get("aliases"),
-        members=body.get("members"),
-    )
-    push = _git_push_projects(project["canonical_name"])
+
+    def mutate(store):
+        return projects_lib.add_project(
+            store,
+            canonical_name=body["canonical_name"],
+            aliases=body.get("aliases"),
+            members=body.get("members"),
+        )
+
+    project, push, status = _write_main(mutate, lambda p: f"data: add project '{p['canonical_name']}'")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
     return jsonify({"project": project, "push": push}), 201
 
 
 @app.route("/api/projects/<project_id>", methods=["PATCH"])
 def update_project(project_id: str):
     updates = request.get_json(force=True)
-    result = projects_lib.update_project(_storage(), project_id, updates)
-    if result is None:
+    project, push, status = _write_main(
+        lambda store: projects_lib.update_project(store, project_id, updates),
+        f"data: update project {project_id}",
+    )
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if project is None:
         return jsonify({"error": "not found"}), 404
-    return jsonify(result)
+    return jsonify(project)
 
 
 @app.route("/api/projects/<project_id>", methods=["DELETE"])
 def delete_project(project_id: str):
-    storage = _storage()
-    open_tasks = tasks_lib.get_open_tasks(storage)
-    proj_tasks = [t for t in open_tasks if t.get("project_id") == project_id]
-    for t in proj_tasks:
-        tasks_lib.delete_task_by_id(storage, t["id"])
-    deleted = projects_lib.delete_project(storage, project_id)
-    if not deleted:
+    def mutate(store):
+        open_tasks = tasks_lib.get_open_tasks(store)
+        proj_tasks = [t for t in open_tasks if t.get("project_id") == project_id]
+        for t in proj_tasks:
+            tasks_lib.delete_task_by_id(store, t["id"])
+        deleted = projects_lib.delete_project(store, project_id)
+        if not deleted:
+            return None
+        return {"project_id": project_id, "tasks_deleted": len(proj_tasks)}
+
+    result, push, status = _write_main(mutate, f"data: delete project {project_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if result is None:
         return jsonify({"error": "not found"}), 404
-    task_push = _git_push_tasks(f"delete project {project_id} tasks") if proj_tasks else {"status": "ok", "detail": "no tasks"}
-    proj_push = _git_commit_push(["data/projects_registry.json"], f"data: delete project {project_id}")
-    return jsonify({"deleted": project_id, "tasks_deleted": len(proj_tasks), "push": {"tasks": task_push, "projects": proj_push}})
+    return jsonify({"deleted": project_id, "tasks_deleted": result["tasks_deleted"], "push": push})
 
 
 # --- People ---
 
 @app.route("/api/people", methods=["GET"])
 def list_people():
-    registry = _storage().read_json("people_registry.json", default={"people": []})
-    people = [
-        {"id": p["id"], "name": p.get("canonical_name", p["id"])}
-        for p in registry.get("people", [])
-    ]
-    return jsonify(people)
+    return jsonify(_people_list())
 
 
 @app.route("/api/registry", methods=["GET"])
 def get_registry():
-    registry = _storage().read_json("people_registry.json", default={"people": []})
-    return jsonify(registry)
+    return jsonify(SNAPSHOT.people)
 
 
 # --- Notes ---
 
 @app.route("/api/notes", methods=["GET"])
 def list_notes():
-    return jsonify(_replay_notes_lib(NOTES_JSONL))
+    return jsonify(SNAPSHOT.notes)
 
 
 @app.route("/api/notes", methods=["POST"])
@@ -336,19 +279,17 @@ def create_note():
     note_id = "n-" + secrets.token_hex(3)
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
     ev = {
-        "event": "create",
-        "id": note_id,
-        "ts": ts,
-        "body": body["body"],
-        "tags": body.get("tags", []),
-        "person_id": body.get("person_id"),
-        "task_id": body.get("task_id"),
-        "brief": body.get("brief", False),
-        "pinned": body.get("pinned", False),
+        "event": "create", "id": note_id, "ts": ts,
+        "body": body["body"], "tags": body.get("tags", []),
+        "person_id": body.get("person_id"), "task_id": body.get("task_id"),
+        "brief": body.get("brief", False), "pinned": body.get("pinned", False),
     }
-    with open(NOTES_JSONL, "a") as f:
-        f.write(json.dumps(ev) + "\n")
-    push = _git_push_notes(f"create note {note_id}")
+    _, push, status = _write_main(
+        lambda store: store.append_line("notes.jsonl", json.dumps(ev)),
+        f"data: create note {note_id}",
+    )
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
     note_out = {**ev, "brief_flagged_date": ts[:10] if ev["brief"] else None}
     return jsonify({"note": note_out, "push": push}), 201
 
@@ -356,35 +297,46 @@ def create_note():
 @app.route("/api/notes/<note_id>", methods=["PATCH"])
 def patch_note(note_id: str):
     body = request.get_json(force=True)
-    notes = _replay_notes_lib(NOTES_JSONL)
-    if not any(n["id"] == note_id for n in notes):
-        return jsonify({"error": "not found"}), 404
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
     event_type = body.pop("event_type", "update")
     if event_type == "pin":
         ev = {"event": "pin", "id": note_id, "ts": ts, "pinned": body.get("pinned", True)}
     else:
-        ev = {
-            "event": "update", "id": note_id, "ts": ts,
-            **{k: v for k, v in body.items() if k not in ("event", "id", "ts")},
-        }
-    with open(NOTES_JSONL, "a") as f:
-        f.write(json.dumps(ev) + "\n")
-    push = _git_push_notes(f"update note {note_id}")
-    updated = next(n for n in _replay_notes_lib(NOTES_JSONL) if n["id"] == note_id)
-    return jsonify({"note": updated, "push": push})
+        ev = {"event": "update", "id": note_id, "ts": ts,
+              **{k: v for k, v in body.items() if k not in ("event", "id", "ts")}}
+
+    def mutate(store):
+        notes = replay_notes_content(store.read("notes.jsonl") or "")
+        if not any(n["id"] == note_id for n in notes):
+            return None
+        store.append_line("notes.jsonl", json.dumps(ev))
+        updated = replay_notes_content(store.read("notes.jsonl"))
+        return next(n for n in updated if n["id"] == note_id)
+
+    note, push, status = _write_main(mutate, f"data: update note {note_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if note is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"note": note, "push": push})
 
 
 @app.route("/api/notes/<note_id>", methods=["DELETE"])
 def delete_note(note_id: str):
-    notes = _replay_notes_lib(NOTES_JSONL)
-    if not any(n["id"] == note_id for n in notes):
-        return jsonify({"error": "not found"}), 404
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-    ev = {"event": "delete", "id": note_id, "ts": ts}
-    with open(NOTES_JSONL, "a") as f:
-        f.write(json.dumps(ev) + "\n")
-    push = _git_push_notes(f"delete note {note_id}")
+
+    def mutate(store):
+        notes = replay_notes_content(store.read("notes.jsonl") or "")
+        if not any(n["id"] == note_id for n in notes):
+            return None
+        store.append_line("notes.jsonl", json.dumps({"event": "delete", "id": note_id, "ts": ts}))
+        return note_id
+
+    result, push, status = _write_main(mutate, f"data: delete note {note_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if result is None:
+        return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": note_id, "push": push})
 
 
@@ -392,9 +344,7 @@ def delete_note(note_id: str):
 
 @app.route("/api/notes/tags", methods=["GET"])
 def list_note_tags():
-    if not NOTES_TAGS_JSON.exists():
-        NOTES_TAGS_JSON.write_text(json.dumps([]))
-    return jsonify(json.loads(NOTES_TAGS_JSON.read_text()))
+    return jsonify(SNAPSHOT.tags)
 
 
 @app.route("/api/notes/tags", methods=["POST"])
@@ -403,55 +353,78 @@ def create_note_tag():
     if not body or not body.get("id"):
         return jsonify({"error": "id is required"}), 400
     tag_id = body["id"].upper().replace(" ", "_")
-    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
-    if any(t["id"] == tag_id for t in tags):
-        return jsonify({"error": "tag already exists"}), 409
     tag = {"id": tag_id, "color": body.get("color", "#555555")}
-    tags.append(tag)
-    NOTES_TAGS_JSON.write_text(json.dumps(tags, indent=2))
-    _git_commit_push(["data/notes_tags.json"], f"data: create tag {tag_id}")
-    return jsonify({"tag": tag}), 201
+
+    def mutate(store):
+        tags = store.read_json("notes_tags.json", default=[])
+        if any(t["id"] == tag_id for t in tags):
+            return "exists"
+        tags.append(tag)
+        store.write_json("notes_tags.json", tags)
+        return tag
+
+    result, push, status = _write_main(mutate, f"data: create tag {tag_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if result == "exists":
+        return jsonify({"error": "tag already exists"}), 409
+    return jsonify({"tag": result}), 201
 
 
 @app.route("/api/notes/tags/<tag_id>", methods=["PATCH"])
 def update_note_tag(tag_id: str):
     body = request.get_json(force=True)
-    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
-    tag = next((t for t in tags if t["id"] == tag_id), None)
-    if tag is None:
-        return jsonify({"error": "not found"}), 404
     new_id = body.get("id", tag_id).upper().replace(" ", "_")
-    new_color = body.get("color", tag.get("color", "#555555"))
-    for t in tags:
-        if t["id"] == tag_id:
-            t["id"] = new_id
-            t["color"] = new_color
-    NOTES_TAGS_JSON.write_text(json.dumps(tags, indent=2))
-    commit_files = ["data/notes_tags.json"]
-    if new_id != tag_id and NOTES_JSONL.exists():
-        affected = [n for n in _replay_notes_lib(NOTES_JSONL) if tag_id in n.get("tags", [])]
-        if affected:
-            ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-            with open(NOTES_JSONL, "a") as f:
-                for note in affected:
-                    new_tags = [new_id if t == tag_id else t for t in note["tags"]]
-                    f.write(json.dumps({"event": "update", "id": note["id"], "ts": ts, "tags": new_tags}) + "\n")
-            commit_files.append("data/notes.jsonl")
-    _git_commit_push(commit_files, f"data: rename tag {tag_id} -> {new_id}")
-    return jsonify({"tag": {"id": new_id, "color": new_color}})
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+
+    def mutate(store):
+        tags = store.read_json("notes_tags.json", default=[])
+        tag = next((t for t in tags if t["id"] == tag_id), None)
+        if tag is None:
+            return None
+        new_color = body.get("color", tag.get("color", "#555555"))
+        for t in tags:
+            if t["id"] == tag_id:
+                t["id"] = new_id
+                t["color"] = new_color
+        store.write_json("notes_tags.json", tags)
+        if new_id != tag_id:
+            affected = [n for n in replay_notes_content(store.read("notes.jsonl") or "")
+                        if tag_id in n.get("tags", [])]
+            for note in affected:
+                new_tags = [new_id if x == tag_id else x for x in note["tags"]]
+                store.append_line("notes.jsonl", json.dumps(
+                    {"event": "update", "id": note["id"], "ts": ts, "tags": new_tags}))
+        return {"id": new_id, "color": new_color}
+
+    result, push, status = _write_main(mutate, f"data: rename tag {tag_id} -> {new_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"tag": result})
 
 
 @app.route("/api/notes/tags/<tag_id>", methods=["DELETE"])
 def delete_note_tag(tag_id: str):
-    tags = json.loads(NOTES_TAGS_JSON.read_text()) if NOTES_TAGS_JSON.exists() else []
-    new_tags = [t for t in tags if t["id"] != tag_id]
-    if len(new_tags) == len(tags):
+    def mutate(store):
+        tags = store.read_json("notes_tags.json", default=[])
+        new_tags = [t for t in tags if t["id"] != tag_id]
+        if len(new_tags) == len(tags):
+            return None
+        store.write_json("notes_tags.json", new_tags)
+        return tag_id
+
+    result, push, status = _write_main(mutate, f"data: delete tag {tag_id}")
+    if status == 503:
+        return jsonify({"error": "offline", "push": push}), 503
+    if result is None:
         return jsonify({"error": "not found"}), 404
-    NOTES_TAGS_JSON.write_text(json.dumps(new_tags, indent=2))
-    _git_commit_push(["data/notes_tags.json"], f"data: delete tag {tag_id}")
-    return jsonify({"deleted": tag_id})
+    return jsonify({"deleted": tag_id, "push": push})
 
 
 if __name__ == "__main__":
+    git_sync.prune_worktrees()
+    rebuild_snapshot()
     print("Entity UI → http://localhost:8787")
     app.run(port=8787, debug=False, threaded=True)
