@@ -1,1 +1,2 @@
 data/tasks.jsonl merge=union
+data/notes.jsonl merge=union

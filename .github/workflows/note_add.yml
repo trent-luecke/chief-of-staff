@@ -1,0 +1,88 @@
+name: Add Note from Slack
+
+on:
+  workflow_dispatch:
+    inputs:
+      body:
+        description: "Note body"
+        required: true
+      response_url:
+        description: "Slack response_url for posting confirmation"
+        required: false
+        default: ""
+      person_raw:
+        description: "Raw person name to fuzzy-match against people registry"
+        required: false
+        default: ""
+      project_raw:
+        description: "Raw project name to fuzzy-match against projects registry"
+        required: false
+        default: ""
+      tag_raw:
+        description: "Raw tag to match against notes_tags.json"
+        required: false
+        default: ""
+      channel_id:
+        description: "Slack channel ID"
+        required: false
+        default: ""
+      user_id:
+        description: "Slack user ID of the person who ran the command"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  add-note:
+    runs-on: ubuntu-latest
+    env:
+      TZ: America/Chicago
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Add note
+        env:
+          NOTE_BODY: ${{ inputs.body }}
+          RESPONSE_URL: ${{ inputs.response_url }}
+          PERSON_RAW: ${{ inputs.person_raw }}
+          PROJECT_RAW: ${{ inputs.project_raw }}
+          TAG_RAW: ${{ inputs.tag_raw }}
+          CHANNEL_ID: ${{ inputs.channel_id }}
+          USER_ID: ${{ inputs.user_id }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: python scripts/slack_add_note.py
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/notes.jsonl
+          if git diff --staged --quiet; then
+            echo "No note changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: add note from slack [skip ci]"
+          # Race-safe push: another writer (Registry UI or a concurrent /note) may have
+          # advanced main. Rebase onto the latest main — the data/notes.jsonl merge=union
+          # driver resolves concurrent appends — then retry. Fail loudly if it can't land.
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then
+              echo "Pushed on attempt $attempt."
+              exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — fetching and rebasing onto origin/main."
+            git fetch origin main
+            git rebase origin/main || { echo "Rebase failed."; exit 1; }
+          done
+          echo "Failed to push note after 5 attempts."
+          exit 1

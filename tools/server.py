@@ -289,6 +289,7 @@ def create_note():
         "event": "create", "id": note_id, "ts": ts,
         "body": body["body"], "tags": body.get("tags", []),
         "person_id": body.get("person_id"), "task_id": body.get("task_id"),
+        "project_id": body.get("project_id"),
         "brief": body.get("brief", False), "pinned": body.get("pinned", False),
     }
     _, push, status = _write_main(

@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
+import secrets
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 
@@ -41,6 +42,7 @@ def replay_notes_content(content: str) -> list[dict]:
                 "tags": ev.get("tags", []),
                 "person_id": ev.get("person_id"),
                 "task_id": ev.get("task_id"),
+                "project_id": ev.get("project_id"),
                 "brief": ev.get("brief", False),
                 "pinned": ev.get("pinned", False),
             }
@@ -64,6 +66,39 @@ def replay_notes_content(content: str) -> list[dict]:
         n["brief_flagged_date"] = brief_flagged_dates.get(nid)
         result.append(n)
     return result
+
+
+def add_note(
+    storage,
+    body: str,
+    tags: list | None = None,
+    person_id: str | None = None,
+    project_id: str | None = None,
+    task_id: str | None = None,
+    brief: bool = False,
+    pinned: bool = False,
+) -> dict:
+    """Append a create event to notes.jsonl and return the event dict.
+
+    Mirrors the create path in tools/server.py so Slack-created notes match
+    UI-created notes exactly. Caller is responsible for committing the file.
+    """
+    note_id = "n-" + secrets.token_hex(3)
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+    ev = {
+        "event": "create",
+        "id": note_id,
+        "ts": ts,
+        "body": body,
+        "tags": tags or [],
+        "person_id": person_id,
+        "task_id": task_id,
+        "project_id": project_id,
+        "brief": brief,
+        "pinned": pinned,
+    }
+    storage.append_line("notes.jsonl", json.dumps(ev))
+    return ev
 
 
 def load_notes_for_brief(storage) -> str:
@@ -96,26 +131,39 @@ def load_notes_for_brief(storage) -> str:
     except Exception:
         pass
 
+    projects_by_id: dict[str, str] = {}
+    try:
+        preg = json.loads((storage.base_dir / "projects_registry.json").read_text())
+        projects_by_id = {
+            p["id"]: p.get("canonical_name", p["id"])
+            for p in preg.get("projects", [])
+        }
+    except Exception:
+        pass
+
     lines: list[str] = []
     if todays:
         lines.append("### Today's Notes (flagged for today's brief)")
         for n in todays:
-            lines.append(_format_note_line(n, people_by_id))
+            lines.append(_format_note_line(n, people_by_id, projects_by_id))
         lines.append("")
     if yesterdays:
         lines.append("### Yesterday's Notes (flagged for yesterday's brief)")
         for n in yesterdays:
-            lines.append(_format_note_line(n, people_by_id))
+            lines.append(_format_note_line(n, people_by_id, projects_by_id))
         lines.append("")
     return "\n".join(lines)
 
 
-def _format_note_line(note: dict, people_by_id: dict) -> str:
+def _format_note_line(note: dict, people_by_id: dict, projects_by_id: dict | None = None) -> str:
     """Format a single note as a brief-ready bullet line."""
+    projects_by_id = projects_by_id or {}
     extras = []
     if note.get("tags"):
         extras.append(f"[{', '.join(note['tags'])}]")
     if note.get("person_id") and note["person_id"] in people_by_id:
         extras.append(f"→ {people_by_id[note['person_id']]}")
+    if note.get("project_id") and note["project_id"] in projects_by_id:
+        extras.append(f"⊕ {projects_by_id[note['project_id']]}")
     suffix = f"  ({' '.join(extras)})" if extras else ""
     return f"  - {note['body']}{suffix}"

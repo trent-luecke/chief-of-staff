@@ -119,6 +119,63 @@ async function handleSlackTask(request, env, ctx) {
   });
 }
 
+async function handleSlackNote(request, env, ctx) {
+  const timestamp = request.headers.get("X-Slack-Request-Timestamp") || "";
+  const signature = request.headers.get("X-Slack-Signature") || "";
+
+  if (!timestamp || !signature) return new Response("Unauthorized", { status: 401 });
+
+  const rawBody = await request.text();
+
+  if (!await verifySlackSig(env.SLACK_SIGNING_SECRET, timestamp, rawBody, signature)) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const params = new URLSearchParams(rawBody);
+  const text = (params.get("text") || "").trim();
+  const responseUrl = params.get("response_url") || "";
+  const channelId = params.get("channel_id") || "";
+  const userId = params.get("user_id") || "";
+
+  const usage = "Usage: /note <body> [person:<name>] [project:<name>] [tag:<TAG>]";
+  if (!text) {
+    return Response.json({ response_type: "ephemeral", text: usage });
+  }
+
+  // Extract single-word tokens; order-independent. Body is whatever remains.
+  let rest = text;
+  const grab = (re) => {
+    const m = rest.match(re);
+    if (!m) return "";
+    rest = rest.replace(m[0], "").replace(/\s+/g, " ").trim();
+    return m[1];
+  };
+  const personRaw = grab(/\bperson:(\S+)/i);
+  const projectRaw = grab(/\bproject:(\S+)/i);
+  const tagRaw = grab(/\btag:(\S+)/i);
+  const body = rest.trim();
+
+  if (!body) {
+    return Response.json({ response_type: "ephemeral", text: usage });
+  }
+
+  ctx.waitUntil(
+    dispatchToGitHub(env, "note_add.yml", {
+      body,
+      response_url: responseUrl,
+      person_raw: personRaw,
+      project_raw: projectRaw,
+      tag_raw: tagRaw,
+      channel_id: channelId,
+      user_id: userId,
+    }).then(ok => {
+      if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue note — GitHub dispatch error. Try again or check the PAT.");
+    })
+  );
+
+  return Response.json({ response_type: "ephemeral", text: "Adding note..." });
+}
+
 // Handles button clicks from interactive owner-disambiguation messages.
 async function handleSlackInteractive(request, env, ctx) {
   const timestamp = request.headers.get("X-Slack-Request-Timestamp") || "";
@@ -141,42 +198,62 @@ async function handleSlackInteractive(request, env, ctx) {
   }
 
   const action = payload.actions?.[0];
-  if (!action || !action.action_id.startsWith("assign_owner")) {
-    return Response.json({ text: "Unknown action." });
-  }
+  const responseUrl = payload.response_url || "";
 
-  let taskData;
+  let data;
   try {
-    taskData = JSON.parse(action.value);
+    data = JSON.parse(action?.value || "{}");
   } catch {
     return Response.json({ text: "Invalid action data." });
   }
 
-  const { title, due_date_raw = "", owner_raw } = taskData;
-  const responseUrl = payload.response_url || "";
+  // Note person disambiguation → note_add.yml
+  if (action?.action_id?.startsWith("link_note_person")) {
+    const { body, project_raw = "", tag = "", person_raw = "" } = data;
+    ctx.waitUntil(
+      dispatchToGitHub(env, "note_add.yml", {
+        body,
+        response_url: responseUrl,
+        person_raw,
+        project_raw,
+        tag_raw: tag,
+      }).then(ok => {
+        if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue note — GitHub dispatch error. Try again or check the PAT.");
+      })
+    );
+    const who = person_raw || "no one";
+    return Response.json({
+      replace_original: true,
+      text: `⏳ Saving note (→ ${who})...`,
+      blocks: [
+        { type: "section", text: { type: "mrkdwn", text: `⏳ Saving note (→ ${who})...` } },
+      ],
+    });
+  }
 
-  ctx.waitUntil(
-    dispatchToGitHub(env, "task_add.yml", {
-      title,
-      response_url: responseUrl,
-      due_date_raw,
-      owner_raw,
-    }).then(ok => {
-      if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue task — GitHub dispatch error. Try again or check the PAT.");
-    })
-  );
+  // Task owner disambiguation → task_add.yml (unchanged behavior)
+  if (action?.action_id?.startsWith("assign_owner")) {
+    const { title, due_date_raw = "", owner_raw } = data;
+    ctx.waitUntil(
+      dispatchToGitHub(env, "task_add.yml", {
+        title,
+        response_url: responseUrl,
+        due_date_raw,
+        owner_raw,
+      }).then(ok => {
+        if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue task — GitHub dispatch error. Try again or check the PAT.");
+      })
+    );
+    return Response.json({
+      replace_original: true,
+      text: `⏳ Assigning to ${owner_raw}...`,
+      blocks: [
+        { type: "section", text: { type: "mrkdwn", text: `⏳ Assigning *${title}* to ${owner_raw}...` } },
+      ],
+    });
+  }
 
-  // Replace the buttons immediately with a visible processing state
-  return Response.json({
-    replace_original: true,
-    text: `⏳ Assigning to ${owner_raw}...`,
-    blocks: [
-      {
-        type: "section",
-        text: { type: "mrkdwn", text: `⏳ Assigning *${title}* to ${owner_raw}...` },
-      },
-    ],
-  });
+  return Response.json({ text: "Unknown action." });
 }
 
 export default {
@@ -189,6 +266,10 @@ export default {
 
     if (url.pathname === "/slack/task") {
       return handleSlackTask(request, env, ctx);
+    }
+
+    if (url.pathname === "/slack/note") {
+      return handleSlackNote(request, env, ctx);
     }
 
     if (url.pathname === "/slack/interactive") {

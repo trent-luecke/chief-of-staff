@@ -421,6 +421,7 @@
     }
     .task-row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
       padding: 6px 0;
@@ -669,6 +670,30 @@
       border-left-width: 3px; border-radius: 4px; padding: 10px 12px; cursor: pointer;
     }
     .note-card:hover { background: var(--surface2); }
+    /* Linked notes (People + Work tabs) */
+    .linked-notes-section { margin-top: 10px; }
+    .linked-notes-label {
+      font-size: 10px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px;
+    }
+    .linked-note-line {
+      display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap;
+      padding: 4px 6px; border-left: 2px solid var(--border);
+      margin-bottom: 4px; cursor: pointer; border-radius: 0 3px 3px 0;
+    }
+    .linked-note-line:hover { background: var(--surface2); }
+    .linked-note-ts { font-size: 10px; color: var(--muted); flex-shrink: 0; }
+    .linked-note-body { font-size: 12px; color: var(--text); line-height: 1.4; }
+    /* Task-row note affordance */
+    .task-note-toggle {
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      padding: 0 4px; user-select: none;
+    }
+    .task-note-toggle:hover { color: var(--accent); }
+    .task-note-drawer {
+      flex-basis: 100%; margin: 4px 0 2px 0; padding-left: 8px;
+    }
+    .task-note-drawer.hidden { display: none; }
     .note-card-ts { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
     .note-tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
     .note-tag-chip {
@@ -1354,7 +1379,7 @@ function buildEditFormHtml(person) {
     </div>`;
 }
 
-function openDetailReadOnly(person, detail) {
+async function openDetailReadOnly(person, detail) {
   detail.innerHTML = buildDetailReadOnlyHtml(person, getPersonObs(person.id));
   detail.classList.remove('hidden');
   detail.querySelector('[data-edit-person]').addEventListener('click', () => {
@@ -1363,6 +1388,35 @@ function openDetailReadOnly(person, detail) {
   detail.querySelector('[data-merge-person]').addEventListener('click', () => {
     openMergeSearch(person, detail);
   });
+  await appendLinkedNotesForPerson(person, detail);
+}
+
+// Fetch notes + tags, render the notes linked to this person, and wire edit clicks.
+async function appendLinkedNotesForPerson(person, detail) {
+  let notes, tags;
+  try {
+    [notes, tags] = await Promise.all([
+      fetchJSON(`${API}/api/notes`),
+      fetchJSON(`${API}/api/notes/tags`),
+    ]);
+  } catch {
+    return; // server offline — silently skip the notes section
+  }
+  // Pre-warm _projects so openNoteModal has project names if a note is opened
+  // from this tab before the Notes/Work tab has populated the cache.
+  notesState._projects = notesState._projects.length
+    ? notesState._projects
+    : await fetchJSON(`${API}/api/projects`).catch(() => []);
+  const linked = notes
+    .filter(n => n.person_id === person.id)
+    .sort((a, b) => (a.ts < b.ts ? 1 : -1));
+  if (!linked.length) return;
+  const section = document.createElement('div');
+  section.className = 'linked-notes-section';
+  section.innerHTML = `<div class="linked-notes-label">Linked Notes (${linked.length})</div>`
+    + linkedNoteLinesHtml(linked, tags);
+  detail.appendChild(section);
+  wireLinkedNoteClicks(section, notes, () => openDetailReadOnly(person, detail));
 }
 
 function openMergeSearch(person, detail) {
@@ -1812,9 +1866,29 @@ function renderOwnerChip(task, people) {
   return `<span class="assign-ghost" data-task-id="${esc(task.id)}">+ assign</span>`;
 }
 
-function renderTaskRow(task, people, withLinkProj = false) {
+// Compact note lines for a task drawer (no tag chips — keeps renderTaskRow tag-agnostic).
+function linkedNoteLinesHtmlForTask(notes) {
+  return notes
+    .slice()
+    .sort((a, b) => (a.ts < b.ts ? 1 : -1))
+    .map(n => {
+      const shortTs = (n.ts || '').slice(0, 16).replace('T', ' ');
+      return `<div class="linked-note-line" data-note-id="${esc(n.id)}">
+        <span class="linked-note-ts">${esc(shortTs)}</span>
+        <span class="linked-note-body">${esc(n.body)}</span>
+      </div>`;
+    }).join('');
+}
+
+function renderTaskRow(task, people, withLinkProj = false, notesForTask = []) {
   const linkChip = withLinkProj
     ? `<span class="link-proj-ghost" data-task-id="${esc(task.id)}">→ Project</span>`
+    : '';
+  const noteToggle = notesForTask.length
+    ? `<span class="task-note-toggle" data-task-id="${esc(task.id)}" title="Show linked notes">💬 ${notesForTask.length}</span>`
+    : '';
+  const noteDrawer = notesForTask.length
+    ? `<div class="task-note-drawer hidden" id="task-notes-${esc(task.id)}">${linkedNoteLinesHtmlForTask(notesForTask)}</div>`
     : '';
   return `
     <div class="task-row" id="task-row-${esc(task.id)}">
@@ -1825,7 +1899,9 @@ function renderTaskRow(task, people, withLinkProj = false) {
         ${renderOwnerChip(task, people)}
       </span>
       ${linkChip}
+      ${noteToggle}
       <button class="btn-delete-task" data-task-id="${esc(task.id)}" title="Delete task">×</button>
+      ${noteDrawer}
     </div>`;
 }
 
@@ -2224,18 +2300,26 @@ async function renderWorkView() {
   const view = el('view-work');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
 
-  let projects, allTasks, people;
+  let projects, allTasks, people, allNotes, noteTags;
   try {
-    [projects, allTasks, people] = await Promise.all([
+    [projects, allTasks, people, allNotes, noteTags] = await Promise.all([
       fetchJSON(`${API}/api/projects`),
       fetchJSON(`${API}/api/tasks`),
       fetchJSON(`${API}/api/people`),
+      fetchJSON(`${API}/api/notes`),
+      fetchJSON(`${API}/api/notes/tags`),
     ]);
   } catch {
     view.innerHTML = `
       <div class="offline-banner">Start tools/server.py to see projects and tasks.</div>
       <div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
     return;
+  }
+
+  notesState._projects = projects || [];
+  const notesByTask = {};
+  for (const n of (allNotes || [])) {
+    if (n.task_id) (notesByTask[n.task_id] = notesByTask[n.task_id] || []).push(n);
   }
 
   const activeProjects = (projects || []).filter(p => p.status !== 'archived');
@@ -2248,8 +2332,21 @@ async function renderWorkView() {
         const isExpanded = workState.expanded.has(p.id);
         const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
         const taskRowsHtml = pTasks.length
-          ? pTasks.map(t => renderTaskRow(t, people)).join('')
+          ? pTasks.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')
           : '<span class="muted" style="font-size:12px">No open tasks.</span>';
+        // projTaskIds only covers OPEN tasks (allNotes roll-up mirrors what the
+        // Work tab shows, since /api/tasks returns open tasks only). Notes linked
+        // to completed tasks are intentionally excluded from the roll-up.
+        const projTaskIds = new Set(pTasks.map(t => t.id));
+        const projNotes = (allNotes || [])
+          .filter(n => n.project_id === p.id || (n.task_id && projTaskIds.has(n.task_id)))
+          .sort((a, b) => (a.ts < b.ts ? 1 : -1));
+        const projNotesHtml = projNotes.length
+          ? `<div class="linked-notes-section" id="proj-notes-${esc(p.id)}">
+               <div class="linked-notes-label">Notes (${projNotes.length})</div>
+               ${linkedNoteLinesHtml(projNotes, noteTags || [])}
+             </div>`
+          : '';
         return `
           <div class="proj-group" id="group-${esc(p.id)}">
             <div class="proj-group-header${isExpanded ? ' expanded' : ''}${workState.editing.has(p.id) ? ' edit-active' : ''}" data-proj-id="${esc(p.id)}">
@@ -2264,6 +2361,7 @@ async function renderWorkView() {
               <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
               <div id="group-tasks-${esc(p.id)}">${taskRowsHtml}</div>
               ${renderAddTaskForm(p.id, people)}
+              ${projNotesHtml}
             </div>
           </div>`;
       }).join('')
@@ -2271,7 +2369,7 @@ async function renderWorkView() {
 
   // ── Standalone section ──────────────────────────────────────────────────
   const standaloneHtml = standaloneTasks.length
-    ? standaloneTasks.map(t => renderTaskRow(t, people, true)).join('')
+    ? standaloneTasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')
     : '<div class="muted" style="font-size:12px">No standalone tasks.</div>';
 
   view.innerHTML = `
@@ -2412,6 +2510,24 @@ async function renderWorkView() {
       openEditPanel(project, people, groupEl);
     }
   });
+
+  // Wire project-level linked notes → edit modal
+  activeProjects.forEach(p => {
+    const sec = document.getElementById(`proj-notes-${p.id}`);
+    if (sec) wireLinkedNoteClicks(sec, allNotes, () => renderWorkView());
+  });
+
+  // Wire task-row note toggles (expand/collapse) and drawer note clicks
+  view.querySelectorAll('.task-note-toggle').forEach(toggle => {
+    toggle.addEventListener('click', e => {
+      e.stopPropagation();
+      const drawer = document.getElementById(`task-notes-${toggle.dataset.taskId}`);
+      if (drawer) drawer.classList.toggle('hidden');
+    });
+  });
+  view.querySelectorAll('.task-note-drawer').forEach(drawer => {
+    wireLinkedNoteClicks(drawer, allNotes, () => renderWorkView());
+  });
 }
 
 // ── Entry point ─────────────────────────────────────────────────────────────
@@ -2498,11 +2614,40 @@ const notesState = {
   _tags: [],
   _people: [],
   _tasks: [],
+  _projects: [],
 };
 
 el('note-fab').addEventListener('click', () => {
   openNoteModal(null);
 });
+
+// ── Shared linked-notes rendering (People + Work tabs) ────────────────────────
+function linkedNoteLinesHtml(notes, tags) {
+  return notes.map(n => {
+    const tagObjects = (n.tags || []).map(tid => tags.find(t => t.id === tid)).filter(Boolean);
+    const tagHtml = tagObjects.map(t =>
+      `<span class="note-tag-chip" style="color:${t.color};border-color:${t.color}">${esc(t.id)}</span>`
+    ).join('');
+    const shortTs = (n.ts || '').slice(0, 16).replace('T', ' ');
+    return `<div class="linked-note-line" data-note-id="${esc(n.id)}">
+      <span class="linked-note-ts">${esc(shortTs)}</span>
+      ${tagHtml}
+      <span class="linked-note-body">${esc(n.body)}</span>
+    </div>`;
+  }).join('');
+}
+
+// Wire click → edit modal for any .linked-note-line inside containerEl.
+// allNotes: the full notes array; onChange: re-render callback after edit/save.
+function wireLinkedNoteClicks(containerEl, allNotes, onChange) {
+  containerEl.querySelectorAll('.linked-note-line').forEach(line => {
+    line.addEventListener('click', e => {
+      e.stopPropagation();
+      const note = allNotes.find(n => n.id === line.dataset.noteId);
+      if (note) openNoteModal(note, onChange);
+    });
+  });
+}
 
 // ── renderNoteCard ────────────────────────────────────────────────────────────
 function renderNoteCard(note, tags, people, tasks) {
@@ -2515,6 +2660,7 @@ function renderNoteCard(note, tags, people, tasks) {
   const showBrief = note.brief && note.brief_flagged_date && note.brief_flagged_date >= twoDaysAgo;
   const personName = note.person_id ? (people.find(p => p.id === note.person_id)?.name || null) : null;
   const taskTitle = note.task_id ? (tasks.find(t => t.id === note.task_id)?.title || null) : null;
+  const projectName = note.project_id ? (notesState._projects.find(p => p.id === note.project_id)?.canonical_name || null) : null;
   const shortTs = note.ts.slice(0, 16).replace('T', ' ');
   return `
     <div class="note-card" data-note-id="${esc(note.id)}" style="border-left-color:${borderColor}">
@@ -2526,6 +2672,7 @@ function renderNoteCard(note, tags, people, tasks) {
       ${tagHtml ? `<div class="note-tag-list">${tagHtml}</div>` : ''}
       <div class="note-body">${esc(note.body)}</div>
       ${personName ? `<div class="note-link">→ ${esc(personName)}</div>` : ''}
+      ${projectName ? `<div class="note-link">⊕ ${esc(projectName)}</div>` : ''}
       ${taskTitle ? `<div class="note-link">↗ ${esc(taskTitle.slice(0, 50))}${taskTitle.length > 50 ? '…' : ''}</div>` : ''}
     </div>`;
 }
@@ -2535,13 +2682,14 @@ async function renderNotesView() {
   const view = el('view-notes');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
 
-  let notes, tags, people, tasks;
+  let notes, tags, people, tasks, projects;
   try {
-    [notes, tags, people, tasks] = await Promise.all([
+    [notes, tags, people, tasks, projects] = await Promise.all([
       fetchJSON(`${API}/api/notes`),
       fetchJSON(`${API}/api/notes/tags`),
       fetchJSON(`${API}/api/people`),
       fetchJSON(`${API}/api/tasks`),
+      fetchJSON(`${API}/api/projects`),
     ]);
   } catch {
     view.innerHTML = `<div class="offline-banner">Start tools/server.py to see notes.</div>
@@ -2551,6 +2699,7 @@ async function renderNotesView() {
   notesState._tags = tags;
   notesState._people = people;
   notesState._tasks = tasks;
+  notesState._projects = projects;
 
   // Filter
   let filtered = notes.filter(n => {
@@ -2734,22 +2883,25 @@ function closeNoteModal() {
   el('note-modal-overlay').classList.add('hidden');
 }
 
-async function openNoteModal(note) {
+async function openNoteModal(note, onChange) {
+  const afterChange = onChange || renderNotesView;
   const isEdit = !!note;
 
   // Always ensure people and tasks are loaded — the cache may be empty if
   // the Notes tab was never visited and tags were pre-seeded (so _tags.length > 0
   // bypasses the FAB's pre-load guard).
-  if (!notesState._people.length || !notesState._tasks.length) {
+  if (!notesState._people.length || !notesState._tasks.length || !notesState._projects.length) {
     try {
-      const [tags, people, tasks] = await Promise.all([
+      const [tags, people, tasks, projects] = await Promise.all([
         fetchJSON(`${API}/api/notes/tags`),
         fetchJSON(`${API}/api/people`),
         fetchJSON(`${API}/api/tasks`),
+        fetchJSON(`${API}/api/projects`),
       ]);
       notesState._tags = tags;
       notesState._people = people;
       notesState._tasks = tasks;
+      notesState._projects = projects;
     } catch (e) {
       console.error('[openNoteModal] fetch failed:', e.message);
     }
@@ -2758,6 +2910,7 @@ async function openNoteModal(note) {
   const tags = notesState._tags;
   const people = notesState._people;
   const tasks = notesState._tasks;
+  const projects = notesState._projects;
 
   el('note-modal-title').textContent = isEdit ? 'Edit Note' : 'New Note';
   el('note-body-input').value = isEdit ? note.body : '';
@@ -2773,6 +2926,10 @@ async function openNoteModal(note) {
   el('note-task-input').value = isEdit && note.task_id
     ? (tasks.find(t => t.id === note.task_id)?.title || note.task_id) : '';
   el('note-task-id').value = isEdit ? (note.task_id || '') : '';
+
+  el('note-project-input').value = isEdit && note.project_id
+    ? (projects.find(p => p.id === note.project_id)?.canonical_name || note.project_id) : '';
+  el('note-project-id').value = isEdit ? (note.project_id || '') : '';
 
   el('note-delete-btn').classList.toggle('hidden', !isEdit);
   el('note-pin-btn').classList.toggle('hidden', !isEdit);
@@ -2790,6 +2947,7 @@ async function openNoteModal(note) {
       body,
       tags: [...selectedTags],
       person_id: el('note-person-id').value || null,
+      project_id: el('note-project-id').value || null,
       task_id: el('note-task-id').value || null,
       brief: el('note-brief-check').checked,
     };
@@ -2800,6 +2958,7 @@ async function openNoteModal(note) {
         if (JSON.stringify(payload.tags.sort()) !== JSON.stringify((note.tags || []).slice().sort())) patch.tags = payload.tags;
         if (payload.person_id !== note.person_id) patch.person_id = payload.person_id;
         if (payload.task_id !== note.task_id) patch.task_id = payload.task_id;
+        if (payload.project_id !== note.project_id) patch.project_id = payload.project_id;
         if (payload.brief !== !!note.brief) patch.brief = payload.brief;
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
           method: 'PATCH',
@@ -2809,7 +2968,7 @@ async function openNoteModal(note) {
         await fetchJSON(`${API}/api/notes`, { method: 'POST', body: JSON.stringify(payload) });
       }
       closeNoteModal();
-      renderNotesView();
+      afterChange();
     } catch (err) {
       alert('Save failed: ' + err.message);
     }
@@ -2822,7 +2981,7 @@ async function openNoteModal(note) {
       try {
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE' });
         closeNoteModal();
-        renderNotesView();
+        afterChange();
       } catch (err) {
         alert('Delete failed: ' + err.message);
       }
@@ -2836,7 +2995,7 @@ async function openNoteModal(note) {
           body: JSON.stringify({ event_type: 'pin', pinned: !note.pinned }),
         });
         closeNoteModal();
-        renderNotesView();
+        afterChange();
       } catch (err) {
         alert('Pin failed: ' + err.message);
       }
@@ -2880,6 +3039,10 @@ async function openNoteModal(note) {
   wireTypeahead(
     el('note-task-input'), el('note-task-dropdown'), el('note-task-id'),
     tasks.map(t => ({ id: t.id, label: t.title }))
+  );
+  wireTypeahead(
+    el('note-project-input'), el('note-project-dropdown'), el('note-project-id'),
+    projects.map(p => ({ id: p.id, label: p.canonical_name }))
   );
 }
 
@@ -3022,6 +3185,13 @@ function wireTagMgmt(view, tags) {
           <div id="note-person-dropdown" class="note-picker-dropdown hidden"></div>
         </div>
         <input type="hidden" id="note-person-id" />
+
+        <div class="note-field-label" style="margin-top:10px">Project (optional)</div>
+        <div class="note-picker-wrap">
+          <input id="note-project-input" class="note-field-input" placeholder="Search projects…" autocomplete="off" />
+          <div id="note-project-dropdown" class="note-picker-dropdown hidden"></div>
+        </div>
+        <input type="hidden" id="note-project-id" />
 
         <div class="note-field-label" style="margin-top:10px">Task (optional)</div>
         <div class="note-picker-wrap">
