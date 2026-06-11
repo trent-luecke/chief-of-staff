@@ -8,16 +8,22 @@ from pathlib import Path
 
 
 def replay_notes(path: Path) -> list[dict]:
-    """Replay notes.jsonl events and return current state for every non-deleted note.
+    """Replay notes.jsonl events from a file and return current state (see replay_notes_content)."""
+    if not path.exists():
+        return []
+    return replay_notes_content(path.read_text())
+
+
+def replay_notes_content(content: str) -> list[dict]:
+    """Replay notes events from raw JSONL content and return current state for every
+    non-deleted note.
 
     Each returned note includes a derived `brief_flagged_date` field (ISO date string
     or None): the calendar date of the most recent event that set brief=True.
     """
-    if not path.exists():
-        return []
     notes: dict[str, dict] = {}
     brief_flagged_dates: dict[str, str] = {}
-    for raw in path.read_text().splitlines():
+    for raw in content.splitlines():
         raw = raw.strip()
         if not raw:
             continue
