@@ -23,3 +23,4 @@
 {"event": "complete", "task_id": "t-fd113e", "completed_at": "2026-06-10"}
 {"event": "complete", "task_id": "t-466c58", "completed_at": "2026-06-10"}
 {"event": "complete", "task_id": "t-ac1686", "completed_at": "2026-06-10"}
+{"event": "create", "task_id": "t-d7be47", "title": "use musings and notes from Two Brain to create a stream of LinkedIn content. Each post is dedicated to one thought or observation. Use Claude to pull out stories from full upload of notes", "source": "slack", "created_at": "2026-06-10", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
