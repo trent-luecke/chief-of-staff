@@ -226,3 +226,14 @@ def test_format_note_line_includes_project_name():
         projects_by_id={"proj-acme": "Acme Onboarding"},
     )
     assert "Acme Onboarding" in line
+
+
+def test_format_note_line_unknown_project_id_is_silent():
+    line = _format_note_line(
+        {"body": "ship it", "tags": [], "person_id": None,
+         "project_id": "proj-unknown", "task_id": None},
+        people_by_id={},
+        projects_by_id={"proj-acme": "Acme Onboarding"},
+    )
+    assert "proj-unknown" not in line
+    assert "Acme Onboarding" not in line
