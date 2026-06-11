@@ -70,8 +70,12 @@ def rebuild_snapshot(known_online=None) -> None:
 def _write_main(mutate, msg_fn):
     """Apply mutate(store) against origin/main and commit the result.
 
-    Returns (result, push, http_status). When main is unreachable, returns
-    (None, {"status":"offline"}, 503) WITHOUT attempting any commit.
+    Returns (result, push, http_status):
+    - 200 when the commit/push to main succeeded (snapshot is rebuilt).
+    - 503 when main is unreachable: either the up-front fetch fails (no commit
+      attempted, result is None) or the commit's own fetch times out (offline).
+    - 502 when the commit or push to main failed for any other reason; the write
+      did NOT land on main, so the client must not treat it as success.
     msg_fn is a commit message string, or a callable taking the mutate result.
     """
     if not git_sync.fetch_main():
@@ -82,7 +86,10 @@ def _write_main(mutate, msg_fn):
     push = git_sync.commit_files_to_main(store.dirty(), msg)
     if push.get("status") == "ok":
         rebuild_snapshot(known_online=True)
-    return result, push, 200
+        return result, push, 200
+    if push.get("status") == "offline":
+        return result, push, 503
+    return result, push, 502
 
 
 def _people_list():
@@ -142,8 +149,8 @@ def create_task():
         )
 
     task, push, status = _write_main(mutate, lambda t: f"data: create task {t['id']}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     return jsonify({"task": task, "push": push}), 201
 
 
@@ -154,8 +161,8 @@ def update_task(task_id: str):
         lambda store: tasks_lib.edit_task(store, task_id, patch),
         f"data: update task {task_id}",
     )
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if task is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"task": task, "push": push})
@@ -167,8 +174,8 @@ def complete_task(task_id: str):
         lambda store: tasks_lib.complete_task_by_id(store, task_id),
         f"data: complete task {task_id}",
     )
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if task is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"task": task, "push": push})
@@ -180,8 +187,8 @@ def delete_task(task_id: str):
         lambda store: tasks_lib.delete_task_by_id(store, task_id),
         f"data: delete task {task_id}",
     )
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if task is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"task": task, "push": push})
@@ -213,8 +220,8 @@ def create_project():
         )
 
     project, push, status = _write_main(mutate, lambda p: f"data: add project '{p['canonical_name']}'")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     return jsonify({"project": project, "push": push}), 201
 
 
@@ -225,8 +232,8 @@ def update_project(project_id: str):
         lambda store: projects_lib.update_project(store, project_id, updates),
         f"data: update project {project_id}",
     )
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if project is None:
         return jsonify({"error": "not found"}), 404
     return jsonify(project)
@@ -245,8 +252,8 @@ def delete_project(project_id: str):
         return {"project_id": project_id, "tasks_deleted": len(proj_tasks)}
 
     result, push, status = _write_main(mutate, f"data: delete project {project_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": project_id, "tasks_deleted": result["tasks_deleted"], "push": push})
@@ -288,8 +295,8 @@ def create_note():
         lambda store: store.append_line("notes.jsonl", json.dumps(ev)),
         f"data: create note {note_id}",
     )
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     note_out = {**ev, "brief_flagged_date": ts[:10] if ev["brief"] else None}
     return jsonify({"note": note_out, "push": push}), 201
 
@@ -314,8 +321,8 @@ def patch_note(note_id: str):
         return next(n for n in updated if n["id"] == note_id)
 
     note, push, status = _write_main(mutate, f"data: update note {note_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if note is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"note": note, "push": push})
@@ -333,8 +340,8 @@ def delete_note(note_id: str):
         return note_id
 
     result, push, status = _write_main(mutate, f"data: delete note {note_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": note_id, "push": push})
@@ -364,8 +371,8 @@ def create_note_tag():
         return tag
 
     result, push, status = _write_main(mutate, f"data: create tag {tag_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result == "exists":
         return jsonify({"error": "tag already exists"}), 409
     return jsonify({"tag": result}), 201
@@ -398,8 +405,8 @@ def update_note_tag(tag_id: str):
         return {"id": new_id, "color": new_color}
 
     result, push, status = _write_main(mutate, f"data: rename tag {tag_id} -> {new_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"tag": result})
@@ -416,8 +423,8 @@ def delete_note_tag(tag_id: str):
         return tag_id
 
     result, push, status = _write_main(mutate, f"data: delete tag {tag_id}")
-    if status == 503:
-        return jsonify({"error": "offline", "push": push}), 503
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": tag_id, "push": push})
