@@ -4,13 +4,11 @@ from datetime import date
 import anthropic
 from dataclasses import dataclass, field
 from collectors.calendar import CalendarEvent
-from collectors.gmail import EmailThread
 from collectors.local_data import Project, RecurringTask
 from collectors.pipeline import PipelineLead
 from collectors.gym_scout import GymScoutLead
 from processors.loops import LoopSummary
 from processors.issues import Issue
-from processors.drafts import Draft
 
 
 SYSTEM_PROMPT = """\
@@ -18,14 +16,14 @@ You are an AI Chief of Staff for Trent Luecke — VP of Sales at TeamBuildr OS (
 
 Deliver a morning brief readable in ~2 minutes. Two blocks only (metric flags are pre-computed and not your responsibility).
 
-act_today — everything that needs Trent today. Collapse priorities, watch-outs, drafts, meeting prep, and pipeline attention into one ruthlessly prioritized list. Max 7 items. Each item is a plain action sentence with context and urgency woven in naturally — no brackets, no source tags. Multi-day open issues and customer-facing problems are highest priority. Issues with age (from the Open Issues section) belong here as plain sentences: "The Midwest deal has been stalled 3 days — follow up today." Omit if genuinely nothing to do.
+act_today — everything that needs Trent today. Draw from: open issues, calendar prep, pipeline leads needing attention, recurring tasks due today, active project tasks (People Context and Structured Projects are your primary source for this), and quick-capture inbox. Max 7 items. Each item is a plain action sentence with context and urgency woven in naturally — no brackets, no source tags. Multi-day open issues and customer-facing problems are highest priority. Issues with age (from the Open Issues section) belong here as plain sentences: "The Midwest deal has been stalled 3 days — follow up today." Omit if genuinely nothing to do.
 
-what_moved — read-only awareness of what changed since yesterday. Only restate items from the "What Moved Yesterday" section of the prompt. Do not invent or infer events not listed there. One plain sentence per item, past tense. If no events section was provided, return an empty list. Max 7 items.
+what_moved — STRICT read-only mirror of the "What Moved Yesterday" section of the prompt. Restate each item as one plain past-tense sentence. Do not add items, do not infer from calendar or pipeline sections, do not summarize patterns across items. If the "What Moved Yesterday" section is absent from the prompt, return an empty list. Max 7 items.
 
 Respond ONLY in JSON with these exact keys:
 {
   "act_today": ["action items as plain sentences — context and urgency woven in"],
-  "what_moved": ["read-only awareness items, past tense, one sentence each"]
+  "what_moved": ["verbatim restatements of What Moved Yesterday items, past tense — empty list if section absent"]
 }
 """
 
@@ -40,12 +38,10 @@ class BriefContent:
 def _build_prompt(
     today_events: list[CalendarEvent],
     tomorrow_events: list[CalendarEvent],
-    email_threads: list[EmailThread],
     projects: list[Project],
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
     open_issues: list[Issue],
-    drafts: list[Draft],
     meeting_prep: list[str],
     inbox_text: str,
     attention_leads: list[PipelineLead] = None,
@@ -53,6 +49,7 @@ def _build_prompt(
     people_context: str = "",
     memory_context: str = "",
     captures_context: str = "",
+    notes_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
@@ -63,9 +60,6 @@ def _build_prompt(
 
     def fmt_issue(i: Issue) -> str:
         return f"  [{i.age_days}d, {i.source}#{i.channel}] {i.title} (status: {i.status})"
-
-    def fmt_draft(d: Draft) -> str:
-        return f"  {d.draft_type}: {d.context} → to {d.to}"
 
     def fmt_attention_lead(l: PipelineLead) -> str:
         days = f"{l.days_since_contact}d ago" if l.days_since_contact is not None else "no contact date"
@@ -122,15 +116,6 @@ def _build_prompt(
     if tomorrow_events:
         sections += section("## Tomorrow Preview",
                             [fmt_event(e) for e in tomorrow_events])
-    def fmt_email(t: EmailThread) -> str:
-        prefix = "[AWAITING REPLY] " if not t.needs_reply else ""
-        snippet = f" — {t.snippet[:120]}" if t.snippet else ""
-        return f"  {prefix}{t.subject} from {t.last_sender}{snippet}"
-
-    sections += section("## Work Emails (last 24h)",
-                        [fmt_email(t) for t in email_threads])
-    sections += section("## Email Drafts Ready for Review",
-                        [fmt_draft(d) for d in drafts])
     sections += section("## Meeting Prep (internal meetings today)",
                         [f"  {m}" for m in meeting_prep])
     sections += section("## Active Projects",
@@ -168,6 +153,9 @@ def _build_prompt(
     if captures_context and captures_context.strip():
         sections += ["## Action Captures (logged via Telegram — surface relevant items)",
                      captures_context, ""]
+    if notes_context and notes_context.strip():
+        sections += ["## Notes (flagged for today's brief — surface as context or priorities)",
+                     notes_context, ""]
     sections += section("## Pipeline — Open Opps Needing Attention (gone cold or stalled)",
                         [fmt_attention_lead(l) for l in (attention_leads or [])])
     if what_moved_context and what_moved_context.strip():
@@ -183,12 +171,10 @@ def generate_brief(
     model: str,
     today_events: list[CalendarEvent],
     tomorrow_events: list[CalendarEvent],
-    email_threads: list[EmailThread],
     projects: list[Project],
     due_tasks: list[RecurringTask],
     loop_summary: LoopSummary,
     open_issues: list[Issue] = None,
-    drafts: list[Draft] = None,
     meeting_prep: list[str] = None,
     inbox_text: str = "",
     attention_leads: list[PipelineLead] = None,
@@ -196,6 +182,7 @@ def generate_brief(
     people_context: str = "",
     memory_context: str = "",
     captures_context: str = "",
+    notes_context: str = "",
     brief_feedback_context: str = "",
     brief_prefs_context: str = "",
     storage=None,
@@ -204,10 +191,9 @@ def generate_brief(
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
-        today_events, tomorrow_events, email_threads, projects, due_tasks,
+        today_events, tomorrow_events, projects, due_tasks,
         loop_summary,
         open_issues or [],
-        drafts or [],
         meeting_prep or [],
         inbox_text or "",
         attention_leads=attention_leads or [],
@@ -215,6 +201,7 @@ def generate_brief(
         people_context=people_context,
         memory_context=memory_context,
         captures_context=captures_context,
+        notes_context=notes_context,
         brief_feedback_context=brief_feedback_context,
         brief_prefs_context=brief_prefs_context,
         storage=storage,

@@ -4,7 +4,6 @@ import pytest
 from datetime import datetime
 from processors.brief import generate_brief, BriefContent
 from collectors.calendar import CalendarEvent
-from collectors.gmail import EmailThread
 from collectors.local_data import Project, RecurringTask
 from processors.loops import LoopSummary
 
@@ -39,7 +38,6 @@ def test_generate_brief_returns_content(mock_anthropic):
         model="claude-haiku-4-5-20251001",
         today_events=events,
         tomorrow_events=[],
-        email_threads=[],
         projects=projects,
         due_tasks=tasks,
         loop_summary=LoopSummary(),
@@ -60,7 +58,6 @@ def test_generate_brief_handles_markdown_wrapped_json(mock_anthropic):
         model="claude-haiku-4-5-20251001",
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
@@ -79,7 +76,6 @@ def test_generate_brief_stores_metric_flags(mock_anthropic):
         model="claude-haiku-4-5-20251001",
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
@@ -97,7 +93,6 @@ def test_generate_brief_uses_correct_model(mock_anthropic):
         model="claude-sonnet-4-6",
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
@@ -116,7 +111,6 @@ def test_generate_brief_raises_on_invalid_json(mock_anthropic):
             model="claude-haiku-4-5-20251001",
             today_events=[],
             tomorrow_events=[],
-            email_threads=[],
             projects=[],
             due_tasks=[],
             loop_summary=LoopSummary(),
@@ -138,7 +132,6 @@ def test_generate_brief_prompt_includes_calendar_events(mock_anthropic):
         model="claude-haiku-4-5-20251001",
         today_events=[event],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
@@ -154,12 +147,10 @@ def test_people_context_appears_in_prompt():
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=MagicMock(resolved_email_ids=[], still_open_email_ids=[]),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         people_context="# Luke Martin\n**Email:** lmartin@teambuildr.com",
@@ -174,12 +165,10 @@ def test_build_prompt_includes_memory_context():
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         memory_context="## Cross-Day Memory\n\n**apex** Apex stuck 4 weeks.",
@@ -194,12 +183,10 @@ def test_build_prompt_omits_memory_section_when_empty():
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         memory_context="",
@@ -221,12 +208,10 @@ def test_brief_includes_project_section(tmp_path):
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         storage=storage,
@@ -247,12 +232,10 @@ def test_brief_omits_project_section_when_no_projects(tmp_path):
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         storage=storage,
@@ -268,12 +251,10 @@ def test_brief_omits_project_section_when_storage_is_none():
     prompt = _build_prompt(
         today_events=[],
         tomorrow_events=[],
-        email_threads=[],
         projects=[],
         due_tasks=[],
         loop_summary=LoopSummary(),
         open_issues=[],
-        drafts=[],
         meeting_prep=[],
         inbox_text="",
         storage=None,

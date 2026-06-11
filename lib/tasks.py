@@ -75,6 +75,8 @@ def _replay(storage) -> dict:
             tasks[task_id]["completed_at"] = event["completed_at"]
         elif etype == "edit" and task_id in tasks:
             tasks[task_id].update(event.get("patch", {}))
+        elif etype == "delete" and task_id in tasks:
+            del tasks[task_id]
     return tasks
 
 
@@ -159,6 +161,16 @@ def get_recent_completions(storage, days: int = 7) -> list:
         t for t in _replay(storage).values()
         if t["status"] == "completed" and (t.get("completed_at") or "") >= cutoff
     ]
+
+
+def delete_task_by_id(storage, task_id: str) -> Optional[dict]:
+    """Append a delete event so the task is excluded from future replays."""
+    tasks = _replay(storage)
+    task = tasks.get(task_id)
+    if not task:
+        return None
+    _append(storage, {"event": "delete", "task_id": task_id})
+    return task
 
 
 def complete_task_by_id(storage, task_id: str) -> Optional[dict]:
