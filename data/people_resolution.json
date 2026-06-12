@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-11T00:00:00",
+  "resolved_at": "2026-06-12T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -612,17 +612,17 @@
       "confidence": "system"
     },
     "217": {
-      "primary_person_id": "jeff-davidson",
+      "primary_person_id": "coachbrigitaroemer",
       "related_person_ids": [
-        "coachbrigitaroemer"
+        "jeff-davidson"
       ],
       "confidence": "exact"
     },
     "218": {
       "primary_person_id": "roseca",
       "related_person_ids": [
-        "chris-reynolds",
-        "trent-luecke"
+        "trent-luecke",
+        "chris-reynolds"
       ],
       "confidence": "exact"
     },
@@ -667,17 +667,17 @@
       "confidence": "system"
     },
     "236": {
-      "primary_person_id": "ryan-allwein",
+      "primary_person_id": "jeffromkey",
       "related_person_ids": [
-        "jeffromkey"
+        "ryan-allwein"
       ],
       "confidence": "exact"
     },
     "237": {
       "primary_person_id": "benjamin-villalon",
       "related_person_ids": [
-        "chris-reynolds",
         "admin",
+        "chris-reynolds",
         "luke-martin"
       ],
       "confidence": "exact"
@@ -911,9 +911,9 @@
       "confidence": "exact"
     },
     "297": {
-      "primary_person_id": "jeff-davidson",
+      "primary_person_id": "coachbrigitaroemer",
       "related_person_ids": [
-        "coachbrigitaroemer",
+        "jeff-davidson",
         "trent-luecke"
       ],
       "confidence": "exact"
