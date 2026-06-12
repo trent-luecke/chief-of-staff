@@ -83,6 +83,17 @@ Gitignored (machine-written state):
 
 `tools/server.py` (Flask) + `tools/registry_ui.html` serve the People / Work UI (tasks, projects, people, notes, tags). It treats **`origin/main` as the single source of truth**: reads come from an in-memory snapshot of `git show origin/main:<file>`; every create/edit/delete is written to `origin/main` via a throwaway git worktree (`lib/git_sync.py` + `lib/main_storage.py`) — it never mutates the working tree. Offline → HTTP 503 + UI banner; a failed push → HTTP 502 (no phantom success). Launch via the `registry-ui` skill or `python3 tools/server.py` (port 8787). Because the UI commits straight to `origin/main`, the registry data files on `main` are authoritative — don't hand-commit divergent working-tree copies.
 
+### Pushing `main` is routine, not a deploy
+
+`origin/main` is a **live shared datastore**, not a release target. No GitHub Actions workflow triggers on `push` — every workflow is `schedule:` or `workflow_dispatch:`/`repository_dispatch:`, and each reads `origin/main` at run time. So pushing `main` deploys nothing, emails nothing, and sends no Telegram message; it is the normal sync path.
+
+The risky state is the opposite: **unpushed local commits**. While code or data sits unpushed, (a) scheduled jobs (7am brief, nudges, syncs) run against stale code, and (b) the Registry UI keeps committing data to `origin/main`, so the branches drift apart in both directions and you accumulate `Merge branch 'main'` noise.
+
+Therefore:
+- **Do not gate `git push origin main` behind an "outward-facing, confirm first" check.** Push feature work promptly; never end a session with local `main` ahead of `origin/main`.
+- Accumulate work on **feature branches**, not on local `main`. Integrate via PR merged on GitHub (server-side merge against the latest `origin/main`, so local `main` is never "ahead"), or merge locally and `git push` in the same motion.
+- The bot moves `origin/main` under you — `git config pull.rebase true` and rebase feature branches onto fresh `origin/main` before merging to avoid merge commits.
+
 ## Vector Memory (Pinecone + Voyage AI)
 
 Pinecone serverless index `chief-of-staff`, two namespaces: `observations` (raw signals) and `memories` (synthesized `.md` files). Embeddings via Voyage AI `voyage-3-lite` (512 dims). Ingest is non-fatal. Retrieval mode controlled by `config.json` → `vector.retrieval_mode`: `"auto"` (Pinecone + file fallback), `"semantic"`, or `"file"`.
