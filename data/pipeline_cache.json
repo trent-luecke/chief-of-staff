@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-13T00:00:00.000Z",
+  "fetched_at": "2026-06-14T23:05:31Z",
   "leads": [
     {
       "name": "David Arcemant",
@@ -79,17 +79,6 @@
       "stale": false
     },
     {
-      "name": "Gameready Performance",
-      "contact": "Daniel Chudleigh",
-      "email": "info@grperformance.com.au",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "New customer",
       "contact": "",
       "email": "",
@@ -97,6 +86,28 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Gameready Performance",
+      "contact": "Daniel Chudleigh",
+      "email": "info@grperformance.com.au",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
       "source": null,
       "stale": false
     },
@@ -119,17 +130,6 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": 750,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 2000,
       "source": null,
       "stale": false
     }
