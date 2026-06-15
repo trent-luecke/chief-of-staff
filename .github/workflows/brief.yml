@@ -2,7 +2,13 @@ name: Daily Brief
 
 on:
   schedule:
-    # 7am CDT (UTC-5, Apr-Oct). Change to "0 13 * * *" in November for CST (UTC-6).
+    # BACKSTOP ONLY. The punctual trigger is the Cloudflare Worker cron
+    # (cloudflare/wrangler.toml [triggers]), which dispatches this workflow at
+    # 7am sharp. GitHub's scheduler runs this 1–5h late; it exists so the brief
+    # still sends if the Worker/PAT/Cloudflare ever fails. pipeline.py's same-day
+    # guard prevents a duplicate when both fire.
+    # 7am CDT (UTC-5, Apr-Oct). Change to "0 13 * * *" in November for CST (UTC-6) —
+    # keep this in lockstep with the Worker cron in wrangler.toml.
     - cron: "0 12 * * *"
   workflow_dispatch:
 

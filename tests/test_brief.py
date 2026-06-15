@@ -267,3 +267,39 @@ def test_brief_omits_project_section_when_storage_is_none():
 def mock_anthropic():
     with patch("processors.brief.anthropic.Anthropic") as mock:
         yield mock
+
+
+# --- Idempotency guard: prevents duplicate sends when both the punctual
+# Cloudflare cron and the GitHub schedule backstop fire the brief the same day.
+
+def test_brief_already_sent_today_false_when_no_state(tmp_path):
+    from lib.storage import LocalStorage
+    from pipeline import _brief_already_sent_today
+
+    storage = LocalStorage(str(tmp_path))
+    assert _brief_already_sent_today(storage) is False
+
+
+def test_brief_already_sent_today_true_after_send(tmp_path):
+    from datetime import date
+    from lib.storage import LocalStorage
+    from pipeline import _brief_already_sent_today, _save_brief_message_id
+
+    storage = LocalStorage(str(tmp_path))
+    _save_brief_message_id(storage, "msg-123", "thread-123", "☀️ Morning Brief")
+    assert _brief_already_sent_today(storage) is True
+    assert date.today().isoformat() in str(
+        storage.read_json("state/brief_message_id.json").get("date")
+    )
+
+
+def test_brief_already_sent_today_false_for_prior_day(tmp_path):
+    from lib.storage import LocalStorage
+    from pipeline import _brief_already_sent_today
+
+    storage = LocalStorage(str(tmp_path))
+    storage.write_json("state/brief_message_id.json", {
+        "message_id": "msg-old",
+        "date": "2026-01-01",
+    })
+    assert _brief_already_sent_today(storage) is False

@@ -125,6 +125,18 @@ class ProcessedContext:
 # Helper functions (moved from main.py)
 # ---------------------------------------------------------------------------
 
+def _brief_already_sent_today(storage) -> bool:
+    """True if a brief email was already successfully sent today.
+
+    Idempotency guard for dual triggers: the punctual Cloudflare cron fires the
+    brief at 7am sharp, and the GitHub `schedule:` backstop fires it later (often
+    hours late). Whichever sends first writes state/brief_message_id.json; the
+    other run sees today's date here and skips the send — so never two emails.
+    """
+    prev = storage.read_json("state/brief_message_id.json")
+    return bool(prev and prev.get("date") == date.today().isoformat())
+
+
 def _save_brief_message_id(storage, message_id: str, thread_id: str, subject: str) -> None:
     # Overwrites on same-day re-run; replies to earlier send will be missed.
     storage.write_json("state/brief_message_id.json", {
@@ -861,8 +873,8 @@ def generate_and_deliver(
                 _email_status = "skipped"
                 print("   (email skipped)")
             else:
-                _prev = storage.read_json("state/brief_message_id.json")
-                if _prev and _prev.get("date") == date.today().isoformat():
+                if _brief_already_sent_today(storage):
+                    _prev = storage.read_json("state/brief_message_id.json")
                     print(f"   Brief already sent today ({_prev.get('message_id')}) — skipping.")
                     _already_sent_today = True
                     _email_status = "skipped"

@@ -8,6 +8,16 @@ compatibility_date = "2024-01-01"
 #   GITHUB_REPO          — GitHub repo (e.g. "username/chief-of-staff")
 #   SLACK_SIGNING_SECRET — Slack app signing secret (for /slack/task route)
 
+# Punctual trigger for the daily brief. Cloudflare cron fires within seconds of
+# schedule (unlike GitHub Actions' best-effort scheduler, which runs 1–5h late at
+# the top of the hour). The scheduled() handler dispatches brief.yml; the GitHub
+# `schedule:` in brief.yml stays as a backstop, and pipeline.py's same-day guard
+# prevents a duplicate send if both fire.
+# 7am CDT (UTC-5, Apr–Oct). Change to "0 13 * * *" in November for CST — and
+# update brief.yml's schedule cron in lockstep.
+[triggers]
+crons = ["0 12 * * *"]
+
 [observability]
 enabled = false
 head_sampling_rate = 1

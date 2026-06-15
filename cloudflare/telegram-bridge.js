@@ -306,4 +306,16 @@ export default {
     ctx.waitUntil(dispatchToGitHub(env, "ask.yml", inputs));
     return new Response("OK");
   },
+
+  // Cron Trigger (see wrangler.toml [triggers]). Fires the daily brief punctually
+  // at 7am CDT instead of relying on GitHub's best-effort scheduler. brief.yml's
+  // own `schedule:` remains a backstop; the brief's same-day guard dedupes.
+  async scheduled(event, env, ctx) {
+    console.log(`Cron fired (${event.cron}) — dispatching brief.yml`);
+    ctx.waitUntil(
+      dispatchToGitHub(env, "brief.yml", {}).then((ok) => {
+        if (!ok) console.error("brief.yml dispatch failed — GitHub schedule backstop will still run.");
+      })
+    );
+  },
 };
