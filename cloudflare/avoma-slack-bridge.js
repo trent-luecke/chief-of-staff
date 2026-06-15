@@ -31,23 +31,61 @@ async function verifySlackSignature(request, body, signingSecret) {
   return diff === 0;
 }
 
-async function dispatchToGitHub(env, thread_ts, channel_id, trigger_text) {
-  const inputs = { thread_ts, channel_id, trigger_text };
-  const resp = await fetch(
-    `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/avoma_slack_trigger.yml/dispatches`,
-    {
+// Post a short alert back into the Slack thread. Used to surface dispatch
+// failures (e.g. an expired GITHUB_PAT) that would otherwise be silent — Slack
+// gets a 200 ack regardless, so without this a dead credential looks like a
+// broken trigger. No-ops if SLACK_BOT_TOKEN is not configured.
+async function postSlackAlert(env, channel_id, thread_ts, text) {
+  if (!env.SLACK_BOT_TOKEN) {
+    console.error("Cannot post Slack alert: SLACK_BOT_TOKEN not configured");
+    return;
+  }
+  try {
+    const resp = await fetch("https://slack.com/api/chat.postMessage", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${env.GITHUB_PAT}`,
-        Accept: "application/vnd.github+json",
-        "Content-Type": "application/json",
-        "User-Agent": "chief-of-staff-avoma-bridge",
+        Authorization: `Bearer ${env.SLACK_BOT_TOKEN}`,
+        "Content-Type": "application/json; charset=utf-8",
       },
-      body: JSON.stringify({ ref: "main", inputs }),
-    }
-  );
+      body: JSON.stringify({ channel: channel_id, thread_ts, text }),
+    });
+    const data = await resp.json();
+    if (!data.ok) console.error(`Slack alert post failed: ${data.error}`);
+  } catch (e) {
+    console.error(`Slack alert post threw: ${e}`);
+  }
+}
+
+async function dispatchToGitHub(env, thread_ts, channel_id, trigger_text) {
+  const inputs = { thread_ts, channel_id, trigger_text };
+  let resp;
+  try {
+    resp = await fetch(
+      `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/avoma_slack_trigger.yml/dispatches`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${env.GITHUB_PAT}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json",
+          "User-Agent": "chief-of-staff-avoma-bridge",
+        },
+        body: JSON.stringify({ ref: "main", inputs }),
+      }
+    );
+  } catch (e) {
+    console.error(`GitHub dispatch threw: ${e}`);
+    await postSlackAlert(env, channel_id, thread_ts,
+      "⚠️ Couldn't start processing — network error reaching GitHub. Try again in a moment.");
+    return;
+  }
   if (!resp.ok) {
     console.error(`GitHub dispatch error: ${resp.status} ${await resp.text()}`);
+    const hint = (resp.status === 401 || resp.status === 403)
+      ? " The Worker's GITHUB_PAT may have expired — ask Claude to refresh it."
+      : "";
+    await postSlackAlert(env, channel_id, thread_ts,
+      `⚠️ Couldn't start processing (HTTP ${resp.status}).${hint}`);
   }
 }
 
