@@ -22,6 +22,8 @@ import lib.projects as projects_lib
 import lib.git_sync as git_sync
 from lib.main_storage import MainStorage
 from lib.notes import replay_notes_content
+import lib.meetings as meetings_lib
+from processors.meeting_memory import load_meeting_index
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
 
@@ -39,6 +41,8 @@ class _Snapshot:
         self.people = {"people": []}
         self.notes = []
         self.tags = []
+        self.meetings = {}        # slug -> replayed doc state
+        self.meeting_index = []   # list of config dicts from meeting_index.json
 
 
 SNAPSHOT = _Snapshot()
@@ -63,6 +67,8 @@ def rebuild_snapshot(known_online=None) -> None:
     SNAPSHOT.people = store.read_json("people_registry.json", default={"people": []})
     SNAPSHOT.notes = replay_notes_content(store.read("notes.jsonl") or "")
     SNAPSHOT.tags = store.read_json("notes_tags.json", default=[])
+    SNAPSHOT.meetings = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+    SNAPSHOT.meeting_index = store.read_json("meeting_index.json", default={"meetings": []}).get("meetings", [])
     SNAPSHOT.online = online
     SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
 
@@ -99,6 +105,30 @@ def _people_list():
     ]
 
 
+def _meeting_id(entry: dict) -> str:
+    return entry["memory_file"].rsplit("/", 1)[-1].removesuffix(".md")
+
+
+def _meetings_list():
+    """Join config (meeting_index) with replayed doc state, keyed by slug."""
+    out = []
+    for entry in SNAPSHOT.meeting_index:
+        mid = _meeting_id(entry)
+        doc = SNAPSHOT.meetings.get(mid, {"id": mid, "agenda": [], "threads": [], "sessions": []})
+        out.append({
+            "id": mid,
+            "name": entry.get("name") or mid.replace("_", " ").title(),
+            "calendar_pattern": entry.get("calendar_pattern", ""),
+            "people_ids": entry.get("people_ids", []),
+            "nudge_subject": entry.get("nudge_subject", ""),
+            "nudge_minutes_after": entry.get("nudge_minutes_after", 5),
+            "agenda": doc["agenda"],
+            "threads": doc["threads"],
+            "sessions": doc["sessions"],
+        })
+    return out
+
+
 @app.route("/")
 def index():
     return send_file(str(UI_PATH))
@@ -116,6 +146,7 @@ def bootstrap():
         "people": _people_list(),
         "notes": SNAPSHOT.notes,
         "tags": SNAPSHOT.tags,
+        "meetings": _meetings_list(),
     })
 
 
@@ -429,6 +460,21 @@ def delete_note_tag(tag_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": tag_id, "push": push})
+
+
+# --- Meetings ---
+
+@app.route("/api/meetings", methods=["GET"])
+def list_meetings():
+    return jsonify(_meetings_list())
+
+
+@app.route("/api/meetings/<meeting_id>", methods=["GET"])
+def get_meeting(meeting_id: str):
+    for mtg in _meetings_list():
+        if mtg["id"] == meeting_id:
+            return jsonify(mtg)
+    return jsonify({"error": "not found"}), 404
 
 
 if __name__ == "__main__":
