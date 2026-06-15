@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-14T23:05:31Z",
+  "fetched_at": "2026-06-15T12:00:00Z",
   "leads": [
     {
       "name": "David Arcemant",
@@ -46,12 +46,34 @@
       "stale": false
     },
     {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "No Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
+      "stale": false
+    },
+    {
       "name": "Dante Perez",
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
       "status": "On-Hold",
       "priority": null,
       "last_contacted": "2026-04-30",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Meredith Ingbretson",
+      "contact": "Meredith Ingbretson",
+      "email": "mingbretson@hayward.k12.wi.us",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-12",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -68,17 +90,6 @@
       "stale": false
     },
     {
-      "name": "Cody Coley",
-      "contact": "Cody Coley",
-      "email": "ccoley@cbhs.org",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "New customer",
       "contact": "",
       "email": "",
@@ -90,9 +101,9 @@
       "stale": false
     },
     {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
+      "name": "Cody Coley",
+      "contact": "Cody Coley",
+      "email": "ccoley@cbhs.org",
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
@@ -117,6 +128,17 @@
       "email": "billy@thebullpenut.com",
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
       "last_contacted": null,
       "estimated_value": 2000,
       "source": null,
