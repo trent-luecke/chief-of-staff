@@ -914,6 +914,19 @@
       "people_file": null,
       "created": "2026-06-15",
       "last_seen": "2026-06-15"
+    },
+    {
+      "id": "mingbretson",
+      "canonical_name": "Mingbretson",
+      "aliases": [
+        "Mingbretson"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-15",
+      "last_seen": "2026-06-15"
     }
   ]
 }
