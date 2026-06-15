@@ -1,5 +1,5 @@
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 import anthropic
@@ -12,6 +12,12 @@ class MeetingConfig:
     memory_file: str
     nudge_subject: str
     nudge_minutes_after: int
+    name: str = ""
+    people_ids: list = field(default_factory=list)
+
+    @property
+    def meeting_id(self) -> str:
+        return self.memory_file.rsplit("/", 1)[-1].removesuffix(".md")
 
 
 def load_meeting_index(path: str) -> list[MeetingConfig]:
