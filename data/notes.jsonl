@@ -2,3 +2,4 @@
 {"event": "create", "id": "n-4ae200", "ts": "2026-06-10T18:37:28", "body": "workshop test note", "tags": [], "person_id": null, "task_id": null, "brief": false, "pinned": false}
 {"event": "delete", "id": "n-4ae200", "ts": "2026-06-15T11:32:35"}
 {"event": "delete", "id": "n-af56f4", "ts": "2026-06-15T11:32:43"}
+{"event": "create", "id": "n-0c5b83", "ts": "2026-06-15T17:23:50", "body": "clean up drop down menu for selecting people for tasks or projects. Right now it's a massive, unorganized list and I need more organization. Probably include subheadings for the type of contact then list them in alphabetical order.", "tags": ["IDEAS"], "person_id": null, "task_id": null, "brief": false, "pinned": false}
