@@ -51,3 +51,4 @@
 {"event": "complete", "task_id": "t-d7be47", "completed_at": "2026-06-15"}
 {"event": "complete", "task_id": "t-67798a", "completed_at": "2026-06-15"}
 {"event": "create", "task_id": "t-e8c635", "title": "show beta to Nicole", "source": "ui", "created_at": "2026-06-15", "due_date": "2026-06-16", "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": "nicole-foley"}
+{"event": "create", "task_id": "t-893566", "title": "get in touch with James for deployment conversation", "source": "ui", "created_at": "2026-06-15", "due_date": null, "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": "james-peters"}
