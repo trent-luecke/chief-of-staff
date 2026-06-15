@@ -8,6 +8,7 @@ Usage:
     python tools/server.py          # start server at http://localhost:8787
 """
 import json
+import re
 import secrets
 import sys
 from datetime import datetime, timezone
@@ -475,6 +476,68 @@ def get_meeting(meeting_id: str):
         if mtg["id"] == meeting_id:
             return jsonify(mtg)
     return jsonify({"error": "not found"}), 404
+
+
+def _slugify(name: str) -> str:
+    s = re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_")
+    return s or "meeting"
+
+
+@app.route("/api/meetings", methods=["POST"])
+def create_meeting():
+    body = request.get_json(force=True)
+    if not body or not body.get("name"):
+        return jsonify({"error": "name is required"}), 400
+    name = body["name"]
+
+    def mutate(store):
+        existing = store.read_json("meeting_index.json", default={"meetings": []})
+        slugs = {_meeting_id(e) for e in existing["meetings"]}
+        slug = _slugify(name)
+        candidate, i = slug, 2
+        while candidate in slugs:
+            candidate, i = f"{slug}_{i}", i + 1
+        slug = candidate
+        entry = {
+            "calendar_pattern": body.get("calendar_pattern", ""),
+            "memory_file": f"data/meeting_memory/{slug}.md",
+            "nudge_subject": body.get("nudge_subject", f"{name} notes?"),
+            "nudge_minutes_after": body.get("nudge_minutes_after", 5),
+            "name": name,
+            "people_ids": body.get("people_ids", []),
+        }
+        existing["meetings"].append(entry)
+        store.write_json("meeting_index.json", existing)
+        meetings_lib.append_create(store, slug)
+        return slug
+
+    slug, push, status = _write_main(mutate, lambda s: f"data: create meeting {s}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    return jsonify({"id": slug, "push": push}), 201
+
+
+@app.route("/api/meetings/<meeting_id>", methods=["PATCH"])
+def update_meeting(meeting_id: str):
+    body = request.get_json(force=True)
+
+    def mutate(store):
+        idx = store.read_json("meeting_index.json", default={"meetings": []})
+        entry = next((e for e in idx["meetings"] if _meeting_id(e) == meeting_id), None)
+        if entry is None:
+            return None
+        for k in ("name", "calendar_pattern", "people_ids", "nudge_subject", "nudge_minutes_after"):
+            if k in body:
+                entry[k] = body[k]
+        store.write_json("meeting_index.json", idx)
+        return entry
+
+    result, push, status = _write_main(mutate, f"data: update meeting {meeting_id} config")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
 
 
 if __name__ == "__main__":
