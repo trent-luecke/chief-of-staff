@@ -592,6 +592,99 @@ def add_meeting_session(meeting_id: str):
     return jsonify({"meeting": result, "push": push})
 
 
+@app.route("/api/meetings/<meeting_id>/threads", methods=["POST"])
+def add_meeting_thread(meeting_id: str):
+    body = request.get_json(force=True)
+    if not body or not body.get("text"):
+        return jsonify({"error": "text is required"}), 400
+
+    def mutate(store):
+        if not _meeting_exists(store, meeting_id):
+            return None
+        meetings_lib.append_add_thread(store, meeting_id, body["text"], person_id=body.get("person_id"))
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: add thread {meeting_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
+@app.route("/api/meetings/<meeting_id>/threads/<thread_id>", methods=["PATCH"])
+def patch_meeting_thread(meeting_id: str, thread_id: str):
+    body = request.get_json(force=True)
+    patch = {k: v for k, v in body.items() if k in ("text", "person_id", "task_id", "closed")}
+    # auto-stamp closed_date when closing
+    if patch.get("closed") is True and "closed_date" not in patch:
+        patch["closed_date"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if patch.get("closed") is False:
+        patch["closed_date"] = None
+
+    def mutate(store):
+        state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+        mtg = state.get(meeting_id)
+        if not mtg or not any(t["thread_id"] == thread_id for t in mtg["threads"]):
+            return None
+        meetings_lib.append_update_thread(store, meeting_id, thread_id, **patch)
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: update thread {thread_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
+@app.route("/api/meetings/<meeting_id>/threads/<thread_id>", methods=["DELETE"])
+def delete_meeting_thread(meeting_id: str, thread_id: str):
+    def mutate(store):
+        state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+        mtg = state.get(meeting_id)
+        if not mtg or not any(t["thread_id"] == thread_id for t in mtg["threads"]):
+            return None
+        meetings_lib.append_delete_thread(store, meeting_id, thread_id)
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: delete thread {thread_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
+@app.route("/api/meetings/<meeting_id>/threads/<thread_id>/promote", methods=["POST"])
+def promote_thread_to_task(meeting_id: str, thread_id: str):
+    body = request.get_json(force=True) or {}
+
+    def mutate(store):
+        state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+        mtg = state.get(meeting_id)
+        thread = next((t for t in (mtg["threads"] if mtg else []) if t["thread_id"] == thread_id), None)
+        if thread is None:
+            return None
+        task = tasks_lib.add_task(
+            store,
+            title=thread["text"],
+            source=f"meeting-{meeting_id}",
+            due_date=body.get("due_date"),
+            owner=thread.get("person_id"),
+            metadata={"meeting_id": meeting_id, "thread_id": thread_id},
+        )
+        meetings_lib.append_update_thread(store, meeting_id, thread_id, task_id=task["id"])
+        return {"task": task, "meeting": _meeting_doc_after_write(store, meeting_id)}
+
+    result, push, status = _write_main(mutate, lambda r: f"data: promote thread {thread_id} -> task {r['task']['id']}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"task": result["task"], "meeting": result["meeting"], "push": push}), 201
+
+
 if __name__ == "__main__":
     git_sync.prune_worktrees()
     rebuild_snapshot()
