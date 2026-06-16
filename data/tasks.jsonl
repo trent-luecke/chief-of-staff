@@ -56,3 +56,4 @@
 {"event": "create", "task_id": "t-764ae0", "title": "work through OS metric sync and how it should/should not intertwine with chief of staff", "source": "ui", "created_at": "2026-06-15", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
 {"event": "complete", "task_id": "t-7ce8eb", "completed_at": "2026-06-16"}
 {"event": "create", "task_id": "t-35044c", "title": "intro email for Drake and TB Strength CSM", "source": "ui", "created_at": "2026-06-16", "due_date": "2026-06-16", "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
+{"event": "complete", "task_id": "t-35044c", "completed_at": "2026-06-16"}
