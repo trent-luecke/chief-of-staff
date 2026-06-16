@@ -24,7 +24,6 @@ import lib.git_sync as git_sync
 from lib.main_storage import MainStorage
 from lib.notes import replay_notes_content
 import lib.meetings as meetings_lib
-from processors.meeting_memory import load_meeting_index
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
 
