@@ -866,6 +866,60 @@
       padding: 4px 12px; border-radius: 3px; font-size: 11px; cursor: pointer;
     }
     .btn-pin:hover { color: var(--text); border-color: var(--accent); }
+    /* ── Meetings tab ── */
+    .mtg-layout { display: flex; gap: 16px; padding: 12px 0; }
+    .mtg-list { flex: 0 0 220px; display: flex; flex-direction: column; gap: 4px; }
+    .mtg-list-item {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px;
+      cursor: pointer; font-size: 13px; color: var(--text); background: var(--surface);
+    }
+    .mtg-list-item:hover { background: var(--surface2); }
+    .mtg-list-item.active { border-color: var(--accent); background: var(--surface2); }
+    .mtg-list-item .mtg-list-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .mtg-new-btn {
+      margin-top: 6px; font-size: 12px; color: var(--muted); background: transparent;
+      border: 1px dashed var(--border); padding: 6px; border-radius: 4px; cursor: pointer;
+    }
+    .mtg-new-btn:hover { border-color: var(--accent); color: var(--text); }
+    .mtg-doc { flex: 1; min-width: 0; }
+    .mtg-doc-header { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
+    .mtg-doc-title { font-size: 18px; font-weight: 600; color: var(--text); }
+    .mtg-doc-people { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .mtg-person-chip {
+      font-size: 11px; padding: 2px 8px; border-radius: 12px; cursor: pointer;
+      border: 1px solid var(--border); color: var(--muted); background: transparent;
+    }
+    .mtg-person-chip:hover { color: var(--text); border-color: var(--accent); }
+    .mtg-zone { margin-bottom: 20px; }
+    .mtg-zone-title {
+      font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 8px;
+    }
+    .mtg-agenda-item, .mtg-thread {
+      display: flex; align-items: flex-start; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .mtg-agenda-item .mtg-text, .mtg-thread .mtg-text {
+      flex: 1; font-size: 13px; color: var(--text); line-height: 1.4;
+    }
+    .mtg-thread.closed .mtg-text { text-decoration: line-through; color: var(--muted); }
+    .mtg-row-btn {
+      font-size: 11px; color: var(--muted); background: transparent; border: none;
+      cursor: pointer; padding: 1px 5px; border-radius: 3px;
+    }
+    .mtg-row-btn:hover { color: var(--text); background: var(--surface2); }
+    .mtg-row-btn.linked { color: var(--accent); cursor: default; }
+    .mtg-add-input {
+      width: 100%; box-sizing: border-box; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text); padding: 6px 8px;
+      border-radius: 3px; font-size: 13px; outline: none; margin-top: 6px; font-family: inherit;
+    }
+    .mtg-add-input:focus { border-color: var(--accent); }
+    .mtg-session { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .mtg-session-date { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .mtg-session-body { font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.5; }
+    .mtg-thread-owner { font-size: 10px; color: var(--accent); }
+    .mtg-empty { color: var(--muted); font-size: 12px; padding: 6px 0; }
   </style>
 </head>
 <body>
@@ -903,6 +957,7 @@
       <button class="tab" data-view="observations">Observations</button>
       <button class="tab" data-view="work">Work</button>
       <button class="tab" data-view="notes">Notes</button>
+      <button class="tab" data-view="meetings">Meetings</button>
     </nav>
     <main>
       <div id="view-pending" class="view"></div>
@@ -910,6 +965,7 @@
       <div id="view-observations" class="view hidden"></div>
       <div id="view-work" class="view hidden"></div>
       <div id="view-notes" class="view hidden"></div>
+      <div id="view-meetings" class="view hidden"></div>
     </main>
   </div>
 
