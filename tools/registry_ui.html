@@ -2653,6 +2653,7 @@ function setupTabs() {
       if (view === 'observations') renderObservationsView();
       if (view === 'work') renderWorkView();
       if (view === 'notes') renderNotesView();
+      if (view === 'meetings') renderMeetingsView();
     });
   });
 }
@@ -3207,6 +3208,168 @@ function wireTagMgmt(view, tags) {
       });
       input.addEventListener('blur', () => setTimeout(doRename, 200));
     });
+  });
+}
+
+// ── Meetings tab ──────────────────────────────────────────────────────────────
+const meetingsState = { selectedId: null, _people: [] };
+
+// TEMP stub — replaced in Task 10
+function openNewMeetingModal() { alert('New Meeting modal lands in the next step.'); }
+
+async function renderMeetingsView() {
+  const view = el('view-meetings');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
+  let meetings, people;
+  try {
+    [meetings, people] = await Promise.all([
+      fetchJSON(`${API}/api/meetings`),
+      fetchJSON(`${API}/api/people`),
+    ]);
+  } catch {
+    view.innerHTML = `<div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
+    return;
+  }
+  meetingsState._people = people;
+  if (!meetingsState.selectedId && meetings.length) meetingsState.selectedId = meetings[0].id;
+  const selected = meetings.find(m => m.id === meetingsState.selectedId) || null;
+
+  const listHtml = meetings.map(m => {
+    const active = m.id === meetingsState.selectedId ? ' active' : '';
+    const open = (m.threads || []).filter(t => !t.closed).length;
+    return `<div class="mtg-list-item${active}" data-mtg-id="${esc(m.id)}">
+      ${esc(m.name)}
+      <div class="mtg-list-sub">${open} open thread${open === 1 ? '' : 's'}</div>
+    </div>`;
+  }).join('');
+
+  view.innerHTML = `
+    <div class="mtg-layout">
+      <div class="mtg-list">
+        ${listHtml || '<div class="mtg-empty">No meetings yet.</div>'}
+        <button class="mtg-new-btn" id="mtg-new-btn">+ New Meeting</button>
+      </div>
+      <div class="mtg-doc" id="mtg-doc">${selected ? renderMeetingDoc(selected) : '<div class="mtg-empty">Select a meeting.</div>'}</div>
+    </div>`;
+
+  view.querySelectorAll('.mtg-list-item').forEach(item =>
+    item.addEventListener('click', () => { meetingsState.selectedId = item.dataset.mtgId; renderMeetingsView(); }));
+  el('mtg-new-btn').addEventListener('click', openNewMeetingModal);
+  if (selected) wireMeetingDoc(selected);
+}
+
+function _personName(pid) {
+  const p = meetingsState._people.find(x => x.id === pid);
+  return p ? p.name : pid;
+}
+
+function renderMeetingDoc(m) {
+  const peopleChips = (m.people_ids || []).map(pid =>
+    `<span class="mtg-person-chip" data-person-id="${esc(pid)}">${esc(_personName(pid))}</span>`).join('');
+
+  const agendaHtml = (m.agenda || []).map((item, i) => `
+    <div class="mtg-agenda-item">
+      <div class="mtg-text">${esc(item)}</div>
+      <button class="mtg-row-btn" data-agenda-del="${i}">✕</button>
+    </div>`).join('') || '<div class="mtg-empty">No agenda items yet.</div>';
+
+  const cutoff = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  const visibleThreads = (m.threads || []).filter(t => !t.closed || (t.closed_date && t.closed_date >= cutoff));
+  const threadsHtml = visibleThreads.map(t => `
+    <div class="mtg-thread${t.closed ? ' closed' : ''}" data-thread-id="${esc(t.thread_id)}">
+      <input type="checkbox" data-thread-toggle ${t.closed ? 'checked' : ''} />
+      <div class="mtg-text">${esc(t.text)}${t.person_id ? ` <span class="mtg-thread-owner">→ ${esc(_personName(t.person_id))}</span>` : ''}</div>
+      ${t.task_id
+        ? `<button class="mtg-row-btn linked" title="Linked to ${esc(t.task_id)}">↗ linked</button>`
+        : `<button class="mtg-row-btn" data-thread-promote title="Make a task">↗ task</button>`}
+      <button class="mtg-row-btn" data-thread-del>✕</button>
+    </div>`).join('') || '<div class="mtg-empty">No open threads.</div>';
+
+  const sessionsHtml = (m.sessions || []).map(s => `
+    <div class="mtg-session">
+      <div class="mtg-session-date">${esc(s.date)}</div>
+      <div class="mtg-session-body">${esc(s.body)}</div>
+    </div>`).join('') || '<div class="mtg-empty">No sessions logged.</div>';
+
+  return `
+    <div class="mtg-doc-header">
+      <div class="mtg-doc-title">${esc(m.name)}</div>
+      <div class="mtg-doc-people">${peopleChips}</div>
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Agenda</div>
+      ${agendaHtml}
+      <input class="mtg-add-input" id="mtg-agenda-add" placeholder="Add a talking point and press Enter…" />
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Open Threads</div>
+      ${threadsHtml}
+      <input class="mtg-add-input" id="mtg-thread-add" placeholder="Add an open thread and press Enter…" />
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Session Log</div>
+      <textarea class="mtg-add-input" id="mtg-session-add" rows="2" placeholder="Add today's session notes, then click Save Session…"></textarea>
+      <button class="mtg-row-btn" id="mtg-session-save" style="border:1px solid var(--border);padding:4px 10px;margin-top:4px">Save Session</button>
+      <div style="margin-top:10px">${sessionsHtml}</div>
+    </div>`;
+}
+
+function wireMeetingDoc(m) {
+  const doc = el('mtg-doc');
+
+  async function patchMeeting(method, path, payload) {
+    const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
+    });
+    if (!res.ok) { alert('Save failed (server offline or push error).'); return null; }
+    return res.json();
+  }
+
+  doc.querySelectorAll('.mtg-person-chip').forEach(chip =>
+    chip.addEventListener('click', () => { if (window.openPerson) window.openPerson(chip.dataset.personId); }));
+
+  const agendaAdd = el('mtg-agenda-add');
+  agendaAdd.addEventListener('keydown', async e => {
+    if (e.key === 'Enter' && agendaAdd.value.trim()) {
+      const items = [...(m.agenda || []), agendaAdd.value.trim()];
+      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+    }
+  });
+  doc.querySelectorAll('[data-agenda-del]').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const idx = Number(btn.dataset.agendaDel);
+      const items = (m.agenda || []).filter((_, i) => i !== idx);
+      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+    }));
+
+  const threadAdd = el('mtg-thread-add');
+  threadAdd.addEventListener('keydown', async e => {
+    if (e.key === 'Enter' && threadAdd.value.trim()) {
+      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() })) renderMeetingsView();
+    }
+  });
+  doc.querySelectorAll('.mtg-thread').forEach(row => {
+    const tid = row.dataset.threadId;
+    const toggle = row.querySelector('[data-thread-toggle]');
+    if (toggle) toggle.addEventListener('change', async () => {
+      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked })) renderMeetingsView();
+    });
+    const promote = row.querySelector('[data-thread-promote]');
+    if (promote) promote.addEventListener('click', async () => {
+      if (await patchMeeting('POST', `/threads/${tid}/promote`, {})) renderMeetingsView();
+    });
+    const del = row.querySelector('[data-thread-del]');
+    if (del) del.addEventListener('click', async () => {
+      if (await patchMeeting('DELETE', `/threads/${tid}`, {})) renderMeetingsView();
+    });
+  });
+
+  el('mtg-session-save').addEventListener('click', async () => {
+    const body = el('mtg-session-add').value.trim();
+    if (!body) return;
+    if (await patchMeeting('POST', '/sessions', { body })) renderMeetingsView();
   });
 }
 </script>
