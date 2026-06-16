@@ -31,6 +31,7 @@ data/*
 !data/notes_tags.json
 !data/projects_registry.json
 !data/notes.jsonl
+!data/meetings.jsonl
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

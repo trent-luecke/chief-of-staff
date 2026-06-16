@@ -4,37 +4,49 @@
       "calendar_pattern": "dev sync",
       "memory_file": "data/meeting_memory/dev_triage.md",
       "nudge_subject": "Dev sync notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Dev Triage",
+      "people_ids": []
     },
     {
       "calendar_pattern": "weekly os meeting",
       "memory_file": "data/meeting_memory/nicole_os_meeting.md",
       "nudge_subject": "Marketing sync notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Nicole Os Meeting",
+      "people_ids": []
     },
     {
       "calendar_pattern": "marketing 2.0",
       "memory_file": "data/meeting_memory/os_marketing.md",
       "nudge_subject": "Marketing 2.0 notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Os Marketing",
+      "people_ids": []
     },
     {
       "calendar_pattern": "luke / trent",
       "memory_file": "data/meeting_memory/luke_1on1.md",
       "nudge_subject": "1:1 notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Luke 1On1",
+      "people_ids": []
     },
     {
       "calendar_pattern": "department heads",
       "memory_file": "data/meeting_memory/rev_dept_heads.md",
       "nudge_subject": "Dept heads notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Rev Dept Heads",
+      "people_ids": []
     },
     {
       "calendar_pattern": "teofe",
       "memory_file": "data/meeting_memory/teofe.md",
       "nudge_subject": "Teofe meeting notes?",
-      "nudge_minutes_after": 5
+      "nudge_minutes_after": 5,
+      "name": "Teofe",
+      "people_ids": []
     }
   ]
 }

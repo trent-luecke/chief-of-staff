@@ -273,17 +273,21 @@ def test_build_recurring_internal_context_no_crash_missing_files(tmp_path):
     assert isinstance(result, str)
 
 
-def test_build_recurring_internal_context_reads_memory_file(tmp_path):
+def test_build_recurring_internal_context_reads_meeting_doc(tmp_path):
+    # The recurring-internal prep now reads the event-sourced meetings.jsonl
+    # (open threads + session log via lib.meetings.render_for_prep), not the
+    # legacy markdown meeting_memory/*.md files.
+    import lib.meetings as meetings_lib
+
     meeting_index = {"meetings": [{"calendar_pattern": "marketing sync", "memory_file": "data/meeting_memory/marketing_sync.md", "nudge_subject": "Notes?", "nudge_minutes_after": 5}]}
     idx_path = tmp_path / "meeting_index.json"
     idx_path.write_text(_json_for_meeting.dumps(meeting_index))
 
     from lib.storage import LocalStorage
     storage = LocalStorage(str(tmp_path))
-    storage.write(
-        "meeting_memory/marketing_sync.md",
-        "# Marketing Sync\n\n## Current State\nSolid working relationship.\n\n## Open Threads\n- Budget review\n\n## Session Log\n\n### 2026-04-28\nDiscussed Q2 priorities.\n",
-    )
+    meetings_lib.append_create(storage, "marketing_sync")
+    meetings_lib.append_add_thread(storage, "marketing_sync", "Budget review")
+    meetings_lib.append_add_session(storage, "marketing_sync", "2026-04-28", "Discussed Q2 priorities.")
 
     obs_path = tmp_path / "obs.jsonl"
     obs_path.write_text(_json_for_meeting.dumps({"date": "2026-04-28", "type": "note", "entity": "", "content": "marketing sync discussion", "source": "brief"}) + "\n")
@@ -297,8 +301,9 @@ def test_build_recurring_internal_context_reads_memory_file(tmp_path):
     }
     event = _event("Weekly Marketing Sync")
     result = build_recurring_internal_context(event, config)
-    assert "Current State" in result
-    assert "Solid working relationship" in result
+    assert "Open Threads" in result
+    assert "Budget review" in result
+    assert "Discussed Q2 priorities." in result
     assert "## Recent Context" not in result
 
 

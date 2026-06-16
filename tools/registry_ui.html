@@ -866,6 +866,60 @@
       padding: 4px 12px; border-radius: 3px; font-size: 11px; cursor: pointer;
     }
     .btn-pin:hover { color: var(--text); border-color: var(--accent); }
+    /* ── Meetings tab ── */
+    .mtg-layout { display: flex; gap: 16px; padding: 12px 0; }
+    .mtg-list { flex: 0 0 220px; display: flex; flex-direction: column; gap: 4px; }
+    .mtg-list-item {
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px;
+      cursor: pointer; font-size: 13px; color: var(--text); background: var(--surface);
+    }
+    .mtg-list-item:hover { background: var(--surface2); }
+    .mtg-list-item.active { border-color: var(--accent); background: var(--surface2); }
+    .mtg-list-item .mtg-list-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .mtg-new-btn {
+      margin-top: 6px; font-size: 12px; color: var(--muted); background: transparent;
+      border: 1px dashed var(--border); padding: 6px; border-radius: 4px; cursor: pointer;
+    }
+    .mtg-new-btn:hover { border-color: var(--accent); color: var(--text); }
+    .mtg-doc { flex: 1; min-width: 0; }
+    .mtg-doc-header { border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
+    .mtg-doc-title { font-size: 18px; font-weight: 600; color: var(--text); }
+    .mtg-doc-people { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .mtg-person-chip {
+      font-size: 11px; padding: 2px 8px; border-radius: 12px; cursor: pointer;
+      border: 1px solid var(--border); color: var(--muted); background: transparent;
+    }
+    .mtg-person-chip:hover { color: var(--text); border-color: var(--accent); }
+    .mtg-zone { margin-bottom: 20px; }
+    .mtg-zone-title {
+      font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+      letter-spacing: .06em; margin-bottom: 8px;
+    }
+    .mtg-agenda-item, .mtg-thread {
+      display: flex; align-items: flex-start; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .mtg-agenda-item .mtg-text, .mtg-thread .mtg-text {
+      flex: 1; font-size: 13px; color: var(--text); line-height: 1.4;
+    }
+    .mtg-thread.closed .mtg-text { text-decoration: line-through; color: var(--muted); }
+    .mtg-row-btn {
+      font-size: 11px; color: var(--muted); background: transparent; border: none;
+      cursor: pointer; padding: 1px 5px; border-radius: 3px;
+    }
+    .mtg-row-btn:hover { color: var(--text); background: var(--surface2); }
+    .mtg-row-btn.linked { color: var(--accent); cursor: default; }
+    .mtg-add-input {
+      width: 100%; box-sizing: border-box; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text); padding: 6px 8px;
+      border-radius: 3px; font-size: 13px; outline: none; margin-top: 6px; font-family: inherit;
+    }
+    .mtg-add-input:focus { border-color: var(--accent); }
+    .mtg-session { padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .mtg-session-date { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+    .mtg-session-body { font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.5; }
+    .mtg-thread-owner { font-size: 10px; color: var(--accent); }
+    .mtg-empty { color: var(--muted); font-size: 12px; padding: 6px 0; }
   </style>
 </head>
 <body>
@@ -903,6 +957,7 @@
       <button class="tab" data-view="observations">Observations</button>
       <button class="tab" data-view="work">Work</button>
       <button class="tab" data-view="notes">Notes</button>
+      <button class="tab" data-view="meetings">Meetings</button>
     </nav>
     <main>
       <div id="view-pending" class="view"></div>
@@ -910,6 +965,7 @@
       <div id="view-observations" class="view hidden"></div>
       <div id="view-work" class="view hidden"></div>
       <div id="view-notes" class="view hidden"></div>
+      <div id="view-meetings" class="view hidden"></div>
     </main>
   </div>
 
@@ -2597,6 +2653,7 @@ function setupTabs() {
       if (view === 'observations') renderObservationsView();
       if (view === 'work') renderWorkView();
       if (view === 'notes') renderNotesView();
+      if (view === 'meetings') renderMeetingsView();
     });
   });
 }
@@ -3153,6 +3210,235 @@ function wireTagMgmt(view, tags) {
     });
   });
 }
+
+// ── Meetings tab ──────────────────────────────────────────────────────────────
+const meetingsState = { selectedId: null, _people: [] };
+
+async function renderMeetingsView() {
+  const view = el('view-meetings');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
+  let meetings, people;
+  try {
+    [meetings, people] = await Promise.all([
+      fetchJSON(`${API}/api/meetings`),
+      fetchJSON(`${API}/api/people`),
+    ]);
+  } catch {
+    view.innerHTML = `<div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
+    return;
+  }
+  meetingsState._people = people;
+  if (!meetingsState.selectedId && meetings.length) meetingsState.selectedId = meetings[0].id;
+  const selected = meetings.find(m => m.id === meetingsState.selectedId) || null;
+
+  const listHtml = meetings.map(m => {
+    const active = m.id === meetingsState.selectedId ? ' active' : '';
+    const open = (m.threads || []).filter(t => !t.closed).length;
+    return `<div class="mtg-list-item${active}" data-mtg-id="${esc(m.id)}">
+      ${esc(m.name)}
+      <div class="mtg-list-sub">${open} open thread${open === 1 ? '' : 's'}</div>
+    </div>`;
+  }).join('');
+
+  view.innerHTML = `
+    <div class="mtg-layout">
+      <div class="mtg-list">
+        ${listHtml || '<div class="mtg-empty">No meetings yet.</div>'}
+        <button class="mtg-new-btn" id="mtg-new-btn">+ New Meeting</button>
+      </div>
+      <div class="mtg-doc" id="mtg-doc">${selected ? renderMeetingDoc(selected) : '<div class="mtg-empty">Select a meeting.</div>'}</div>
+    </div>`;
+
+  view.querySelectorAll('.mtg-list-item').forEach(item =>
+    item.addEventListener('click', () => { meetingsState.selectedId = item.dataset.mtgId; renderMeetingsView(); }));
+  el('mtg-new-btn').addEventListener('click', openNewMeetingModal);
+  if (selected) wireMeetingDoc(selected);
+}
+
+function _personName(pid) {
+  const p = meetingsState._people.find(x => x.id === pid);
+  return p ? p.name : pid;
+}
+
+function renderMeetingDoc(m) {
+  const peopleChips = (m.people_ids || []).map(pid =>
+    `<span class="mtg-person-chip" data-person-id="${esc(pid)}">${esc(_personName(pid))}</span>`).join('');
+
+  const agendaHtml = (m.agenda || []).map((item, i) => `
+    <div class="mtg-agenda-item">
+      <div class="mtg-text">${esc(item)}</div>
+      <button class="mtg-row-btn" data-agenda-del="${i}">✕</button>
+    </div>`).join('') || '<div class="mtg-empty">No agenda items yet.</div>';
+
+  const cutoff = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  const visibleThreads = (m.threads || []).filter(t => !t.closed || (t.closed_date && t.closed_date >= cutoff));
+  const threadsHtml = visibleThreads.map(t => `
+    <div class="mtg-thread${t.closed ? ' closed' : ''}" data-thread-id="${esc(t.thread_id)}">
+      <input type="checkbox" data-thread-toggle ${t.closed ? 'checked' : ''} />
+      <div class="mtg-text">${esc(t.text)}${t.person_id ? ` <span class="mtg-thread-owner">→ ${esc(_personName(t.person_id))}</span>` : ''}</div>
+      ${t.task_id
+        ? `<button class="mtg-row-btn linked" title="Linked to ${esc(t.task_id)}">↗ linked</button>`
+        : `<button class="mtg-row-btn" data-thread-promote title="Make a task">↗ task</button>`}
+      <button class="mtg-row-btn" data-thread-del>✕</button>
+    </div>`).join('') || '<div class="mtg-empty">No open threads.</div>';
+
+  const sessionsHtml = (m.sessions || []).map(s => `
+    <div class="mtg-session">
+      <div class="mtg-session-date">${esc(s.date)}</div>
+      <div class="mtg-session-body">${esc(s.body)}</div>
+    </div>`).join('') || '<div class="mtg-empty">No sessions logged.</div>';
+
+  return `
+    <div class="mtg-doc-header">
+      <div class="mtg-doc-title">${esc(m.name)}</div>
+      <div class="mtg-doc-people">${peopleChips}</div>
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Agenda</div>
+      ${agendaHtml}
+      <input class="mtg-add-input" id="mtg-agenda-add" placeholder="Add a talking point and press Enter…" />
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Open Threads</div>
+      ${threadsHtml}
+      <input class="mtg-add-input" id="mtg-thread-add" placeholder="Add an open thread and press Enter…" />
+    </div>
+    <div class="mtg-zone">
+      <div class="mtg-zone-title">Session Log</div>
+      <textarea class="mtg-add-input" id="mtg-session-add" rows="2" placeholder="Add today's session notes, then click Save Session…"></textarea>
+      <button class="mtg-row-btn" id="mtg-session-save" style="border:1px solid var(--border);padding:4px 10px;margin-top:4px">Save Session</button>
+      <div style="margin-top:10px">${sessionsHtml}</div>
+    </div>`;
+}
+
+function wireMeetingDoc(m) {
+  const doc = el('mtg-doc');
+
+  async function patchMeeting(method, path, payload) {
+    const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload || {}),
+    });
+    if (!res.ok) { alert('Save failed (server offline or push error).'); return null; }
+    return res.json();
+  }
+
+  doc.querySelectorAll('.mtg-person-chip').forEach(chip =>
+    chip.addEventListener('click', () => { if (window.openPerson) window.openPerson(chip.dataset.personId); }));
+
+  const agendaAdd = el('mtg-agenda-add');
+  agendaAdd.addEventListener('keydown', async e => {
+    if (e.key === 'Enter' && agendaAdd.value.trim()) {
+      const items = [...(m.agenda || []), agendaAdd.value.trim()];
+      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+    }
+  });
+  doc.querySelectorAll('[data-agenda-del]').forEach(btn =>
+    btn.addEventListener('click', async () => {
+      const idx = Number(btn.dataset.agendaDel);
+      const items = (m.agenda || []).filter((_, i) => i !== idx);
+      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+    }));
+
+  const threadAdd = el('mtg-thread-add');
+  threadAdd.addEventListener('keydown', async e => {
+    if (e.key === 'Enter' && threadAdd.value.trim()) {
+      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() })) renderMeetingsView();
+    }
+  });
+  doc.querySelectorAll('.mtg-thread').forEach(row => {
+    const tid = row.dataset.threadId;
+    const toggle = row.querySelector('[data-thread-toggle]');
+    if (toggle) toggle.addEventListener('change', async () => {
+      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked })) renderMeetingsView();
+    });
+    const promote = row.querySelector('[data-thread-promote]');
+    if (promote) promote.addEventListener('click', async () => {
+      if (await patchMeeting('POST', `/threads/${tid}/promote`, {})) renderMeetingsView();
+    });
+    const del = row.querySelector('[data-thread-del]');
+    if (del) del.addEventListener('click', async () => {
+      if (await patchMeeting('DELETE', `/threads/${tid}`, {})) renderMeetingsView();
+    });
+  });
+
+  el('mtg-session-save').addEventListener('click', async () => {
+    const body = el('mtg-session-add').value.trim();
+    if (!body) return;
+    if (await patchMeeting('POST', '/sessions', { body })) renderMeetingsView();
+  });
+}
+
+// ── New Meeting modal ────────────────────────────────────────────────────────
+const newMeetingState = { peopleIds: [] };
+
+function openNewMeetingModal() {
+  newMeetingState.peopleIds = [];
+  el('mtg-name-input').value = '';
+  el('mtg-pattern-input').value = '';
+  el('mtg-person-input').value = '';
+  el('mtg-people-chosen').innerHTML = '';
+  el('mtg-person-dropdown').classList.add('hidden');
+  el('mtg-modal-overlay').classList.remove('hidden');
+  el('mtg-name-input').focus();
+}
+function closeNewMeetingModal() { el('mtg-modal-overlay').classList.add('hidden'); }
+
+function _renderChosenPeople() {
+  el('mtg-people-chosen').innerHTML = newMeetingState.peopleIds.map(pid =>
+    `<span class="note-tag-chip-toggle selected" data-remove="${esc(pid)}">${esc(_personName(pid))} ✕</span>`).join('');
+  el('mtg-people-chosen').querySelectorAll('[data-remove]').forEach(c =>
+    c.addEventListener('click', () => {
+      newMeetingState.peopleIds = newMeetingState.peopleIds.filter(p => p !== c.dataset.remove);
+      _renderChosenPeople();
+    }));
+}
+
+function wireNewMeetingModal() {
+  el('mtg-modal-close').addEventListener('click', closeNewMeetingModal);
+  el('mtg-modal-cancel').addEventListener('click', closeNewMeetingModal);
+
+  const input = el('mtg-person-input');
+  const dropdown = el('mtg-person-dropdown');
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
+    dropdown.innerHTML = ''; dropdown.classList.add('hidden');
+    if (!q) return;
+    const matches = meetingsState._people
+      .filter(p => p.name.toLowerCase().includes(q) && !newMeetingState.peopleIds.includes(p.id))
+      .slice(0, 8);
+    if (!matches.length) return;
+    dropdown.innerHTML = matches.map(p =>
+      `<div class="note-picker-option" data-pid="${esc(p.id)}">${esc(p.name)}</div>`).join('');
+    dropdown.classList.remove('hidden');
+    dropdown.querySelectorAll('[data-pid]').forEach(opt =>
+      opt.addEventListener('click', () => {
+        newMeetingState.peopleIds.push(opt.dataset.pid);
+        input.value = ''; dropdown.classList.add('hidden');
+        _renderChosenPeople();
+      }));
+  });
+
+  el('mtg-modal-save').addEventListener('click', async () => {
+    const name = el('mtg-name-input').value.trim();
+    if (!name) { el('mtg-name-input').focus(); return; }
+    const payload = {
+      name,
+      calendar_pattern: el('mtg-pattern-input').value.trim(),
+      people_ids: newMeetingState.peopleIds,
+    };
+    const res = await fetch(`${API}/api/meetings`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+    });
+    if (!res.ok) { alert('Create failed (server offline or push error).'); return; }
+    const data = await res.json();
+    closeNewMeetingModal();
+    meetingsState.selectedId = data.id;
+    renderMeetingsView();
+  });
+}
+wireNewMeetingModal();
 </script>
 
   <!-- Floating note capture button (visible on all tabs) -->
@@ -3213,6 +3499,33 @@ function wireTagMgmt(view, tags) {
         <div class="note-modal-footer-right">
           <button id="note-cancel-btn" class="btn-cancel">Cancel</button>
           <button id="note-save-btn" class="btn-save">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Meeting modal -->
+  <div id="mtg-modal-overlay" class="note-modal-overlay hidden">
+    <div class="note-modal">
+      <div class="note-modal-header"><span>New Meeting</span>
+        <button class="note-modal-close" id="mtg-modal-close">×</button></div>
+      <div class="note-modal-body">
+        <div class="note-field-label">Name</div>
+        <input id="mtg-name-input" class="note-field-input" placeholder="e.g. Sales / Marketing Weekly" />
+        <div class="note-field-label" style="margin-top:8px">Calendar match pattern (optional)</div>
+        <input id="mtg-pattern-input" class="note-field-input" placeholder="e.g. sales sync (matches calendar event titles)" />
+        <div class="note-field-label" style="margin-top:8px">People (optional)</div>
+        <div class="note-picker-wrap">
+          <input id="mtg-person-input" class="note-field-input" placeholder="Search people…" autocomplete="off" />
+          <div id="mtg-person-dropdown" class="note-picker-dropdown hidden"></div>
+        </div>
+        <div id="mtg-people-chosen" class="note-modal-tag-chips" style="margin-top:6px"></div>
+      </div>
+      <div class="note-modal-footer">
+        <div class="note-modal-footer-left"></div>
+        <div class="note-modal-footer-right">
+          <button id="mtg-modal-cancel" class="btn-cancel">Cancel</button>
+          <button id="mtg-modal-save" class="btn-save">Create</button>
         </div>
       </div>
     </div>

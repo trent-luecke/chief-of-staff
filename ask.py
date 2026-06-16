@@ -12,7 +12,7 @@ load_dotenv()
 
 from processors.query import answer_query_with_tools
 from processors.brief_scorer import handle_score_command
-from processors.meeting_memory import append_session_notes
+import lib.meetings as meetings_lib
 from lib.telegram import send_message
 from processors.query_tools import PENDING_CHANGE_PATH, CHANGE_WHITELIST
 
@@ -92,11 +92,12 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
     if reply_to_id:
         nudge = _resolve_nudge_reply(reply_to_id, storage)
         if nudge:
-            memory_key = nudge.get("memory_file", "").removeprefix("data/") or None
-            if not memory_key:
-                safe = nudge["meeting_name"].lower().replace(" ", "_")[:40]
-                memory_key = f"meeting_memory/{safe}.md"
-            append_session_notes(storage, memory_key, nudge["session_date"], query)
+            memory_key = nudge.get("memory_file", "")
+            if memory_key:
+                meeting_id = memory_key.rsplit("/", 1)[-1].removesuffix(".md")
+            else:
+                meeting_id = nudge["meeting_name"].lower().replace(" ", "_")[:40]
+            meetings_lib.append_session_local(config.get("data_dir", "data"), meeting_id, nudge["session_date"], query)
 
             api_key = os.environ.get("ANTHROPIC_API_KEY", "")
             if api_key:
