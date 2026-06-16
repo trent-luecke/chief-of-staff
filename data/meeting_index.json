@@ -5,7 +5,7 @@
       "memory_file": "data/meeting_memory/dev_triage.md",
       "nudge_subject": "Dev sync notes?",
       "nudge_minutes_after": 5,
-      "name": "Dev Triage",
+      "name": "OS Dev Sync",
       "people_ids": []
     },
     {
