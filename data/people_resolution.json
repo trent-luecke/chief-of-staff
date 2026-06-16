@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-15T00:00:00",
+  "resolved_at": "2026-06-16T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1748,6 +1748,23 @@
       "primary_person_id": "jeff-davidson",
       "related_person_ids": [
         "coachbrigitaroemer",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "470": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "471": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "472": {
+      "primary_person_id": "drake",
+      "related_person_ids": [
         "trent-luecke"
       ],
       "confidence": "embedded"
