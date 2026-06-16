@@ -63,3 +63,4 @@
 {"event": "complete", "task_id": "t-ccff78", "completed_at": "2026-06-16"}
 {"event": "complete", "task_id": "t-764ae0", "completed_at": "2026-06-16"}
 {"event": "create", "task_id": "t-5f8a51", "title": "send Ken outline of content", "source": "ui", "created_at": "2026-06-16", "due_date": "2026-06-17", "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
+{"event": "complete", "task_id": "t-d029b7", "completed_at": "2026-06-16"}
