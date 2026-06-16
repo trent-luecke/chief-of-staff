@@ -1,0 +1,32 @@
+name: Deploy Cloudflare Worker
+
+# Auto-deploys the Telegram/brief bridge Worker whenever its source or config
+# changes. Cloudflare only registers `wrangler.toml` changes (cron [triggers],
+# routes, the scheduled() handler) on `wrangler deploy` — committing alone does
+# nothing in production. This closes that gap so a push is the deploy.
+#
+# Unlike every other workflow here, this one triggers on `push` — but it is
+# scoped to `cloudflare/**`, so the frequent Registry-UI / bot data commits to
+# main never trigger it. `wrangler deploy` does NOT touch Worker secrets
+# (GITHUB_PAT, etc.), so those persist across deploys.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cloudflare/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: cloudflare
+        env:
+          # Account is not secret; pinned so a multi-account token still resolves.
+          CLOUDFLARE_ACCOUNT_ID: 4a1a8e479424c01a898b8717fd1cb9f5
