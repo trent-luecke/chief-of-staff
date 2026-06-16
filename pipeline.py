@@ -32,7 +32,8 @@ from lib.health import RunHealth, StageResult, CollectorResult, timed
 from processors.state import StateSnapshot, save_snapshot, load_snapshot, diff_snapshots
 from processors.loops import build_loop_summary
 from processors.issues import get_open_issues, auto_resolve_issues
-from processors.meeting_memory import load_meeting_index, find_meeting_for_event, load_last_session_summary
+from processors.meeting_memory import load_meeting_index, find_meeting_for_event
+import lib.meetings as meetings_lib
 from processors.brief import generate_brief, BriefContent
 from processors.people import enrich_people
 from outputs.sender import build_html_email, send_brief_email
@@ -150,12 +151,13 @@ def _save_brief_message_id(storage, message_id: str, thread_id: str, subject: st
 
 def build_meeting_prep(today_events, meeting_configs, storage) -> list[str]:
     prep = []
+    state = meetings_lib.replay_meetings_content(storage.read("meetings.jsonl") or "")
     for event in today_events:
         config = find_meeting_for_event(event, meeting_configs)
         if not config:
             continue
-        key = config.memory_file.removeprefix("data/")
-        last_summary = load_last_session_summary(storage, key)
+        mtg = state.get(config.meeting_id, {"sessions": []})
+        last_summary = meetings_lib.last_session(mtg)
         if last_summary:
             preview = last_summary[:200] + ("..." if len(last_summary) > 200 else "")
             prep.append(f"{event.summary} ({event.start.strftime('%-I:%M%p')}) — Last session: {preview}")
