@@ -13,3 +13,4 @@
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-16T14:56:18", "items": ["run through what we need from Ken, if anything"]}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-06-16T14:56:40", "thread_id": "th-1c577b", "text": "did we follow up with Spagnola", "person_id": null}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-16T14:57:12", "items": ["run through what we need from Ken, if anything", "go through StoryBuildr"]}
+{"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-06-16T14:57:42", "thread_id": "th-40199e", "text": "confirm that we want to reach out to Mark Fisher", "person_id": null}
