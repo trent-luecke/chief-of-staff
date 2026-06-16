@@ -135,3 +135,18 @@ def test_append_add_thread_generates_id():
     state = m.replay_meetings_content(store.read("meetings.jsonl"))
     assert state["x"]["threads"][0]["text"] == "do the thing"
     assert state["x"]["threads"][0]["person_id"] == "luke-green"
+
+
+def test_replay_local_and_append_session_local(tmp_path):
+    d = str(tmp_path)
+    # empty / missing file → empty replay
+    assert m.replay_local(d) == {}
+    # seed a meeting via the storage-based writers, then read via replay_local
+    from lib.storage import LocalStorage
+    store = LocalStorage(d)
+    m.append_create(store, "luke_1on1")
+    # append a session via the local helper
+    ev = m.append_session_local(d, "luke_1on1", "2026-06-12", "session via local helper")
+    assert ev["event"] == "add_session"
+    state = m.replay_local(d)
+    assert state["luke_1on1"]["sessions"][0]["body"] == "session via local helper"

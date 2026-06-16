@@ -343,9 +343,6 @@ def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
     if not event.summary:
         return ""
 
-    from lib.storage import build_storage
-    storage = build_storage(config)
-
     obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
     projects_file = config.get("projects_file", "data/projects.md")
     captures_file = config.get("captures_file", "data/captures.md")
@@ -357,7 +354,7 @@ def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
 
     if meeting_cfg:
         import lib.meetings as meetings_lib
-        state = meetings_lib.replay_meetings_content(storage.read("meetings.jsonl") or "")
+        state = meetings_lib.replay_local(config.get("data_dir", "data"))
         mtg = state.get(meeting_cfg.meeting_id)
         if mtg:
             rendered = meetings_lib.render_for_prep(mtg)

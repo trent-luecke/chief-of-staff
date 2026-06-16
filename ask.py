@@ -97,7 +97,7 @@ def _main_inner(query: str, chat_id: str, bot_token: str, config: dict, storage,
                 meeting_id = memory_key.rsplit("/", 1)[-1].removesuffix(".md")
             else:
                 meeting_id = nudge["meeting_name"].lower().replace(" ", "_")[:40]
-            meetings_lib.append_add_session(storage, meeting_id, nudge["session_date"], query)
+            meetings_lib.append_session_local(config.get("data_dir", "data"), meeting_id, nudge["session_date"], query)
 
             api_key = os.environ.get("ANTHROPIC_API_KEY", "")
             if api_key:

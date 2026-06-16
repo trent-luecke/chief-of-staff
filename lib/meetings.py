@@ -141,3 +141,20 @@ def append_add_session(storage, meeting_id: str, session_date: str, body: str) -
           "session_id": "s-" + secrets.token_hex(3), "date": session_date, "body": body}
     storage.append_line("meetings.jsonl", json.dumps(ev))
     return ev
+
+
+# ── local git-working-tree helpers ───────────────────────────────────────────
+# In GitHub Actions the working tree IS origin/main at checkout (and is committed
+# back), so reading/writing the local data dir keeps meetings on the same git
+# store the Registry UI uses — NOT R2. Use these in the brief + reply paths.
+
+def replay_local(data_dir: str = "data") -> dict:
+    """Replay meetings.jsonl from the local working tree (the git store)."""
+    from lib.storage import LocalStorage
+    return replay_meetings_content(LocalStorage(data_dir).read("meetings.jsonl") or "")
+
+
+def append_session_local(data_dir: str, meeting_id: str, session_date: str, body: str) -> dict:
+    """Append a session to the local working-tree meetings.jsonl (git store)."""
+    from lib.storage import LocalStorage
+    return append_add_session(LocalStorage(data_dir), meeting_id, session_date, body)

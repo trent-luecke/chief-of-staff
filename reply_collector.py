@@ -89,7 +89,7 @@ def run() -> None:
         reply_text = get_latest_reply_text(thread_id, profile)
         if reply_text.strip():
             meeting_id = memory_file.rsplit("/", 1)[-1].removesuffix(".md")
-            meetings_lib.append_add_session(storage, meeting_id, nudge["session_date"], reply_text.strip())
+            meetings_lib.append_session_local(config.get("data_dir", "data"), meeting_id, nudge["session_date"], reply_text.strip())
             print(f"  Captured notes for: {nudge['meeting_name']}")
         else:
             still_pending.append(nudge)

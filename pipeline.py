@@ -151,7 +151,8 @@ def _save_brief_message_id(storage, message_id: str, thread_id: str, subject: st
 
 def build_meeting_prep(today_events, meeting_configs, storage) -> list[str]:
     prep = []
-    state = meetings_lib.replay_meetings_content(storage.read("meetings.jsonl") or "")
+    # Meetings live on the git store (origin/main), not R2 — read the local working tree.
+    state = meetings_lib.replay_local()
     for event in today_events:
         config = find_meeting_for_event(event, meeting_configs)
         if not config:
