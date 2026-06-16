@@ -540,6 +540,58 @@ def update_meeting(meeting_id: str):
     return jsonify({"meeting": result, "push": push})
 
 
+def _meeting_exists(store, meeting_id: str) -> bool:
+    idx = store.read_json("meeting_index.json", default={"meetings": []})
+    return any(_meeting_id(e) == meeting_id for e in idx["meetings"])
+
+
+def _meeting_doc_after_write(store, meeting_id: str) -> dict:
+    state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+    return state.get(meeting_id, {"id": meeting_id, "agenda": [], "threads": [], "sessions": []})
+
+
+@app.route("/api/meetings/<meeting_id>/agenda", methods=["PUT"])
+def set_meeting_agenda(meeting_id: str):
+    body = request.get_json(force=True)
+    items = body.get("items", [])
+    if not isinstance(items, list):
+        return jsonify({"error": "items must be a list"}), 400
+
+    def mutate(store):
+        if not _meeting_exists(store, meeting_id):
+            return None
+        meetings_lib.append_set_agenda(store, meeting_id, items)
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: set agenda {meeting_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
+@app.route("/api/meetings/<meeting_id>/sessions", methods=["POST"])
+def add_meeting_session(meeting_id: str):
+    body = request.get_json(force=True)
+    if not body or not body.get("body"):
+        return jsonify({"error": "body is required"}), 400
+    session_date = body.get("date") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    def mutate(store):
+        if not _meeting_exists(store, meeting_id):
+            return None
+        meetings_lib.append_add_session(store, meeting_id, session_date, body["body"])
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: add session {meeting_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
 if __name__ == "__main__":
     git_sync.prune_worktrees()
     rebuild_snapshot()
