@@ -54,3 +54,4 @@
 {"event": "create", "task_id": "t-893566", "title": "get in touch with James for deployment conversation", "source": "ui", "created_at": "2026-06-15", "due_date": null, "metadata": {}, "project_id": "storybuildr", "collaborators": [], "owner": "james-peters"}
 {"event": "delete", "task_id": "t-1b4f22"}
 {"event": "create", "task_id": "t-764ae0", "title": "work through OS metric sync and how it should/should not intertwine with chief of staff", "source": "ui", "created_at": "2026-06-15", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
+{"event": "complete", "task_id": "t-7ce8eb", "completed_at": "2026-06-16"}
