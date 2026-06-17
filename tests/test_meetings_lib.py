@@ -49,6 +49,60 @@ def test_replay_thread_lifecycle():
     assert th["closed_date"] == "2026-06-02"
 
 
+def test_replay_update_session_changes_body():
+    c = _content([
+        {"event": "create_meeting", "id": "x", "ts": "2026-06-01T10:00:00"},
+        {"event": "add_session", "id": "x", "ts": "2026-06-01T10:01:00",
+         "session_id": "s-1", "date": "2026-06-01", "body": "original"},
+        {"event": "update_session", "id": "x", "ts": "2026-06-02T09:00:00",
+         "session_id": "s-1", "body": "edited"},
+    ])
+    sess = m.replay_meetings_content(c)["x"]["sessions"][0]
+    assert sess["body"] == "edited"
+    assert sess["date"] == "2026-06-01"   # date unchanged
+    assert sess["edited_ts"] == "2026-06-02T09:00:00"
+
+
+def test_replay_delete_session_removes_it():
+    c = _content([
+        {"event": "create_meeting", "id": "x", "ts": "2026-06-01T10:00:00"},
+        {"event": "add_session", "id": "x", "ts": "2026-06-01T10:01:00",
+         "session_id": "s-1", "date": "2026-06-01", "body": "gone soon"},
+        {"event": "delete_session", "id": "x", "ts": "2026-06-02T09:00:00", "session_id": "s-1"},
+    ])
+    assert m.replay_meetings_content(c)["x"]["sessions"] == []
+
+
+def test_replay_update_unknown_session_is_noop():
+    c = _content([
+        {"event": "create_meeting", "id": "x", "ts": "2026-06-01T10:00:00"},
+        {"event": "add_session", "id": "x", "ts": "2026-06-01T10:01:00",
+         "session_id": "s-1", "date": "2026-06-01", "body": "kept"},
+        {"event": "update_session", "id": "x", "ts": "2026-06-02T09:00:00",
+         "session_id": "s-nope", "body": "ignored"},
+        {"event": "delete_session", "id": "x", "ts": "2026-06-02T09:01:00", "session_id": "s-nope"},
+    ])
+    sessions = m.replay_meetings_content(c)["x"]["sessions"]
+    assert [s["session_id"] for s in sessions] == ["s-1"]
+    assert sessions[0]["body"] == "kept"
+
+
+def test_append_update_and_delete_session_writers():
+    store = _FakeStore()
+    m.append_create(store, "x")
+    add = m.append_add_session(store, "x", "2026-06-12", "first draft")
+    sid = add["session_id"]
+    upd = m.append_update_session(store, "x", sid, "second draft")
+    assert upd["event"] == "update_session"
+    assert upd["session_id"] == sid
+    state = m.replay_meetings_content(store.read("meetings.jsonl"))
+    assert state["x"]["sessions"][0]["body"] == "second draft"
+    dele = m.append_delete_session(store, "x", sid)
+    assert dele["event"] == "delete_session"
+    state = m.replay_meetings_content(store.read("meetings.jsonl"))
+    assert state["x"]["sessions"] == []
+
+
 def test_replay_delete_thread():
     c = _content([
         {"event": "create_meeting", "id": "x", "ts": "2026-06-01T10:00:00"},
