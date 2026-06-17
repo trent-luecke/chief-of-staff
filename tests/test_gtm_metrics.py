@@ -54,8 +54,8 @@ class TestMonthBusinessDays:
 
 
 class TestMetricDefs:
-    def test_six_metrics(self):
-        assert len(METRIC_DEFS) == 6
+    def test_five_metrics(self):
+        assert len(METRIC_DEFS) == 5
 
     def test_all_ids_unique(self):
         ids = [m.id for m in METRIC_DEFS]
@@ -69,9 +69,8 @@ class TestMetricDefs:
         for m in METRIC_DEFS:
             assert m.breach_fn in ("pace_breach", "redflag_breach"), m.id
 
-    def test_leads_and_demos_are_next_month(self):
+    def test_demos_is_next_month(self):
         h = {m.id: m.horizon for m in METRIC_DEFS}
-        assert h["leads_mtd"] == "next-month"
         assert h["demos_mtd"] == "next-month"
 
     def test_sales_onboarding_churn_are_this_month(self):
@@ -85,7 +84,7 @@ class TestMetricDefs:
 class TestMetricResult:
     def test_defaults(self):
         r = MetricResult(
-            id="leads_mtd", label="Leads MTD",
+            id="demos_mtd", label="Demos MTD",
             current=5, target=20,
             breach=False, breach_reason="",
             horizon="next-month",
@@ -261,7 +260,6 @@ class TestRedflagChurnReasons:
 
 
 _CFG = {
-    "leads_mtd_target": 20,
     "demos_mtd_target": 30,
     "sales_mtd_target": 15,
     "onboarding_coverage_threshold": 5,
@@ -269,7 +267,6 @@ _CFG = {
     "churn_reason_cluster_threshold": 2,
     "churn_reason_window_days": 30,
     "pace_early_month_guard_pct": 0.25,
-    "leads_stale_days": 3,
 }
 _MID = date(2026, 6, 15)
 
@@ -277,7 +274,6 @@ _MID = date(2026, 6, 15)
 def _healthy_inputs():
     """All-green inputs evaluated at June 15. No metric should breach."""
     return dict(
-        leads_data={"count": 12, "entries": [{"date": "6/14", "name": "A", "source": "B"}]},
         demos_data={"count": 20, "entries": []},
         sales_data={"count": 10, "entries": []},
         onboarding_active=[{} for _ in range(6)],
@@ -288,55 +284,19 @@ def _healthy_inputs():
 
 
 class TestEvaluateMetrics:
-    def test_returns_six_results(self):
+    def test_returns_five_results(self):
         results = evaluate_metrics(**_healthy_inputs())
-        assert len(results) == 6
+        assert len(results) == 5
 
     def test_result_ids_match_metric_def_order(self):
         results = evaluate_metrics(**_healthy_inputs())
         assert [r.id for r in results] == [m.id for m in METRIC_DEFS]
 
     def test_no_breach_when_all_healthy(self):
-        # leads projected 24>=20; demos 40>=30; sales 20>=15; cov 6>=5; churn 1<=2
+        # demos 40>=30; sales 20>=15; cov 6>=5; churn 1<=2
         results = evaluate_metrics(**_healthy_inputs())
         for r in results:
             assert r.breach is False, f"{r.id} unexpectedly breached: {r.breach_reason}"
-
-    def test_leads_none_shows_not_configured(self):
-        inputs = _healthy_inputs()
-        inputs["leads_data"] = None
-        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
-        assert leads.current is None
-        assert "not configured" in leads.breach_reason
-
-    def test_leads_zero_count_shows_no_data(self):
-        inputs = _healthy_inputs()
-        inputs["leads_data"] = {"count": 0, "entries": []}
-        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
-        assert leads.current is None
-        assert "no data" in leads.breach_reason
-
-    def test_leads_stale_suppresses_breach(self):
-        # last entry June 10 = 5 days before June 15; stale_days=3
-        inputs = _healthy_inputs()
-        inputs["leads_data"] = {
-            "count": 4,
-            "entries": [{"date": "6/10", "name": "Old Lead", "source": "Web"}],
-        }
-        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
-        assert leads.stale is True
-        assert leads.breach is False
-
-    def test_leads_pace_breach_when_fresh(self):
-        # last entry June 14 (1 day ago, not stale); count=4 → projected 8 < 20
-        inputs = _healthy_inputs()
-        inputs["leads_data"] = {
-            "count": 4,
-            "entries": [{"date": "6/14", "name": "A", "source": "B"}],
-        }
-        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
-        assert leads.breach is True
-        assert leads.stale is False
 
     def test_onboarding_coverage_breach(self):
         inputs = _healthy_inputs()
@@ -375,7 +335,6 @@ class TestEvaluateMetrics:
     def test_horizons_correct(self):
         results = evaluate_metrics(**_healthy_inputs())
         h = {r.id: r.horizon for r in results}
-        assert h["leads_mtd"] == "next-month"
         assert h["demos_mtd"] == "next-month"
         assert h["sales_mtd"] == "this-month"
         assert h["onboarding_coverage"] == "this-month"
@@ -398,16 +357,21 @@ class TestEvaluateMetrics:
         assert cov.current == 0
         assert cov.breach is True  # 0 < threshold=5
 
-    def test_leads_future_date_not_treated_as_stale(self):
-        # An entry with a future date should not prevent staleness detection on real entries
-        inputs = _healthy_inputs()
-        inputs["leads_data"] = {
-            "count": 2,
-            "entries": [
-                {"date": "6/30", "name": "Future Lead", "source": "Web"},  # future date, today=6/15
-                {"date": "6/10", "name": "Old Lead", "source": "Web"},     # 5d ago, stale
-            ],
-        }
-        leads = next(r for r in evaluate_metrics(**inputs) if r.id == "leads_mtd")
-        # future entry ignored; last_updated = 6/10 = 5d ago > stale_days=3 → stale
-        assert leads.stale is True
+
+
+def test_no_leads_metric_and_five_results():
+    cfg = {"demos_mtd_target": 30, "sales_mtd_target": 15,
+           "onboarding_coverage_threshold": 5, "churn_count_threshold": 2,
+           "churn_reason_cluster_threshold": 2, "churn_reason_window_days": 30,
+           "pace_early_month_guard_pct": 0.25}
+    results = evaluate_metrics(
+        demos_data={"count": 8},
+        sales_data={"count": 5},
+        onboarding_active=[{"status": "In Progress"}] * 6,
+        cancellations={"count": 1, "entries": []},
+        cfg=cfg,
+        today=date(2026, 6, 16),
+    )
+    ids = [r.id for r in results]
+    assert ids == ["demos_mtd", "sales_mtd", "onboarding_coverage", "churn_count", "churn_reasons"]
+    assert "leads_mtd" not in ids

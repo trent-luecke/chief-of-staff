@@ -37,11 +37,6 @@ class MetricResult:
 
 METRIC_DEFS: list[MetricDef] = [
     MetricDef(
-        id="leads_mtd", label="Leads MTD",
-        source="fetch_leads_mtd (Dept Heads KPI sheet)",
-        horizon="next-month", breach_fn="pace_breach",
-    ),
-    MetricDef(
         id="demos_mtd", label="Demos MTD",
         source="fetch_demos_mtd (Dept Heads KPI sheet)",
         horizon="next-month", breach_fn="pace_breach",
@@ -198,25 +193,10 @@ def redflag_breach(
     return False, ""
 
 
-# ── Leads staleness helper ────────────────────────────────────────────────────
-
-
-def _leads_last_updated(entries: list[dict], year: int, today: date | None = None) -> date | None:
-    """Return date of most recent non-future entry in leads data, or None."""
-    _today = today or date.today()
-    latest: date | None = None
-    for e in entries:
-        d = _parse_month_day(e.get("date", ""), year)
-        if d is not None and d <= _today and (latest is None or d > latest):
-            latest = d
-    return latest
-
-
 # ── Main evaluation ───────────────────────────────────────────────────────────
 
 
 def evaluate_metrics(
-    leads_data: dict | None,
     demos_data: dict | None,
     sales_data: dict | None,
     onboarding_active: list[dict],
@@ -224,10 +204,9 @@ def evaluate_metrics(
     cfg: dict,
     today: date | None = None,
 ) -> list[MetricResult]:
-    """Evaluate all six GTM metrics and return MetricResult objects.
+    """Evaluate five GTM metrics and return MetricResult objects.
 
     Args:
-        leads_data: from fetch_leads_mtd; None if collector not configured.
         demos_data: from fetch_demos_mtd; None if collector not configured.
         sales_data: from fetch_sales_mtd; None if collector not configured.
         onboarding_active: pre-filtered list from load_onboarding_active.
@@ -235,69 +214,15 @@ def evaluate_metrics(
         cfg: the "gtm" sub-block from config.json.
         today: override date for testing.
 
-    Returns list of six MetricResult objects in METRIC_DEFS order.
+    Returns list of five MetricResult objects in METRIC_DEFS order.
     """
     _today = today or date.today()
     guard = cfg.get("pace_early_month_guard_pct", 0.25)
-    stale_days = cfg.get("leads_stale_days", 3)
     # NOTE: Results are built by hardcoded blocks below, one per MetricDef.
     # Adding a MetricDef requires a matching evaluation block here. breach_fn is documentation only.
     results: list[MetricResult] = []
 
-    # ── 1. Leads MTD ──────────────────────────────────────────────────────────
-    leads_target = cfg.get("leads_mtd_target")
-    if leads_data is None:
-        results.append(MetricResult(
-            id="leads_mtd", label="Leads MTD",
-            current=None, target=leads_target,
-            breach=False, breach_reason="collector not configured",
-            horizon="next-month",
-        ))
-    else:
-        entries = leads_data.get("entries", [])
-        count = leads_data.get("count", len(entries))
-        if count == 0:
-            results.append(MetricResult(
-                id="leads_mtd", label="Leads MTD",
-                current=None, target=leads_target,
-                breach=False, breach_reason="no data",
-                horizon="next-month",
-            ))
-        else:
-            last_updated = _leads_last_updated(entries, _today.year, today=_today)
-            is_stale = (
-                last_updated is not None
-                and (_today - last_updated).days > stale_days
-            )
-            if is_stale:
-                results.append(MetricResult(
-                    id="leads_mtd", label="Leads MTD",
-                    current=count, target=leads_target,
-                    breach=False, breach_reason="",
-                    horizon="next-month",
-                    stale=True,
-                    stale_reason=(
-                        f"last entry {(_today - last_updated).days}d ago "
-                        f"(threshold: {stale_days}d) — pace flag suppressed"
-                    ),
-                ))
-            elif leads_target is not None:
-                breach, reason = pace_breach(count, leads_target, _today, guard)
-                results.append(MetricResult(
-                    id="leads_mtd", label="Leads MTD",
-                    current=count, target=leads_target,
-                    breach=breach, breach_reason=reason,
-                    horizon="next-month",
-                ))
-            else:
-                results.append(MetricResult(
-                    id="leads_mtd", label="Leads MTD",
-                    current=count, target=None,
-                    breach=False, breach_reason="no target configured",
-                    horizon="next-month",
-                ))
-
-    # ── 2. Demos MTD ──────────────────────────────────────────────────────────
+    # ── 1. Demos MTD ──────────────────────────────────────────────────────────
     # count=0 is a valid value (automated sheet); unlike leads (manual), zero here means no activity this month.
     demos_target = cfg.get("demos_mtd_target")
     if demos_data is None:
@@ -320,7 +245,7 @@ def evaluate_metrics(
             horizon="next-month",
         ))
 
-    # ── 3. Sales MTD (Closes) ─────────────────────────────────────────────────
+    # ── 2. Sales MTD (Closes) ─────────────────────────────────────────────────
     # count=0 is a valid value (automated sheet); zero means no closes yet this month.
     sales_target = cfg.get("sales_mtd_target")
     if sales_data is None:
@@ -343,7 +268,7 @@ def evaluate_metrics(
             horizon="this-month",
         ))
 
-    # ── 4. Onboarding Coverage ────────────────────────────────────────────────
+    # ── 3. Onboarding Coverage ────────────────────────────────────────────────
     cov_threshold = cfg.get("onboarding_coverage_threshold", 5)
     cov_count = len(onboarding_active or [])
     breach, reason = redflag_breach(
@@ -356,7 +281,7 @@ def evaluate_metrics(
         horizon="this-month",
     ))
 
-    # ── 5. Churn Count MTD ────────────────────────────────────────────────────
+    # ── 4. Churn Count MTD ────────────────────────────────────────────────────
     churn_threshold = cfg.get("churn_count_threshold", 2)
     cancel_count = (cancellations or {}).get("count", 0)
     breach, reason = redflag_breach(
@@ -369,7 +294,7 @@ def evaluate_metrics(
         horizon="this-month",
     ))
 
-    # ── 6. Churn Reason Cluster ───────────────────────────────────────────────
+    # ── 5. Churn Reason Cluster ───────────────────────────────────────────────
     reason_threshold = cfg.get("churn_reason_cluster_threshold", 2)
     window_days = cfg.get("churn_reason_window_days", 30)
     cancel_entries = (cancellations or {}).get("entries", [])
