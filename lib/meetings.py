@@ -65,6 +65,15 @@ def replay_meetings_content(content: str) -> dict:
                 "body": ev.get("body", ""),
                 "ts": ev["ts"],
             })
+        elif etype == "update_session":
+            for s in mtg["sessions"]:
+                if s["session_id"] == ev["session_id"]:
+                    if "body" in ev:
+                        s["body"] = ev["body"]
+                    s["edited_ts"] = ev["ts"]
+                    break
+        elif etype == "delete_session":
+            mtg["sessions"] = [s for s in mtg["sessions"] if s["session_id"] != ev["session_id"]]
     for mtg in meetings.values():
         mtg["sessions"].sort(key=lambda s: s["ts"], reverse=True)
     return meetings
@@ -139,6 +148,19 @@ def append_delete_thread(storage, meeting_id: str, thread_id: str) -> dict:
 def append_add_session(storage, meeting_id: str, session_date: str, body: str) -> dict:
     ev = {"event": "add_session", "id": meeting_id, "ts": _ts(),
           "session_id": "s-" + secrets.token_hex(3), "date": session_date, "body": body}
+    storage.append_line("meetings.jsonl", json.dumps(ev))
+    return ev
+
+
+def append_update_session(storage, meeting_id: str, session_id: str, body: str) -> dict:
+    ev = {"event": "update_session", "id": meeting_id, "ts": _ts(),
+          "session_id": session_id, "body": body}
+    storage.append_line("meetings.jsonl", json.dumps(ev))
+    return ev
+
+
+def append_delete_session(storage, meeting_id: str, session_id: str) -> dict:
+    ev = {"event": "delete_session", "id": meeting_id, "ts": _ts(), "session_id": session_id}
     storage.append_line("meetings.jsonl", json.dumps(ev))
     return ev
 

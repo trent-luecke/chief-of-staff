@@ -591,6 +591,46 @@ def add_meeting_session(meeting_id: str):
     return jsonify({"meeting": result, "push": push})
 
 
+@app.route("/api/meetings/<meeting_id>/sessions/<session_id>", methods=["PATCH"])
+def patch_meeting_session(meeting_id: str, session_id: str):
+    body = request.get_json(force=True)
+    if not body or not body.get("body"):
+        return jsonify({"error": "body is required"}), 400
+
+    def mutate(store):
+        state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+        mtg = state.get(meeting_id)
+        if not mtg or not any(s["session_id"] == session_id for s in mtg["sessions"]):
+            return None
+        meetings_lib.append_update_session(store, meeting_id, session_id, body["body"])
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: update session {session_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
+@app.route("/api/meetings/<meeting_id>/sessions/<session_id>", methods=["DELETE"])
+def delete_meeting_session(meeting_id: str, session_id: str):
+    def mutate(store):
+        state = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
+        mtg = state.get(meeting_id)
+        if not mtg or not any(s["session_id"] == session_id for s in mtg["sessions"]):
+            return None
+        meetings_lib.append_delete_session(store, meeting_id, session_id)
+        return _meeting_doc_after_write(store, meeting_id)
+
+    result, push, status = _write_main(mutate, f"data: delete session {session_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"meeting": result, "push": push})
+
+
 @app.route("/api/meetings/<meeting_id>/threads", methods=["POST"])
 def add_meeting_thread(meeting_id: str):
     body = request.get_json(force=True)

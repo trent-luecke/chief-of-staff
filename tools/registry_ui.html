@@ -3283,8 +3283,12 @@ function renderMeetingDoc(m) {
     </div>`).join('') || '<div class="mtg-empty">No open threads.</div>';
 
   const sessionsHtml = (m.sessions || []).map(s => `
-    <div class="mtg-session">
-      <div class="mtg-session-date">${esc(s.date)}</div>
+    <div class="mtg-session" data-session-id="${esc(s.session_id)}">
+      <div class="mtg-session-date">
+        ${esc(s.date)}
+        <button class="mtg-row-btn" data-session-edit title="Edit">✎</button>
+        <button class="mtg-row-btn" data-session-del title="Delete">✕</button>
+      </div>
       <div class="mtg-session-body">${esc(s.body)}</div>
     </div>`).join('') || '<div class="mtg-empty">No sessions logged.</div>';
 
@@ -3367,6 +3371,34 @@ function wireMeetingDoc(m) {
     const body = el('mtg-session-add').value.trim();
     if (!body) return;
     if (await patchMeeting('POST', '/sessions', { body })) renderMeetingsView();
+  });
+
+  doc.querySelectorAll('.mtg-session').forEach(row => {
+    const sid = row.dataset.sessionId;
+    if (!sid) return;
+    const bodyDiv = row.querySelector('.mtg-session-body');
+    const editBtn = row.querySelector('[data-session-edit]');
+    const delBtn = row.querySelector('[data-session-del]');
+    if (editBtn) editBtn.addEventListener('click', () => {
+      const current = bodyDiv.textContent;
+      bodyDiv.innerHTML = `
+        <textarea class="mtg-add-input" data-session-input rows="3"></textarea>
+        <button class="mtg-row-btn" data-session-save style="border:1px solid var(--border);padding:4px 10px;margin-top:4px">Save</button>
+        <button class="mtg-row-btn" data-session-cancel style="padding:4px 10px;margin-top:4px">Cancel</button>`;
+      const input = bodyDiv.querySelector('[data-session-input]');
+      input.value = current;
+      input.focus();
+      bodyDiv.querySelector('[data-session-cancel]').addEventListener('click', () => renderMeetingsView());
+      bodyDiv.querySelector('[data-session-save]').addEventListener('click', async () => {
+        const body = input.value.trim();
+        if (!body) return;
+        if (await patchMeeting('PATCH', `/sessions/${sid}`, { body })) renderMeetingsView();
+      });
+    });
+    if (delBtn) delBtn.addEventListener('click', async () => {
+      if (!confirm('Delete this session log?')) return;
+      if (await patchMeeting('DELETE', `/sessions/${sid}`, {})) renderMeetingsView();
+    });
   });
 }
 
