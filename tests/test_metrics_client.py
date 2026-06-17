@@ -78,6 +78,19 @@ def test_metrics_from_snapshot_maps_inputs():
     assert by_id["churn_count"].current == 1
 
 
+def test_sync_failures_extracts_bad_sources():
+    report = {"status": "partial", "report": [
+        {"source": "revenue", "status": "ok"},
+        {"source": "retention", "status": "failed", "error": "sheet 404"},
+    ]}
+    assert mc.sync_failures(report) == ["retention"]
+
+
+def test_sync_failures_empty_when_all_ok():
+    report = {"status": "ok", "report": [{"source": "revenue", "status": "ok"}]}
+    assert mc.sync_failures(report) == []
+
+
 def test_metrics_from_snapshot_zero_cancellations_passes_none():
     snapshot = {
         "demos_data": {"count": 0}, "sales_data": {"count": 0},

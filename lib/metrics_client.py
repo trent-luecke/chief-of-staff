@@ -55,6 +55,11 @@ def fetch_snapshot(base_url: str, password: str, storage, timeout: int = 30) -> 
         return None
 
 
+def sync_failures(report: dict) -> list[str]:
+    """Return source names that did not sync OK in a /api/sync-all report."""
+    return [r["source"] for r in report.get("report", []) if r.get("status") != "ok"]
+
+
 def metrics_from_snapshot(snapshot: dict, onboarding_active: list[dict], today=None) -> list[MetricResult]:
     """Map a canonical snapshot + local onboarding into MetricResult objects."""
     cancellations = snapshot.get("cancellations") or {}

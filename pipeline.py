@@ -471,7 +471,18 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                 base_url = os.environ.get("METRICS_BASE_URL", "")
                 password = os.environ.get("METRICS_PASSWORD", "")
                 if base_url:
-                    metrics_client.trigger_sync(base_url, password)
+                    _sync_report = metrics_client.trigger_sync(base_url, password)
+                    _failed = metrics_client.sync_failures(_sync_report)
+                    if _failed and os.environ.get("GITHUB_ACTIONS"):
+                        try:
+                            from lib.telegram import send_message
+                            send_message(
+                                os.environ.get("TELEGRAM_BOT_TOKEN", ""),
+                                os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", ""),
+                                f"⚠️ Metric sync failed: {', '.join(_failed)}",
+                            )
+                        except Exception as _te:
+                            print(f"⚠️  Telegram sync-failure alert failed (non-fatal): {_te}", file=sys.stderr)
                     data.metrics_snapshot = metrics_client.fetch_snapshot(base_url, password, storage)
                     if data.metrics_snapshot:
                         sales_cnt = data.metrics_snapshot.get('sales_data', {}).get('count', '?')
