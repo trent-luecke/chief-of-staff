@@ -158,17 +158,6 @@
       "trent@teambuildr.com"
     ]
   },
-  "gtm": {
-    "leads_mtd_target": 20,
-    "demos_mtd_target": 30,
-    "sales_mtd_target": 15,
-    "onboarding_coverage_threshold": 5,
-    "churn_count_threshold": 2,
-    "churn_reason_cluster_threshold": 2,
-    "churn_reason_window_days": 30,
-    "pace_early_month_guard_pct": 0.25,
-    "leads_stale_days": 3
-  },
   "demo_scan": {
     "enabled": true,
     "sales_rep_calendar_ids": [],
