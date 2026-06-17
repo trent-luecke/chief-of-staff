@@ -1033,6 +1033,19 @@
       "people_file": null,
       "created": "2026-06-17",
       "last_seen": "2026-06-17"
+    },
+    {
+      "id": "thomasohowes",
+      "canonical_name": "Thomasohowes",
+      "aliases": [
+        "Thomasohowes"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-17",
+      "last_seen": "2026-06-17"
     }
   ]
 }
