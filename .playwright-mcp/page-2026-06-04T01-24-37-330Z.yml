@@ -1,0 +1,4 @@
+- generic [ref=e3]:
+  - heading "People Registry" [level=2] [ref=e4]
+  - paragraph [ref=e5]: Select the repo root folder to load registry data.
+  - button "Select Repo Folder" [ref=e6] [cursor=pointer]

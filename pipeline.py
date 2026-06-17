@@ -464,6 +464,7 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
 
         # Metrics engine: drive the sync, then pull the canonical snapshot.
         _metrics_err = None
+        _metrics_skipped = False
         with timed() as t:
             try:
                 from lib import metrics_client
@@ -473,15 +474,20 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                     metrics_client.trigger_sync(base_url, password)
                     data.metrics_snapshot = metrics_client.fetch_snapshot(base_url, password, storage)
                     if data.metrics_snapshot:
-                        print(f"   Metrics snapshot: sales={data.metrics_snapshot['sales_data']['count']} "
-                              f"demos={data.metrics_snapshot['demos_data']['count']} "
-                              f"(stale={data.metrics_snapshot.get('stale')})")
+                        sales_cnt = data.metrics_snapshot.get('sales_data', {}).get('count', '?')
+                        demos_cnt = data.metrics_snapshot.get('demos_data', {}).get('count', '?')
+                        stale = data.metrics_snapshot.get('stale')
+                        print(f"   Metrics snapshot: sales={sales_cnt} "
+                              f"demos={demos_cnt} "
+                              f"(stale={stale})")
+                else:
+                    _metrics_skipped = True
             except Exception as e:
                 _metrics_err = str(e)[:200]
                 print(f"⚠️  Metrics snapshot error (non-fatal): {e}", file=sys.stderr)
         stage.collectors.append(CollectorResult(
             name="metrics_snapshot",
-            status="error" if _metrics_err else "ok",
+            status="skipped" if _metrics_skipped else ("error" if _metrics_err else "ok"),
             error=_metrics_err,
             duration_ms=t.elapsed_ms,
         ))

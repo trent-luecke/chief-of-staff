@@ -60,6 +60,15 @@ Update pipeline lead fields (status, last_contacted, notes) from Telegram. Block
 
 ---
 
+### Meetings — Inline Rename Control *(low effort)*
+The Meetings tab has no UI to rename a meeting. Renaming currently requires editing `data/meeting_index.json` and getting it onto `origin/main` (hand-editing the working-tree file does nothing — the UI reads `origin/main`). The backend already supports it: `PATCH /api/meetings/<id>` with `{"name": ...}` is implemented and committed to `origin/main` via the standard write path.
+
+- Make the meeting title in the doc header (`.mtg-doc-title`) click-to-edit (inline input → `PATCH /api/meetings/<id>` → re-render), mirroring the notes tag-rename pattern.
+- Same affordance could later cover `people_ids` and `calendar_pattern` editing (the PATCH endpoint already whitelists them), removing all hand-editing of `meeting_index.json`.
+- One-time pain for now (renamed the 6 migrated meetings manually 2026-06-16), so low urgency.
+
+---
+
 ## Open — Team Scale
 
 These items are sourced from a Hermes Agent architecture review (2026-05-03). Hermes is a mature open-source agent runtime (130K stars, MIT) with strong multi-user and multi-platform delivery patterns. The chief-of-staff already has better context depth than Hermes; what it lacks is everything needed to run for 6+ people.
@@ -76,6 +85,9 @@ The brief is email-only. For team use, "Slack DM it to me at 7 AM" is dramatical
 ---
 
 ### T2 — Tool Registry Refactor *(short-term, medium effort)*
+
+> **Reassessed 2026-06-11:** The "do before tool count grows further" framing is stale — `query_tools.py` is already at **19 tools / 851 lines** (this item was written at 12). Confirmed this is **not** worth doing for single-user: zero runtime benefit (same schemas/dispatch at execution time) and only marginal authoring ergonomics for someone who already knows the file. The real payoff is team-onboarding (a stranger adding tools), so it earns its place as an M1 prerequisite, not before. Correctly filed under Team Scale. Don't re-litigate solo. Note: a real refactor must also handle hidden coupling — `ask.py` and `avoma_phase2.py` import private `_tool_*`/`_sync_canvas`, and the test suite patches `processors.query_tools.*` attributes.
+
 `processors/query_tools.py` is monolithic — 12 tools defined in one file. Hermes uses self-registering tools (each tool is its own file, auto-discovered at import). Worth adopting before the tool count grows further, and essential if team members will add their own custom tools without touching core files.
 
 - Each tool: its own file in `processors/tools/`

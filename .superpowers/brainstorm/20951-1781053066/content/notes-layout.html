@@ -1,0 +1,134 @@
+<h2>Notes Tab — Layout Options</h2>
+<p class="subtitle">How should notes appear in the browsing view? These match the Registry UI's dark/mono aesthetic.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="masonry" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0d0d0d;padding:12px;font-family:monospace;font-size:11px;min-height:200px;border-radius:4px;overflow:hidden;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:start;">
+          <div style="border:1px solid #2a6b3a;border-radius:3px;padding:8px;">
+            <div style="color:#666;font-size:9px;margin-bottom:4px;">Jun 9 · 9:14 AM</div>
+            <div style="color:#a0c878;font-size:9px;margin-bottom:6px;">#SALES</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;">Acme Corp seems close — follow up after board meeting Thursday. Strong buying signal from last call.</div>
+          </div>
+          <div style="border:1px solid #5a3a7a;border-radius:3px;padding:8px;">
+            <div style="color:#666;font-size:9px;margin-bottom:4px;">Jun 9 · 8:02 AM</div>
+            <div style="color:#c878a0;font-size:9px;margin-bottom:6px;">#IDEAS</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;">Add deal stage to the brief summary so I can see if pipeline moved overnight without opening Notion.</div>
+            <div style="color:#666;font-size:9px;margin-top:6px;">→ linked to brief</div>
+          </div>
+          <div style="border:1px solid #6b4a2a;border-radius:3px;padding:8px;">
+            <div style="color:#666;font-size:9px;margin-bottom:4px;">Jun 8 · 3:45 PM</div>
+            <div style="color:#c8a078;font-size:9px;margin-bottom:6px;">#PERSONAL</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;">Book flights for Denver trip before end of week. Cross-check with Cal.</div>
+          </div>
+          <div style="border:1px solid #2a6b3a;border-radius:3px;padding:8px;grid-column:span 2;">
+            <div style="color:#666;font-size:9px;margin-bottom:4px;">Jun 8 · 11:20 AM</div>
+            <div style="color:#a0c878;font-size:9px;margin-bottom:6px;">#SALES</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;">Jake at StrengthLab mentioned their current platform doesn't handle multi-site well — that's exactly our pitch. Bring this up at next touchpoint. → Matt Chen</div>
+          </div>
+          <div style="border:1px solid #3a5a8a;border-radius:3px;padding:8px;">
+            <div style="color:#666;font-size:9px;margin-bottom:4px;">Jun 8 · 9:00 AM</div>
+            <div style="color:#78a0c8;font-size:9px;margin-bottom:6px;">#ACTION</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;">Send contract redlines by EOD.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Masonry Grid</h3>
+      <p>Variable-height cards, multi-column. Cards breathe — longer notes just take more space. Closest to MindChuk. Tag color tints the card border.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="uniform" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0d0d0d;padding:12px;font-family:monospace;font-size:11px;min-height:200px;border-radius:4px;overflow:hidden;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          <div style="border:1px solid #2a6b3a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 9 · 9:14 AM</div>
+            <div style="color:#a0c878;font-size:9px;margin-bottom:4px;">#SALES</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Acme Corp seems close — follow up after board meeting Thursday...</div>
+          </div>
+          <div style="border:1px solid #5a3a7a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 9 · 8:02 AM</div>
+            <div style="color:#c878a0;font-size:9px;margin-bottom:4px;">#IDEAS</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Add deal stage to the brief summary so I can see if pipeline moved...</div>
+          </div>
+          <div style="border:1px solid #6b4a2a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 8 · 3:45 PM</div>
+            <div style="color:#c8a078;font-size:9px;margin-bottom:4px;">#PERSONAL</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Book flights for Denver trip before end of week. Cross-check with Cal.</div>
+          </div>
+          <div style="border:1px solid #2a6b3a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 8 · 11:20 AM</div>
+            <div style="color:#a0c878;font-size:9px;margin-bottom:4px;">#SALES</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Jake at StrengthLab mentioned their current platform doesn't handle...</div>
+          </div>
+          <div style="border:1px solid #3a5a8a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 8 · 9:00 AM</div>
+            <div style="color:#78a0c8;font-size:9px;margin-bottom:4px;">#ACTION</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Send contract redlines by EOD.</div>
+          </div>
+          <div style="border:1px solid #4a3a6a;border-radius:3px;padding:8px;height:80px;overflow:hidden;">
+            <div style="color:#666;font-size:9px;margin-bottom:3px;">Jun 7 · 2:15 PM</div>
+            <div style="color:#a078c8;font-size:9px;margin-bottom:4px;">#MINDCHUK</div>
+            <div style="color:#e0e0e0;font-size:10px;line-height:1.4;overflow:hidden;">Demo flow for onboarding video — start with SMS capture...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Uniform Grid</h3>
+      <p>Fixed-height cards, text truncates. Predictable scanning — every card the same size. Clean but you lose context on longer notes until you click.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="list" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0d0d0d;padding:12px;font-family:monospace;font-size:11px;min-height:200px;border-radius:4px;overflow:hidden;">
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="border-left:3px solid #2a6b3a;padding:6px 10px;background:#111;">
+            <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px;">
+              <span style="color:#666;font-size:9px;">Jun 9 · 9:14 AM</span>
+              <span style="color:#a0c878;font-size:9px;">#SALES</span>
+              <span style="color:#555;font-size:9px;">→ Matt Chen</span>
+            </div>
+            <div style="color:#e0e0e0;font-size:10px;">Acme Corp seems close — follow up after board meeting Thursday. Strong buying signal from last call.</div>
+          </div>
+          <div style="border-left:3px solid #5a3a7a;padding:6px 10px;background:#111;">
+            <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px;">
+              <span style="color:#666;font-size:9px;">Jun 9 · 8:02 AM</span>
+              <span style="color:#c878a0;font-size:9px;">#IDEAS</span>
+              <span style="color:#4a8a5a;font-size:9px;">📋 brief</span>
+            </div>
+            <div style="color:#e0e0e0;font-size:10px;">Add deal stage to the brief summary so I can see if pipeline moved overnight without opening Notion.</div>
+          </div>
+          <div style="border-left:3px solid #6b4a2a;padding:6px 10px;background:#111;">
+            <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px;">
+              <span style="color:#666;font-size:9px;">Jun 8 · 3:45 PM</span>
+              <span style="color:#c8a078;font-size:9px;">#PERSONAL</span>
+            </div>
+            <div style="color:#e0e0e0;font-size:10px;">Book flights for Denver trip before end of week. Cross-check with Cal.</div>
+          </div>
+          <div style="border-left:3px solid #2a6b3a;padding:6px 10px;background:#111;">
+            <div style="display:flex;gap:8px;align-items:baseline;margin-bottom:4px;">
+              <span style="color:#666;font-size:9px;">Jun 8 · 11:20 AM</span>
+              <span style="color:#a0c878;font-size:9px;">#SALES</span>
+              <span style="color:#555;font-size:9px;">→ Jake Thompson</span>
+            </div>
+            <div style="color:#e0e0e0;font-size:10px;">Jake at StrengthLab mentioned their current platform doesn't handle multi-site well — that's exactly our pitch. Bring this up at next touchpoint.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Compact List</h3>
+      <p>Single column, left border uses tag color, metadata inline. Densest — most notes visible at once, full text always shown. Feels more like a feed/log than a board.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click a layout to select it, then let me know in the terminal.</p>

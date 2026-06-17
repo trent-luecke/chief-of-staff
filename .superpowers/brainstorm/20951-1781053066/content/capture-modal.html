@@ -1,0 +1,98 @@
+<h2>Capture Modal — Linking Approach</h2>
+<p class="subtitle">How should you link a note to a person or task at creation time? Two options.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="explicit" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0d0d0d;border:1px solid #333;border-radius:6px;padding:16px;font-family:monospace;font-size:11px;max-width:420px;margin:0 auto;">
+        <div style="color:#999;font-size:9px;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">New Note</div>
+
+        <textarea style="width:100%;background:#111;border:1px solid #333;border-radius:3px;color:#e0e0e0;font-family:monospace;font-size:11px;padding:8px;resize:none;height:70px;box-sizing:border-box;" placeholder="what's on your mind..." readonly></textarea>
+
+        <!-- Tags row -->
+        <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center;">
+          <span style="color:#666;font-size:9px;text-transform:uppercase;">Tags</span>
+          <span style="background:#1a2a1a;border:1px solid #2a6b3a;color:#a0c878;font-size:9px;padding:2px 7px;border-radius:2px;">#SALES</span>
+          <span style="background:#1a1a2a;border:1px solid #3a5a8a;color:#78a0c8;font-size:9px;padding:2px 7px;border-radius:2px;">#ACTION</span>
+          <span style="background:#1a1a1a;border:1px solid #444;color:#888;font-size:9px;padding:2px 7px;border-radius:2px;">+ tag</span>
+        </div>
+
+        <!-- Explicit pickers -->
+        <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#666;font-size:9px;width:48px;text-transform:uppercase;">Person</span>
+            <div style="flex:1;background:#111;border:1px solid #333;border-radius:3px;padding:4px 8px;color:#555;font-size:10px;">search people...</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="color:#666;font-size:9px;width:48px;text-transform:uppercase;">Task</span>
+            <div style="flex:1;background:#111;border:1px solid #333;border-radius:3px;padding:4px 8px;color:#555;font-size:10px;">search tasks...</div>
+          </div>
+        </div>
+
+        <!-- Brief toggle + actions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #222;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:24px;height:13px;background:#1a4a2a;border:1px solid #2a6b3a;border-radius:7px;position:relative;">
+              <div style="width:9px;height:9px;background:#4a9a6a;border-radius:50%;position:absolute;top:1px;left:13px;"></div>
+            </div>
+            <span style="color:#888;font-size:9px;">include in brief</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <span style="color:#666;font-size:10px;padding:4px 10px;border:1px solid #333;border-radius:2px;">Cancel</span>
+            <span style="color:#0d0d0d;font-size:10px;padding:4px 10px;background:#4a9a6a;border-radius:2px;">Save</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Explicit Pickers</h3>
+      <p>Separate person search + task search fields. Always visible, no guessing. Click the field, type to search, select. Works well when you know who/what you're linking to before you write.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="at-mention" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="background:#0d0d0d;border:1px solid #333;border-radius:6px;padding:16px;font-family:monospace;font-size:11px;max-width:420px;margin:0 auto;">
+        <div style="color:#999;font-size:9px;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">New Note</div>
+
+        <div style="position:relative;">
+          <textarea style="width:100%;background:#111;border:1px solid #333;border-radius:3px;color:#e0e0e0;font-family:monospace;font-size:11px;padding:8px;resize:none;height:70px;box-sizing:border-box;" readonly>Jake at StrengthLab said their platform can't handle multi-site. Perfect pitch angle. @Ja</textarea>
+          <!-- Inline dropdown suggestion -->
+          <div style="position:absolute;bottom:-52px;left:8px;background:#1a1a1a;border:1px solid #444;border-radius:3px;width:180px;z-index:10;">
+            <div style="padding:5px 8px;border-bottom:1px solid #333;background:#252525;color:#e0e0e0;font-size:10px;">Jake Thompson</div>
+            <div style="padding:5px 8px;color:#888;font-size:10px;">Jake Hernandez</div>
+          </div>
+        </div>
+
+        <!-- Tags row — pushed down for dropdown -->
+        <div style="display:flex;gap:6px;margin-top:60px;flex-wrap:wrap;align-items:center;">
+          <span style="color:#666;font-size:9px;text-transform:uppercase;">Tags</span>
+          <span style="background:#1a2a1a;border:1px solid #2a6b3a;color:#a0c878;font-size:9px;padding:2px 7px;border-radius:2px;">#SALES</span>
+          <span style="background:#1a1a1a;border:1px solid #444;color:#888;font-size:9px;padding:2px 7px;border-radius:2px;">+ tag</span>
+        </div>
+
+        <!-- Brief toggle + actions -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #222;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:24px;height:13px;background:#1a1a1a;border:1px solid #444;border-radius:7px;position:relative;">
+              <div style="width:9px;height:9px;background:#444;border-radius:50%;position:absolute;top:1px;left:1px;"></div>
+            </div>
+            <span style="color:#888;font-size:9px;">include in brief</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <span style="color:#666;font-size:10px;padding:4px 10px;border:1px solid #333;border-radius:2px;">Cancel</span>
+            <span style="color:#0d0d0d;font-size:10px;padding:4px 10px;background:#4a9a6a;border-radius:2px;">Save</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — @mention inline</h3>
+      <p>Type <code>@name</code> anywhere in the note body to link a person. Type <code>#task</code> or <code>/task</code> to link a task. No separate fields — linking happens naturally as you write. Faster but relies on remembering the syntax.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Click to select, then let me know what you think in the terminal. You can also mix — e.g. @mention for people, explicit picker for tasks.</p>

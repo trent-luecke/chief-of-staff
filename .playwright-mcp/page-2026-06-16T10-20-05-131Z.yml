@@ -1,0 +1,52 @@
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - navigation [ref=e4]:
+      - button "Pending" [ref=e5] [cursor=pointer]: Pending
+      - button "People" [ref=e6] [cursor=pointer]
+      - button "Observations" [ref=e7] [cursor=pointer]
+      - button "Work" [ref=e8] [cursor=pointer]
+      - button "Notes" [ref=e9] [cursor=pointer]
+      - button "Meetings" [active] [ref=e10] [cursor=pointer]
+    - main [ref=e11]:
+      - generic [ref=e13]:
+        - generic [ref=e14]:
+          - generic [ref=e15] [cursor=pointer]:
+            - text: OS Dev Sync
+            - generic [ref=e16]: 0 open threads
+          - generic [ref=e17] [cursor=pointer]:
+            - text: 1:1 OS Marketing Meeting
+            - generic [ref=e18]: 0 open threads
+          - generic [ref=e19] [cursor=pointer]:
+            - text: OS Marketing 2.0
+            - generic [ref=e20]: 0 open threads
+          - generic [ref=e21] [cursor=pointer]:
+            - text: Luke 1:1
+            - generic [ref=e22]: 0 open threads
+          - generic [ref=e23] [cursor=pointer]:
+            - text: Rev Dept Heads
+            - generic [ref=e24]: 0 open threads
+          - generic [ref=e25] [cursor=pointer]:
+            - text: Product Planning (Teofe)
+            - generic [ref=e26]: 0 open threads
+          - button "+ New Meeting" [ref=e27] [cursor=pointer]
+        - generic [ref=e28]:
+          - generic [ref=e30]: OS Dev Sync
+          - generic [ref=e31]:
+            - generic [ref=e32]: Agenda
+            - generic [ref=e33]: No agenda items yet.
+            - textbox "Add a talking point and press Enter…" [ref=e34]
+          - generic [ref=e35]:
+            - generic [ref=e36]: Open Threads
+            - generic [ref=e37]: No open threads.
+            - textbox "Add an open thread and press Enter…" [ref=e38]
+          - generic [ref=e39]:
+            - generic [ref=e40]: Session Log
+            - textbox "Add today's session notes, then click Save Session…" [ref=e41]
+            - button "Save Session" [ref=e42] [cursor=pointer]
+            - generic [ref=e44]:
+              - generic [ref=e45]: 2026-06-15
+              - generic [ref=e46]: (background) Weekly engineering sync for the TeamBuildr OS product. Covers active development priorities, bugs, and build decisions across the engineering team. Trent participates as VP of Sales to stay aligned on product timing and surface customer-facing issues.
+  - button "+" [ref=e2] [cursor=pointer]
+  - generic [ref=e47]:
+    - generic [ref=e48]: ⚠ Offline — can’t reach main. Showing last-known data; editing disabled.
+    - button "↻ Refresh" [ref=e49] [cursor=pointer]

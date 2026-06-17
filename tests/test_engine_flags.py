@@ -14,3 +14,8 @@ def test_unsynced_source_flagged():
 def test_healthy_snapshot_no_flags():
     flags = _format_engine_flags({"stale": False, "freshness": {"revenue": {"ok": True}}})
     assert flags == []
+
+
+def test_none_freshness_no_crash():
+    flags = _format_engine_flags({"stale": False, "freshness": None})
+    assert flags == []

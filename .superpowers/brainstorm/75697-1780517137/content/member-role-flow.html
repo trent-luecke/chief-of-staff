@@ -1,0 +1,120 @@
+<h2>Adding members to a project</h2>
+<p class="subtitle">Two-step flow — pick person, then pick their role</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;font-family:monospace;font-size:12px;margin-top:16px">
+
+  <!-- Step 1: existing members shown as chips -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px;text-align:center">Start state</div>
+    <div style="background:#1a1a28;border:1px solid #f59e0b;border-radius:6px;padding:12px">
+      <div style="font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Edit Project</div>
+      <div style="font-size:10px;color:#888;margin-bottom:4px">Members</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Nicole
+          <span style="font-size:9px;color:#818cf8;background:rgba(129,140,248,.15);padding:1px 4px;border-radius:3px">owner</span>
+          <span style="color:#555;cursor:pointer;margin-left:2px">×</span>
+        </span>
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Luke
+          <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,.1);padding:1px 4px;border-radius:3px">contact</span>
+          <span style="color:#555;cursor:pointer;margin-left:2px">×</span>
+        </span>
+        <span style="background:transparent;border:1px dashed #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#555;cursor:pointer">+ Add</span>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#555;text-align:center">Members shown as chips<br>with their role badge.<br>× removes them.</div>
+  </div>
+
+  <!-- Step 2: person picker open -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px;text-align:center">Step 1 — Pick person</div>
+    <div style="background:#1a1a28;border:1px solid #f59e0b;border-radius:6px;padding:12px">
+      <div style="font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Edit Project</div>
+      <div style="font-size:10px;color:#888;margin-bottom:4px">Members</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Nicole <span style="font-size:9px;color:#818cf8;background:rgba(129,140,248,.15);padding:1px 4px;border-radius:3px">owner</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Luke <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,.1);padding:1px 4px;border-radius:3px">contact</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+      </div>
+      <!-- Dropdown open -->
+      <div style="background:#1e1e2e;border:1px solid #3b82f6;border-radius:4px;overflow:hidden">
+        <input style="width:100%;background:#252535;border:none;border-bottom:1px solid #333;color:#e2e8f0;padding:5px 8px;font-size:11px;box-sizing:border-box" placeholder="Search people…" />
+        <div style="padding:2px 0">
+          <div style="padding:5px 10px;color:#888;font-size:10px;cursor:not-allowed">Nicole Foley — already added</div>
+          <div style="padding:5px 10px;color:#e2e8f0;font-size:11px;cursor:pointer;background:rgba(59,130,246,.1)">Sarah Chen</div>
+          <div style="padding:5px 10px;color:#e2e8f0;font-size:11px;cursor:pointer">Marcus Webb</div>
+          <div style="padding:5px 10px;color:#e2e8f0;font-size:11px;cursor:pointer">Jordan Lee</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#555;text-align:center">Registry people appear.<br>Already-added members<br>shown greyed out.</div>
+  </div>
+
+  <!-- Step 3: role picker -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px;text-align:center">Step 2 — Pick role</div>
+    <div style="background:#1a1a28;border:1px solid #f59e0b;border-radius:6px;padding:12px">
+      <div style="font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Edit Project</div>
+      <div style="font-size:10px;color:#888;margin-bottom:4px">Members</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Nicole <span style="font-size:9px;color:#818cf8;background:rgba(129,140,248,.15);padding:1px 4px;border-radius:3px">owner</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Luke <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,.1);padding:1px 4px;border-radius:3px">contact</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+      </div>
+      <!-- Role picker -->
+      <div style="background:#1e1e2e;border:1px solid #3b82f6;border-radius:4px;padding:10px">
+        <div style="font-size:10px;color:#888;margin-bottom:8px">Sarah Chen — select role:</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <div style="padding:5px 9px;border-radius:3px;border:1px solid #444;color:#e2e8f0;font-size:11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            owner <span style="font-size:10px;color:#555">accountable, drives it</span>
+          </div>
+          <div style="padding:5px 9px;border-radius:3px;border:1px solid #3b82f6;background:rgba(59,130,246,.1);color:#e2e8f0;font-size:11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            contact <span style="font-size:10px;color:#94a3b8">point of contact, inform</span>
+          </div>
+          <div style="padding:5px 9px;border-radius:3px;border:1px solid #444;color:#e2e8f0;font-size:11px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">
+            collaborator <span style="font-size:10px;color:#555">working on it</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#555;text-align:center">Role options with short<br>descriptions. Highlight<br>on hover/select.</div>
+  </div>
+
+  <!-- Step 4: confirmed -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#888;margin-bottom:8px;text-align:center">Confirmed</div>
+    <div style="background:#1a1a28;border:1px solid #f59e0b;border-radius:6px;padding:12px">
+      <div style="font-size:10px;color:#f59e0b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Edit Project</div>
+      <div style="font-size:10px;color:#888;margin-bottom:4px">Members</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px">
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Nicole <span style="font-size:9px;color:#818cf8;background:rgba(129,140,248,.15);padding:1px 4px;border-radius:3px">owner</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Luke <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,.1);padding:1px 4px;border-radius:3px">contact</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+        <span style="background:#1e1e2e;border:1px solid #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#e2e8f0;display:inline-flex;align-items:center;gap:4px">
+          Sarah <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,.1);padding:1px 4px;border-radius:3px">contact</span><span style="color:#555;margin-left:2px">×</span>
+        </span>
+        <span style="background:transparent;border:1px dashed #444;border-radius:12px;padding:2px 8px;font-size:10px;color:#555;cursor:pointer">+ Add</span>
+      </div>
+      <div style="display:flex;gap:6px">
+        <span style="background:#3b82f6;color:#fff;font-size:10px;padding:4px 12px;border-radius:3px">Save</span>
+        <span style="background:transparent;color:#888;border:1px solid #333;font-size:10px;padding:4px 10px;border-radius:3px">Cancel</span>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:#555;text-align:center">Sarah added as contact.<br>Hit Save to persist.</div>
+  </div>
+
+</div>
+
+<div style="margin-top:20px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:6px;padding:12px 16px;font-size:12px;color:#94a3b8">
+  <strong style="color:#e2e8f0">Proposed roles:</strong> <span style="color:#818cf8">owner</span> (accountable, drives it) · <span style="color:#94a3b8">contact</span> (point of contact, keep informed) · <span style="color:#94a3b8">collaborator</span> (working on it). Open to renaming or adding/removing roles — these are just a starting point.
+</div>

@@ -1,0 +1,10 @@
+- generic [ref=e2]:
+  - navigation [ref=e3]:
+    - button "Pending" [ref=e4] [cursor=pointer]: Pending
+    - button "People" [ref=e5] [cursor=pointer]
+    - button "Observations" [ref=e6] [cursor=pointer]
+    - button "Work" [ref=e7] [cursor=pointer]
+  - main [ref=e8]:
+    - generic [ref=e10]:
+      - heading "No Pending Resolutions" [level=3] [ref=e11]
+      - paragraph [ref=e12]: All entities resolved, or no unresolved state file found.
