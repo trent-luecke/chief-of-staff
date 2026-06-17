@@ -159,8 +159,8 @@ def test_load_brief_prefs_returns_content():
 def test_build_prompt_includes_brief_prefs():
     from processors.brief import _build_prompt
     result = _build_prompt(
-        today_events=[], tomorrow_events=[], email_threads=[], projects=[],
-        due_tasks=[], loop_summary=None, open_issues=[], drafts=[],
+        today_events=[], tomorrow_events=[], projects=[],
+        due_tasks=[], loop_summary=None, open_issues=[],
         meeting_prep=[], inbox_text="",
         brief_prefs_context="- Skip gym scout section\n- Lead with pipeline",
     )

@@ -7,9 +7,8 @@ from processors.loops import LoopSummary
 
 def test_write_dashboard_creates_file(tmp_path):
     brief = BriefContent(
-        executive_summary="Busy day.",
-        top_3_priorities=["P1", "P2", "P3"],
-        watch_outs=["Risk 1"],
+        act_today=["P1", "P2", "P3"],
+        what_moved=["Risk 1"],
     )
     out_path = str(tmp_path / "dashboard.html")
     write_dashboard(
@@ -24,14 +23,12 @@ def test_write_dashboard_creates_file(tmp_path):
     assert os.path.exists(out_path)
     with open(out_path) as f:
         content = f.read()
-    assert "Busy day." in content
     assert "P1" in content
 
 
 def test_write_dashboard_creates_parent_dirs(tmp_path):
     brief = BriefContent(
-        executive_summary="Test",
-        top_3_priorities=["A", "B", "C"],
+        act_today=["A", "B", "C"],
     )
     nested_path = str(tmp_path / "nested" / "deep" / "dashboard.html")
     write_dashboard(
@@ -53,8 +50,7 @@ def test_write_dashboard_overwrites_existing(tmp_path):
         f.write("<html>old content</html>")
 
     brief = BriefContent(
-        executive_summary="New summary",
-        top_3_priorities=["X", "Y", "Z"],
+        act_today=["New summary", "X", "Y"],
     )
     write_dashboard(
         brief=brief,

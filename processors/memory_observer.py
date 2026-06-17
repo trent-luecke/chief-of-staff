@@ -335,7 +335,7 @@ def observe(
             })
 
     # top_priority — system-level, not person-keyed
-    for priority in (brief.top_3_priorities or []):
+    for priority in (brief.act_today or []):
         observations.append({
             "date": today,
             "type": "top_priority",

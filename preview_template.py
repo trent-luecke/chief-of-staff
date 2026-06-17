@@ -18,16 +18,17 @@ dummy = {
     "date_str": date.today().strftime("%A, %B %-d"),
     "generated_at": datetime.now().strftime("%-I:%M %p"),
     "brief": type("Brief", (), {
-        "executive_summary": "Today is a high-leverage day. You have two key sales calls and a pipeline review. Focus on the Midwest deal — it's ready to close.",
-        "top_3_priorities": [
+        "act_today": [
             "Close the Midwest deal — follow up on the contract sent Monday",
             "Prep talking points for the 2pm pipeline review with the team",
             "Review and respond to the three unread Notion action items",
         ],
-        "watch_outs": [
-            "The Q2 forecast numbers don't account for the two deals that slipped to June — you may want to reset expectations before the team call.",
+        "what_moved": [
+            "Pacific Strength replied to the demo follow-up and asked about onboarding.",
         ],
-        "schedule_notes": "Back-to-back meetings 10am–12pm — block time after lunch for deep work.",
+        "metric_flags": [
+            "Q2 forecast doesn't account for the two deals that slipped to June.",
+        ],
     })(),
     "today_events": [
         FakeEvent("09:00", "1:1 with Caty — weekly sync"),

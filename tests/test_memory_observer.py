@@ -39,8 +39,7 @@ def make_issue(id="i1", title="Payment fire", channel="support") -> Issue:
 
 def make_brief(priorities=None) -> BriefContent:
     return BriefContent(
-        executive_summary="Busy day",
-        top_3_priorities=priorities or ["Follow up on Apex contract"],
+        act_today=priorities or ["Follow up on Apex contract"],
     )
 
 

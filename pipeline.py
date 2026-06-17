@@ -999,6 +999,13 @@ def generate_and_deliver(
                 except Exception as e:
                     _err = str(e)[:200]
                     print(f"⚠️  Memory pipeline error (non-fatal): {e}", file=sys.stderr)
+                    _ops_cfg = config.get("ops_alerts", {})
+                    if _ops_cfg.get("enabled"):
+                        from lib.alerts import send_ops_alert
+                        send_ops_alert(
+                            f"⚠️ Memory pipeline failed (cross-day memory not updated): {_err}",
+                            _ops_cfg.get("slack_user_id", ""),
+                        )
             stage.collectors.append(CollectorResult(
                 name="memory_pipeline",
                 status="error" if _err else "ok",
