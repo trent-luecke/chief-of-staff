@@ -156,7 +156,7 @@ def build_slack_message(
         parts.append("\n*Pipeline Updates*")
         for u in pipeline_updates:
             ct = u["call_type"].replace("_", " ").title()
-            line = f"• {u['lead_name']} ({ct})\n  Status → {u['inferred_status']}\n  {u['summary']}"
+            line = f"• {u['lead_name']} ({ct})\n  Call date: {u['call_date']}\n  Status → {u['inferred_status']}\n  {u['summary']}"
             if u.get("is_new_lead"):
                 line += f"\n  ⚠️ Not in pipeline — create new record (owner: {u['account_owner']})"
             parts.append(line)
@@ -167,6 +167,7 @@ def build_slack_message(
             completed = ", ".join(u["onboarding_completed"]) if u["onboarding_completed"] else "none noted"
             line = (
                 f"• {u['customer_name']}\n"
+                f"  Call date: {u['call_date']}\n"
                 f"  Completed: {completed}\n"
                 f"  {u['summary']}"
             )
