@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import sys
 import requests
+from lib.gtm_metrics import evaluate_metrics, MetricResult
 
 SNAPSHOT_CACHE_KEY = "state/metrics_snapshot.json"
 
@@ -52,3 +53,16 @@ def fetch_snapshot(base_url: str, password: str, storage, timeout: int = 30) -> 
             cached["stale_reason"] = f"live fetch failed ({str(e)[:80]}); using last-good snapshot"
             return cached
         return None
+
+
+def metrics_from_snapshot(snapshot: dict, onboarding_active: list[dict], today=None) -> list[MetricResult]:
+    """Map a canonical snapshot + local onboarding into MetricResult objects."""
+    cancellations = snapshot.get("cancellations") or {}
+    return evaluate_metrics(
+        demos_data=snapshot.get("demos_data"),
+        sales_data=snapshot.get("sales_data"),
+        onboarding_active=onboarding_active,
+        cancellations=cancellations if cancellations.get("count", 0) > 0 else None,
+        cfg=snapshot.get("targets", {}),
+        today=today,
+    )
