@@ -84,11 +84,11 @@ class CollectedData:
     # Bugs
     bugs: list = field(default_factory=list)
 
-    # Sheets
+    # Sheets / metrics engine
     sales_data: dict | None = None
     demos_data: dict | None = None
-    leads_data: dict | None = None
     cancellations: dict = field(default_factory=lambda: {"count": 0, "entries": []})
+    metrics_snapshot: dict | None = None
 
     # Slack
     slack_dms: list = field(default_factory=list)
@@ -462,46 +462,36 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                 duration_ms=t.elapsed_ms,
             ))
 
-        # Sheets (cancellations, sales, demos — tracked as one entry)
-        sheets_cfg = config.get("sheets", {})
-        cancel_sheet_id = sheets_cfg.get("cancellations_spreadsheet_id", "")
-        cancel_tab = sheets_cfg.get("cancellations_tab_name", "MONTHLY Cancellations")
-        _mp_sheets = config.get("meeting_prep", {}).get("sheets", {})
-        sales_sheet_id = _mp_sheets.get("sales_spreadsheet_id", "")
-        demos_sheet_id = _mp_sheets.get("demos_spreadsheet_id", "")
-        if not (cancel_sheet_id or sales_sheet_id or demos_sheet_id):
-            stage.collectors.append(CollectorResult(name="sheets", status="skipped"))
-        else:
-            _err = None
-            with timed() as t:
-                try:
-                    from collectors.sheets import fetch_cancellations_mtd, fetch_sales_mtd, fetch_demos_mtd, fetch_leads_mtd, month_label
-                    from lib.google_auth import build_sheets_service
-                    sheets_svc = build_sheets_service()
-                    if cancel_sheet_id:
-                        print("📉  Fetching cancellations...")
-                        data.cancellations = fetch_cancellations_mtd(sheets_svc, cancel_sheet_id, cancel_tab)
-                        print(f"   {data.cancellations['count']} cancellation(s) this month")
-                    if sales_sheet_id:
-                        data.sales_data = fetch_sales_mtd(sheets_svc, sales_sheet_id, month_label(0))
-                        print(f"   Sales MTD: {data.sales_data['count']} deals, ${data.sales_data['revenue']:,.0f}")
-                    if demos_sheet_id:
-                        data.demos_data = fetch_demos_mtd(sheets_svc, demos_sheet_id, month_label(0))
-                        print(f"   Demos MTD: {data.demos_data['count']}")
-                    kpi_sheet_id = sheets_cfg.get("kpi_spreadsheet_id", "")
-                    kpi_leads_tab = sheets_cfg.get("kpi_leads_tab_name", "Leads")
-                    if kpi_sheet_id:
-                        data.leads_data = fetch_leads_mtd(sheets_svc, kpi_sheet_id, kpi_leads_tab)
-                        print(f"   Leads MTD: {data.leads_data['count']} lead(s)")
-                except Exception as e:
-                    _err = str(e)[:200]
-                    print(f"⚠️  Sheets fetch error (non-fatal): {e}", file=sys.stderr)
-            stage.collectors.append(CollectorResult(
-                name="sheets",
-                status="error" if _err else "ok",
-                error=_err,
-                duration_ms=t.elapsed_ms,
-            ))
+        # Metrics engine: drive the sync, then pull the canonical snapshot.
+        _metrics_err = None
+        with timed() as t:
+            try:
+                from lib import metrics_client
+                base_url = os.environ.get("METRICS_BASE_URL", "")
+                password = os.environ.get("METRICS_PASSWORD", "")
+                if base_url:
+                    metrics_client.trigger_sync(base_url, password)
+                    data.metrics_snapshot = metrics_client.fetch_snapshot(base_url, password, storage)
+                    if data.metrics_snapshot:
+                        print(f"   Metrics snapshot: sales={data.metrics_snapshot['sales_data']['count']} "
+                              f"demos={data.metrics_snapshot['demos_data']['count']} "
+                              f"(stale={data.metrics_snapshot.get('stale')})")
+            except Exception as e:
+                _metrics_err = str(e)[:200]
+                print(f"⚠️  Metrics snapshot error (non-fatal): {e}", file=sys.stderr)
+        stage.collectors.append(CollectorResult(
+            name="metrics_snapshot",
+            status="error" if _metrics_err else "ok",
+            error=_metrics_err,
+            duration_ms=t.elapsed_ms,
+        ))
+
+        # The snapshot is now the single source for these three consumers
+        # (GTM metrics, What-Moved diff, memory/vector pipeline).
+        if data.metrics_snapshot:
+            data.sales_data = data.metrics_snapshot.get("sales_data")
+            data.demos_data = data.metrics_snapshot.get("demos_data")
+            data.cancellations = data.metrics_snapshot.get("cancellations") or {"count": 0, "entries": []}
 
         # Slack DMs
         slack_token = os.environ.get("SLACK_BOT_TOKEN", "")
@@ -714,6 +704,17 @@ def _format_metric_flags(metric_results: list, dashboard_path: str) -> list[str]
     return flags
 
 
+def _format_engine_flags(snapshot: dict) -> list[str]:
+    """Staleness banner + per-source sync-failure flags from the engine snapshot."""
+    flags = []
+    if snapshot.get("stale"):
+        flags.append(f"⚠️ Metrics: {snapshot.get('stale_reason', 'using last-good snapshot')}")
+    for src, info in (snapshot.get("freshness") or {}).items():
+        if not info.get("ok"):
+            flags.append(f"⚠️ {src} metrics never synced — check OS-Metric-Sync")
+    return flags
+
+
 def generate_and_deliver(
     config: dict,
     ctx: ProcessedContext,
@@ -734,22 +735,18 @@ def generate_and_deliver(
         _metric_results = []
         _metric_flags = []
         try:
-            from lib.gtm_metrics import evaluate_metrics
+            from lib.metrics_client import metrics_from_snapshot
             from collectors.onboarding import load_onboarding_active
-            gtm_cfg = config.get("gtm", {})
             onboarding_cfg = config.get("onboarding", {})
             active_statuses = onboarding_cfg.get("active_statuses", ["In Progress", "Awaiting Customer", "Ready to Go Live"])
             onboarding_cache_path = onboarding_cfg.get("cache_path", "data/onboarding_cache.json")
             onboarding_active = load_onboarding_active(onboarding_cache_path, active_statuses)
-            _metric_results = evaluate_metrics(
-                leads_data=collected.leads_data,
-                demos_data=collected.demos_data,
-                sales_data=collected.sales_data,
-                onboarding_active=onboarding_active,
-                cancellations=collected.cancellations if collected.cancellations.get("count", 0) > 0 else None,
-                cfg=gtm_cfg,
-            )
-            _metric_flags = _format_metric_flags(_metric_results, config.get("dashboard_path", "output/dashboard.html"))
+            snapshot = collected.metrics_snapshot
+            if snapshot:
+                _metric_results = metrics_from_snapshot(snapshot, onboarding_active)
+                _metric_flags = _format_engine_flags(snapshot) + _format_metric_flags(
+                    _metric_results, config.get("dashboard_path", "output/dashboard.html")
+                )
         except Exception as e:
             print(f"⚠️  Metric evaluation error (non-fatal): {e}", file=sys.stderr)
 
