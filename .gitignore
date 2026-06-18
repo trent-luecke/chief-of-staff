@@ -32,6 +32,8 @@ data/*
 !data/projects_registry.json
 !data/notes.jsonl
 !data/meetings.jsonl
+!data/state/
+!data/state/avoma_sync_seen.json
 !data/memory/
 data/memory/*
 !data/memory/decisions.md

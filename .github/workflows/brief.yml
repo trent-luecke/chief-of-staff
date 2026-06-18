@@ -39,4 +39,6 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           AVOMA_API_KEY: ${{ secrets.AVOMA_API_KEY }}
+          METRICS_BASE_URL: ${{ secrets.METRICS_BASE_URL }}
+          METRICS_PASSWORD: ${{ secrets.METRICS_PASSWORD }}
         run: python main.py

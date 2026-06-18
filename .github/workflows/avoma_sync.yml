@@ -35,10 +35,13 @@ jobs:
           AVOMA_API_KEY: ${{ secrets.AVOMA_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          METRICS_BASE_URL: ${{ secrets.METRICS_BASE_URL }}
+          METRICS_PASSWORD: ${{ secrets.METRICS_PASSWORD }}
         run: python scripts/avoma_sync.py
 
       - name: Commit data changes
         run: |
           git add data/pipeline_cache.json 2>/dev/null || true
+          git add data/state/avoma_sync_seen.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: avoma sync data [skip ci]"
           git push origin main || true
