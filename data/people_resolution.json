@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-17T00:00:00",
+  "resolved_at": "2026-06-18T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1767,6 +1767,18 @@
       "related_person_ids": [
         "trent-luecke"
       ],
+      "confidence": "embedded"
+    },
+    "473": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "474": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
       "confidence": "embedded"
     }
   },
