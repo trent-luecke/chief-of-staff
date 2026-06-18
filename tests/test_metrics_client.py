@@ -103,3 +103,20 @@ def test_metrics_from_snapshot_zero_cancellations_passes_none():
     results = mc.metrics_from_snapshot(snapshot, onboarding_active=[], today=date(2026, 6, 16))
     assert {r.id for r in results} == {
         "demos_mtd", "sales_mtd", "onboarding_coverage", "churn_count", "churn_reasons"}
+
+
+def test_push_demos_happy(monkeypatch):
+    class Resp:
+        status_code = 200
+        def raise_for_status(self): pass
+        def json(self): return {"inserted": 2, "updated": 0, "skipped": 0}
+    monkeypatch.setattr(mc.requests, "post", lambda *a, **k: Resp())
+    out = mc.push_demos("http://x", "pw", [{"avoma_uuid": "u1"}])
+    assert out["inserted"] == 2
+
+
+def test_push_demos_non_fatal(monkeypatch):
+    def boom(*a, **k): raise mc.requests.exceptions.ConnectionError("refused")
+    monkeypatch.setattr(mc.requests, "post", boom)
+    out = mc.push_demos("http://x", "pw", [{"avoma_uuid": "u1"}])
+    assert out["status"] == "error"

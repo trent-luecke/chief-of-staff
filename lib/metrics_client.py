@@ -71,3 +71,19 @@ def metrics_from_snapshot(snapshot: dict, onboarding_active: list[dict], today=N
         cfg=snapshot.get("targets", {}),
         today=today,
     )
+
+
+def push_demos(base_url: str, password: str, demos: list[dict], timeout: int = 60) -> dict:
+    """POST detected demos to the engine /api/demos/ingest. Never raises."""
+    try:
+        resp = requests.post(
+            f"{base_url.rstrip('/')}/api/demos/ingest",
+            auth=("", password),
+            json={"demos": demos},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        print(f"⚠️  Demo push failed (non-fatal): {e}", file=sys.stderr)
+        return {"status": "error", "error": str(e)[:200]}
