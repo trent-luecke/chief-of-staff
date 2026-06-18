@@ -32,6 +32,43 @@ def extract_avoma_uuid_from_text(text: str) -> str | None:
     return m.group(0).lower() if m else None
 
 
+DEMO_REP_ROSTER: dict[str, list[str]] = {
+    "Ryan Allwein": ["ryan allwein", "ryan", "allwein"],
+    "Luke Martin": ["luke martin", "luke", "martin", "lmartin"],
+    "Chris Reynolds": ["chris reynolds", "chris", "reynolds"],
+    "Jeff Davidson": ["jeff davidson", "jeff", "davidson"],
+    "Trent Luecke": ["trent luecke", "trent", "luecke"],
+}
+
+
+def _name_matches_roster(name: str, roster: dict[str, list[str]]) -> str | None:
+    """Return canonical name if `name` matches a roster entry, else None."""
+    n = (name or "").strip().lower()
+    if not n:
+        return None
+    tokens = set(_re.split(r"[\s.,]+", n))
+    for canonical, variants in roster.items():
+        # full-string contains, or last-name/first-name token hit
+        for v in variants:
+            if v == n or v in tokens or (" " in v and v in n):
+                return canonical
+    return None
+
+
+def resolve_demo_rep(speakers, attendees, roster) -> str | None:
+    """Resolve the owning rep by fuzzy name. is_rep speaker first, attendee fallback."""
+    for s in speakers or []:
+        if s.get("is_rep"):
+            hit = _name_matches_roster(s.get("name", ""), roster)
+            if hit:
+                return hit
+    for a in attendees or []:
+        hit = _name_matches_roster(a.get("name", ""), roster)
+        if hit:
+            return hit
+    return None
+
+
 _BASE_URL = "https://api.avoma.com"
 _TIMEOUT = 15
 _TRANSCRIPT_CHAR_LIMIT = 30_000  # ~7k tokens — fits well within any Claude context window
@@ -145,6 +182,7 @@ class AvomaTranscript:
     onboarding_completed: list[str] = field(default_factory=list)
     onboarding_next_steps: list[str] = field(default_factory=list)
     action_items: list[str] = field(default_factory=list)
+    rep_name: str = ""
 
 
 def _get(api_key: str, path: str, params: dict | None = None) -> dict:
