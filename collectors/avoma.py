@@ -272,6 +272,7 @@ def fetch_recent_meetings(
     sales_rep_emails: list[str] | None = None,
     filter_internal: bool = True,
     include_non_os: bool = False,
+    rep_roster: dict | None = None,
 ) -> list[AvomaTranscript]:
     """Return analyzed Avoma meetings from the past ``lookback_hours`` hours.
 
@@ -318,11 +319,20 @@ def fetch_recent_meetings(
                 continue
 
             attendees = m.get("attendees", [])
+            attendee_names = [a.get("name", "") for a in attendees]
 
-            # Must include at least one configured sales rep
-            if rep_emails_lower:
+            name_match = None
+            email_hit = False
+            if rep_roster:
+                name_match = next((resolve_demo_rep([], [{"name": n}], rep_roster)
+                                   for n in attendee_names
+                                   if resolve_demo_rep([], [{"name": n}], rep_roster)), None)
+
+            if rep_emails_lower or rep_roster:
                 attendee_emails = {(a.get("email") or "").lower() for a in attendees}
-                if not rep_emails_lower.intersection(attendee_emails):
+                email_hit = bool(rep_emails_lower.intersection(attendee_emails))
+                # When only email gating (no roster): skip immediately if no match
+                if not rep_roster and not email_hit:
                     continue
 
             participants = [
@@ -333,6 +343,13 @@ def fetch_recent_meetings(
 
             speakers, utterances = _fetch_transcript(api_key, uuid)
             if not utterances:
+                continue
+
+            resolved_rep = resolve_demo_rep(speakers, attendees, rep_roster) if rep_roster else ""
+
+            # When roster gating: require email hit, attendee name match, or is_rep
+            # speaker match; if none apply, skip this meeting
+            if rep_roster and not email_hit and not name_match and not resolved_rep:
                 continue
 
             formatted = _format_transcript(speakers, utterances)
@@ -361,6 +378,7 @@ def fetch_recent_meetings(
                 onboarding_completed=result.get("onboarding_completed", []),
                 onboarding_next_steps=result.get("onboarding_next_steps", []),
                 action_items=result.get("action_items", []),
+                rep_name=resolved_rep or "",
             ))
 
         # params are already encoded in the next URL
