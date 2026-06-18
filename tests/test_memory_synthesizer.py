@@ -260,6 +260,52 @@ def test_synthesize_preserves_pinned_flag(storage):
     assert updated["pinned"] is True
 
 
+def _run_synthesize_with_response(storage, text, stop_reason="end_turn"):
+    today = date.today().isoformat()
+    write_obs(storage, [
+        {"date": today, "type": "top_priority", "entity": "apex", "content": "Follow up Apex"},
+    ])
+    mock_response = MagicMock()
+    mock_response.content = [MagicMock(text=text)]
+    mock_response.stop_reason = stop_reason
+    mock_response.usage = MagicMock()
+    with patch("processors.memory_synthesizer.anthropic.Anthropic") as MockClient:
+        MockClient.return_value.messages.create.return_value = mock_response
+        with patch("processors.memory_synthesizer.log_usage", return_value=None):
+            synthesize(storage=storage, api_key="test-key", model="claude-sonnet-4-6")
+
+
+def test_synthesize_truncated_response_raises_clear_error(storage):
+    """A response cut off at max_tokens leaves a malformed array whose only
+    surviving ']' is an inner decision_candidates bracket. Today's failure.
+    The synthesizer must raise an actionable error, not a cryptic JSONDecodeError."""
+    truncated = (
+        '[\n  {\n    "topic": "apex",\n    "filename": "apex.md",\n'
+        '    "synthesized_memory": "stuff",\n'
+        '    "decision_candidates": ["renew the contract"]\n  }\n'
+        '  {\n    "topic": "beta",\n    "filename": "beta.md",\n'
+        '    "synthesized_memory": "more stuff that got cut off mid'
+    )
+    with pytest.raises(ValueError) as exc:
+        _run_synthesize_with_response(storage, truncated, stop_reason="max_tokens")
+    assert "max_tokens" in str(exc.value)
+    # No file should have been written from the unparseable response
+    assert storage.read("memory/apex.md") is None
+
+
+def test_synthesize_strips_code_fences(storage):
+    fenced = "```json\n" + json.dumps([{
+        "topic": "apex",
+        "filename": "apex.md",
+        "synthesized_memory": "**Pattern:** fenced output parsed fine.",
+        "decision_candidates": [],
+    }]) + "\n```"
+    _run_synthesize_with_response(storage, fenced)
+    content = storage.read("memory/apex.md")
+    assert content is not None
+    assert "fenced output parsed fine" in content
+
+
 def test_apply_abandonment_decay_skips_missing_activity_last_seen(storage):
     import frontmatter as fm
     old_date = (date.today() - timedelta(days=70)).isoformat()

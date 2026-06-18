@@ -160,20 +160,37 @@ def synthesize(
     client = anthropic.Anthropic(api_key=api_key)
     response = client.messages.create(
         model=model,
-        max_tokens=2000,
+        max_tokens=8000,
         messages=[{"role": "user", "content": prompt}],
     )
     log_usage("memory_synthesizer", response.usage, model)
 
     raw = response.content[0].text.strip()
+    # Strip a leading/trailing markdown code fence if the model wrapped the JSON.
+    fence = re.match(r"^```(?:json)?\s*(.*?)\s*```$", raw, re.DOTALL)
+    if fence:
+        raw = fence.group(1).strip()
+
+    memories = None
     try:
         memories = json.loads(raw)
     except json.JSONDecodeError:
         match = re.search(r"\[.*\]", raw, re.DOTALL)
         if match:
-            memories = json.loads(match.group(0))
-        else:
-            return
+            try:
+                memories = json.loads(match.group(0))
+            except json.JSONDecodeError:
+                memories = None
+    if memories is None:
+        # Most common cause: the array was truncated at max_tokens, so the greedy
+        # regex above grabbed an inner bracket and produced invalid JSON. Raise an
+        # actionable error (caught upstream → ops alert) instead of a cryptic
+        # JSONDecodeError, and surface the truncation signal.
+        raise ValueError(
+            f"memory synthesis returned unparseable JSON "
+            f"(stop_reason={getattr(response, 'stop_reason', 'unknown')}, "
+            f"{len(raw)} chars) — likely truncated"
+        )
 
     today = date.today().isoformat()
     expires = (date.today() + timedelta(days=default_ttl_days)).isoformat()
