@@ -10,8 +10,19 @@ from pathlib import Path
 _ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(_ROOT))
 
-# nightly sync is 24h, not the 96h brief backfill window
-_LOOKBACK_HOURS = 24
+_SEEN_PATH = _ROOT / "data" / "state" / "avoma_sync_seen.json"
+
+
+def _load_seen() -> set[str]:
+    try:
+        return set(json.loads(_SEEN_PATH.read_text()))
+    except Exception:
+        return set()
+
+
+def _save_seen(seen: set[str]) -> None:
+    _SEEN_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _SEEN_PATH.write_text(json.dumps(sorted(seen)))
 
 _SALES_REP_MAP = {
     "ryan@teambuildr.com": "Ryan",
@@ -180,7 +191,7 @@ def main() -> None:
     from dotenv import load_dotenv
     load_dotenv(_ROOT / ".env")
 
-    from collectors.avoma import fetch_recent_meetings
+    from collectors.avoma import DEMO_REP_ROSTER, fetch_recent_meetings
     from lib.slack_post import open_dm, post_message
 
     avoma_key = os.environ.get("AVOMA_API_KEY", "")
@@ -219,21 +230,45 @@ def main() -> None:
 
     today = date.today().isoformat()
 
-    print(f"🎙️  Fetching Avoma meetings (last {_LOOKBACK_HOURS}h)...")
+    lookback = config.get("demos", {}).get("lookback_hours", 72)
+    print(f"🎙️  Fetching Avoma meetings (last {lookback}h)...")
     transcripts = fetch_recent_meetings(
         api_key=avoma_key,
         anthropic_api_key=anthropic_key,
         model=ai_model,
-        lookback_hours=_LOOKBACK_HOURS,
+        lookback_hours=lookback,
+        rep_roster=DEMO_REP_ROSTER,
         sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
         filter_internal=avoma_cfg.get("filter_internal", True),
     )
     print(f"   Found {len(transcripts)} OS-interested meeting(s).")
 
+    # ── Push detected OS demos to the metrics engine (idempotent by UUID) ──
+    try:
+        from lib.demo_detect import detect_demos
+        from lib import metrics_client
+        counted = set(config.get("demos", {}).get("counted_reps", []))
+        base_url = os.environ.get("METRICS_BASE_URL", "")
+        password = os.environ.get("METRICS_PASSWORD", "")
+        demo_records = detect_demos(transcripts, counted)
+        if demo_records and base_url:
+            result = metrics_client.push_demos(base_url, password, demo_records)
+            print(f"   Demos pushed: {len(demo_records)} → {result}")
+        else:
+            print(f"   Demos detected: {len(demo_records)} (push skipped: no base_url)" if not base_url
+                  else "   No demos detected this window.")
+    except Exception as e:
+        print(f"⚠️  Demo detection/push error (non-fatal): {e}", file=sys.stderr)
+
+    # Filter transcripts to only unseen ones for Slack dedup
+    seen = _load_seen()
+    new_transcripts = [t for t in transcripts if getattr(t, "uuid", None) not in seen]
+    print(f"   New (unseen) meetings for Slack: {len(new_transcripts)} of {len(transcripts)}.")
+
     pipeline_updates: list[dict] = []
     onboarding_updates: list[dict] = []
 
-    for t in transcripts:
+    for t in new_transcripts:
         call_date = _format_call_date(t.start_at)
         lead_name = _extract_lead_name(t.title)
 
@@ -288,6 +323,11 @@ def main() -> None:
         slack_channel = open_dm(slack_token, slack_user_id)
         post_message(slack_token, slack_channel, slack_text)
         print("   Slack DM sent.")
+        # Save seen UUIDs only after a successful Slack send
+        new_uuids = {getattr(t, "uuid", None) for t in new_transcripts if getattr(t, "uuid", None)}
+        if new_uuids:
+            seen.update(new_uuids)
+            _save_seen(seen)
     except Exception as exc:
         print(f"ERROR: Slack send failed: {exc}", file=sys.stderr)
         sys.exit(1)
