@@ -173,6 +173,10 @@
       "teambuildr.com"
     ]
   },
+  "demos": {
+    "counted_reps": ["Ryan Allwein", "Luke Martin", "Chris Reynolds", "Jeff Davidson", "Trent Luecke"],
+    "lookback_hours": 72
+  },
   "slack_canvas": {
     "canvas_id": "F0B4DCW9PCK",
     "channel_id": "D04EQ4BBW2H"
