@@ -78,6 +78,26 @@ def _name_tokens(text: str) -> list[str]:
     return [p for p in parts if len(p) >= 3]
 
 
+def _demo_count_from_engine():
+    """Current-month demo count from the engine snapshot, or None on any failure."""
+    try:
+        from lib import metrics_client
+        from lib.storage import LocalStorage
+        base = os.environ.get("METRICS_BASE_URL", "")
+        if not base:
+            return None
+        storage = LocalStorage(base_dir="data")
+        snap = metrics_client.fetch_snapshot(base, os.environ.get("METRICS_PASSWORD", ""), storage)
+        return (snap or {}).get("demos_data", {}).get("count")
+    except Exception:
+        return None
+
+
+def _format_demos_line() -> str:
+    n = _demo_count_from_engine()
+    return f"• Demos MTD: {n}" if n is not None else "• Demos MTD: (unavailable)"
+
+
 def _resolve_person_from_registry(
     registry_path: str, email: str
 ) -> tuple[Optional[str], list[str]]:
@@ -297,7 +317,7 @@ def build_dept_heads_context(config: dict) -> str:
 
     if sales_sheet_id or demos_sheet_id:
         from lib.google_auth import build_sheets_service
-        from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
+        from collectors.sheets import month_label, fetch_sales_mtd
         try:
             svc = build_sheets_service()
             cur_label = month_label(0)
@@ -311,11 +331,7 @@ def build_dept_heads_context(config: dict) -> str:
                     prior = fetch_sales_mtd(svc, sales_sheet_id, month_label(-1))
                     kpi_lines.append(f"• {month_label(-1)} Final: {prior['count']} deals, ${prior['revenue']:,.0f}")
             if demos_sheet_id:
-                demos = fetch_demos_mtd(svc, demos_sheet_id, cur_label)
-                kpi_lines.append(f"• Demos MTD: {demos['count']}")
-                if is_first_of_month:
-                    prior_demos = fetch_demos_mtd(svc, demos_sheet_id, month_label(-1))
-                    kpi_lines.append(f"• {month_label(-1)} Final Demos: {prior_demos['count']}")
+                kpi_lines.append(_format_demos_line())
             parts.append("\n".join(kpi_lines))
         except Exception as e:
             parts.append(f"## Sales & Demos\n(unavailable: {e})")
