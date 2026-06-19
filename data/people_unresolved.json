@@ -247,6 +247,30 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-06-06"
+    },
+    {
+      "entity": "Moaz Ezzat ElSobky",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-06-19"
+    },
+    {
+      "entity": "Ahmedragy",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-06-19"
+    },
+    {
+      "entity": "Cstahl",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-06-19"
     }
   ],
   "previously_notified": [

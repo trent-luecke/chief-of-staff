@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-18T00:00:00",
+  "resolved_at": "2026-06-19T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1779,6 +1779,125 @@
     "474": {
       "primary_person_id": "trent-luecke",
       "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "475": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "476": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "477": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "478": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "479": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "480": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "481": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "482": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "483": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "484": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "485": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "486": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "487": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "488": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "489": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "490": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "491": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "492": {
+      "primary_person_id": "chris-reynolds",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "493": {
+      "primary_person_id": "jamie-crone",
+      "related_person_ids": [
+        "jeff-davidson"
+      ],
+      "confidence": "embedded"
+    },
+    "494": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "495": {
+      "primary_person_id": "tysmith-strength",
+      "related_person_ids": [
+        "tedperlak",
+        "jeff-davidson"
+      ],
+      "confidence": "embedded"
+    },
+    "496": {
+      "primary_person_id": "nicholas-lewin",
+      "related_person_ids": [
+        "bmuller",
+        "mwoodby",
+        "trent-luecke"
+      ],
       "confidence": "embedded"
     }
   },
