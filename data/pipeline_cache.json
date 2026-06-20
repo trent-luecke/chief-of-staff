@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-19T00:00:00.000Z",
+  "fetched_at": "2026-06-20T23:06:18.000Z",
   "leads": [
     {
       "name": "Holland High School",
@@ -35,23 +35,23 @@
       "stale": false
     },
     {
-      "name": "Meredith Ingbretson",
-      "contact": "Meredith Ingbretson",
-      "email": "mingbretson@hayward.k12.wi.us",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-12",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Asher Wojciechowski",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-21",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Meredith Ingbretson",
+      "contact": "Meredith Ingbretson",
+      "email": "mingbretson@hayward.k12.wi.us",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-12",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -90,23 +90,23 @@
       "stale": false
     },
     {
-      "name": "Thomas Howes",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-17",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Thomas Howes",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-17",
       "estimated_value": null,
       "source": null,
       "stale": false
