@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-19T00:00:00",
+  "resolved_at": "2026-06-20T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -1899,6 +1899,96 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "499": {
+      "primary_person_id": "holland-high-school",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "500": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "501": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "502": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "503": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "504": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "505": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "506": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "507": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "508": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "509": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "510": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "511": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "512": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "513": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "514": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "515": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "516": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -2033,7 +2123,9 @@
     431,
     441,
     442,
-    443
+    443,
+    497,
+    498
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -2066,6 +2158,8 @@
     "thread:Re: Free Shirt!",
     "thread:Re: Wise Up x Teambuildr",
     "thread:Canceled event with note: TMB Email Outreach @ Wed Jun 3, 2026 10:30am - 11am (CDT) (trent@teambuildr.com)",
-    "thread:Re: TeamBuildr OS Content Shoot"
+    "thread:Re: TeamBuildr OS Content Shoot",
+    "thread:Re: Payments",
+    "thread:Re: Set up Stripe Payment"
   ]
 }
