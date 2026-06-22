@@ -74,3 +74,5 @@
 {"event": "complete", "task_id": "t-36e35a", "completed_at": "2026-06-18"}
 {"event": "create", "task_id": "t-c66fad", "title": "test note", "source": "slack", "created_at": "2026-06-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
 {"event": "create", "task_id": "t-97c269", "title": "test note", "source": "slack", "created_at": "2026-06-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
+{"event": "delete", "task_id": "t-c66fad"}
+{"event": "delete", "task_id": "t-97c269"}
