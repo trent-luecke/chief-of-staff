@@ -3430,14 +3430,18 @@ function renderMeetingDoc(m) {
 function wireMeetingDoc(m) {
   const doc = el('mtg-doc');
 
-  async function patchMeeting(method, path, payload) {
-    const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload || {}),
-    });
-    if (!res.ok) { alert('Save failed (server offline or push error).'); return null; }
-    return res.json();
+  async function patchMeeting(method, path, payload, label) {
+    const doFetch = async () => {
+      const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {}),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    };
+    try { return await withArc(doFetch(), label); }
+    catch (err) { return null; } // arc toasted; callers skip re-render on null
   }
 
   doc.querySelectorAll('.mtg-person-chip').forEach(chip =>
@@ -3447,42 +3451,42 @@ function wireMeetingDoc(m) {
   agendaAdd.addEventListener('keydown', async e => {
     if (e.key === 'Enter' && agendaAdd.value.trim()) {
       const items = [...(m.agenda || []), agendaAdd.value.trim()];
-      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+      if (await patchMeeting('PUT', '/agenda', { items }, 'Agenda updated')) renderMeetingsView();
     }
   });
   doc.querySelectorAll('[data-agenda-del]').forEach(btn =>
     btn.addEventListener('click', async () => {
       const idx = Number(btn.dataset.agendaDel);
       const items = (m.agenda || []).filter((_, i) => i !== idx);
-      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+      if (await patchMeeting('PUT', '/agenda', { items }, 'Agenda updated')) renderMeetingsView();
     }));
 
   const threadAdd = el('mtg-thread-add');
   threadAdd.addEventListener('keydown', async e => {
     if (e.key === 'Enter' && threadAdd.value.trim()) {
-      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() })) renderMeetingsView();
+      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() }, 'Thread added')) renderMeetingsView();
     }
   });
   doc.querySelectorAll('.mtg-thread').forEach(row => {
     const tid = row.dataset.threadId;
     const toggle = row.querySelector('[data-thread-toggle]');
     if (toggle) toggle.addEventListener('change', async () => {
-      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked })) renderMeetingsView();
+      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked }, 'Threads updated')) renderMeetingsView();
     });
     const promote = row.querySelector('[data-thread-promote]');
     if (promote) promote.addEventListener('click', async () => {
-      if (await patchMeeting('POST', `/threads/${tid}/promote`, {})) renderMeetingsView();
+      if (await patchMeeting('POST', `/threads/${tid}/promote`, {}, 'Thread promoted')) renderMeetingsView();
     });
     const del = row.querySelector('[data-thread-del]');
     if (del) del.addEventListener('click', async () => {
-      if (await patchMeeting('DELETE', `/threads/${tid}`, {})) renderMeetingsView();
+      if (await patchMeeting('DELETE', `/threads/${tid}`, {}, 'Thread deleted')) renderMeetingsView();
     });
   });
 
   el('mtg-session-save').addEventListener('click', async () => {
     const body = el('mtg-session-add').value.trim();
     if (!body) return;
-    if (await patchMeeting('POST', '/sessions', { body })) renderMeetingsView();
+    if (await patchMeeting('POST', '/sessions', { body }, 'Session saved')) renderMeetingsView();
   });
 
   doc.querySelectorAll('.mtg-session').forEach(row => {
@@ -3504,12 +3508,12 @@ function wireMeetingDoc(m) {
       bodyDiv.querySelector('[data-session-save]').addEventListener('click', async () => {
         const body = input.value.trim();
         if (!body) return;
-        if (await patchMeeting('PATCH', `/sessions/${sid}`, { body })) renderMeetingsView();
+        if (await patchMeeting('PATCH', `/sessions/${sid}`, { body }, 'Session saved')) renderMeetingsView();
       });
     });
     if (delBtn) delBtn.addEventListener('click', async () => {
       if (!confirm('Delete this session log?')) return;
-      if (await patchMeeting('DELETE', `/sessions/${sid}`, {})) renderMeetingsView();
+      if (await patchMeeting('DELETE', `/sessions/${sid}`, {}, 'Session deleted')) renderMeetingsView();
     });
   });
 }
@@ -3572,11 +3576,16 @@ function wireNewMeetingModal() {
       calendar_pattern: el('mtg-pattern-input').value.trim(),
       people_ids: newMeetingState.peopleIds,
     };
-    const res = await fetch(`${API}/api/meetings`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-    });
-    if (!res.ok) { alert('Create failed (server offline or push error).'); return; }
-    const data = await res.json();
+    let data;
+    try {
+      data = await withArc((async () => {
+        const res = await fetch(`${API}/api/meetings`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })(), 'Meeting created');
+    } catch (err) { return; } // arc toasted; keep modal open
     closeNewMeetingModal();
     meetingsState.selectedId = data.id;
     renderMeetingsView();
