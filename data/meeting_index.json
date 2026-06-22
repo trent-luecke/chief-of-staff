@@ -47,6 +47,16 @@
       "nudge_minutes_after": 5,
       "name": "Product Planning (Teofe)",
       "people_ids": []
+    },
+    {
+      "calendar_pattern": "OS \"Sit Down\"",
+      "memory_file": "data/meeting_memory/os_sit_down.md",
+      "nudge_subject": "OS Sit Down notes?",
+      "nudge_minutes_after": 5,
+      "name": "OS Sit Down",
+      "people_ids": [
+        "quinn-kastle"
+      ]
     }
   ]
 }
