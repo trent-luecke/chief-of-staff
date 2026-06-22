@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-06-21T00:00:00",
+  "resolved_at": "2026-06-22T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -2076,6 +2076,96 @@
       "confidence": "system"
     },
     "536": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "537": {
+      "primary_person_id": "holland-high-school",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "538": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "539": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "540": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "541": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "542": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "543": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "544": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "545": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "546": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "547": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "548": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "549": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "550": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "551": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "552": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "553": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "554": {
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
