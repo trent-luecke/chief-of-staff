@@ -2177,15 +2177,14 @@ function wireTaskInteractions(container, people, onChanged) {
   container.addEventListener('click', async e => {
     if (e.target.matches('.btn-done')) {
       const taskId = e.target.dataset.taskId;
-      e.target.disabled = true; e.target.textContent = '…';
+      setBusy(e.target);
       try {
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST', body: '{}' });
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST', body: '{}', label: 'Task completed' });
         const row = document.getElementById(`task-row-${taskId}`);
         if (row) row.remove();
         if (!container.querySelector('.task-row')) onChanged();
       } catch (err) {
-        alert('Failed: ' + err.message);
-        e.target.disabled = false; e.target.textContent = 'Done';
+        setBusy(e.target, false);
       }
       return;
     }
@@ -2194,9 +2193,13 @@ function wireTaskInteractions(container, people, onChanged) {
       const row = document.getElementById(`task-row-${taskId}`);
       const title = row?.querySelector('.task-title')?.textContent || taskId;
       if (!confirm(`Delete task "${title}"? This cannot be undone.`)) return;
-      e.target.disabled = true;
-      await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE' }).catch(() => {});
-      onChanged();
+      setBusy(e.target);
+      try {
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE', label: 'Task deleted' });
+        onChanged();
+      } catch (err) {
+        setBusy(e.target, false);
+      }
       return;
     }
     if (e.target.matches('.due-chip') || e.target.matches('.due-ghost')) {
@@ -2204,21 +2207,25 @@ function wireTaskInteractions(container, people, onChanged) {
       const cur = e.target.dataset.due || null;
       showDatePicker(e.target, cur, async iso => {
         if (iso !== cur) {
-          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-            method: 'PATCH', body: JSON.stringify({ due_date: iso }),
-          }).catch(() => {});
+          try {
+            await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+              method: 'PATCH', body: JSON.stringify({ due_date: iso }), label: 'Task updated',
+            });
+            onChanged();
+          } catch (err) { /* arc toasted; leave view unchanged */ }
         }
-        onChanged();
       });
       return;
     }
     if (e.target.matches('.owner-chip') || e.target.matches('.assign-ghost')) {
       const taskId = e.target.dataset.taskId;
       showOwnerDropdown(e.target, taskId, people, async newOwner => {
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-          method: 'PATCH', body: JSON.stringify({ owner: newOwner }),
-        }).catch(() => {});
-        onChanged();
+        try {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ owner: newOwner }), label: 'Task updated',
+          });
+          onChanged();
+        } catch (err) { /* arc toasted; leave view unchanged */ }
       });
     }
   });
@@ -2264,6 +2271,7 @@ function wireAddTaskForm(formId, projectId, onAdded) {
     try {
       await fetchJSON(`${API}/api/tasks`, {
         method: 'POST',
+        label: 'Task added',
         body: JSON.stringify({
           title,
           source: 'ui',
@@ -2275,7 +2283,7 @@ function wireAddTaskForm(formId, projectId, onAdded) {
       titleInput.value = ''; dueInput.value = ''; dueInput.dataset.isoDate = ''; ownerSel.value = '';
       await onAdded();
     } catch (err) {
-      alert('Failed to add task: ' + err.message);
+      /* arc toasted the failure */
     } finally {
       btn.disabled = false;
     }
@@ -2429,12 +2437,12 @@ function openEditPanel(project, people, groupEl) {
       if (!name) return;
       try {
         await fetchJSON(`${API}/api/projects/${encodeURIComponent(project.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Project updated',
           body: JSON.stringify({ canonical_name: name, status, members: draftMembers }),
         });
         workState.editing.delete(project.id);
         renderWorkView();
-      } catch (err) { alert('Save failed: ' + err.message); }
+      } catch (err) { /* arc toasted; stay in edit mode */ }
     });
 
     // Cancel
@@ -2611,9 +2619,11 @@ async function renderWorkView() {
       const pTasks  = (tasks || []).filter(t => t.project_id === projId);
       const taskNote = pTasks.length ? ` and its ${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}` : '';
       if (!confirm(`Delete project "${name}"${taskNote}? This cannot be undone.`)) return;
-      btn.disabled = true;
-      await fetchJSON(`${API}/api/projects/${encodeURIComponent(projId)}`, { method: 'DELETE' }).catch(() => {});
-      renderWorkView();
+      setBusy(btn);
+      try {
+        await fetchJSON(`${API}/api/projects/${encodeURIComponent(projId)}`, { method: 'DELETE', label: 'Project deleted' });
+        renderWorkView();
+      } catch (err) { setBusy(btn, false); }
     });
   });
 
@@ -2647,10 +2657,12 @@ async function renderWorkView() {
       sel.addEventListener('change', async () => {
         const projId = sel.value;
         if (!projId) return;
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-          method: 'PATCH', body: JSON.stringify({ project_id: projId }),
-        }).catch(() => {});
-        renderWorkView();
+        try {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ project_id: projId }), label: 'Task updated',
+          });
+          renderWorkView();
+        } catch (err) { /* arc toasted; leave view unchanged */ }
       });
     });
 
