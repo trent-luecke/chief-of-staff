@@ -3133,16 +3133,16 @@ async function openNoteModal(note, onChange) {
         if (payload.project_id !== note.project_id) patch.project_id = payload.project_id;
         if (payload.brief !== !!note.brief) patch.brief = payload.brief;
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Note saved',
           body: JSON.stringify({ event_type: 'update', ...patch }),
         });
       } else {
-        await fetchJSON(`${API}/api/notes`, { method: 'POST', body: JSON.stringify(payload) });
+        await fetchJSON(`${API}/api/notes`, { method: 'POST', label: 'Note saved', body: JSON.stringify(payload) });
       }
       closeNoteModal();
       afterChange();
     } catch (err) {
-      alert('Save failed: ' + err.message);
+      /* arc toasted; keep modal open */
     }
   };
 
@@ -3151,11 +3151,11 @@ async function openNoteModal(note, onChange) {
     el('note-delete-btn').onclick = async () => {
       if (!confirm('Delete this note?')) return;
       try {
-        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE' });
+        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE', label: 'Note deleted' });
         closeNoteModal();
         afterChange();
       } catch (err) {
-        alert('Delete failed: ' + err.message);
+        /* arc toasted; keep modal open */
       }
     };
 
@@ -3163,13 +3163,13 @@ async function openNoteModal(note, onChange) {
     el('note-pin-btn').onclick = async () => {
       try {
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Note updated',
           body: JSON.stringify({ event_type: 'pin', pinned: !note.pinned }),
         });
         closeNoteModal();
         afterChange();
       } catch (err) {
-        alert('Pin failed: ' + err.message);
+        /* arc toasted; keep modal open */
       }
     };
   }
@@ -3264,11 +3264,11 @@ function wireTagMgmt(view, tags) {
     input.addEventListener('change', async () => {
       try {
         await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
-          method: 'PATCH', body: JSON.stringify({ color: input.value }),
+          method: 'PATCH', body: JSON.stringify({ color: input.value }), label: 'Tag updated',
         });
         renderNotesView();
       } catch (err) {
-        alert('Color update failed: ' + err.message);
+        /* arc toasted; leave view unchanged */
       }
     });
   });
@@ -3282,10 +3282,10 @@ function wireTagMgmt(view, tags) {
       if (btn.dataset.action === 'delete') {
         if (!confirm(`Delete tag "${tagId}"? Notes that use it will retain the label but lose color.`)) return;
         try {
-          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, { method: 'DELETE' });
+          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, { method: 'DELETE', label: 'Tag deleted' });
           renderNotesView();
         } catch (err) {
-          alert('Delete failed: ' + err.message);
+          /* arc toasted; leave view unchanged */
         }
         return;
       }
@@ -3309,12 +3309,11 @@ function wireTagMgmt(view, tags) {
         if (!newName || newName === tagId) { renderNotesView(); return; }
         try {
           await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
-            method: 'PATCH', body: JSON.stringify({ id: newName, color: colorInput.value }),
+            method: 'PATCH', body: JSON.stringify({ id: newName, color: colorInput.value }), label: 'Tag renamed',
           });
           renderNotesView();
         } catch (err) {
-          alert('Rename failed: ' + err.message);
-          renderNotesView();
+          input.replaceWith(nameEl); // restore name span; arc toasted; no re-render on failure
         }
       };
       input.addEventListener('keydown', e => {
