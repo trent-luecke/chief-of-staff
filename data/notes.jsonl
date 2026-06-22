@@ -13,3 +13,4 @@
 {"event": "create", "id": "n-3c7e73", "ts": "2026-06-22T15:24:59", "body": "add loading/transition states in the people registry after something is submitted. right now it looks like nothing is happening after submitting something due to the slight delay", "tags": [], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
 {"event": "delete", "id": "n-e38690", "ts": "2026-06-22T17:28:59"}
 {"event": "delete", "id": "n-3c7e73", "ts": "2026-06-22T18:53:45"}
+{"event": "delete", "id": "n-4cf423", "ts": "2026-06-22T18:54:06"}
