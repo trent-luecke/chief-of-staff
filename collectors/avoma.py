@@ -92,6 +92,19 @@ _EXTRACT_TOOL: dict = {
                 "enum": ["demo", "onboarding", "follow_up", "other"],
             },
             "summary": {"type": "string", "description": "2-3 sentence outcome summary."},
+            "email_recap": {
+                "type": "string",
+                "description": (
+                    "A prospect-facing recap the rep can paste into a follow-up email. "
+                    "Plain text, scannable, organized as short labeled sections: "
+                    "'What we covered' (1-2 lines), 'Features highlighted' (the OS features "
+                    "that resonated), 'Pricing discussed' (ONLY if price or tiers came up — "
+                    "omit this section entirely otherwise), and 'Open questions' (2-3 "
+                    "open-ended questions phrased directly to the prospect). No greeting or "
+                    "signature. No internal jargon — do not surface objections/gaps as such; "
+                    "reframe concerns as questions where natural."
+                ),
+            },
             "features_covered": {
                 "type": "array",
                 "items": {"type": "string"},
@@ -134,7 +147,7 @@ _EXTRACT_TOOL: dict = {
             },
         },
         "required": [
-            "os_interested", "call_type", "summary",
+            "os_interested", "call_type", "summary", "email_recap",
             "features_covered", "gaps", "objections",
             "buying_signals", "competitors",
             "onboarding_completed", "onboarding_next_steps",
@@ -161,7 +174,8 @@ Key rules:
 - For onboarding_completed / onboarding_next_steps: only populate for onboarding or follow_up calls.
 - For action_items: concrete next steps with owner where identifiable (e.g. "Rep to send pricing doc").
 - For competitors: any competing product or vendor name mentioned.
-- For summary: 2-3 sentences on call outcome and current status.\
+- For summary: 2-3 sentences on call outcome and current status.
+- For email_recap: write a recap the rep can paste into a follow-up email to the prospect. Use short labeled sections — "What we covered", "Features highlighted", "Pricing discussed" (include ONLY if price/tiers came up — otherwise omit this section), and "Open questions" (2-3 open-ended questions addressed to the prospect). Plain text, no greeting/signature, no internal jargon; reframe concerns as questions rather than naming objections or gaps.\
 """
 
 
@@ -174,6 +188,7 @@ class AvomaTranscript:
     call_type: str = ""  # demo | onboarding | follow_up | other
     os_interested: bool = False
     summary: str = ""
+    email_recap: str = ""
     features_covered: list[str] = field(default_factory=list)
     gaps: list[str] = field(default_factory=list)
     objections: list[str] = field(default_factory=list)
@@ -244,7 +259,7 @@ def _analyze_with_claude(
         client = anthropic.Anthropic(api_key=anthropic_api_key)
         response = client.messages.create(
             model=model,
-            max_tokens=1500,
+            max_tokens=2000,
             system=_SYSTEM_PROMPT,
             tools=[_EXTRACT_TOOL],
             tool_choice={"type": "tool", "name": "extract_call_analysis"},
@@ -370,6 +385,7 @@ def fetch_recent_meetings(
                 call_type=result.get("call_type", "other"),
                 os_interested=os_interested,
                 summary=result.get("summary", ""),
+                email_recap=result.get("email_recap", ""),
                 features_covered=result.get("features_covered", []),
                 gaps=result.get("gaps", []),
                 objections=result.get("objections", []),
@@ -431,6 +447,7 @@ def fetch_meeting_by_uuid(
         call_type=result.get("call_type", "other"),
         os_interested=bool(result.get("os_interested")),
         summary=result.get("summary", ""),
+        email_recap=result.get("email_recap", ""),
         features_covered=result.get("features_covered", []),
         gaps=result.get("gaps", []),
         objections=result.get("objections", []),

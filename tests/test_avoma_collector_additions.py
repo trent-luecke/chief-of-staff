@@ -95,3 +95,44 @@ def test_fetch_meeting_by_uuid_returns_none_on_api_error():
         result = fetch_meeting_by_uuid("avoma-key", "anthropic-key", "claude-sonnet-4-6", "test-uuid")
 
     assert result is None
+
+
+def test_email_recap_in_extract_tool_schema():
+    from collectors.avoma import _EXTRACT_TOOL
+    props = _EXTRACT_TOOL["input_schema"]["properties"]
+    assert "email_recap" in props
+    assert props["email_recap"]["type"] == "string"
+    assert "email_recap" in _EXTRACT_TOOL["input_schema"]["required"]
+
+
+def test_fetch_meeting_by_uuid_populates_email_recap():
+    from collectors.avoma import fetch_meeting_by_uuid
+
+    mock_meeting = _mock_meeting_response()
+    mock_analysis = {
+        "os_interested": True,
+        "call_type": "demo",
+        "summary": "Good demo call.",
+        "email_recap": "What we covered: scheduling. Open questions: timeline?",
+        "features_covered": ["scheduling"],
+        "gaps": [],
+        "objections": [],
+        "buying_signals": [],
+        "competitors": [],
+        "onboarding_completed": [],
+        "onboarding_next_steps": [],
+        "action_items": [],
+    }
+
+    with patch("collectors.avoma.requests.get") as mock_get, \
+         patch("collectors.avoma._fetch_transcript", return_value=([], [{"speaker_id": "1", "transcript": "Hi"}])), \
+         patch("collectors.avoma._analyze_with_claude", return_value=mock_analysis):
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = mock_meeting
+        mock_resp.raise_for_status.return_value = None
+        mock_get.return_value = mock_resp
+
+        t = fetch_meeting_by_uuid("avoma-key", "anthropic-key", "claude-sonnet-4-6", "test-uuid-1234")
+
+    assert t is not None
+    assert t.email_recap == "What we covered: scheduling. Open questions: timeline?"
