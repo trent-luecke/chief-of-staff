@@ -15,3 +15,4 @@
 {"event": "delete", "id": "n-3c7e73", "ts": "2026-06-22T18:53:45"}
 {"event": "delete", "id": "n-4cf423", "ts": "2026-06-22T18:54:06"}
 {"event": "create", "id": "n-8f6d9b", "ts": "2026-06-22T20:11:13", "body": "are the agendas from my Meeting notes pulled into the pre-meeting nudge at all?", "tags": ["IDEAS"], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
+{"event": "create", "id": "n-76dfdf", "ts": "2026-06-22T22:58:48", "body": "customer interview question idea: what are some workarounds you're currently utilizing in OS? This could be for something internal (ex: using 1-slot classes for 1:1 PT stand in) or external (ex: using confirmation email to deliver app download instructions to new member). This is a signal that they're a committed customer, but more importantly into what we should look at building next", "tags": [], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
