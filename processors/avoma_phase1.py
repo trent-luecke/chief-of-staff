@@ -265,8 +265,8 @@ def _build_slack_message(t, lead_name: str, resolved_people: list, trigger_text:
         f"*{lead_name}* — {call_label}",
         participants_display,
         "",
-        "*Summary*",
-        t.summary or "(no summary)",
+        "📧 *Follow-Up Email Recap*",
+        t.email_recap or t.summary or "(no recap)",
     ]
 
     if t.action_items:

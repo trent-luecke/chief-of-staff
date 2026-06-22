@@ -145,3 +145,25 @@ def test_run_phase1_omits_notion_block_for_non_os(tmp_path):
 
     output = mock_post.call_args[0][3]
     assert "Notion" not in output
+
+
+def test_build_slack_message_uses_email_recap():
+    from processors.avoma_phase1 import _build_slack_message
+    t = _fake_transcript()
+    t.email_recap = "What we covered: scheduling.\nOpen questions: timeline?"
+    people = [{"name": "John Smith", "is_internal": False, "is_new": False}]
+    msg, _ = _build_slack_message(t, "Acme Corp", people, "ready to process")
+    assert "📧 *Follow-Up Email Recap*" in msg
+    assert "What we covered: scheduling." in msg
+    assert "*Summary*" not in msg
+
+
+def test_build_slack_message_falls_back_to_summary():
+    from processors.avoma_phase1 import _build_slack_message
+    t = _fake_transcript()
+    t.email_recap = ""
+    t.summary = "Good demo. Strong interest."
+    people = [{"name": "John Smith", "is_internal": False, "is_new": False}]
+    msg, _ = _build_slack_message(t, "Acme Corp", people, "ready to process")
+    assert "📧 *Follow-Up Email Recap*" in msg
+    assert "Good demo. Strong interest." in msg
