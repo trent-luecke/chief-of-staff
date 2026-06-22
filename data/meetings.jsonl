@@ -29,3 +29,4 @@
 {"event": "add_thread", "id": "dev_triage", "ts": "2026-06-22T17:29:29", "thread_id": "th-d4f188", "text": "ask about noted performance issues when using Kiosk that Andrea reported", "person_id": null}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:51:54", "items": ["run through what we need from Ken, if anything", "go through StoryBuildr"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:02", "items": ["run through what we need from Ken, if anything"]}
+{"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:08", "items": []}
