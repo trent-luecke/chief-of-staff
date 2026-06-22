@@ -1370,8 +1370,9 @@ async function saveDecisions() {
     await writeJSON(state.dir, 'data/people_resolution_decisions.json', payload);
     status.classList.remove('hidden');
     setTimeout(() => status.classList.add('hidden'), 3000);
+    toast('✓ Decisions saved', 'success');
   } catch (e) {
-    alert('Failed to save: ' + e.message);
+    toast('Save failed: ' + e.message, 'error');
   } finally {
     btn.disabled = decisionsArr.length === 0;
   }
@@ -1622,8 +1623,9 @@ function openMergeConflict(personA, personB, detail) {
     btn.textContent = 'Saving…';
     try {
       await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+      toast('✓ People merged', 'success');
     } catch (e) {
-      alert('Failed to save: ' + e.message);
+      toast('Merge failed: ' + e.message, 'error');
       btn.disabled = false;
       btn.textContent = 'Confirm Merge';
       return;
@@ -1688,8 +1690,9 @@ function openDetailEdit(person, detail) {
     saveBtn.textContent = 'Saving…';
     try {
       await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+      toast('✓ Person updated', 'success');
     } catch (e) {
-      alert('Failed to save: ' + e.message);
+      toast('Save failed: ' + e.message, 'error');
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save';
       return;
