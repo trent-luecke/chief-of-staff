@@ -32,7 +32,7 @@ and is explicitly out of scope.
 | Pre-meeting brief — dept-heads / recurring-internal | `nudger.py:97` | **Relocate → Slack DM** |
 | Weekly synthesis digest + trends | `weekly_synthesis.py:179,188` | **Relocate → Slack DM** |
 | Reminders | `processors/reminders.py:121` | **Relocate → Slack DM** |
-| Observation-resolution pings | `scripts/resolve_observations.py:436` | **Relocate → Slack DM** |
+| Observation-resolution pings | `scripts/resolve_observations.py:436` | **Relocate → Slack DM (fire-and-forget; reply loop retired)** |
 | JARVIS bot replies | `ask.py` (~20 calls) | **Untouched** (stays on Telegram) |
 | Wanderer findings | `scripts/wanderer.py:458` | **Untouched** (stays on Telegram) |
 | Avoma per-call push | `scripts/avoma_per_call.py:466` | **Untouched** (likely orphaned dup; not in scope) |
@@ -99,6 +99,13 @@ notify_user(text, config)                # after
 
 ### `scripts/resolve_observations.py` (line 436)
 - Swap `send_message` → `notify_user(text, config)`. Drop Telegram token plumbing.
+- **Reply loop retired.** This ping was half of a Telegram reply loop: it stored a
+  `telegram_message_id` in `data/people_unresolved_state.json`, and `ask.py:237-245`
+  matched the user's reply to route into `processors/people_resolution_handler.py`.
+  Slack has no reply ingestion here, so per decision the loop is dropped: stop writing
+  the state file's reply-tracking, remove the dead `ask.py` resolution-reply branch,
+  and delete the now-orphaned `processors/people_resolution_handler.py`. Person
+  resolution moving forward happens via the Registry UI.
 
 ## Workflows & config
 
