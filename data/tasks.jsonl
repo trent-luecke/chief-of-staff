@@ -72,3 +72,4 @@
 {"event": "complete", "task_id": "t-16360d", "completed_at": "2026-06-18"}
 {"event": "create", "task_id": "t-36e35a", "title": "take a look at why MRR isn't calculating in OS metrics dash", "source": "ui", "created_at": "2026-06-18", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
 {"event": "complete", "task_id": "t-36e35a", "completed_at": "2026-06-18"}
+{"event": "create", "task_id": "t-c66fad", "title": "test note", "source": "slack", "created_at": "2026-06-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
