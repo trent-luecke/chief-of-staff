@@ -2662,7 +2662,7 @@ async function renderWorkView() {
             method: 'PATCH', body: JSON.stringify({ project_id: projId }), label: 'Task updated',
           });
           renderWorkView();
-        } catch (err) { /* arc toasted; leave view unchanged */ }
+        } catch (err) { sel.replaceWith(e.target); } // restore link button; arc already toasted
       });
     });
 
