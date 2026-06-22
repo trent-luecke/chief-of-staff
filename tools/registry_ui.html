@@ -20,6 +20,34 @@
       --internal: #6b7280;
       --unknown: #ef4444;
     }
+    /* ── Action feedback: toast + busy ─────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #toast-host {
+      position: fixed; bottom: 16px; right: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 9999; pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      min-width: 150px; max-width: 320px;
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; line-height: 1.3; color: var(--text);
+      background: var(--surface2); border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { border-color: var(--success); }
+    .toast-error   { border-color: var(--danger); color: #fecaca; }
+    .toast-pending { border-color: var(--muted); color: var(--muted); }
+    .busy { opacity: .55; pointer-events: none; position: relative; }
+    .busy::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 12px; height: 12px; margin: -6px 0 0 -6px;
+      border: 2px solid var(--muted); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
@@ -1342,8 +1370,9 @@ async function saveDecisions() {
     await writeJSON(state.dir, 'data/people_resolution_decisions.json', payload);
     status.classList.remove('hidden');
     setTimeout(() => status.classList.add('hidden'), 3000);
+    toast('✓ Decisions saved', 'success');
   } catch (e) {
-    alert('Failed to save: ' + e.message);
+    toast('Save failed: ' + e.message, 'error');
   } finally {
     btn.disabled = decisionsArr.length === 0;
   }
@@ -1594,8 +1623,9 @@ function openMergeConflict(personA, personB, detail) {
     btn.textContent = 'Saving…';
     try {
       await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+      toast('✓ People merged', 'success');
     } catch (e) {
-      alert('Failed to save: ' + e.message);
+      toast('Merge failed: ' + e.message, 'error');
       btn.disabled = false;
       btn.textContent = 'Confirm Merge';
       return;
@@ -1660,8 +1690,9 @@ function openDetailEdit(person, detail) {
     saveBtn.textContent = 'Saving…';
     try {
       await writeJSON(state.dir, 'data/people_registry.json', state.registry);
+      toast('✓ Person updated', 'success');
     } catch (e) {
-      alert('Failed to save: ' + e.message);
+      toast('Save failed: ' + e.message, 'error');
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save';
       return;
@@ -1864,20 +1895,92 @@ async function refreshFromMain() {
   }
 }
 
+// ── Action feedback: toast + busy + arc ───────────────────────────────────────
+let _toastSeq = 0;
+function toast(msg, kind = 'success', opts = {}) {
+  let host = document.getElementById('toast-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'toast-host';
+    document.body.appendChild(host);
+  }
+  const t = document.createElement('div');
+  t.className = `toast toast-${kind}`;
+  t.dataset.toastId = ++_toastSeq;
+  t.textContent = msg;
+  host.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  const ttl = opts.ttl != null ? opts.ttl : (kind === 'error' ? 5000 : 2000);
+  if (ttl > 0) setTimeout(() => dismissToast(t), ttl);
+  return t;
+}
+
+function dismissToast(t) {
+  if (!t || !t.parentNode) return;
+  t.classList.remove('show');
+  let removed = false;
+  const kill = () => { if (!removed) { removed = true; t.remove(); } };
+  t.addEventListener('transitionend', kill, { once: true });
+  setTimeout(kill, 400); // fallback if transitionend never fires
+}
+
+function setBusy(el, on = true) {
+  if (!el) return;
+  el.classList.toggle('busy', on);
+  if (on) el.setAttribute('aria-busy', 'true');
+  else el.removeAttribute('aria-busy');
+}
+
+// Drives the Saving→Saved arc around an in-flight promise.
+// Re-throws on failure so callers can skip their re-render.
+async function withArc(promise, label) {
+  let pending = null;
+  const timer = setTimeout(() => { pending = toast('Saving…', 'pending', { ttl: 0 }); }, 250);
+  try {
+    const result = await promise;
+    clearTimeout(timer);
+    const msg = '✓ ' + (label || 'Saved');
+    if (pending) {
+      pending.className = 'toast toast-success show';
+      pending.textContent = msg;
+      setTimeout(() => dismissToast(pending), 2000);
+    } else {
+      toast(msg, 'success');
+    }
+    return result;
+  } catch (err) {
+    clearTimeout(timer);
+    if (pending) dismissToast(pending);
+    const detail = err && err.message ? ': ' + err.message : '';
+    toast((label || 'Action') + ' failed' + detail, 'error');
+    throw err;
+  }
+}
+
 async function fetchJSON(url, opts = {}) {
   const method = (opts.method || 'GET').toUpperCase();
-  if (method !== 'GET' && typeof state !== 'undefined' && state.online === false) {
+  const { label, ...fetchOpts } = opts;
+
+  const doFetch = async () => {
+    const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...fetchOpts });
+    if (res.status === 503) {
+      if (typeof state !== 'undefined') { state.online = false; }
+      applyOnlineState();
+      throw new Error('offline: write rejected by server');
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  };
+
+  if (method === 'GET') return doFetch();
+
+  // Mutating request: block when known-offline, otherwise drive the feedback arc.
+  if (typeof state !== 'undefined' && state.online === false) {
     applyOnlineState();
+    toast('Offline — change not saved', 'error');
     throw new Error('offline: editing disabled until main is reachable');
   }
-  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (res.status === 503) {
-    if (typeof state !== 'undefined') { state.online = false; }
-    applyOnlineState();
-    throw new Error('offline: write rejected by server');
-  }
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  return withArc(doFetch(), label);
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
@@ -2077,15 +2180,14 @@ function wireTaskInteractions(container, people, onChanged) {
   container.addEventListener('click', async e => {
     if (e.target.matches('.btn-done')) {
       const taskId = e.target.dataset.taskId;
-      e.target.disabled = true; e.target.textContent = '…';
+      setBusy(e.target);
       try {
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST', body: '{}' });
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}/complete`, { method: 'POST', body: '{}', label: 'Task completed' });
         const row = document.getElementById(`task-row-${taskId}`);
         if (row) row.remove();
         if (!container.querySelector('.task-row')) onChanged();
       } catch (err) {
-        alert('Failed: ' + err.message);
-        e.target.disabled = false; e.target.textContent = 'Done';
+        setBusy(e.target, false);
       }
       return;
     }
@@ -2094,9 +2196,13 @@ function wireTaskInteractions(container, people, onChanged) {
       const row = document.getElementById(`task-row-${taskId}`);
       const title = row?.querySelector('.task-title')?.textContent || taskId;
       if (!confirm(`Delete task "${title}"? This cannot be undone.`)) return;
-      e.target.disabled = true;
-      await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE' }).catch(() => {});
-      onChanged();
+      setBusy(e.target);
+      try {
+        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, { method: 'DELETE', label: 'Task deleted' });
+        onChanged();
+      } catch (err) {
+        setBusy(e.target, false);
+      }
       return;
     }
     if (e.target.matches('.due-chip') || e.target.matches('.due-ghost')) {
@@ -2104,21 +2210,25 @@ function wireTaskInteractions(container, people, onChanged) {
       const cur = e.target.dataset.due || null;
       showDatePicker(e.target, cur, async iso => {
         if (iso !== cur) {
-          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-            method: 'PATCH', body: JSON.stringify({ due_date: iso }),
-          }).catch(() => {});
+          try {
+            await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+              method: 'PATCH', body: JSON.stringify({ due_date: iso }), label: 'Task updated',
+            });
+            onChanged();
+          } catch (err) { /* arc toasted; leave view unchanged */ }
         }
-        onChanged();
       });
       return;
     }
     if (e.target.matches('.owner-chip') || e.target.matches('.assign-ghost')) {
       const taskId = e.target.dataset.taskId;
       showOwnerDropdown(e.target, taskId, people, async newOwner => {
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-          method: 'PATCH', body: JSON.stringify({ owner: newOwner }),
-        }).catch(() => {});
-        onChanged();
+        try {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ owner: newOwner }), label: 'Task updated',
+          });
+          onChanged();
+        } catch (err) { /* arc toasted; leave view unchanged */ }
       });
     }
   });
@@ -2164,6 +2274,7 @@ function wireAddTaskForm(formId, projectId, onAdded) {
     try {
       await fetchJSON(`${API}/api/tasks`, {
         method: 'POST',
+        label: 'Task added',
         body: JSON.stringify({
           title,
           source: 'ui',
@@ -2175,7 +2286,7 @@ function wireAddTaskForm(formId, projectId, onAdded) {
       titleInput.value = ''; dueInput.value = ''; dueInput.dataset.isoDate = ''; ownerSel.value = '';
       await onAdded();
     } catch (err) {
-      alert('Failed to add task: ' + err.message);
+      /* arc toasted the failure */
     } finally {
       btn.disabled = false;
     }
@@ -2329,12 +2440,12 @@ function openEditPanel(project, people, groupEl) {
       if (!name) return;
       try {
         await fetchJSON(`${API}/api/projects/${encodeURIComponent(project.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Project updated',
           body: JSON.stringify({ canonical_name: name, status, members: draftMembers }),
         });
         workState.editing.delete(project.id);
         renderWorkView();
-      } catch (err) { alert('Save failed: ' + err.message); }
+      } catch (err) { /* arc toasted; stay in edit mode */ }
     });
 
     // Cancel
@@ -2511,9 +2622,11 @@ async function renderWorkView() {
       const pTasks  = (tasks || []).filter(t => t.project_id === projId);
       const taskNote = pTasks.length ? ` and its ${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}` : '';
       if (!confirm(`Delete project "${name}"${taskNote}? This cannot be undone.`)) return;
-      btn.disabled = true;
-      await fetchJSON(`${API}/api/projects/${encodeURIComponent(projId)}`, { method: 'DELETE' }).catch(() => {});
-      renderWorkView();
+      setBusy(btn);
+      try {
+        await fetchJSON(`${API}/api/projects/${encodeURIComponent(projId)}`, { method: 'DELETE', label: 'Project deleted' });
+        renderWorkView();
+      } catch (err) { setBusy(btn, false); }
     });
   });
 
@@ -2547,10 +2660,12 @@ async function renderWorkView() {
       sel.addEventListener('change', async () => {
         const projId = sel.value;
         if (!projId) return;
-        await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
-          method: 'PATCH', body: JSON.stringify({ project_id: projId }),
-        }).catch(() => {});
-        renderWorkView();
+        try {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ project_id: projId }), label: 'Task updated',
+          });
+          renderWorkView();
+        } catch (err) { sel.replaceWith(e.target); } // restore link button; arc already toasted
       });
     });
 
@@ -3018,16 +3133,16 @@ async function openNoteModal(note, onChange) {
         if (payload.project_id !== note.project_id) patch.project_id = payload.project_id;
         if (payload.brief !== !!note.brief) patch.brief = payload.brief;
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Note saved',
           body: JSON.stringify({ event_type: 'update', ...patch }),
         });
       } else {
-        await fetchJSON(`${API}/api/notes`, { method: 'POST', body: JSON.stringify(payload) });
+        await fetchJSON(`${API}/api/notes`, { method: 'POST', label: 'Note saved', body: JSON.stringify(payload) });
       }
       closeNoteModal();
       afterChange();
     } catch (err) {
-      alert('Save failed: ' + err.message);
+      /* arc toasted; keep modal open */
     }
   };
 
@@ -3036,11 +3151,11 @@ async function openNoteModal(note, onChange) {
     el('note-delete-btn').onclick = async () => {
       if (!confirm('Delete this note?')) return;
       try {
-        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE' });
+        await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, { method: 'DELETE', label: 'Note deleted' });
         closeNoteModal();
         afterChange();
       } catch (err) {
-        alert('Delete failed: ' + err.message);
+        /* arc toasted; keep modal open */
       }
     };
 
@@ -3048,13 +3163,13 @@ async function openNoteModal(note, onChange) {
     el('note-pin-btn').onclick = async () => {
       try {
         await fetchJSON(`${API}/api/notes/${encodeURIComponent(note.id)}`, {
-          method: 'PATCH',
+          method: 'PATCH', label: 'Note updated',
           body: JSON.stringify({ event_type: 'pin', pinned: !note.pinned }),
         });
         closeNoteModal();
         afterChange();
       } catch (err) {
-        alert('Pin failed: ' + err.message);
+        /* arc toasted; keep modal open */
       }
     };
   }
@@ -3149,11 +3264,11 @@ function wireTagMgmt(view, tags) {
     input.addEventListener('change', async () => {
       try {
         await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
-          method: 'PATCH', body: JSON.stringify({ color: input.value }),
+          method: 'PATCH', body: JSON.stringify({ color: input.value }), label: 'Tag updated',
         });
         renderNotesView();
       } catch (err) {
-        alert('Color update failed: ' + err.message);
+        /* arc toasted; leave view unchanged */
       }
     });
   });
@@ -3167,10 +3282,10 @@ function wireTagMgmt(view, tags) {
       if (btn.dataset.action === 'delete') {
         if (!confirm(`Delete tag "${tagId}"? Notes that use it will retain the label but lose color.`)) return;
         try {
-          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, { method: 'DELETE' });
+          await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, { method: 'DELETE', label: 'Tag deleted' });
           renderNotesView();
         } catch (err) {
-          alert('Delete failed: ' + err.message);
+          /* arc toasted; leave view unchanged */
         }
         return;
       }
@@ -3194,12 +3309,11 @@ function wireTagMgmt(view, tags) {
         if (!newName || newName === tagId) { renderNotesView(); return; }
         try {
           await fetchJSON(`${API}/api/notes/tags/${encodeURIComponent(tagId)}`, {
-            method: 'PATCH', body: JSON.stringify({ id: newName, color: colorInput.value }),
+            method: 'PATCH', body: JSON.stringify({ id: newName, color: colorInput.value }), label: 'Tag renamed',
           });
           renderNotesView();
         } catch (err) {
-          alert('Rename failed: ' + err.message);
-          renderNotesView();
+          input.replaceWith(nameEl); // restore name span; arc toasted; no re-render on failure
         }
       };
       input.addEventListener('keydown', e => {
@@ -3318,14 +3432,18 @@ function renderMeetingDoc(m) {
 function wireMeetingDoc(m) {
   const doc = el('mtg-doc');
 
-  async function patchMeeting(method, path, payload) {
-    const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload || {}),
-    });
-    if (!res.ok) { alert('Save failed (server offline or push error).'); return null; }
-    return res.json();
+  async function patchMeeting(method, path, payload, label) {
+    const doFetch = async () => {
+      const res = await fetch(`${API}/api/meetings/${m.id}${path}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload || {}),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    };
+    try { return await withArc(doFetch(), label); }
+    catch (err) { return null; } // arc toasted; callers skip re-render on null
   }
 
   doc.querySelectorAll('.mtg-person-chip').forEach(chip =>
@@ -3335,42 +3453,42 @@ function wireMeetingDoc(m) {
   agendaAdd.addEventListener('keydown', async e => {
     if (e.key === 'Enter' && agendaAdd.value.trim()) {
       const items = [...(m.agenda || []), agendaAdd.value.trim()];
-      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+      if (await patchMeeting('PUT', '/agenda', { items }, 'Agenda updated')) renderMeetingsView();
     }
   });
   doc.querySelectorAll('[data-agenda-del]').forEach(btn =>
     btn.addEventListener('click', async () => {
       const idx = Number(btn.dataset.agendaDel);
       const items = (m.agenda || []).filter((_, i) => i !== idx);
-      if (await patchMeeting('PUT', '/agenda', { items })) renderMeetingsView();
+      if (await patchMeeting('PUT', '/agenda', { items }, 'Agenda updated')) renderMeetingsView();
     }));
 
   const threadAdd = el('mtg-thread-add');
   threadAdd.addEventListener('keydown', async e => {
     if (e.key === 'Enter' && threadAdd.value.trim()) {
-      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() })) renderMeetingsView();
+      if (await patchMeeting('POST', '/threads', { text: threadAdd.value.trim() }, 'Thread added')) renderMeetingsView();
     }
   });
   doc.querySelectorAll('.mtg-thread').forEach(row => {
     const tid = row.dataset.threadId;
     const toggle = row.querySelector('[data-thread-toggle]');
     if (toggle) toggle.addEventListener('change', async () => {
-      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked })) renderMeetingsView();
+      if (await patchMeeting('PATCH', `/threads/${tid}`, { closed: toggle.checked }, 'Threads updated')) renderMeetingsView();
     });
     const promote = row.querySelector('[data-thread-promote]');
     if (promote) promote.addEventListener('click', async () => {
-      if (await patchMeeting('POST', `/threads/${tid}/promote`, {})) renderMeetingsView();
+      if (await patchMeeting('POST', `/threads/${tid}/promote`, {}, 'Thread promoted')) renderMeetingsView();
     });
     const del = row.querySelector('[data-thread-del]');
     if (del) del.addEventListener('click', async () => {
-      if (await patchMeeting('DELETE', `/threads/${tid}`, {})) renderMeetingsView();
+      if (await patchMeeting('DELETE', `/threads/${tid}`, {}, 'Thread deleted')) renderMeetingsView();
     });
   });
 
   el('mtg-session-save').addEventListener('click', async () => {
     const body = el('mtg-session-add').value.trim();
     if (!body) return;
-    if (await patchMeeting('POST', '/sessions', { body })) renderMeetingsView();
+    if (await patchMeeting('POST', '/sessions', { body }, 'Session saved')) renderMeetingsView();
   });
 
   doc.querySelectorAll('.mtg-session').forEach(row => {
@@ -3392,12 +3510,12 @@ function wireMeetingDoc(m) {
       bodyDiv.querySelector('[data-session-save]').addEventListener('click', async () => {
         const body = input.value.trim();
         if (!body) return;
-        if (await patchMeeting('PATCH', `/sessions/${sid}`, { body })) renderMeetingsView();
+        if (await patchMeeting('PATCH', `/sessions/${sid}`, { body }, 'Session saved')) renderMeetingsView();
       });
     });
     if (delBtn) delBtn.addEventListener('click', async () => {
       if (!confirm('Delete this session log?')) return;
-      if (await patchMeeting('DELETE', `/sessions/${sid}`, {})) renderMeetingsView();
+      if (await patchMeeting('DELETE', `/sessions/${sid}`, {}, 'Session deleted')) renderMeetingsView();
     });
   });
 }
@@ -3460,11 +3578,16 @@ function wireNewMeetingModal() {
       calendar_pattern: el('mtg-pattern-input').value.trim(),
       people_ids: newMeetingState.peopleIds,
     };
-    const res = await fetch(`${API}/api/meetings`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
-    });
-    if (!res.ok) { alert('Create failed (server offline or push error).'); return; }
-    const data = await res.json();
+    let data;
+    try {
+      data = await withArc((async () => {
+        const res = await fetch(`${API}/api/meetings`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })(), 'Meeting created');
+    } catch (err) { return; } // arc toasted; keep modal open
     closeNewMeetingModal();
     meetingsState.selectedId = data.id;
     renderMeetingsView();
