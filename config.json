@@ -25,6 +25,9 @@
     "enabled": true,
     "slack_user_id": "U04ECG6KEA3"
   },
+  "notifications": {
+    "slack_user_id": "U04ECG6KEA3"
+  },
   "slack_channels": [
     "TeamBuildr-OS",
     "support",
