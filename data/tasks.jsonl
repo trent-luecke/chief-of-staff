@@ -77,3 +77,4 @@
 {"event": "delete", "task_id": "t-c66fad"}
 {"event": "delete", "task_id": "t-97c269"}
 {"event": "create", "task_id": "t-3219e7", "title": "trent to add waiver handling to claude assisted onboarding", "source": "meeting-os_sit_down", "created_at": "2026-06-22", "due_date": null, "metadata": {"meeting_id": "os_sit_down", "thread_id": "th-654dca"}, "project_id": null, "collaborators": [], "owner": null}
+{"event": "edit", "task_id": "t-3219e7", "patch": {"project_id": "claude-assisted-onboarding"}}
