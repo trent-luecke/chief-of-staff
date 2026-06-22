@@ -110,9 +110,22 @@ visibly instead of silently looking done. As part of this work, those silent
 The scattered `alert('Failed…')` calls are replaced with the error toast for
 consistency.
 
-Note: the re-render after a failed write may still occur; the important change is
-that the user *sees the failure*. (Whether to skip the re-render on failure is a
-minor implementation detail — surfacing the error is the requirement.)
+**On a failed write, the view does NOT re-render** (hard requirement). Both of
+these hold:
+
+1. **The failure is visible** — a red error toast appears (e.g. "Failed to delete
+   task").
+2. **The screen stays unchanged** — the `onChanged()` / `renderMeetingsView()`
+   re-render is *skipped* on failure, so the row / chip / item you acted on stays
+   exactly where it was, paired with the error toast. No phantom success, no
+   confusing rebuild.
+
+Concretely: the current `await fetchJSON(...).catch(() => {})` followed by an
+unconditional `onChanged()` becomes a try/catch (or equivalent) where the
+re-render runs only on success. Because mutating `fetchJSON` calls already throw
+on failure, the cleanest shape is to drop the swallowing `.catch` and let the
+re-render line sit in the success path. The centralized arc in the helper emits
+the error toast; the call site simply doesn't re-render when the call throws.
 
 ## Error handling
 
@@ -132,7 +145,8 @@ Manual, against the running UI on port 8787 (launch via the `registry-ui` skill 
    confirm: per-element busy spinner appears, "Saving…" shows, "✓ Saved" toast
    confirms, view rebuilds cleanly after.
 2. **Error path** — toggle the UI offline (or stop the server) and attempt a
-   write; confirm an error toast appears and no phantom success.
+   write; confirm an error toast appears, the view does NOT re-render, and the
+   acted-on item stays unchanged (no phantom success).
 3. **Coverage spot-check** — exercise at least one action from each surface: task,
    project, meeting agenda/session, person.
 
