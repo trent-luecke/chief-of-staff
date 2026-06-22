@@ -34,7 +34,6 @@
     "support-tickets"
   ],
   "nudge_minutes_after": 5,
-  "pending_nudges_file": "data/pending_nudges.json",
   "issues_file": "data/issues.json",
   "drafts_dir": "data/drafts",
   "captures_file": "data/captures.md",

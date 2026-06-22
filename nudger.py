@@ -1,59 +1,20 @@
 #!/usr/bin/env python3
-"""Post-meeting nudger: sends a Telegram message after work meetings end."""
+"""Pre-meeting prep runner: sends pre-meeting briefs to Slack before work meetings."""
 
 import os
 import json
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from collectors.calendar import CalendarEvent, fetch_two_day_events
+from collectors.calendar import fetch_two_day_events
 from lib.telegram import send_message
-
-
-PERSONAL_KEYWORDS = {
-    "haircut", "doctor", "dentist", "gym", "workout", "therapy",
-    "appointment", "physical", "checkup", "check-up", "optometrist",
-    "chiropractor", "massage", "pto", "ooo", "out of office",
-    "blocked", "focus time", "deep work", "no meetings",
-    "birthday", "anniversary", "vacation", "lunch", "dinner",
-}
-
-MEETING_KEYWORDS = {
-    "call", "sync", "meeting", "1:1", "one-on-one", "standup", "stand-up",
-    "demo", "interview", "review", "check-in", "checkin", "huddle",
-    "connect", "catchup", "catch-up", "kickoff", "kick-off", "debrief",
-    "session", "discussion", "chat", "workshop", "training", "onboarding",
-    "presentation", "pitch", "walkthrough", "intro", "follow-up",
-}
-
-
-def is_work_meeting(event: CalendarEvent) -> bool:
-    title = event.summary.lower()
-    if any(kw in title for kw in PERSONAL_KEYWORDS):
-        return False
-    # Other attendees on the invite is the strongest signal
-    if event.attendees:
-        return True
-    # No attendees — require an explicit meeting keyword
-    return any(kw in title for kw in MEETING_KEYWORDS)
 
 
 def load_config(path: str = "config.json") -> dict:
     with open(path) as f:
         return json.load(f)
-
-
-_NUDGES_KEY = "pending_nudges.json"
-
-
-def load_pending_nudges(storage) -> list[dict]:
-    return storage.read_json(_NUDGES_KEY, default=[])
-
-
-def save_pending_nudges(nudges: list[dict], storage) -> None:
-    storage.write_json(_NUDGES_KEY, nudges)
 
 
 def run() -> None:
@@ -63,9 +24,6 @@ def run() -> None:
     bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    nudge_delay = config.get("nudge_minutes_after", 5)
-    pending = load_pending_nudges(storage)
-    already_nudged = {n["event_id"] for n in pending}
 
     prep_config = config.get("meeting_prep", {})
     prep_enabled = prep_config.get("enabled", False)
@@ -100,35 +58,6 @@ def run() -> None:
                         except Exception as e:
                             print(f"  WARNING: Prep failed for {event.summary}: {e}")
 
-        # ── Post-meeting nudge ───────────────────────────────────────────
-        if event.id in already_nudged:
-            continue
-        if not is_work_meeting(event):
-            continue
-        nudge_time = event.end + timedelta(minutes=nudge_delay)
-        if now < nudge_time:
-            continue
-
-        nudge_message_id = None
-        if bot_token and chat_id:
-            text = f"📝 {event.summary} just wrapped. Drop your notes — what was covered, open items, action items."
-            nudge_message_id = send_message(bot_token, chat_id, text)
-            print(f"  Nudge sent for: {event.summary}")
-        else:
-            print(f"  WARNING: TELEGRAM_BOT_TOKEN / TELEGRAM_ALLOWED_CHAT_ID not set — skipping nudge for {event.summary}")
-
-        entry = {
-            "event_id": event.id,
-            "meeting_name": event.summary,
-            "sent_at": now.isoformat(),
-            "session_date": date.today().isoformat(),
-            "attendees": event.attendees,
-        }
-        if nudge_message_id:
-            entry["telegram_message_id"] = nudge_message_id
-        pending.append(entry)
-
-    save_pending_nudges(pending, storage)
     if prep_enabled:
         save_prep_state(sent_preps, storage)
     print("✅ Nudger run complete.")
