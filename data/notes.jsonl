@@ -14,3 +14,4 @@
 {"event": "delete", "id": "n-e38690", "ts": "2026-06-22T17:28:59"}
 {"event": "delete", "id": "n-3c7e73", "ts": "2026-06-22T18:53:45"}
 {"event": "delete", "id": "n-4cf423", "ts": "2026-06-22T18:54:06"}
+{"event": "create", "id": "n-8f6d9b", "ts": "2026-06-22T20:11:13", "body": "are the agendas from my Meeting notes pulled into the pre-meeting nudge at all?", "tags": ["IDEAS"], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
