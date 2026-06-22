@@ -20,6 +20,34 @@
       --internal: #6b7280;
       --unknown: #ef4444;
     }
+    /* ── Action feedback: toast + busy ─────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #toast-host {
+      position: fixed; bottom: 16px; right: 16px;
+      display: flex; flex-direction: column; gap: 8px;
+      z-index: 9999; pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      min-width: 150px; max-width: 320px;
+      padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; line-height: 1.3; color: var(--text);
+      background: var(--surface2); border: 1px solid var(--border);
+      box-shadow: 0 4px 16px rgba(0,0,0,.4);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-success { border-color: var(--success); }
+    .toast-error   { border-color: var(--danger); color: #fecaca; }
+    .toast-pending { border-color: var(--muted); color: var(--muted); }
+    .busy { opacity: .55; pointer-events: none; position: relative; }
+    .busy::after {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      width: 12px; height: 12px; margin: -6px 0 0 -6px;
+      border: 2px solid var(--muted); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .6s linear infinite;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: var(--bg);
@@ -1861,6 +1889,68 @@ async function refreshFromMain() {
     rerenderCurrentView();
   } else {
     location.reload();
+  }
+}
+
+// ── Action feedback: toast + busy + arc ───────────────────────────────────────
+let _toastSeq = 0;
+function toast(msg, kind = 'success', opts = {}) {
+  let host = document.getElementById('toast-host');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'toast-host';
+    document.body.appendChild(host);
+  }
+  const t = document.createElement('div');
+  t.className = `toast toast-${kind}`;
+  t.dataset.toastId = ++_toastSeq;
+  t.textContent = msg;
+  host.appendChild(t);
+  requestAnimationFrame(() => t.classList.add('show'));
+  const ttl = opts.ttl != null ? opts.ttl : (kind === 'error' ? 5000 : 2000);
+  if (ttl > 0) setTimeout(() => dismissToast(t), ttl);
+  return t;
+}
+
+function dismissToast(t) {
+  if (!t || !t.parentNode) return;
+  t.classList.remove('show');
+  let removed = false;
+  const kill = () => { if (!removed) { removed = true; t.remove(); } };
+  t.addEventListener('transitionend', kill, { once: true });
+  setTimeout(kill, 400); // fallback if transitionend never fires
+}
+
+function setBusy(el, on = true) {
+  if (!el) return;
+  el.classList.toggle('busy', on);
+  if (on) el.setAttribute('aria-busy', 'true');
+  else el.removeAttribute('aria-busy');
+}
+
+// Drives the Saving→Saved arc around an in-flight promise.
+// Re-throws on failure so callers can skip their re-render.
+async function withArc(promise, label) {
+  let pending = null;
+  const timer = setTimeout(() => { pending = toast('Saving…', 'pending', { ttl: 0 }); }, 250);
+  try {
+    const result = await promise;
+    clearTimeout(timer);
+    const msg = '✓ ' + (label || 'Saved');
+    if (pending) {
+      pending.className = 'toast toast-success show';
+      pending.textContent = msg;
+      setTimeout(() => dismissToast(pending), 2000);
+    } else {
+      toast(msg, 'success');
+    }
+    return result;
+  } catch (err) {
+    clearTimeout(timer);
+    if (pending) dismissToast(pending);
+    const detail = err && err.message ? ': ' + err.message : '';
+    toast((label || 'Action') + ' failed' + detail, 'error');
+    throw err;
   }
 }
 
