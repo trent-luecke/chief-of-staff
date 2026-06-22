@@ -1956,18 +1956,28 @@ async function withArc(promise, label) {
 
 async function fetchJSON(url, opts = {}) {
   const method = (opts.method || 'GET').toUpperCase();
-  if (method !== 'GET' && typeof state !== 'undefined' && state.online === false) {
+  const { label, ...fetchOpts } = opts;
+
+  const doFetch = async () => {
+    const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...fetchOpts });
+    if (res.status === 503) {
+      if (typeof state !== 'undefined') { state.online = false; }
+      applyOnlineState();
+      throw new Error('offline: write rejected by server');
+    }
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  };
+
+  if (method === 'GET') return doFetch();
+
+  // Mutating request: block when known-offline, otherwise drive the feedback arc.
+  if (typeof state !== 'undefined' && state.online === false) {
     applyOnlineState();
+    toast('Offline — change not saved', 'error');
     throw new Error('offline: editing disabled until main is reachable');
   }
-  const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...opts });
-  if (res.status === 503) {
-    if (typeof state !== 'undefined') { state.online = false; }
-    applyOnlineState();
-    throw new Error('offline: write rejected by server');
-  }
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  return withArc(doFetch(), label);
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
