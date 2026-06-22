@@ -30,3 +30,4 @@
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:51:54", "items": ["run through what we need from Ken, if anything", "go through StoryBuildr"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:02", "items": ["run through what we need from Ken, if anything"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:08", "items": []}
+{"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:25", "thread_id": "th-81973b", "text": "go through C&C deliverables we need to have ready", "person_id": null}
