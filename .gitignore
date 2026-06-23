@@ -49,3 +49,6 @@ docs/archive/
 
 # Local Claude Code worktrees & settings
 .claude/
+
+# SDD controller scratch (briefs, reports, review diffs)
+.superpowers/sdd/

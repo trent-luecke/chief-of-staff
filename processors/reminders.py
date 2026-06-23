@@ -1,11 +1,11 @@
-"""Reminder queue: set and fire timed Telegram reminders."""
+"""Reminder queue: set and fire timed reminders."""
 
 import json
 import uuid
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
-from lib.telegram import send_message
+from lib.notify import notify_user
 
 
 _REMINDERS_KEY = "reminders.json"
@@ -66,12 +66,11 @@ def set_reminder(storage, message: str, fire_at_iso: str, config: dict = None) -
 
 def fire_due_reminders(
     storage,
-    bot_token: str,
-    chat_id: str,
+    config: dict,
     timezone_name: str = "America/Chicago",
     max_age_hours: int = 24,
 ) -> None:
-    """Check for due reminders, send them via Telegram, and update state."""
+    """Check for due reminders, send them via Slack DM, and update state."""
     now = datetime.now(timezone.utc)
     reminders = storage.read_json(_REMINDERS_KEY, default=[])
     updated = []
@@ -117,14 +116,15 @@ def fire_due_reminders(
         else:
             text = f"⏰ Reminder: {message}"
 
-        try:
-            send_message(bot_token, chat_id, text)
+        sent = notify_user(text, config)
+        if sent:
             entry["fired"] = True
             entry["fired_at"] = now.strftime("%Y-%m-%dT%H:%M:%SZ")
             storage.append_line(_HISTORY_KEY, json.dumps(entry))
             updated.append(entry)
-        except Exception as e:
-            print(f"WARNING: Failed to send reminder '{message}': {e}")
+        else:
+            # Delivery failed — keep for retry on the next run unless it's too old.
+            print(f"WARNING: reminder delivery failed for '{message}' — will retry.")
             if delay.total_seconds() > max_age_hours * 3600:
                 print(f"WARNING: Reminder '{message}' expired after {max_age_hours}h — dropping.")
             else:

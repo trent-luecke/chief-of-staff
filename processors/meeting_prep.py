@@ -8,11 +8,7 @@ from typing import Optional
 
 import anthropic
 from collectors.calendar import CalendarEvent
-from collectors.gmail import fetch_threads_needing_attention
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event
-
-EXTERNAL_KEYWORDS = {"demo", "reconnect", "intro", "pitch", "walkthrough", "onboarding", "call"}
-
 
 def classify_meeting(event: CalendarEvent, config: dict) -> Optional[str]:
     """Return meeting prep type or None if this meeting should be skipped."""
@@ -35,14 +31,7 @@ def classify_meeting(event: CalendarEvent, config: dict) -> Optional[str]:
     if any(kw in title for kw in PERSONAL_KEYWORDS):
         return None
 
-    has_external_keyword = any(kw in title for kw in EXTERNAL_KEYWORDS)
-    has_external_attendee = any(
-        "@teambuildr.com" not in a.lower() for a in event.attendees
-    )
-
-    if has_external_keyword or (event.attendees and has_external_attendee):
-        return "external"
-
+    # External-meeting preps are disabled (Trent preps those deliberately).
     return None
 
 
@@ -187,104 +176,6 @@ def _find_observations(
     return lines[-limit:]
 
 
-def _fetch_gmail_context(event: CalendarEvent, config: dict) -> str:
-    """Fetch Gmail threads for each external attendee and format as context."""
-    user_email = config.get("email", "trent@teambuildr.com")
-    registry_path = config.get("registry_path", "data/people_registry.json")
-
-    parts = []
-    for attendee in event.attendees:
-        if "@teambuildr.com" in attendee.lower():
-            continue
-        _, all_emails = _resolve_person_from_registry(registry_path, attendee)
-        if len(all_emails) == 1:
-            query = f"(from:{all_emails[0]} OR to:{all_emails[0]}) newer_than:90d"
-        else:
-            froms = " OR ".join(f"from:{e}" for e in all_emails)
-            tos = " OR ".join(f"to:{e}" for e in all_emails)
-            query = f"({froms} OR {tos}) newer_than:90d"
-        try:
-            threads = fetch_threads_needing_attention(user_email, max_results=5, query=query)
-        except Exception:
-            continue
-        if not threads:
-            continue
-        lines = []
-        for t in threads:
-            date_str = t.last_message_date.strftime("%Y-%m-%d") if t.last_message_date else "?"
-            lines.append(f"  [{date_str}] {t.subject} — {t.snippet[:120]}")
-        parts.append(f"## Email History ({attendee})\n" + "\n".join(lines))
-
-    return "\n\n".join(parts)
-
-
-def build_external_context(event: CalendarEvent, config: dict) -> str:
-    people_dir = config.get("people_dir", "data/people")
-    pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
-    obs_path = config.get("memory", {}).get("observations_file", "data/memory/observations.jsonl")
-    registry_path = config.get("registry_path", "data/people_registry.json")
-
-    tokens = _name_tokens(event.summary)
-    for attendee in event.attendees:
-        local = attendee.split("@")[0]
-        tokens += _name_tokens(local)
-    tokens = list(set(tokens))
-
-    # Resolve primary external attendee to person_id for ID-based observation lookup
-    person_id = None
-    for attendee in event.attendees:
-        if "@teambuildr.com" not in attendee.lower():
-            resolved_id, _ = _resolve_person_from_registry(registry_path, attendee)
-            if resolved_id:
-                person_id = resolved_id
-                break
-
-    parts = []
-
-    people_path = _find_people_file(people_dir, tokens)
-    if people_path:
-        try:
-            with open(people_path) as f:
-                parts.append("## Contact Background\n" + f.read()[:800])
-        except OSError:
-            pass
-
-    lead = _find_pipeline_lead(pipeline_path, tokens)
-    if lead:
-        days = f"{lead.get('days_since_contact')}d ago" if lead.get("days_since_contact") is not None else "unknown"
-        val = f"${lead['estimated_value']:,.0f}" if lead.get("estimated_value") else ""
-        stale = " [STALE]" if lead.get("stale") else ""
-        lines = [
-            f"Name: {lead.get('name', '?')}",
-            f"Status: {lead.get('status', '?')}{stale}",
-            f"Last contact: {days}",
-        ]
-        if val:
-            lines.append(f"Est. value: {val}")
-        parts.append("## Pipeline Record\n" + "\n".join(lines))
-
-    obs = _find_observations(obs_path, tokens, person_id=person_id)
-    if obs:
-        parts.append("## Recent Context\n" + "\n".join(f"• {o}" for o in obs))
-
-    from lib.storage import LocalStorage
-    from lib.resolved_actions import get_resolved_for_tokens
-    resolved_storage = LocalStorage(base_dir="data")
-    resolved = get_resolved_for_tokens(resolved_storage, tokens)
-    if resolved:
-        lines = [f"• {r['text']} (resolved {r['resolved_date']})" for r in resolved]
-        parts.append("## Resolved Action Items (do not surface as open)\n" + "\n".join(lines))
-
-    # Job 3: Gmail fires whenever there is no people file, regardless of pipeline/obs.
-    # Pipeline notes and email threads are complementary sources — always use both.
-    if not people_path:
-        gmail_context = _fetch_gmail_context(event, config)
-        if gmail_context:
-            parts.append(gmail_context)
-
-    return "\n\n".join(parts)
-
-
 def build_dept_heads_context(config: dict) -> str:
     pipeline_path = config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
     projects_file = config.get("projects_file", "data/projects.md")
@@ -403,16 +294,6 @@ def build_recurring_internal_context(event: CalendarEvent, config: dict) -> str:
 
 
 _SYSTEM_PROMPTS = {
-    "external": (
-        "You are Trent Luecke's AI Chief of Staff preparing him for an upcoming external meeting. "
-        "Generate a concise pre-meeting brief with exactly these 5 bullets:\n"
-        "• Who: [one sentence — who they are and where they're from]\n"
-        "• Context: [where they are in the sales process or last interaction]\n"
-        "• Open: [any unresolved item — skip anything listed under Resolved Action Items]\n"
-        "• Goal: [what a win looks like for this meeting]\n"
-        "• Opener: [a natural conversation starter]\n\n"
-        "Plain text only. Tight and scannable. No headers."
-    ),
     "dept_heads": (
         "You are Trent Luecke's AI Chief of Staff preparing him for the Department Heads meeting. "
         "Trent is VP of Sales at TeamBuildr OS. "
@@ -435,7 +316,6 @@ _SYSTEM_PROMPTS = {
 }
 
 _EMOJI = {
-    "external": "🎯",
     "dept_heads": "📊",
     "recurring_internal": "📋",
 }
@@ -449,11 +329,7 @@ def build_prep_message(
 ) -> Optional[str]:
     if meeting_type not in _SYSTEM_PROMPTS:
         raise ValueError(f"Unknown meeting_type: {meeting_type!r}. Must be one of: {list(_SYSTEM_PROMPTS)}")
-    if meeting_type == "external":
-        context = build_external_context(event, config)
-        if not context:
-            return None  # Tier 3: no context from any source — suppress silently
-    elif meeting_type == "dept_heads":
+    if meeting_type == "dept_heads":
         context = build_dept_heads_context(config)
     else:
         context = build_recurring_internal_context(event, config)

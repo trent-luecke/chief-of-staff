@@ -93,11 +93,11 @@ def test_fire_due_reminders_sends_due_reminder(storage):
     fire_at = datetime(2026, 5, 5, 0, 0, 0, tzinfo=timezone.utc)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
 
-    with patch("processors.reminders.send_message") as mock_send:
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user") as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     mock_send.assert_called_once()
-    text = mock_send.call_args[0][2]
+    text = mock_send.call_args[0][0]
     assert "email Ted" in text
     assert "⏰" in text
     assert storage.read_json("reminders.json")[0]["fired"] is True
@@ -107,8 +107,8 @@ def test_fire_due_reminders_skips_future_reminder(storage):
     fire_at = datetime(2099, 1, 1, 21, 0, 0, tzinfo=timezone.utc)
     storage.write_json("reminders.json", [_make_entry("future task", fire_at)])
 
-    with patch("processors.reminders.send_message") as mock_send:
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user") as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     mock_send.assert_not_called()
     assert storage.read_json("reminders.json")[0]["fired"] is False
@@ -118,8 +118,8 @@ def test_fire_due_reminders_skips_already_fired(storage):
     fire_at = datetime(2026, 5, 5, 21, 0, 0, tzinfo=timezone.utc)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at, fired=True)])
 
-    with patch("processors.reminders.send_message") as mock_send:
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user") as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     mock_send.assert_not_called()
 
@@ -129,10 +129,10 @@ def test_fire_due_reminders_adds_late_note_when_delayed(storage):
     fire_at = fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
 
-    with patch("processors.reminders.send_message") as mock_send:
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user") as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
-    text = mock_send.call_args[0][2]
+    text = mock_send.call_args[0][0]
     assert "delayed run" in text
 
 
@@ -141,10 +141,10 @@ def test_fire_due_reminders_no_late_note_when_on_time(storage):
     fire_at = fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
 
-    with patch("processors.reminders.send_message") as mock_send:
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user") as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
-    text = mock_send.call_args[0][2]
+    text = mock_send.call_args[0][0]
     assert "delayed run" not in text
 
 
@@ -152,8 +152,8 @@ def test_fire_due_reminders_appends_to_history(storage):
     fire_at = datetime(2026, 5, 5, 0, 0, 0, tzinfo=timezone.utc)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
 
-    with patch("processors.reminders.send_message"):
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user"):
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     import json as _json
     raw = storage.read("reminder_history.jsonl")
@@ -169,8 +169,8 @@ def test_fire_due_reminders_prunes_old_fired_entries(storage):
     old_fire_at = old_fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("old task", old_fire_at, fired=True)])
 
-    with patch("processors.reminders.send_message"):
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user"):
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     assert storage.read_json("reminders.json") == []
 
@@ -180,8 +180,8 @@ def test_fire_due_reminders_keeps_recent_fired_entries(storage):
     recent_fire_at = recent_fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("recent task", recent_fire_at, fired=True)])
 
-    with patch("processors.reminders.send_message"):
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user"):
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     assert len(storage.read_json("reminders.json")) == 1
 
@@ -191,8 +191,8 @@ def test_fire_due_reminders_retries_on_send_failure(storage):
     fire_at = fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("email Ted", fire_at)])
 
-    with patch("processors.reminders.send_message", side_effect=Exception("network error")):
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago")
+    with patch("processors.reminders.notify_user", return_value=False) as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago")
 
     updated = storage.read_json("reminders.json")
     assert len(updated) == 1
@@ -204,7 +204,7 @@ def test_fire_due_reminders_drops_expired_unsent_reminder(storage):
     fire_at = fire_at.replace(second=0, microsecond=0)
     storage.write_json("reminders.json", [_make_entry("stale task", fire_at)])
 
-    with patch("processors.reminders.send_message", side_effect=Exception("fail")):
-        fire_due_reminders(storage, "tok", "chat", "America/Chicago", max_age_hours=24)
+    with patch("processors.reminders.notify_user", return_value=False) as mock_send:
+        fire_due_reminders(storage, {"notifications": {"slack_user_id": "U1"}}, "America/Chicago", max_age_hours=24)
 
     assert storage.read_json("reminders.json") == []

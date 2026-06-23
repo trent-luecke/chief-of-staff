@@ -33,14 +33,16 @@ def test_classify_recurring_internal_marketing():
 def test_classify_recurring_internal_luke():
     assert classify_meeting(_event("Luke / Trent"), BASE_CONFIG) == "recurring_internal"
 
-def test_classify_external_by_keyword():
-    assert classify_meeting(_event("Mike: OS Demo"), BASE_CONFIG) == "external"
+def test_classify_external_meeting_is_disabled():
+    # External-meeting preps are disabled — Trent preps those deliberately.
+    assert classify_meeting(_event("Mike: OS Demo"), BASE_CONFIG) is None
 
-def test_classify_external_by_attendee():
+def test_classify_external_by_attendee_is_disabled():
+    # External-meeting preps are disabled — attendee-based detection also returns None.
     assert classify_meeting(
         _event("Intro call", attendees=["coach@apexholland.co"]),
         BASE_CONFIG
-    ) == "external"
+    ) is None
 
 def test_classify_skips_personal():
     assert classify_meeting(_event("Haircut"), BASE_CONFIG) is None
@@ -54,8 +56,9 @@ def test_classify_skips_generic_internal():
 def test_dept_heads_takes_priority_over_external():
     assert classify_meeting(_event("Department Heads Demo Review"), BASE_CONFIG) == "dept_heads"
 
-def test_classify_external_by_keyword_no_attendees():
-    assert classify_meeting(_event("Customer Demo"), BASE_CONFIG) == "external"
+def test_classify_external_by_keyword_no_attendees_is_disabled():
+    # External-meeting preps are disabled.
+    assert classify_meeting(_event("Customer Demo"), BASE_CONFIG) is None
 
 
 from collectors.sheets import month_label, fetch_sales_mtd, fetch_demos_mtd
@@ -172,50 +175,6 @@ def test_save_prunes_old_keys(tmp_path):
     assert old_key not in loaded
 
 
-import os as _os_module, json as _json_module
-from processors.meeting_prep import build_external_context
-
-
-def test_build_external_context_people_match(tmp_path):
-    people_dir = tmp_path / "people"
-    people_dir.mkdir()
-    (people_dir / "mike-woodby.md").write_text("Mike Woodby — Apex Holland coach.")
-    config = {
-        "people_dir": str(people_dir),
-        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Mike Woodby: OS Demo", attendees=["mike@apexholland.co"])
-    result = build_external_context(event, config)
-    assert "Mike Woodby" in result
-    assert "Apex Holland" in result
-
-
-def test_build_external_context_pipeline_match(tmp_path):
-    pipeline = {"leads": [{"name": "Apex Holland", "status": "In-Trial", "contact": "Mike Woodby", "email": "mike@apexholland.co", "days_since_contact": 10, "estimated_value": 2000, "stale": False, "priority": "High", "last_contacted": "2026-04-20", "source": None}]}
-    pipeline_path = tmp_path / "pipeline.json"
-    pipeline_path.write_text(_json_module.dumps(pipeline))
-    config = {
-        "people_dir": str(tmp_path / "people"),
-        "pipeline": {"cache_path": str(pipeline_path)},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Apex Holland Demo", attendees=["mike@apexholland.co"])
-    result = build_external_context(event, config)
-    assert "In-Trial" in result or "Apex Holland" in result
-
-
-def test_build_external_context_empty_when_no_data(tmp_path):
-    config = {
-        "people_dir": str(tmp_path / "people"),
-        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Unknown Person Demo")
-    result = build_external_context(event, config)
-    assert isinstance(result, str)
-
-
 from processors.meeting_prep import build_dept_heads_context, build_recurring_internal_context
 import json as _json_for_meeting
 
@@ -328,25 +287,16 @@ from unittest.mock import patch as _patch
 from processors.meeting_prep import build_prep_message
 
 
-@_patch("processors.meeting_prep.anthropic.Anthropic")
-def test_build_prep_message_external(mock_cls, tmp_path):
-    mock_client = mock_cls.return_value
-    mock_client.messages.create.return_value = type("R", (), {
-        "content": [type("C", (), {"text": "• Who: Mike\n• Context: Demo stage\n• Open: Contract\n• Goal: Close\n• Opener: How's Q2?"})()],
-        "usage": type("U", (), {"input_tokens": 100, "output_tokens": 50})(),
-    })()
+def test_build_prep_message_external_type_raises(tmp_path):
+    # "external" is no longer a valid meeting_type — preps are disabled.
     config = {
         "people_dir": str(tmp_path / "people"),
         "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
         "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
     }
     event = _event("Mike: OS Demo", attendees=["mike@apex.co"])
-    with _upatch("processors.meeting_prep._fetch_gmail_context",
-                 return_value="## Email History (mike@apex.co)\n  [2026-05-28] Demo confirmed"):
-        result = build_prep_message(event, "external", config, api_key="test-key")
-    assert "🎯" in result
-    assert "Mike: OS Demo" in result
-    assert "Who" in result
+    with pytest.raises(ValueError, match="external"):
+        build_prep_message(event, "external", config, api_key="test-key")
 
 
 @_patch("processors.meeting_prep.anthropic.Anthropic")
@@ -389,8 +339,8 @@ def test_build_prep_message_recurring_internal(mock_cls, tmp_path):
 from unittest.mock import patch as _upatch
 
 
-def test_build_external_context_calls_gmail_when_no_local_context(tmp_path):
-    """When all three local sources miss, Gmail lookup is attempted."""
+def test_build_prep_message_external_no_context_raises(tmp_path):
+    """External type is disabled — ValueError regardless of context availability."""
     config = {
         "email": "trent@teambuildr.com",
         "people_dir": str(tmp_path / "people"),
@@ -398,37 +348,12 @@ def test_build_external_context_calls_gmail_when_no_local_context(tmp_path):
         "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
     }
     event = _event("Bre / Trent", attendees=["bre@crossfitcentral.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context", return_value="## Email History\n• Calendly booking confirmed") as mock_gmail:
-        result = build_external_context(event, config)
-
-    mock_gmail.assert_called_once()
-    assert "Email History" in result
-    assert "Calendly" in result
+    with pytest.raises(ValueError, match="external"):
+        build_prep_message(event, "external", config, api_key="test-key")
 
 
-def test_build_external_context_skips_gmail_when_person_file_found(tmp_path):
-    """When a person file is found, Gmail is NOT called (Tier 1 path)."""
-    people_dir = tmp_path / "people"
-    people_dir.mkdir()
-    (people_dir / "bre-smith.md").write_text("Bre Smith — CrossFit Central owner.")
-    config = {
-        "email": "trent@teambuildr.com",
-        "people_dir": str(people_dir),
-        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Bre / Trent", attendees=["bre@crossfitcentral.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context") as mock_gmail:
-        result = build_external_context(event, config)
-
-    mock_gmail.assert_not_called()
-    assert "Bre Smith" in result
-
-
-def test_build_external_context_returns_empty_when_gmail_also_empty(tmp_path):
-    """When all sources (including Gmail) return nothing, context is empty string."""
+def test_build_prep_message_external_with_gmail_raises(tmp_path):
+    """External type is disabled — ValueError even when Gmail context is available."""
     config = {
         "email": "trent@teambuildr.com",
         "people_dir": str(tmp_path / "people"),
@@ -436,57 +361,8 @@ def test_build_external_context_returns_empty_when_gmail_also_empty(tmp_path):
         "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
     }
     event = _event("Bre / Trent", attendees=["bre@crossfitcentral.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context", return_value=""):
-        result = build_external_context(event, config)
-
-    assert result == ""
-
-
-def test_build_prep_message_returns_none_when_no_external_context(tmp_path):
-    """No person file, no pipeline, no Gmail → returns None (Tier 3 suppress). No Claude call."""
-    config = {
-        "email": "trent@teambuildr.com",
-        "people_dir": str(tmp_path / "people"),
-        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Bre / Trent", attendees=["bre@crossfitcentral.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context", return_value=""):
-        with _upatch("processors.meeting_prep.anthropic.Anthropic") as mock_anthropic:
-            result = build_prep_message(event, "external", config, api_key="test-key")
-
-    assert result is None
-    mock_anthropic.assert_not_called()
-
-
-@_patch("processors.meeting_prep.anthropic.Anthropic")
-def test_build_prep_message_calls_claude_with_gmail_context(mock_cls, tmp_path):
-    """When only Gmail context is available, Claude is called with that context."""
-    mock_client = mock_cls.return_value
-    mock_client.messages.create.return_value = type("R", (), {
-        "content": [type("C", (), {"text": "• Who: Bre Smith\n• Context: Calendly inbound\n• Open: None\n• Goal: Demo\n• Opener: Tell me about CrossFit Central"})()],
-        "usage": type("U", (), {"input_tokens": 120, "output_tokens": 60})(),
-    })()
-    config = {
-        "email": "trent@teambuildr.com",
-        "people_dir": str(tmp_path / "people"),
-        "pipeline": {"cache_path": str(tmp_path / "pipeline.json")},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-    }
-    event = _event("Bre / Trent", attendees=["bre@crossfitcentral.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context",
-                 return_value="## Email History (bre@crossfitcentral.com)\n  [2026-05-28] Calendly confirmed — Looking forward to our call"):
-        result = build_prep_message(event, "external", config, api_key="test-key")
-
-    assert result is not None
-    assert "🎯" in result
-    call_kwargs = mock_client.messages.create.call_args
-    user_msg = call_kwargs.kwargs["messages"][0]["content"] if call_kwargs.kwargs else call_kwargs[1]["messages"][0]["content"]
-    assert "Email History" in user_msg
-    assert "Calendly" in user_msg
+    with pytest.raises(ValueError, match="external"):
+        build_prep_message(event, "external", config, api_key="test-key")
 
 
 # ── Session 3: person-centric read path ─────────────────────────────────────
@@ -584,93 +460,3 @@ def test_resolve_person_from_registry_missing_file(tmp_path):
     assert all_emails == ["x@x.com"]
 
 
-# Job 2 — _fetch_gmail_context queries all known addresses, not just calendar email
-
-def test_fetch_gmail_context_queries_all_known_addresses(tmp_path):
-    """When a person has two known addresses, fetch_threads is called with a query covering both."""
-    reg = {
-        "version": 1,
-        "people": [{
-            "id": "ryan-pace",
-            "canonical_name": "Ryan Pace",
-            "email": "coachpace@realflowperformance.com",
-            "aliases": ["Ryan Pace", "coachpace@realflowperformance.com", "rpace@gmail.com"],
-            "type": "lead",
-        }]
-    }
-    reg_path = tmp_path / "registry.json"
-    reg_path.write_text(_j.dumps(reg))
-
-    config = {
-        "email": "trent@teambuildr.com",
-        "registry_path": str(reg_path),
-    }
-    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
-
-    with _upatch("processors.meeting_prep.fetch_threads_needing_attention", return_value=[]) as mock_fetch:
-        from processors.meeting_prep import _fetch_gmail_context
-        _fetch_gmail_context(event, config)
-
-    assert mock_fetch.called
-    call_args = mock_fetch.call_args
-    query = call_args.kwargs.get("query", "")
-    assert "rpace@gmail.com" in query
-    assert "coachpace@realflowperformance.com" in query
-
-
-# Job 3 — Gmail fires when pipeline record exists but no people file
-
-def test_build_external_context_gmail_fires_with_pipeline_but_no_people_file(tmp_path):
-    pipeline = {"leads": [{"name": "Ryan Pace", "status": "In-Trial", "contact": "Ryan Pace",
-                           "email": "coachpace@realflowperformance.com", "days_since_contact": 5,
-                           "estimated_value": 2000, "stale": False, "priority": "High",
-                           "last_contacted": "2026-05-20", "source": None}]}
-    pipeline_path = tmp_path / "pipeline.json"
-    pipeline_path.write_text(_j.dumps(pipeline))
-
-    config = {
-        "email": "trent@teambuildr.com",
-        "people_dir": str(tmp_path / "people"),
-        "pipeline": {"cache_path": str(pipeline_path)},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-        "registry_path": str(tmp_path / "registry.json"),
-    }
-    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context",
-                 return_value="## Email History\n  [2026-05-20] Calendly confirmed") as mock_gmail:
-        result = build_external_context(event, config)
-
-    mock_gmail.assert_called_once()
-    assert "Email History" in result
-    assert "Pipeline Record" in result  # pipeline and Gmail both present
-
-
-# Job 3 — Gmail still suppressed when people file IS found (Tier 1 unchanged)
-
-def test_build_external_context_gmail_suppressed_when_people_file_found_job3(tmp_path):
-    people_dir = tmp_path / "people"
-    people_dir.mkdir()
-    (people_dir / "ryan-pace.md").write_text("Ryan Pace — Real Flow Performance coach.")
-
-    pipeline = {"leads": [{"name": "Ryan Pace", "status": "In-Trial", "contact": "",
-                           "email": "coachpace@realflowperformance.com", "days_since_contact": 5,
-                           "estimated_value": 2000, "stale": False, "priority": "High",
-                           "last_contacted": "2026-05-20", "source": None}]}
-    pipeline_path = tmp_path / "pipeline.json"
-    pipeline_path.write_text(_j.dumps(pipeline))
-
-    config = {
-        "email": "trent@teambuildr.com",
-        "people_dir": str(people_dir),
-        "pipeline": {"cache_path": str(pipeline_path)},
-        "memory": {"observations_file": str(tmp_path / "obs.jsonl")},
-        "registry_path": str(tmp_path / "registry.json"),
-    }
-    event = _event("Ryan Pace: Cold Demo", attendees=["coachpace@realflowperformance.com"])
-
-    with _upatch("processors.meeting_prep._fetch_gmail_context") as mock_gmail:
-        result = build_external_context(event, config)
-
-    mock_gmail.assert_not_called()
-    assert "Ryan Pace" in result

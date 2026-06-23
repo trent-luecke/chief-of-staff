@@ -25,13 +25,14 @@
     "enabled": true,
     "slack_user_id": "U04ECG6KEA3"
   },
+  "notifications": {
+    "slack_user_id": "U04ECG6KEA3"
+  },
   "slack_channels": [
     "TeamBuildr-OS",
     "support",
     "support-tickets"
   ],
-  "nudge_minutes_after": 5,
-  "pending_nudges_file": "data/pending_nudges.json",
   "issues_file": "data/issues.json",
   "drafts_dir": "data/drafts",
   "captures_file": "data/captures.md",

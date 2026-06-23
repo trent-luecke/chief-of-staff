@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from lib.google_auth import build_gmail_service
-from lib.telegram import send_message
+from lib.notify import notify_user
 from outputs.sender import send_brief_email
 from processors.weekly_synthesizer import synthesize_week, WeeklySynthesis
 from processors.retrieval_digest import generate_digest
@@ -156,39 +156,36 @@ def _main_inner(config: dict, run_date, storage) -> None:
     except Exception as e:
         print(f"WARNING: could not send email: {e}", file=sys.stderr)
 
-    # Retrieval digest — sent via Telegram alongside the weekly synthesis
-    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
-    if bot_token and chat_id:
-        try:
-            vector_cfg = config.get("vector", {})
-            digest = generate_digest(
-                storage=storage,
-                api_key=api_key,
-                model=config["ai_model"],
-                config_snapshot={
-                    "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
-                    "top_k": vector_cfg.get("top_k", 20),
-                    "memory_budget_pct": vector_cfg.get("memory_budget_pct", 0.6),
-                    "observation_budget_pct": vector_cfg.get("observation_budget_pct", 0.4),
-                    "score_threshold": vector_cfg.get("score_threshold"),
-                },
-                run_date=run_date,
-            )
-            header = f"Brief Scores — week ending {run_date.isoformat()}\n\n"
-            send_message(bot_token, chat_id, header + digest)
-            print("Retrieval digest sent via Telegram.")
-        except Exception as e:
-            print(f"WARNING: retrieval digest failed: {e}", file=sys.stderr)
+    # Retrieval digest — sent via Slack alongside the weekly synthesis
+    try:
+        vector_cfg = config.get("vector", {})
+        digest = generate_digest(
+            storage=storage,
+            api_key=api_key,
+            model=config["ai_model"],
+            config_snapshot={
+                "retrieval_mode": vector_cfg.get("retrieval_mode", "auto"),
+                "top_k": vector_cfg.get("top_k", 20),
+                "memory_budget_pct": vector_cfg.get("memory_budget_pct", 0.6),
+                "observation_budget_pct": vector_cfg.get("observation_budget_pct", 0.4),
+                "score_threshold": vector_cfg.get("score_threshold"),
+            },
+            run_date=run_date,
+        )
+        header = f"Brief Scores — week ending {run_date.isoformat()}\n\n"
+        notify_user(header + digest, config)
+        print("Retrieval digest sent via Slack.")
+    except Exception as e:
+        print(f"WARNING: retrieval digest failed: {e}", file=sys.stderr)
 
     trends_text = _format_trends_telegram(anomaly_report, demo_report)
-    if trends_text and bot_token and chat_id:
+    if trends_text:
         try:
             header = f"📈 Trends & Demo Health — week ending {run_date.isoformat()}\n\n"
-            send_message(bot_token, chat_id, header + trends_text)
-            print("Trends & demo health sent via Telegram.")
+            notify_user(header + trends_text, config)
+            print("Trends & demo health sent via Slack.")
         except Exception as e:
-            print(f"WARNING: trends Telegram send failed: {e}", file=sys.stderr)
+            print(f"WARNING: trends Slack send failed: {e}", file=sys.stderr)
 
     print(f"\nSummary: {synthesis.executive_summary}")
     if synthesis.carry_forwards:

@@ -14,17 +14,17 @@ Resolution strategy per observation type:
 """
 
 import json
-import os
 import re
 import sys
-from datetime import date, datetime, timezone
+from datetime import date
 from pathlib import Path
 
 from rapidfuzz import fuzz
 
+from lib.notify import notify_user
+
 REGISTRY_FILE = Path("data/people_registry.json")
 RESOLUTION_FILE = Path("data/people_resolution.json")
-UNRESOLVED_STATE_FILE = Path("data/people_unresolved_state.json")
 OBSERVATIONS_FILE = Path("data/memory/observations.jsonl")
 PEOPLE_DIR = Path("data/people")
 
@@ -340,7 +340,7 @@ def _classify_entity(
     email_index: dict,
     alias_list: list,
 ) -> dict:
-    """Classify an unresolved entity for the Telegram notification and state file."""
+    """Classify an unresolved entity for the Slack notification and state file."""
     if entity.startswith("#"):
         return {
             "entity": entity,
@@ -417,35 +417,18 @@ def main() -> None:
     if not unresolved_entities:
         return
 
-    # Classify each entity and send a Telegram notification
+    # Classify each entity and send a Slack notification
     classified = [
         {"index": i + 1, **_classify_entity(entity, email_index, alias_list)}
         for i, entity in enumerate(unresolved_entities)
     ]
 
-    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
-    if not bot_token or not chat_id:
-        print("  TELEGRAM_BOT_TOKEN / TELEGRAM_ALLOWED_CHAT_ID not set — skipping notification.")
-        return
-
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from lib.telegram import send_message
-
     notification_text = _build_notification(classified)
-    message_id = send_message(bot_token, chat_id, notification_text)
-    if message_id:
-        state = {
-            "telegram_message_id": str(message_id),
-            "sent_at": datetime.now(timezone.utc).isoformat(),
-            "entities": classified,
-        }
-        UNRESOLVED_STATE_FILE.write_text(
-            json.dumps(state, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-        )
-        print(f"  Telegram notification sent (message_id={message_id}); state written.")
-    else:
-        print("  WARNING: Telegram send failed — state file not written.")
+
+    import json as _json
+    with open("config.json") as _f:
+        _config = _json.load(_f)
+    notify_user(notification_text, _config)
 
 
 if __name__ == "__main__":
