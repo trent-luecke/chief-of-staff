@@ -32,3 +32,4 @@
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:08", "items": []}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-06-22T18:52:25", "thread_id": "th-81973b", "text": "go through C&C deliverables we need to have ready", "person_id": null}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-06-23T14:33:51", "items": ["details for Mark Fisher partnership"]}
+{"event": "delete_thread", "id": "nicole_os_meeting", "ts": "2026-06-23T14:34:42", "thread_id": "th-1c577b"}
