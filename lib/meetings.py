@@ -109,6 +109,70 @@ def last_session(meeting: dict) -> str:
     return sessions[0]["body"] if sessions else ""
 
 
+def _age_days(created_ts: str, today) -> int:
+    """Whole days between a thread's creation date and `today` (>= 0)."""
+    from datetime import date
+    try:
+        created = date.fromisoformat(created_ts[:10])
+    except (ValueError, TypeError):
+        return 0
+    return max(0, (today - created).days)
+
+
+def open_loops_buckets(state, meeting_names, today_ids, person_names, today, other_cap=10):
+    """Bucket open meeting threads for the daily brief.
+
+    Returns {"today": [group], "other": [group], "other_more": int}, where each
+    group is {"meeting_name": str, "loops": [{"text", "owner", "age_days"}]}.
+    Loops within a meeting sort oldest-first. The OTHER bucket keeps the
+    `other_cap` most recently created loops; the remainder count into other_more.
+    `today` is a datetime.date. `person_names` maps person_id -> display name;
+    unresolved ids pass through as-is, a null person_id yields owner None.
+    """
+    def owner_for(pid):
+        if not pid:
+            return None
+        return person_names.get(pid, pid)
+
+    today_pairs = {}   # meeting_name -> [(created_ts, loop)]
+    other_flat = []    # [(created_ts, meeting_name, loop)]
+    for slug, mtg in state.items():
+        name = meeting_names.get(slug) or slug.replace("_", " ").title()
+        for th in mtg.get("threads", []):
+            if th.get("closed"):
+                continue
+            cts = th.get("created_ts", "")
+            loop = {
+                "text": th.get("text", ""),
+                "owner": owner_for(th.get("person_id")),
+                "age_days": _age_days(cts, today),
+            }
+            if slug in today_ids:
+                today_pairs.setdefault(name, []).append((cts, loop))
+            else:
+                other_flat.append((cts, name, loop))
+
+    def build_groups(name_to_pairs):
+        groups = []
+        for name in sorted(name_to_pairs):
+            pairs = sorted(name_to_pairs[name], key=lambda p: p[0])  # oldest-first
+            groups.append({"meeting_name": name, "loops": [p[1] for p in pairs]})
+        return groups
+
+    other_flat.sort(key=lambda t: t[0], reverse=True)  # most recent first
+    kept = other_flat[:other_cap]
+    other_more = len(other_flat) - len(kept)
+    other_pairs = {}
+    for cts, name, loop in kept:
+        other_pairs.setdefault(name, []).append((cts, loop))
+
+    return {
+        "today": build_groups(today_pairs),
+        "other": build_groups(other_pairs),
+        "other_more": other_more,
+    }
+
+
 # ── writers (storage = anything with .read(key) and .append_line(key, line)) ──
 
 def append_create(storage, meeting_id: str) -> dict:
