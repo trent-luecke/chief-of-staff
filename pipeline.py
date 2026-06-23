@@ -109,6 +109,7 @@ class ProcessedContext:
     memory_context: str = ""
     memory_cold_start_msg: str | None = None
     meeting_prep: list = field(default_factory=list)
+    open_loops: dict = field(default_factory=dict)
     loop_summary: dict = field(default_factory=dict)
     captures_context: str = ""
     notes_context: str = ""
@@ -165,6 +166,27 @@ def build_meeting_prep(today_events, meeting_configs, storage) -> list[str]:
         else:
             prep.append(f"{event.summary} ({event.start.strftime('%-I:%M%p')}) — No prior session notes")
     return prep
+
+
+def build_open_loops(today_events, meeting_configs, data_dir: str = "data") -> dict:
+    """Bucket every open meeting thread into TODAY / OTHER for the brief.
+
+    Reads the git-anchored local stores (meetings + people registry), not R2.
+    """
+    from datetime import datetime
+    from lib.storage import LocalStorage
+    state = meetings_lib.replay_local(data_dir)
+    today_ids = set()
+    for event in today_events:
+        cfg = find_meeting_for_event(event, meeting_configs)
+        if cfg:
+            today_ids.add(cfg.meeting_id)
+    meeting_names = {c.meeting_id: c.name for c in meeting_configs if c.name}
+    reg = LocalStorage(data_dir).read_json("people_registry.json", default={"people": []})
+    person_names = {p["id"]: p.get("canonical_name", p["id"]) for p in reg.get("people", []) if p.get("id")}
+    return meetings_lib.open_loops_buckets(
+        state, meeting_names, today_ids, person_names, datetime.now().date()
+    )
 
 
 def _scan_outbound_pipeline_contacts(config: dict, storage) -> int:
@@ -588,6 +610,7 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
         print("🗒  Building meeting prep...")
         meeting_configs = load_meeting_index(config.get("meeting_index_file", "data/meeting_index.json"))
         ctx.meeting_prep = build_meeting_prep(collected.today_events, meeting_configs, storage)
+        ctx.open_loops = build_open_loops(collected.today_events, meeting_configs)
 
         # People enrichment
         _err = None
@@ -865,6 +888,8 @@ def generate_and_deliver(
             brief.act_today.append(_stale_warn)
             if health is not None:
                 health.add_warning(_stale_warn)
+
+        brief.open_loops = ctx.open_loops
 
         # Dashboard
         print("📊  Writing dashboard...")

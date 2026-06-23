@@ -39,6 +39,37 @@
     </ul>
   </div>
 
+  {% if brief.open_loops and (brief.open_loops.today or brief.open_loops.other) %}
+  <div class="section">
+    <h2>Open Loops</h2>
+    {% if brief.open_loops.today %}
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#4a6cf7;margin:0 0 8px;">TODAY</div>
+    {% for group in brief.open_loops.today %}
+    <div style="font-size:14px;font-weight:600;margin:0 0 4px;">{{ group.meeting_name }}</div>
+    <ul class="action-list" style="margin-bottom:12px;">
+      {% for loop_item in group.loops %}
+      <li>{{ loop_item.text }}{% if loop_item.owner %} — {{ loop_item.owner }}{% endif %} <span style="color:#aaa;font-size:12px;">· {% if loop_item.age_days == 0 %}today{% else %}{{ loop_item.age_days }}d{% endif %}</span></li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+    {% endif %}
+    {% if brief.open_loops.other %}
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:#888;margin:8px 0 8px;">OTHER</div>
+    {% for group in brief.open_loops.other %}
+    <div style="font-size:14px;font-weight:600;margin:0 0 4px;">{{ group.meeting_name }}</div>
+    <ul class="action-list" style="margin-bottom:12px;">
+      {% for loop_item in group.loops %}
+      <li>{{ loop_item.text }}{% if loop_item.owner %} — {{ loop_item.owner }}{% endif %} <span style="color:#aaa;font-size:12px;">· {% if loop_item.age_days == 0 %}today{% else %}{{ loop_item.age_days }}d{% endif %}</span></li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+    {% if brief.open_loops.other_more > 0 %}
+    <div style="font-size:13px;color:#888;">+{{ brief.open_loops.other_more }} more open loops</div>
+    {% endif %}
+    {% endif %}
+  </div>
+  {% endif %}
+
   {% if brief.what_moved %}
   <div class="section">
     <h2>What Moved</h2>

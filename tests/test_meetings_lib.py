@@ -204,3 +204,73 @@ def test_replay_local_and_append_session_local(tmp_path):
     assert ev["event"] == "add_session"
     state = m.replay_local(d)
     assert state["luke_1on1"]["sessions"][0]["body"] == "session via local helper"
+
+
+from datetime import date
+
+
+def _mtg(slug, threads):
+    return {"id": slug, "agenda": [], "threads": threads, "sessions": []}
+
+
+def _thread(tid, text, person_id=None, closed=False, created_ts="2026-06-01T10:00:00"):
+    return {"thread_id": tid, "text": text, "person_id": person_id,
+            "task_id": None, "closed": closed, "closed_date": None, "created_ts": created_ts}
+
+
+def test_open_loops_empty():
+    out = m.open_loops_buckets({}, {}, set(), {}, date(2026, 6, 23))
+    assert out == {"today": [], "other": [], "other_more": 0}
+
+
+def test_open_loops_today_vs_other_and_closed_excluded():
+    state = {
+        "rev_dept_heads": _mtg("rev_dept_heads", [
+            _thread("th-1", "quota model", person_id="quinn-kastle"),
+            _thread("th-2", "done thing", closed=True),
+        ]),
+        "luke_1on1": _mtg("luke_1on1", [_thread("th-3", "loop luke in")]),
+    }
+    names = {"rev_dept_heads": "Rev Dept Heads", "luke_1on1": "Luke 1:1"}
+    persons = {"quinn-kastle": "Quinn Kastle"}
+    out = m.open_loops_buckets(state, names, {"rev_dept_heads"}, persons, date(2026, 6, 23))
+    assert out["today"] == [
+        {"meeting_name": "Rev Dept Heads",
+         "loops": [{"text": "quota model", "owner": "Quinn Kastle", "age_days": 22}]}
+    ]
+    assert out["other"] == [
+        {"meeting_name": "Luke 1:1",
+         "loops": [{"text": "loop luke in", "owner": None, "age_days": 22}]}
+    ]
+    assert out["other_more"] == 0
+
+
+def test_open_loops_owner_unresolved_passthrough():
+    state = {"x": _mtg("x", [_thread("th-1", "t", person_id="ghost-id")])}
+    out = m.open_loops_buckets(state, {"x": "X Meeting"}, set(), {}, date(2026, 6, 23))
+    assert out["other"][0]["loops"][0]["owner"] == "ghost-id"
+
+
+def test_open_loops_slug_name_fallback():
+    state = {"os_sit_down": _mtg("os_sit_down", [_thread("th-1", "t")])}
+    out = m.open_loops_buckets(state, {}, set(), {}, date(2026, 6, 23))
+    assert out["other"][0]["meeting_name"] == "Os Sit Down"
+
+
+def test_open_loops_age_today():
+    state = {"x": _mtg("x", [_thread("th-1", "t", created_ts="2026-06-23T08:00:00")])}
+    out = m.open_loops_buckets(state, {"x": "X"}, set(), {}, date(2026, 6, 23))
+    assert out["other"][0]["loops"][0]["age_days"] == 0
+
+
+def test_open_loops_other_cap_keeps_recent_displays_oldest_first():
+    threads = [_thread(f"th-{i}", f"loop {i}", created_ts=f"2026-06-{i + 1:02d}T10:00:00")
+               for i in range(13)]
+    state = {"x": _mtg("x", threads)}
+    out = m.open_loops_buckets(state, {"x": "X"}, set(), {}, date(2026, 7, 1), other_cap=10)
+    kept = out["other"][0]["loops"]
+    assert len(kept) == 10
+    assert out["other_more"] == 3
+    # cap drops the 3 oldest by creation (loop 0,1,2); display is oldest-first within the kept set
+    assert kept[0]["text"] == "loop 3"
+    assert kept[-1]["text"] == "loop 12"
