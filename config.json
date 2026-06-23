@@ -33,7 +33,6 @@
     "support",
     "support-tickets"
   ],
-  "nudge_minutes_after": 5,
   "issues_file": "data/issues.json",
   "drafts_dir": "data/drafts",
   "captures_file": "data/captures.md",
