@@ -54,6 +54,8 @@ jobs:
         run: python scripts/build_people_registry.py
 
       - name: Resolve observations to person IDs
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: python scripts/resolve_observations.py
 
       - name: Commit registry and resolution files
