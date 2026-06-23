@@ -183,7 +183,7 @@ def build_open_loops(today_events, meeting_configs, data_dir: str = "data") -> d
             today_ids.add(cfg.meeting_id)
     meeting_names = {c.meeting_id: c.name for c in meeting_configs if c.name}
     reg = LocalStorage(data_dir).read_json("people_registry.json", default={"people": []})
-    person_names = {p["id"]: p.get("canonical_name", p["id"]) for p in reg.get("people", [])}
+    person_names = {p["id"]: p.get("canonical_name", p["id"]) for p in reg.get("people", []) if p.get("id")}
     return meetings_lib.open_loops_buckets(
         state, meeting_names, today_ids, person_names, datetime.now().date()
     )
