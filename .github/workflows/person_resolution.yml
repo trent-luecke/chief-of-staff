@@ -66,18 +66,11 @@ jobs:
 
       - name: Notify on new unresolved entities
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_ALLOWED_CHAT_ID: ${{ secrets.TELEGRAM_ALLOWED_CHAT_ID }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: |
           python - <<'EOF'
-          import json, os, sys
+          import json, sys
           from pathlib import Path
-
-          bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-          chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
-          if not bot_token or not chat_id:
-              print("Telegram not configured — skipping notification.")
-              sys.exit(0)
 
           unresolved_file = Path("data/people_unresolved.json")
           if not unresolved_file.exists():
@@ -93,40 +86,30 @@ jobs:
               print("No new unresolved entities — skipping notification.")
               sys.exit(0)
 
-          lines = ["*New unresolved people entities:*\n"]
+          lines = ["New unresolved people entities:\n"]
           for idx, u in enumerate(new_entries, 1):
               entity = u.get("entity", "?")
               source = u.get("source", "?")
               cand = u.get("candidate_id")
               score = u.get("candidate_score", 0)
               if cand:
-                  lines.append(f"{idx}. `{entity}` (source: {source}) — candidate: `{cand}` ({score}%)")
+                  lines.append(f"{idx}. {entity} (source: {source}) — candidate: {cand} ({score}%)")
               else:
-                  lines.append(f"{idx}. `{entity}` (source: {source}) — no match")
-          lines.append("\nReply: `1 confirm`, `2 new Jane Smith`, `3 skip`")
-
+                  lines.append(f"{idx}. {entity} (source: {source}) — no match")
+          lines.append("\nResolve these in the people tracker.")
           text = "\n".join(lines)
 
-          import urllib.request, urllib.parse
-          payload = json.dumps({
-              "chat_id": chat_id,
-              "text": text,
-              "parse_mode": "Markdown",
-          }).encode("utf-8")
-          req = urllib.request.Request(
-              f"https://api.telegram.org/bot{bot_token}/sendMessage",
-              data=payload,
-              headers={"Content-Type": "application/json"},
-          )
-          with urllib.request.urlopen(req) as resp:
-              result = json.loads(resp.read())
-              if result.get("ok"):
-                  print(f"Notified {len(new_entries)} new unresolved entities.")
-              else:
-                  print(f"Telegram error: {result}", file=sys.stderr)
-                  sys.exit(1)
+          sys.path.insert(0, ".")
+          from lib.notify import notify_user
+          with open("config.json") as f:
+              config = json.load(f)
 
-          # Update previously_notified and commit
+          sent = notify_user(text, config)
+          if not sent:
+              print("Slack notification not delivered — leaving previously_notified unchanged for retry.", file=sys.stderr)
+              sys.exit(0)
+
+          print(f"Notified {len(new_entries)} new unresolved entities via Slack.")
           data["previously_notified"] = sorted(notified | {u["entity"] for u in new_entries})
           unresolved_file.write_text(
               json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"

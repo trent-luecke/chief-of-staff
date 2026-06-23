@@ -340,7 +340,7 @@ def _classify_entity(
     email_index: dict,
     alias_list: list,
 ) -> dict:
-    """Classify an unresolved entity for the Telegram notification and state file."""
+    """Classify an unresolved entity for the Slack notification and state file."""
     if entity.startswith("#"):
         return {
             "entity": entity,
@@ -417,7 +417,7 @@ def main() -> None:
     if not unresolved_entities:
         return
 
-    # Classify each entity and send a Telegram notification
+    # Classify each entity and send a Slack notification
     classified = [
         {"index": i + 1, **_classify_entity(entity, email_index, alias_list)}
         for i, entity in enumerate(unresolved_entities)
