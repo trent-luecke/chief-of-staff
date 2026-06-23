@@ -79,3 +79,4 @@
 {"event": "create", "task_id": "t-3219e7", "title": "trent to add waiver handling to claude assisted onboarding", "source": "meeting-os_sit_down", "created_at": "2026-06-22", "due_date": null, "metadata": {"meeting_id": "os_sit_down", "thread_id": "th-654dca"}, "project_id": null, "collaborators": [], "owner": null}
 {"event": "edit", "task_id": "t-3219e7", "patch": {"project_id": "claude-assisted-onboarding"}}
 {"event": "complete", "task_id": "t-7cf4b0", "completed_at": "2026-06-23"}
+{"event": "create", "task_id": "t-9d2553", "title": "write up outline of project for Mark Fisher call", "source": "ui", "created_at": "2026-06-23", "due_date": "2026-06-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null}
