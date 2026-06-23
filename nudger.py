@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from collectors.calendar import fetch_two_day_events
-from lib.telegram import send_message
+from lib.notify import notify_user
 
 
 def load_config(path: str = "config.json") -> dict:
@@ -21,8 +21,6 @@ def run() -> None:
     config = load_config()
     from lib.storage import build_storage
     storage = build_storage(config)
-    bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-    chat_id = os.environ.get("TELEGRAM_ALLOWED_CHAT_ID", "")
     api_key = os.environ.get("ANTHROPIC_API_KEY", "")
 
     prep_config = config.get("meeting_prep", {})
@@ -40,7 +38,7 @@ def run() -> None:
 
     for event in today_events:
         # ── Pre-meeting prep ────────────────────────────────────────────
-        if prep_enabled and api_key and bot_token and chat_id:
+        if prep_enabled and api_key:
             prep_key = make_prep_key(event)
             if prep_key not in sent_preps:
                 meeting_type = classify_meeting(event, config)
@@ -52,7 +50,7 @@ def run() -> None:
                             if message is None:
                                 print(f"  Prep suppressed (no context): {event.summary}")
                                 continue
-                            send_message(bot_token, chat_id, message)
+                            notify_user(message, config)
                             sent_preps.add(prep_key)
                             print(f"  Prep sent for: {event.summary} ({meeting_type})")
                         except Exception as e:
