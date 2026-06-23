@@ -33,6 +33,7 @@ class BriefContent:
     act_today: list[str] = field(default_factory=list)
     what_moved: list[str] = field(default_factory=list)
     metric_flags: list[str] = field(default_factory=list)
+    open_loops: dict = field(default_factory=dict)
 
 
 def _build_prompt(

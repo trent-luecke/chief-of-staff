@@ -99,6 +99,29 @@ def test_build_html_email_contains_feedback_footer():
     assert "Reply to this email" in html
 
 
+def test_open_loops_section_renders():
+    brief = BriefContent(act_today=["x"], open_loops={
+        "today": [{"meeting_name": "Rev Dept Heads",
+                   "loops": [{"text": "quota model", "owner": "Quinn Kastle", "age_days": 9}]}],
+        "other": [{"meeting_name": "Luke 1:1",
+                   "loops": [{"text": "loop luke", "owner": None, "age_days": 0}]}],
+        "other_more": 3,
+    })
+    html = build_html_email(brief, [], [], [], {})
+    assert "Open Loops" in html
+    assert "Rev Dept Heads" in html
+    assert "Quinn Kastle" in html
+    assert "9d" in html
+    assert "today</span>" in html          # age 0 -> "today"
+    assert "+3 more open loops" in html
+
+
+def test_open_loops_section_absent_when_empty():
+    brief = BriefContent(act_today=["x"], open_loops={"today": [], "other": [], "other_more": 0})
+    html = build_html_email(brief, [], [], [], {})
+    assert "Open Loops" not in html
+
+
 @pytest.fixture
 def mock_gmail_service():
     return MagicMock()
