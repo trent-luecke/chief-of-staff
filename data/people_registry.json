@@ -14,7 +14,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-06-22"
+      "last_seen": "2026-06-24"
     },
     {
       "id": "hewitt-tomlin",
@@ -1164,6 +1164,19 @@
       "people_file": null,
       "created": "2026-06-22",
       "last_seen": "2026-06-22"
+    },
+    {
+      "id": "kersten-barr",
+      "canonical_name": "Kersten Barr",
+      "aliases": [
+        "Kersten Barr"
+      ],
+      "email": "",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-06-24",
+      "last_seen": "2026-06-24"
     }
   ]
 }
