@@ -21,6 +21,9 @@ from pathlib import Path
 
 from rapidfuzz import fuzz
 
+ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT))
+
 from lib.notify import notify_user
 
 REGISTRY_FILE = Path("data/people_registry.json")
