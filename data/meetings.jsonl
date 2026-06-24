@@ -38,3 +38,4 @@
 {"event": "add_session", "id": "dev_triage", "ts": "2026-06-23T17:57:51", "session_id": "s-b00778", "date": "2026-06-23", "body": "James confirmed that second support user is doable, but it will require a FastTwitch project to accomplish it\n\nAlso covered performance issues with Kiosk reported by Andrea. Elvis is going to ping Cooksey to get him to audit potential issues in regards to overload of data bogging down the page"}
 {"event": "update_thread", "id": "dev_triage", "ts": "2026-06-23T17:57:57", "thread_id": "th-ca4086", "closed": true, "closed_date": "2026-06-23"}
 {"event": "update_thread", "id": "dev_triage", "ts": "2026-06-23T17:58:04", "thread_id": "th-d4f188", "closed": true, "closed_date": "2026-06-23"}
+{"event": "add_thread", "id": "os_sit_down", "ts": "2026-06-24T13:43:26", "thread_id": "th-27e5f3", "text": "trent to create outline of interview questions to begin onboarding interviews/feedback", "person_id": null}
