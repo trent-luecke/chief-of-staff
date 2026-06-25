@@ -271,6 +271,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-06-19"
+    },
+    {
+      "entity": "Michaelholt",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-06-25"
     }
   ],
   "previously_notified": [
