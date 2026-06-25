@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-24T23:05:22Z",
+  "fetched_at": "2026-06-25T10:45:00Z",
   "leads": [
     {
       "name": "Holland High School",
@@ -8,6 +8,17 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-22",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -41,6 +52,17 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-21",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": null,
       "stale": false
