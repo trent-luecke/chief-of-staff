@@ -1607,25 +1607,24 @@ function openMergeConflict(personA, personB, detail) {
   detail.querySelector('#mc-cancel').addEventListener('click', () => openDetailReadOnly(personA, detail));
 
   detail.querySelector('#mc-confirm').addEventListener('click', async () => {
-    const surviving = { ...personA };
+    const fields = { aliases: mergedAliases };
     FIELDS.forEach(f => {
       const choice = detail.querySelector(`input[name="mf-${f.key}"]:checked`)?.value;
-      surviving[f.key] = (choice === 'b' ? personB[f.key] : personA[f.key]) ?? null;
+      fields[f.key] = (choice === 'b' ? personB[f.key] : personA[f.key]) ?? null;
     });
-    surviving.aliases = mergedAliases;
-
-    state.registry.people = state.registry.people
-      .filter(p => p.id !== personB.id)
-      .map(p => p.id === personA.id ? surviving : p);
 
     const btn = detail.querySelector('#mc-confirm');
     btn.disabled = true;
     btn.textContent = 'Saving…';
     try {
-      await writeJSON(state.dir, 'data/people_registry.json', state.registry);
-      toast('✓ People merged', 'success');
+      await fetchJSON(`${API}/api/people/${encodeURIComponent(personA.id)}/merge`, {
+        method: 'POST',
+        body: JSON.stringify({ merge_id: personB.id, fields }),
+        label: 'People merged',
+      });
+      // Re-pull the authoritative registry from origin/main after the merge lands.
+      state.registry = await fetchJSON(`${API}/api/registry`);
     } catch (e) {
-      toast('Merge failed: ' + e.message, 'error');
       btn.disabled = false;
       btn.textContent = 'Confirm Merge';
       return;
@@ -1633,7 +1632,7 @@ function openMergeConflict(personA, personB, detail) {
 
     const currentFilter = document.getElementById('registry-search')?.value ?? '';
     renderRegistryView(currentFilter);
-    const row = document.querySelector(`.registry-row[data-id="${CSS.escape(surviving.id)}"]`);
+    const row = document.querySelector(`.registry-row[data-id="${CSS.escape(personA.id)}"]`);
     if (row) row.click();
   });
 }

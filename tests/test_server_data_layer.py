@@ -155,3 +155,74 @@ def test_patch_person_offline_returns_503_no_commit(client, monkeypatch):
     r = client.patch("/api/people/trent-luecke", json={"email": "x@y.com"})
     assert r.status_code == 503
     assert client._main["data/people_registry.json"] == before
+
+
+def _set_two_people(client):
+    main = {
+        "id": "trent-luecke", "canonical_name": "Trent Luecke",
+        "email": None, "aliases": ["Trent"],
+    }
+    dup = {
+        "id": "trent-l", "canonical_name": "Trent L",
+        "email": "trent@teambuildr.com", "aliases": ["TL"],
+    }
+    client._main["data/people_registry.json"] = json.dumps({"people": [main, dup]})
+    server.rebuild_snapshot()
+
+
+def test_merge_person_applies_fields_removes_dup_and_commits(client):
+    _set_two_people(client)
+    r = client.post("/api/people/trent-luecke/merge", json={
+        "merge_id": "trent-l",
+        "fields": {
+            "canonical_name": "Trent Luecke",
+            "email": "trent@teambuildr.com",  # value chosen from the dup
+            "aliases": ["Trent", "TL", "trent-l"],
+        },
+    })
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["person"]["email"] == "trent@teambuildr.com"
+    assert body["push"]["status"] == "ok"
+    people = json.loads(client._main["data/people_registry.json"])["people"]
+    ids = [p["id"] for p in people]
+    assert ids == ["trent-luecke"]               # dup removed
+    survivor = people[0]
+    assert survivor["email"] == "trent@teambuildr.com"
+    assert "trent-l" in survivor["aliases"]       # merged-away id preserved as alias
+
+
+def test_merge_into_self_returns_400(client):
+    _set_two_people(client)
+    r = client.post("/api/people/trent-luecke/merge",
+                    json={"merge_id": "trent-luecke", "fields": {}})
+    assert r.status_code == 400
+
+
+def test_merge_missing_survivor_returns_404(client):
+    _set_two_people(client)
+    r = client.post("/api/people/nobody/merge",
+                    json={"merge_id": "trent-l", "fields": {}})
+    assert r.status_code == 404
+
+
+def test_merge_ignores_unknown_fields(client):
+    _set_two_people(client)
+    r = client.post("/api/people/trent-luecke/merge", json={
+        "merge_id": "trent-l",
+        "fields": {"id": "hacked", "bogus": 1, "email": "x@y.com"},
+    })
+    assert r.status_code == 200
+    survivor = json.loads(client._main["data/people_registry.json"])["people"][0]
+    assert survivor["id"] == "trent-luecke"
+    assert "bogus" not in survivor
+
+
+def test_merge_offline_returns_503_no_commit(client, monkeypatch):
+    _set_two_people(client)
+    monkeypatch.setattr(server.git_sync, "fetch_main", lambda *a, **k: False)
+    before = client._main["data/people_registry.json"]
+    r = client.post("/api/people/trent-luecke/merge",
+                    json={"merge_id": "trent-l", "fields": {}})
+    assert r.status_code == 503
+    assert client._main["data/people_registry.json"] == before
