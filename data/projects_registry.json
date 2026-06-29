@@ -29,15 +29,6 @@
       "last_seen": "2026-06-07"
     },
     {
-      "id": "bfu-giveaway",
-      "canonical_name": "BFU Giveaway",
-      "aliases": [],
-      "status": "active",
-      "members": [],
-      "created": "2026-06-10",
-      "last_seen": "2026-06-10"
-    },
-    {
       "id": "claude-builder",
       "canonical_name": "Claude-Builder",
       "aliases": [],
