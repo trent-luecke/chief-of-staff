@@ -2619,7 +2619,7 @@ async function renderWorkView() {
       const projId  = btn.dataset.projId;
       const project = (projects || []).find(p => p.id === projId);
       const name    = project ? project.canonical_name : projId;
-      const pTasks  = (tasks || []).filter(t => t.project_id === projId);
+      const pTasks  = (allTasks || []).filter(t => t.project_id === projId);
       const taskNote = pTasks.length ? ` and its ${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}` : '';
       if (!confirm(`Delete project "${name}"${taskNote}? This cannot be undone.`)) return;
       setBusy(btn);
