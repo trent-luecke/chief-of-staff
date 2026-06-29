@@ -107,20 +107,6 @@
       "last_seen": "2026-06-29"
     },
     {
-      "id": "rachel",
-      "canonical_name": "Rachel Newman",
-      "aliases": [
-        "Rachel",
-        "rachel@teambuildr.com"
-      ],
-      "email": "rachel@teambuildr.com",
-      "type": "internal",
-      "pipeline_record": null,
-      "people_file": "data/people/rachel.md",
-      "created": "2026-05-20",
-      "last_seen": "2026-06-29"
-    },
-    {
       "id": "clayton",
       "canonical_name": "Clayton Young",
       "aliases": [
@@ -878,14 +864,17 @@
     },
     {
       "id": "rachel-hodgson",
-      "canonical_name": "Rachel Hodgson",
+      "canonical_name": "Rachel Newman",
       "aliases": [
-        "Rachel Hodgson"
+        "Rachel Hodgson",
+        "Rachel",
+        "rachel@teambuildr.com",
+        "rachel"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "rachel@teambuildr.com",
+      "type": "internal",
       "pipeline_record": null,
-      "people_file": null,
+      "people_file": "data/people/rachel.md",
       "created": "2026-06-05",
       "last_seen": "2026-06-29"
     },
