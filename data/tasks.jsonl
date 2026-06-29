@@ -90,3 +90,4 @@
 {"event": "create", "task_id": "t-4a3f07", "title": "schedule call with nango", "source": "ui", "created_at": "2026-06-24", "due_date": null, "metadata": {}, "project_id": "claude-builder", "collaborators": [], "owner": null}
 {"event": "create", "task_id": "t-5533e3", "title": "need to add de-dup to Avoma sync, its sending me the same entries two days in a row", "source": "slack", "created_at": "2026-06-26", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
 {"event": "create", "task_id": "t-20b200", "title": "need to check on why unresolved people aren't showing in registry", "source": "slack", "created_at": "2026-06-26", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke"}
+{"event": "complete", "task_id": "t-e8c635", "completed_at": "2026-06-29"}
