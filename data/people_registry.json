@@ -1143,12 +1143,12 @@
     },
     {
       "id": "pwrdundalk",
-      "canonical_name": "Pwrdundalk",
+      "canonical_name": "Aaron Casey",
       "aliases": [
         "Pwrdundalk"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "pwrdundalk@gmail.com",
+      "type": "lead",
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-22",
