@@ -332,6 +332,38 @@ def patch_person(person_id: str):
     return jsonify({"person": person, "push": push})
 
 
+@app.route("/api/people/<survivor_id>/merge", methods=["POST"])
+def merge_person(survivor_id: str):
+    body = request.get_json(force=True) or {}
+    merge_id = body.get("merge_id")
+    if not merge_id:
+        return jsonify({"error": "merge_id is required"}), 400
+    if merge_id == survivor_id:
+        return jsonify({"error": "cannot merge a person into itself"}), 400
+    fields = {k: v for k, v in (body.get("fields") or {}).items()
+              if k in PERSON_EDITABLE_FIELDS}
+
+    def mutate(store):
+        reg = store.read_json("people_registry.json", default={"people": []})
+        people = reg.get("people", [])
+        idx = next((i for i, p in enumerate(people) if p.get("id") == survivor_id), None)
+        if idx is None:
+            return None
+        people[idx] = {**people[idx], **fields}
+        # Drop the merged-away record (no-op if it's already gone).
+        reg["people"] = [p for p in people if p.get("id") != merge_id]
+        store.write_json("people_registry.json", reg)
+        return people[idx]
+
+    person, push, status = _write_main(
+        mutate, f"data: merge person {merge_id} into {survivor_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if person is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"person": person, "push": push})
+
+
 # --- Notes ---
 
 @app.route("/api/notes", methods=["GET"])
