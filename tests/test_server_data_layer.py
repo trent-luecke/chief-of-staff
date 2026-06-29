@@ -117,3 +117,41 @@ def test_complete_task_returns_200_with_push_ok(client):
 def test_delete_missing_task_returns_404(client):
     r = client.delete("/api/tasks/t-doesnotexist")
     assert r.status_code == 404
+
+
+def test_patch_person_updates_fields_and_commits(client):
+    r = client.patch("/api/people/trent-luecke",
+                     json={"email": "trent@teambuildr.com", "type": "internal"})
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["person"]["email"] == "trent@teambuildr.com"
+    assert body["person"]["type"] == "internal"
+    assert body["push"]["status"] == "ok"
+    # landed on main and the snapshot reflects it
+    stored = json.loads(client._main["data/people_registry.json"])["people"][0]
+    assert stored["email"] == "trent@teambuildr.com"
+    assert stored["type"] == "internal"
+    # untouched fields preserved
+    assert stored["canonical_name"] == "Trent Luecke"
+
+
+def test_patch_person_ignores_unknown_fields(client):
+    r = client.patch("/api/people/trent-luecke",
+                     json={"email": "x@y.com", "id": "hacked", "bogus": 1})
+    assert r.status_code == 200
+    stored = json.loads(client._main["data/people_registry.json"])["people"][0]
+    assert stored["id"] == "trent-luecke"  # id not overwritten
+    assert "bogus" not in stored
+
+
+def test_patch_missing_person_returns_404(client):
+    r = client.patch("/api/people/nobody", json={"email": "x@y.com"})
+    assert r.status_code == 404
+
+
+def test_patch_person_offline_returns_503_no_commit(client, monkeypatch):
+    monkeypatch.setattr(server.git_sync, "fetch_main", lambda *a, **k: False)
+    before = client._main["data/people_registry.json"]
+    r = client.patch("/api/people/trent-luecke", json={"email": "x@y.com"})
+    assert r.status_code == 503
+    assert client._main["data/people_registry.json"] == before

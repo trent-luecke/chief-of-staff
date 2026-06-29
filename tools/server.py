@@ -302,6 +302,36 @@ def get_registry():
     return jsonify(SNAPSHOT.people)
 
 
+# Fields the Registry UI edit form is allowed to write back. Anything else in
+# the request body (id, machine-managed metadata) is ignored.
+PERSON_EDITABLE_FIELDS = {
+    "canonical_name", "type", "email", "people_file", "pipeline_record", "aliases",
+}
+
+
+@app.route("/api/people/<person_id>", methods=["PATCH"])
+def patch_person(person_id: str):
+    body = request.get_json(force=True) or {}
+    fields = {k: v for k, v in body.items() if k in PERSON_EDITABLE_FIELDS}
+
+    def mutate(store):
+        reg = store.read_json("people_registry.json", default={"people": []})
+        people = reg.get("people", [])
+        idx = next((i for i, p in enumerate(people) if p.get("id") == person_id), None)
+        if idx is None:
+            return None
+        people[idx] = {**people[idx], **fields}
+        store.write_json("people_registry.json", reg)
+        return people[idx]
+
+    person, push, status = _write_main(mutate, f"data: update person {person_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if person is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"person": person, "push": push})
+
+
 # --- Notes ---
 
 @app.route("/api/notes", methods=["GET"])

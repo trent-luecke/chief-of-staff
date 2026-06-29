@@ -1672,8 +1672,7 @@ function openDetailEdit(person, detail) {
     if (!nameVal) { detail.querySelector('#ef-name').focus(); return; }
 
     const aliases = [...detail.querySelectorAll('[data-alias]')].map(el => el.dataset.alias);
-    const updated = {
-      ...person,
+    const fields = {
       canonical_name: nameVal,
       type: detail.querySelector('#ef-type').value,
       email: detail.querySelector('#ef-email').value.trim() || null,
@@ -1682,17 +1681,19 @@ function openDetailEdit(person, detail) {
       aliases,
     };
 
-    const idx = state.registry.people.findIndex(p => p.id === person.id);
-    if (idx !== -1) state.registry.people[idx] = updated;
-
     const saveBtn = detail.querySelector('#ef-save');
     saveBtn.disabled = true;
     saveBtn.textContent = 'Saving…';
+    let updated;
     try {
-      await writeJSON(state.dir, 'data/people_registry.json', state.registry);
-      toast('✓ Person updated', 'success');
+      const res = await fetchJSON(`${API}/api/people/${encodeURIComponent(person.id)}`, {
+        method: 'PATCH', body: JSON.stringify(fields), label: 'Person updated',
+      });
+      updated = res.person;
+      // Re-pull the authoritative registry from origin/main so the re-render
+      // reflects exactly what landed (and any concurrent changes).
+      state.registry = await fetchJSON(`${API}/api/registry`);
     } catch (e) {
-      toast('Save failed: ' + e.message, 'error');
       saveBtn.disabled = false;
       saveBtn.textContent = 'Save';
       return;
