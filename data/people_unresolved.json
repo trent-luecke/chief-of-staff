@@ -287,6 +287,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-06-26"
+    },
+    {
+      "entity": "Danannkilleen",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-01"
+    },
+    {
+      "entity": "Scottsilveus",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-01"
     }
   ],
   "previously_notified": [
