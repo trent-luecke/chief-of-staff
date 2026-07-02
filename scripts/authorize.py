@@ -10,7 +10,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.modify",
-    "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "https://www.googleapis.com/auth/spreadsheets",  # read + write (interview tracker)
 ]
 
 CREDENTIALS_FILE = "credentials/credentials.json"
@@ -25,7 +25,16 @@ def main():
         return
 
     flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_FILE, SCOPES)
-    creds = flow.run_local_server(port=0)
+    # access_type=offline + prompt=consent guarantee Google re-issues a refresh
+    # token on re-auth; without them a re-consent can return None and silently
+    # write a broken token.
+    creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+
+    if not creds.refresh_token:
+        raise SystemExit(
+            "No refresh_token returned — token would be unusable for headless runs. "
+            "Revoke the app's access at https://myaccount.google.com/permissions and re-run."
+        )
 
     token_data = {
         "client_id": creds.client_id,
