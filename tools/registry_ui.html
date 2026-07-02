@@ -814,6 +814,22 @@
       display: flex; align-items: center; justify-content: center;
     }
     .note-fab:hover { filter: brightness(1.15); }
+    .note-fab.open { transform: rotate(45deg); }
+
+    /* FAB create menu (pops upward from the FAB) */
+    .note-fab-menu {
+      position: fixed; bottom: 80px; right: 24px;
+      display: flex; flex-direction: column; gap: 6px;
+      z-index: 1600;
+    }
+    .note-fab-menu.hidden { display: none; }
+    .note-fab-menu-item {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 14px; font-size: 13px; text-align: left; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,.5); white-space: nowrap;
+    }
+    .note-fab-menu-item:hover { border-color: var(--accent); color: var(--accent); }
 
     /* Note modal */
     .note-modal-overlay {
@@ -2789,8 +2805,74 @@ const notesState = {
   _projects: [],
 };
 
-el('note-fab').addEventListener('click', () => {
+// ── FAB create menu ───────────────────────────────────────────────────────────
+function closeFabMenu() {
+  el('note-fab-menu').classList.add('hidden');
+  el('note-fab').classList.remove('open');
+}
+function toggleFabMenu() {
+  const menu = el('note-fab-menu');
+  const willOpen = menu.classList.contains('hidden');
+  menu.classList.toggle('hidden', !willOpen);
+  el('note-fab').classList.toggle('open', willOpen);
+}
+el('note-fab').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleFabMenu();
+});
+el('fab-new-note').addEventListener('click', () => {
+  closeFabMenu();
   openNoteModal(null);
+});
+el('fab-new-tag').addEventListener('click', () => {
+  closeFabMenu();
+  openTagModal();
+});
+// Dismiss the menu on outside click or Escape
+document.addEventListener('click', e => {
+  const menu = el('note-fab-menu');
+  if (menu.classList.contains('hidden')) return;
+  if (!menu.contains(e.target) && e.target !== el('note-fab')) closeFabMenu();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !el('note-fab-menu').classList.contains('hidden')) closeFabMenu();
+});
+
+// ── Standalone New Tag modal ───────────────────────────────────────────────────
+function openTagModal() {
+  el('tag-modal-name').value = '';
+  el('tag-modal-color').value = '#555555';
+  el('tag-modal-overlay').classList.remove('hidden');
+  el('tag-modal-name').focus();
+}
+function closeTagModal() {
+  el('tag-modal-overlay').classList.add('hidden');
+}
+async function saveTag() {
+  const name = el('tag-modal-name').value.trim().toUpperCase().replace(/\s+/g, '_');
+  const color = el('tag-modal-color').value;
+  if (!name) return;
+  try {
+    await fetchJSON(`${API}/api/notes/tags`, {
+      method: 'POST', body: JSON.stringify({ id: name, color }), label: 'Tag created',
+    });
+    // Refresh cached tags so the note modal + Notes tab see the new tag immediately
+    notesState._tags = await fetchJSON(`${API}/api/notes/tags`);
+    closeTagModal();
+    if (!el('view-notes').classList.contains('hidden')) renderNotesView();
+  } catch (err) {
+    /* arc toasted */
+  }
+}
+el('tag-modal-save').addEventListener('click', saveTag);
+el('tag-modal-cancel').addEventListener('click', closeTagModal);
+el('tag-modal-close').addEventListener('click', closeTagModal);
+el('tag-modal-overlay').addEventListener('click', e => {
+  if (e.target === el('tag-modal-overlay')) closeTagModal();
+});
+el('tag-modal-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveTag();
+  if (e.key === 'Escape') closeTagModal();
 });
 
 // ── Shared linked-notes rendering (People + Work tabs) ────────────────────────
@@ -3596,8 +3678,36 @@ function wireNewMeetingModal() {
 wireNewMeetingModal();
 </script>
 
-  <!-- Floating note capture button (visible on all tabs) -->
-  <button id="note-fab" class="note-fab" title="New note">+</button>
+  <!-- Floating create button + menu (visible on all tabs) -->
+  <button id="note-fab" class="note-fab" title="Create">+</button>
+  <div id="note-fab-menu" class="note-fab-menu hidden">
+    <button id="fab-new-note" class="note-fab-menu-item">New Note</button>
+    <button id="fab-new-tag" class="note-fab-menu-item">New Tag</button>
+  </div>
+
+  <!-- Standalone New Tag modal -->
+  <div id="tag-modal-overlay" class="note-modal-overlay hidden">
+    <div class="note-modal" style="width:320px">
+      <div class="note-modal-header">
+        <span>New Tag</span>
+        <button class="note-modal-close" id="tag-modal-close">×</button>
+      </div>
+      <div class="note-modal-body">
+        <div class="note-field-label">Name</div>
+        <input id="tag-modal-name" class="note-field-input" placeholder="TAG_NAME" maxlength="20" />
+        <div class="note-field-label" style="margin-top:10px">Color</div>
+        <input id="tag-modal-color" type="color" value="#555555"
+          style="width:48px;height:30px;border:none;cursor:pointer;background:none" />
+      </div>
+      <div class="note-modal-footer">
+        <div class="note-modal-footer-left"></div>
+        <div class="note-modal-footer-right">
+          <button id="tag-modal-cancel" class="btn-cancel">Cancel</button>
+          <button id="tag-modal-save" class="btn-save">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Note capture/edit modal -->
   <div id="note-modal-overlay" class="note-modal-overlay hidden">
