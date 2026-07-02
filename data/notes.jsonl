@@ -23,3 +23,4 @@
 {"event": "create", "id": "n-e38748", "ts": "2026-06-30T01:45:06", "body": "what if we made a playground/sandbox for users to test build a workflow? We could disseminate it and ask them to build 3-4 workflows on it using dummy data and see what they come up with. The ideas of what they build will inform us as to what usage will look like and gauge what the level of sophistication and/or interest is. Hard part is getting them motivated to take it since it doesn't actually build anything. Maybe it's just the fact that we're studying what they build to gauge our next big feature", "tags": [], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
 {"event": "delete", "id": "n-8f6d9b", "ts": "2026-07-02T10:44:13"}
 {"event": "update", "id": "n-d20596", "ts": "2026-07-02T10:44:29", "tags": ["IDEAS"]}
+{"event": "delete", "id": "n-76dfdf", "ts": "2026-07-02T10:45:00"}
