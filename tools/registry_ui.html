@@ -132,6 +132,8 @@
     .view { max-width: 780px; margin: 0 auto; }
     /* Notes tab spans the full window width (no centered 780px cap) */
     #view-notes { max-width: none; margin: 0; }
+    /* Meetings tab is wider than the default so the doc panel has room */
+    #view-meetings { max-width: 1200px; }
 
     /* ── Progress bar ── */
     .progress-bar-wrap {
@@ -914,7 +916,11 @@
     .btn-pin:hover { color: var(--text); border-color: var(--accent); }
     /* ── Meetings tab ── */
     .mtg-layout { display: flex; gap: 16px; padding: 12px 0; }
-    .mtg-list { flex: 0 0 220px; display: flex; flex-direction: column; gap: 4px; }
+    .mtg-list {
+      flex: 0 0 220px; display: flex; flex-direction: column; gap: 4px;
+      position: sticky; top: 0; align-self: flex-start;
+      max-height: calc(100vh - 96px); overflow-y: auto;
+    }
     .mtg-list-item {
       padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px;
       cursor: pointer; font-size: 13px; color: var(--text); background: var(--surface);
