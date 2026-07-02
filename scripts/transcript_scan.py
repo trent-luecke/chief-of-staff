@@ -519,11 +519,121 @@ def _analyze_one(client, model, system, tool, rec) -> dict | None:
         return None
 
 
+# --- clinical-hybrid preset: clinician-led treatment + training facilities ---
+# Two stages: a Haiku recall pass over every OS-interested demo flags anything
+# with a clinical/allied-health scent; an Opus precision pass confirms the
+# actual hybrid model and extracts the needs that make Workflow Builder relevant.
+
+_TOOL_CLINICAL_BROAD = {
+    "name": "extract",
+    "description": "Flag whether this demo prospect's business has any clinical/medical/allied-health component.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "business_desc": {"type": "string", "description": "One-line description of the prospect's business (who they are, who they serve)."},
+            "possibly_clinical": {
+                "type": "boolean",
+                "description": (
+                    "True if there is ANY signal the prospect's business involves clinical, medical, "
+                    "rehab, or allied-health services — physical therapy/physiotherapy, chiropractic, "
+                    "return-to-play or injury rehab, exercise physiology, occupational/speech therapy, "
+                    "athletic-training clinic, oncology/neuro/cardiac rehab, insurance-billed care, "
+                    "clinical documentation/EMR, or a clinician (DPT/chiro/physio/EP) owner or staff. "
+                    "Err toward TRUE — a stricter pass follows."
+                ),
+            },
+            "signals": {"type": "array", "items": {"type": "string"}, "description": "Short quotes/paraphrases of the clinical signals found. Empty if none."},
+        },
+        "required": ["business_desc", "possibly_clinical", "signals"],
+    },
+}
+
+_SYSTEM_CLINICAL_BROAD = """\
+You analyze TeamBuildr sales-demo transcripts. TeamBuildr OS is a business-operations
+platform for gyms/facilities (scheduling, billing, memberships, CRM).
+
+We are looking for a specific prospect segment: facilities that combine CLINICAL
+treatment (physical therapy, chiropractic, rehab, return-to-play, exercise physiology,
+allied health) with performance or general-population training. This pass is the
+high-RECALL filter: flag possibly_clinical=true on any clinical scent at all, even
+weak (e.g. the owner mentions being a physical therapist, they train post-rehab
+clients, they mention insurance or clinical notes). A strict confirmation pass runs
+after this one, so false positives are cheap and false negatives are expensive."""
+
+
+_TOOL_CLINICAL_STRICT = {
+    "name": "extract",
+    "description": "Strictly classify whether this prospect runs a hybrid clinical + training facility, and extract Workflow-Builder-relevant needs.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "is_clinical_hybrid": {
+                "type": "boolean",
+                "description": (
+                    "True ONLY if the prospect's business genuinely combines BOTH (a) clinical "
+                    "treatment services — physical therapy, chiropractic, injury rehab, "
+                    "return-to-play, exercise physiology, allied health — AND (b) performance "
+                    "or general-population training (memberships, classes, S&C programs) in one "
+                    "business. False for pure gyms, pure PT clinics with no training arm, teams, "
+                    "schools, or personal trainers who merely mention past injuries."
+                ),
+            },
+            "clinician_led": {"type": "boolean", "description": "True if the owner/operator or a principal is a credentialed clinician (DPT, chiro, physio, exercise physiologist, etc.)."},
+            "clinical_side": {"type": "string", "description": "What the clinical/treatment arm is. Empty if none."},
+            "training_side": {"type": "string", "description": "What the performance/gen-pop training arm is. Empty if none."},
+            "emr_documentation_need": {"type": "boolean", "description": "True if they mentioned needing clinical notes, EMR/practice-management software, SOAP notes, or treatment documentation."},
+            "insurance_billing_need": {"type": "boolean", "description": "True if they mentioned insurance claims, insurance-compliant invoicing, superbills, Medicare/HICAPS, or third-party payer requirements."},
+            "integration_asks": {"type": "array", "items": {"type": "string"}, "description": "Specific integrations/automations the prospect raised (named apps or described workflows). Empty if none."},
+            "evidence_quote": {"type": "string", "description": "Verbatim quote best evidencing the hybrid model. Empty if is_clinical_hybrid is false."},
+            "prospect_business": {"type": "string", "description": "One-line description of the business."},
+        },
+        "required": ["is_clinical_hybrid", "clinician_led", "clinical_side", "training_side",
+                     "emr_documentation_need", "insurance_billing_need", "integration_asks",
+                     "evidence_quote", "prospect_business"],
+    },
+}
+
+_SYSTEM_CLINICAL_STRICT = """\
+You analyze TeamBuildr sales-demo transcripts to size a prospect segment: hybrid
+clinical-to-performance facilities. The archetype: a clinician-owned business (DPT,
+chiropractor, physiotherapist, exercise physiologist) where clients enter through
+clinical treatment / rehab / return-to-play and continue into performance or
+general-population training — memberships, group classes, S&C programs — under the
+same roof. These businesses typically also need EMR-grade clinical notes, treatment
+documentation, and insurance-compliant billing that a gym platform doesn't provide.
+
+Call the extract tool. Be STRICT on is_clinical_hybrid — this count goes in a pitch:
+- Require evidence of BOTH a clinical/treatment arm AND a training/membership arm.
+- A pure S&C gym whose coach mentions working around injuries does NOT count.
+- A pure PT/chiro clinic with no training memberships/classes does NOT count.
+- A trainer who refers OUT to physical therapists does NOT count.
+- Teams, schools, and colleges do NOT count.
+When evidence is thin or ambiguous, set is_clinical_hybrid=false."""
+
+
 # ---- candidate strategies (which cached demos a preset scores) ----
 
 def _candidates_all(recs: list[dict]) -> list[dict]:
     """Every cached demo — needed to recover the OS denominator."""
     return recs
+
+
+def _candidates_os_interested(recs: list[dict]) -> list[dict]:
+    """Demos the integration pre-pass marked os_interest=true."""
+    ipath = CACHE_DIR / "analysis_integration.json"
+    if not ipath.exists():
+        sys.exit("Needs the OS denominator: run `analyze --preset integration` first.")
+    keep = {r["uuid"] for r in json.loads(ipath.read_text()) if r.get("os_interest")}
+    return [r for r in recs if r["uuid"] in keep]
+
+
+def _candidates_clinical_flagged(recs: list[dict]) -> list[dict]:
+    """Demos the broad clinical pass flagged possibly_clinical=true."""
+    path = CACHE_DIR / "analysis_clinical-hybrid.json"
+    if not path.exists():
+        sys.exit("Run `analyze --preset clinical-hybrid` (broad pass) first.")
+    keep = {r["uuid"] for r in json.loads(path.read_text()) if r.get("possibly_clinical")}
+    return [r for r in recs if r["uuid"] in keep]
 
 
 def _candidates_workflow_union(recs: list[dict]) -> list[dict]:
@@ -590,6 +700,41 @@ def _summarize_workflow(results: list[dict]) -> None:
               f"  -> {(r.get('workflow_scenario') or '')[:80]}")
 
 
+def _summarize_clinical_broad(results: list[dict]) -> None:
+    flagged = [r for r in results if r.get("possibly_clinical")]
+    print(f"  OS demos scanned ....................... {len(results)}")
+    print(f"  Flagged possibly-clinical (recall pass)  {len(flagged)}")
+    print("\n  Flagged demos:")
+    for r in sorted(flagged, key=lambda r: r.get("start_at") or ""):
+        print(f"    {(r.get('start_at') or '')[:10]}  {(r.get('subject') or '')[:44]:44}"
+              f"  {(r.get('business_desc') or '')[:70]}")
+
+
+def _summarize_clinical_strict(results: list[dict]) -> None:
+    hybrids = [r for r in results if r.get("is_clinical_hybrid")]
+    led = [r for r in hybrids if r.get("clinician_led")]
+    emr = [r for r in hybrids if r.get("emr_documentation_need")]
+    ins = [r for r in hybrids if r.get("insurance_billing_need")]
+    integ = [r for r in hybrids if r.get("integration_asks")]
+    print(f"  Candidates (broad-flagged) ............. {len(results)}")
+    print(f"  CONFIRMED clinical-hybrid .............. {len(hybrids)}   <-- the number")
+    print(f"     ...clinician-led ................... {len(led)}")
+    print(f"     ...EMR/documentation need .......... {len(emr)}")
+    print(f"     ...insurance/billing need .......... {len(ins)}")
+    print(f"     ...raised integrations/automation .. {len(integ)}")
+    print("\n  Confirmed hybrids:")
+    for r in sorted(hybrids, key=lambda r: r.get("start_at") or ""):
+        flags = "".join([
+            "C" if r.get("clinician_led") else "-",
+            "E" if r.get("emr_documentation_need") else "-",
+            "I" if r.get("insurance_billing_need") else "-",
+            "A" if r.get("integration_asks") else "-",
+        ])
+        print(f"    {(r.get('start_at') or '')[:10]}  [{flags}]  "
+              f"{(r.get('subject') or '')[:40]:40}  {(r.get('prospect_business') or '')[:64]}")
+    print("\n  (flags: C=clinician-led  E=EMR need  I=insurance need  A=integration ask)")
+
+
 PRESETS = {
     "integration": {
         "model": "claude-haiku-4-5",
@@ -602,6 +747,18 @@ PRESETS = {
         "system": _SYSTEM_WORKFLOW, "tool": _TOOL_WORKFLOW,
         "candidates": _candidates_workflow_union, "summarize": _summarize_workflow,
         "desc": "Strict: Zapier/CRM/business-process demand for the OS Workflow Builder, keyword+flag union (Opus). Excludes native Stripe/Mailchimp + sports hardware.",
+    },
+    "clinical-hybrid": {
+        "model": "claude-haiku-4-5",
+        "system": _SYSTEM_CLINICAL_BROAD, "tool": _TOOL_CLINICAL_BROAD,
+        "candidates": _candidates_os_interested, "summarize": _summarize_clinical_broad,
+        "desc": "Broad recall pass: flag any clinical/allied-health scent in OS-interested demos (Haiku).",
+    },
+    "clinical-hybrid-strict": {
+        "model": "claude-opus-4-8",
+        "system": _SYSTEM_CLINICAL_STRICT, "tool": _TOOL_CLINICAL_STRICT,
+        "candidates": _candidates_clinical_flagged, "summarize": _summarize_clinical_strict,
+        "desc": "Strict precision pass: confirm hybrid clinical+training model on broad-flagged demos (Opus).",
     },
 }
 
