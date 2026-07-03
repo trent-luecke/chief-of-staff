@@ -159,6 +159,17 @@ def storage_key(config_path: str) -> str:
     return config_path
 
 
+def registry_storage(config: dict) -> LocalStorage:
+    """Git-anchored store for registry entity files (tasks.jsonl, notes.jsonl,
+    projects_registry.json, project_observation_links.jsonl).
+
+    These files live on origin/main — written by the Registry UI and the Slack
+    /task //note workflows — so runtime jobs must read/write the checked-out
+    working tree (fresh origin/main in GitHub Actions), never R2. Writers must
+    also be covered by their workflow's commit-back `git add` list."""
+    return LocalStorage(base_dir=config.get("data_dir", "data"))
+
+
 def build_storage(config: dict) -> LocalStorage | R2Storage:
     """Return R2Storage if configured and enabled, otherwise LocalStorage."""
     r2_cfg = config.get("storage", {}).get("r2", {})

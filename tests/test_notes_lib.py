@@ -109,9 +109,37 @@ def test_replay_update_clears_brief_flagged_date(tmp_path):
 
 # ── load_notes_for_brief ──────────────────────────────────────────────────────
 
-class _FakeStorage:
-    def __init__(self, base_dir):
-        self.base_dir = Path(base_dir)
+from lib.storage import LocalStorage as _FakeStorage
+
+
+class _R2ShapedStorage:
+    """Mimics R2Storage's surface: read()/read_json() only, no base_dir attribute."""
+
+    def __init__(self, content=None):
+        self._content = content
+
+    def read(self, key):
+        return self._content if key == "notes.jsonl" else None
+
+    def read_json(self, key, default=None):
+        return default
+
+
+def test_brief_loader_works_with_storage_lacking_base_dir():
+    today = date.today()
+    yesterday = (today - timedelta(days=1)).isoformat()
+    events = [
+        {"event": "create", "id": "n-111111", "ts": f"{yesterday}T09:00:00",
+         "body": "note via r2-shaped storage", "tags": [],
+         "person_id": None, "task_id": None, "brief": True, "pinned": False},
+    ]
+    content = "\n".join(json.dumps(e) for e in events) + "\n"
+    result = load_notes_for_brief(_R2ShapedStorage(content))
+    assert "note via r2-shaped storage" in result
+
+
+def test_brief_loader_empty_when_storage_has_no_content():
+    assert load_notes_for_brief(_R2ShapedStorage(None)) == ""
 
 
 def test_brief_loader_no_file(tmp_path):

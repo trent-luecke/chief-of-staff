@@ -33,8 +33,9 @@ CHANGE_WHITELIST = frozenset({
 PENDING_CHANGE_PATH = "data/pending_change.json"
 
 
-def _sync_canvas(config: dict, storage) -> None:
-    """Push current task state to the Slack canvas. Non-fatal."""
+def _sync_canvas(config: dict) -> None:
+    """Push current task state to the Slack canvas. Non-fatal.
+    Tasks are read from the git-anchored registry store."""
     import os
     canvas_cfg = config.get("slack_canvas", {})
     canvas_id = canvas_cfg.get("canvas_id")
@@ -43,8 +44,10 @@ def _sync_canvas(config: dict, storage) -> None:
         return
     try:
         from lib.slack_canvas import sync_task_canvas
+        from lib.storage import registry_storage
         from lib.tasks import get_open_tasks, get_recent_completions
-        sync_task_canvas(token, canvas_id, get_open_tasks(storage), get_recent_completions(storage))
+        reg = registry_storage(config)
+        sync_task_canvas(token, canvas_id, get_open_tasks(reg), get_recent_completions(reg))
     except Exception as e:
         import sys
         print(f"WARNING: canvas sync failed: {e}", file=sys.stderr)
@@ -55,19 +58,22 @@ def _tool_add_capture(capture_type: str, text: str, storage, config: dict, due_d
     if capture_type not in valid:
         return f"Invalid capture type '{capture_type}'. Must be one of: {', '.join(sorted(valid))}."
     if capture_type == "todo":
-        task = add_task(storage, text, source="telegram", due_date=due_date or None)
-        _sync_canvas(config, storage)
+        # tasks.jsonl is git-anchored (Slack /task, Registry UI) — captures.md stays on runtime storage (R2)
+        from lib.storage import registry_storage
+        task = add_task(registry_storage(config), text, source="telegram", due_date=due_date or None)
+        _sync_canvas(config)
         return f"Task added [{task['id']}]: {text}"
     append_capture(storage, capture_type, None, text)
     return f"Captured [{capture_type}]: {text}"
 
 
 def _tool_complete_task(description: str, storage, config: dict) -> str:
+    from lib.storage import registry_storage
     projects_file = config.get("projects_file", "data/projects.md")
-    task = complete_task_record(storage, description)
+    task = complete_task_record(registry_storage(config), description)
     hit_project = complete_project_next(projects_file, description)
     if task or hit_project:
-        _sync_canvas(config, storage)
+        _sync_canvas(config)
         parts = []
         if task:
             parts.append(f"task '{task['title'][:60]}' marked completed")
@@ -512,7 +518,8 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
         elif name == "complete_task":
             return _tool_complete_task(input_["description"], storage, config)
         elif name == "list_tasks":
-            return _tool_list_tasks(storage, include_recent_completions=input_.get("include_recent_completions", False))
+            from lib.storage import registry_storage
+            return _tool_list_tasks(registry_storage(config), include_recent_completions=input_.get("include_recent_completions", False))
         elif name == "add_people_note":
             return _tool_add_people_note(input_["person_name"], input_["note"], config)
         elif name == "create_person_profile":

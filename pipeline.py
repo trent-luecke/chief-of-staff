@@ -706,8 +706,10 @@ def process_context(config: dict, collected: CollectedData, health: RunHealth, s
         # Captures + brief feedback
         ctx.captures_context = load_recent_captures(storage)
         try:
+            # notes.jsonl is git-anchored (Slack /note, Registry UI) — read the working tree, not R2
             from lib.notes import load_notes_for_brief
-            ctx.notes_context = load_notes_for_brief(storage)
+            from lib.storage import registry_storage
+            ctx.notes_context = load_notes_for_brief(registry_storage(config))
         except Exception as e:
             print(f"⚠️  Notes context error (non-fatal): {e}", file=sys.stderr)
         ctx.brief_feedback_context = load_brief_feedback(storage)
@@ -824,6 +826,7 @@ def generate_and_deliver(
             print(f"⚠️  What Moved context error (non-fatal): {e}", file=sys.stderr)
 
         # Brief generation
+        from lib.storage import registry_storage
         _brief_error = None
         print("🤖  Generating brief with Claude...")
         with timed() as t:
@@ -847,7 +850,9 @@ def generate_and_deliver(
                     notes_context=ctx.notes_context,
                     brief_feedback_context=ctx.brief_feedback_context,
                     brief_prefs_context=ctx.brief_prefs_context,
-                    storage=storage,
+                    # projects_registry/tasks/links are git-anchored — the brief's
+                    # project context must read the working tree, not R2
+                    storage=registry_storage(config),
                     metric_flags=_metric_flags,
                     what_moved_context=_what_moved_context,
                 )

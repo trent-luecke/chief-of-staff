@@ -73,7 +73,9 @@ Tracked in git:
 - `data/projects.md`, `data/recurring.json`, `data/meeting_index.json` — user config
 - `data/memory/decisions.md` — durable decisions
 - `data/captures.md` — quick-capture inbox
-- Registry entity stores (read/written by the Registry UI, see below): `data/tasks.jsonl`, `data/projects_registry.json`, `data/notes.jsonl`, `data/notes_tags.json`, `data/people_registry.json` (+ `people_resolution.json`, `people_unresolved.json`, `onboarding_cache.json`). `tasks.jsonl` uses a `merge=union` driver (`.gitattributes`) so concurrent appends never conflict.
+- Registry entity stores (read/written by the Registry UI, see below): `data/tasks.jsonl`, `data/projects_registry.json`, `data/notes.jsonl`, `data/notes_tags.json`, `data/people_registry.json`, `data/project_observation_links.jsonl` (+ `people_resolution.json`, `people_unresolved.json`, `onboarding_cache.json`). `tasks.jsonl` uses a `merge=union` driver (`.gitattributes`) so concurrent appends never conflict.
+
+**Registry stores are git-anchored, not R2.** Runtime jobs (brief, ask/Telegram, avoma) must access them via `lib.storage.registry_storage(config)` — a `LocalStorage` on the working tree (fresh `origin/main` in Actions) — never via `build_storage`, which returns R2 and silently disconnects from the UI/Slack writers. Any workflow whose code *writes* a registry store must list that file in its commit-back `git add` (see `ask.yml`, `avoma_slack_trigger.yml`). Non-registry runtime state (captures.md, reminders, thread state, brief_feedback.md) stays on R2 via `build_storage`.
 
 Gitignored (machine-written state):
 - `data/memory/*.md` (except `decisions.md`)

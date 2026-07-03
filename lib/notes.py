@@ -103,8 +103,7 @@ def add_note(
 
 def load_notes_for_brief(storage) -> str:
     """Return formatted notes context string for brief, empty string if nothing to show."""
-    notes_path = storage.base_dir / "notes.jsonl"
-    all_notes = replay_notes(notes_path)
+    all_notes = replay_notes_content(storage.read("notes.jsonl") or "")
     brief_notes = [n for n in all_notes if n.get("brief") and n.get("brief_flagged_date")]
     if not brief_notes:
         return ""
@@ -123,7 +122,7 @@ def load_notes_for_brief(storage) -> str:
 
     people_by_id: dict[str, str] = {}
     try:
-        registry = json.loads((storage.base_dir / "people_registry.json").read_text())
+        registry = storage.read_json("people_registry.json", default={}) or {}
         people_by_id = {
             p["id"]: p.get("canonical_name", p["id"])
             for p in registry.get("people", [])
@@ -133,7 +132,7 @@ def load_notes_for_brief(storage) -> str:
 
     projects_by_id: dict[str, str] = {}
     try:
-        preg = json.loads((storage.base_dir / "projects_registry.json").read_text())
+        preg = storage.read_json("projects_registry.json", default={}) or {}
         projects_by_id = {
             p["id"]: p.get("canonical_name", p["id"])
             for p in preg.get("projects", [])
