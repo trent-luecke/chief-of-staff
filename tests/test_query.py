@@ -26,6 +26,9 @@ def _make_config(tmp_dir: str) -> dict:
 
     return {
         "email": "trent@teambuildr.com",
+        # keep build_storage(config) fallbacks inside the tempdir — without this,
+        # execute_tool writes to the real data/ directory of whatever CWD pytest runs in
+        "data_dir": tmp_dir,
         "pipeline": {"enabled": True, "cache_path": pipeline_cache},
         "people_dir": people_dir,
         "issues_file": issues_file,
@@ -220,7 +223,8 @@ def test_answer_query_with_tools_caps_at_10_iterations():
             mock_client = MagicMock()
             mock_client.messages.create.return_value = looping_response
             mock_cls.return_value = mock_client
-            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "loop forever", config)
+            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "loop forever", config,
+                                             storage=LocalStorage(tmp))
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 10

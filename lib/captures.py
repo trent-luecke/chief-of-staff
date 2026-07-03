@@ -1,8 +1,11 @@
-from datetime import datetime
+import re
+from datetime import datetime, timedelta
 from typing import Optional
 
 _CAPTURES_KEY = "captures.md"
 _FEEDBACK_KEY = "brief_feedback.md"
+
+_HEADING_RE = re.compile(r"^## (\d{4}-\d{2}-\d{2} \d{2}:\d{2}) — \[")
 
 
 def append_capture(storage, type_: str, target: Optional[str], content: str) -> None:
@@ -13,9 +16,38 @@ def append_capture(storage, type_: str, target: Optional[str], content: str) -> 
     storage.write(_CAPTURES_KEY, existing + line)
 
 
-def load_recent_captures(storage, max_chars: int = 2000) -> str:
+def load_recent_captures(storage, max_chars: int = 2000, within_days: int = 7) -> str:
     content = storage.read(_CAPTURES_KEY) or ""
-    return content[-max_chars:] if len(content) > max_chars else content
+    filtered = _filter_by_age(content, within_days)
+    return filtered[-max_chars:] if len(filtered) > max_chars else filtered
+
+
+def _filter_by_age(content: str, within_days: int) -> str:
+    """Keep only entries whose '## YYYY-MM-DD HH:MM — [type]' heading falls within
+    the window. Body lines follow their heading; entries with unparseable headings
+    are kept (fail open). Content with no headings at all is returned unfiltered."""
+    if "## " not in content:
+        return content
+    cutoff = datetime.now() - timedelta(days=within_days)
+    kept: list[str] = []
+    keep_current = False
+    seen_heading = False
+    for line in content.splitlines(keepends=True):
+        if line.startswith("## "):
+            seen_heading = True
+            match = _HEADING_RE.match(line)
+            if match:
+                try:
+                    keep_current = datetime.strptime(match.group(1), "%Y-%m-%d %H:%M") >= cutoff
+                except ValueError:
+                    keep_current = True
+            else:
+                keep_current = True
+        elif not seen_heading:
+            keep_current = True
+        if keep_current:
+            kept.append(line)
+    return "".join(kept)
 
 
 def complete_capture(storage, match_text: str) -> bool:
