@@ -24,8 +24,13 @@ def _state_record(phase1_output="Action items: 1. Send pricing deck", transcript
     }
 
 
-def _config():
-    return {"ai_model": "claude-sonnet-4-6"}
+def _config(tmp_path=None):
+    cfg = {"ai_model": "claude-sonnet-4-6"}
+    if tmp_path is not None:
+        # keep registry_storage() fallbacks inside the tempdir — without this,
+        # task writes would land in the real data/ directory of pytest's CWD
+        cfg["data_dir"] = str(tmp_path)
+    return cfg
 
 
 def _make_text_response(text="Here is your answer."):
@@ -60,7 +65,7 @@ def test_phase2_question_posts_answer(tmp_path):
     with patch("processors.avoma_phase2.anthropic.Anthropic") as mock_cls, \
          patch("processors.avoma_phase2.post_to_thread", return_value="ts.post") as mock_post:
         mock_cls.return_value.messages.create.return_value = _make_text_response("They discussed pricing on the call.")
-        run_phase2("t.123", "what did they say about pricing?", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "what did they say about pricing?", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     mock_post.assert_called_once()
     assert "pricing" in mock_post.call_args[0][3].lower() or "discussed" in mock_post.call_args[0][3].lower()
@@ -77,7 +82,7 @@ def test_phase2_correction_stores_pending_and_posts_proposal(tmp_path):
         mock_cls.return_value.messages.create.return_value = _make_tool_response(
             description="Change rep name from Chris to Quinn"
         )
-        run_phase2("t.123", "their account owner is Quinn not Chris", _state_record(), "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "their account owner is Quinn not Chris", _state_record(), "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     rec = get_thread_record(s, "t.123")
     assert rec["pending_correction"] is not None
@@ -100,7 +105,7 @@ def test_phase2_confirmation_applies_correction(tmp_path):
     state_rec = get_thread_record(s, "t.123")
 
     with patch("processors.avoma_phase2.post_to_thread", return_value="ts.ack") as mock_post:
-        run_phase2("t.123", "yes", state_rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "yes", state_rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     rec = get_thread_record(s, "t.123")
     assert rec["pending_correction"] is None
@@ -122,7 +127,7 @@ def test_phase2_rejection_clears_pending(tmp_path):
     state_rec = get_thread_record(s, "t.123")
 
     with patch("processors.avoma_phase2.post_to_thread"):
-        run_phase2("t.123", "no", state_rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "no", state_rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     assert get_thread_record(s, "t.123")["pending_correction"] is None
 
@@ -139,7 +144,7 @@ def test_phase2_notion_payload_included_in_proposal(tmp_path):
         mock_cls.return_value.messages.create.return_value = _make_tool_response(
             notion_payload=notion_payload
         )
-        run_phase2("t.123", "drop objection 1", _state_record(), "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "drop objection 1", _state_record(), "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     post_text = mock_post.call_args[0][3]
     assert "Notion" in post_text
@@ -172,7 +177,7 @@ def test_task_selection_add_single(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
          patch("processors.avoma_phase2._sync_canvas") as mock_canvas:
-        run_phase2("t.123", "add 2", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 2", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     tasks = get_open_tasks(s)
     assert len(tasks) == 1
@@ -195,7 +200,7 @@ def test_task_selection_add_multiple_comma(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
          patch("processors.avoma_phase2._sync_canvas"):
-        run_phase2("t.123", "add 1, 3", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1, 3", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     tasks = get_open_tasks(s)
     assert len(tasks) == 2
@@ -212,7 +217,7 @@ def test_task_selection_add_with_and(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread"), \
          patch("processors.avoma_phase2._sync_canvas"):
-        run_phase2("t.123", "add 1 and 3", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1 and 3", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     tasks = get_open_tasks(s)
     assert len(tasks) == 2
@@ -227,7 +232,7 @@ def test_task_selection_add_all(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread"), \
          patch("processors.avoma_phase2._sync_canvas"):
-        run_phase2("t.123", "add all", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add all", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     assert len(get_open_tasks(s)) == 3
 
@@ -240,7 +245,7 @@ def test_task_selection_out_of_range_skipped(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
          patch("processors.avoma_phase2._sync_canvas"):
-        run_phase2("t.123", "add 1, 5", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1, 5", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     # index 5 is out of range — only item 1 added
     assert len(get_open_tasks(s)) == 1
@@ -255,7 +260,7 @@ def test_task_selection_no_action_items(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread") as mock_post, \
          patch("processors.avoma_phase2._sync_canvas") as mock_canvas:
-        run_phase2("t.123", "add 1", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     assert len(get_open_tasks(s)) == 0
     mock_canvas.assert_not_called()
@@ -290,7 +295,7 @@ def test_task_selection_deduplicated_indices(tmp_path):
 
     with patch("processors.avoma_phase2.post_to_thread"), \
          patch("processors.avoma_phase2._sync_canvas"):
-        run_phase2("t.123", "add 1, 1, 2", rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1, 1, 2", rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     tasks = get_open_tasks(s)
     # "1, 1, 2" should add items 1 and 2 once each — not item 1 twice
@@ -314,7 +319,7 @@ def test_task_selection_blocked_when_correction_pending(tmp_path):
     state_rec["transcript_json"] = {"action_items": ["Send deck"]}
 
     with patch("processors.avoma_phase2.post_to_thread") as mock_post:
-        run_phase2("t.123", "add 1", state_rec, "slack-tok", "C-avoma", s, _config(), "anthropic-key")
+        run_phase2("t.123", "add 1", state_rec, "slack-tok", "C-avoma", s, _config(tmp_path), "anthropic-key")
 
     # No tasks added — pending correction should block task selection
     assert len(get_open_tasks(s)) == 0
@@ -323,3 +328,23 @@ def test_task_selection_blocked_when_correction_pending(tmp_path):
     assert "pending" in mock_post.call_args[0][3].lower() or "correction" in mock_post.call_args[0][3].lower()
     # Pending correction should still be set
     assert get_thread_record(s, "t.123")["pending_correction"] is not None
+
+
+def test_task_selection_writes_to_registry_dir_not_runtime_storage(tmp_path):
+    # tasks.jsonl is git-anchored; avoma runtime storage (thread state) is R2.
+    from processors.avoma_phase2 import run_phase2
+    from lib.tasks import get_open_tasks
+    reg_dir = tmp_path / "registry"
+    reg_dir.mkdir()
+    s = _storage(tmp_path)
+    config = {"ai_model": "claude-sonnet-4-6", "data_dir": str(reg_dir)}
+    rec = _state_record_with_actions(["Send pricing deck"])
+
+    with patch("processors.avoma_phase2.post_to_thread"), \
+         patch("processors.avoma_phase2._sync_canvas"):
+        run_phase2("t.123", "add 1", rec, "slack-tok", "C-avoma", s, config, "anthropic-key")
+
+    reg_tasks = get_open_tasks(LocalStorage(str(reg_dir)))
+    assert len(reg_tasks) == 1
+    assert reg_tasks[0]["title"] == "Send pricing deck"
+    assert get_open_tasks(s) == []

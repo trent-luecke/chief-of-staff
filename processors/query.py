@@ -72,15 +72,16 @@ def _load_local_context(config: dict, storage, query: str = "") -> str:
         if issues:
             parts.append("## Open Issues\n" + json.dumps([_asdict(i) for i in issues], indent=2))
 
-    if storage is not None:
-        from lib.tasks import get_open_tasks
-        open_tasks = get_open_tasks(storage)
-        if open_tasks:
-            task_lines = []
-            for t in open_tasks:
-                due = f" (due {t['due_date']})" if t.get("due_date") else ""
-                task_lines.append(f"- [{t['id']}] {t['title']}{due}")
-            parts.append("## Open Tasks\n" + "\n".join(task_lines))
+    # tasks.jsonl is git-anchored (Slack /task, Registry UI) — read the working tree, not R2
+    from lib.storage import registry_storage
+    from lib.tasks import get_open_tasks
+    open_tasks = get_open_tasks(registry_storage(config))
+    if open_tasks:
+        task_lines = []
+        for t in open_tasks:
+            due = f" (due {t['due_date']})" if t.get("due_date") else ""
+            task_lines.append(f"- [{t['id']}] {t['title']}{due}")
+        parts.append("## Open Tasks\n" + "\n".join(task_lines))
 
     if storage is not None:
         captures = load_recent_captures(storage)

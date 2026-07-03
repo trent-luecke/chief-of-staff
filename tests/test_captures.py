@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import pytest
 from lib.storage import LocalStorage
 from lib.captures import (
@@ -7,6 +9,10 @@ from lib.captures import (
     load_brief_feedback,
     complete_project_next,
 )
+
+
+def _stamp(days_ago: int) -> str:
+    return (datetime.now() - timedelta(days=days_ago)).strftime("%Y-%m-%d %H:%M")
 
 
 def test_append_capture_creates_line_with_type_and_content(tmp_path):
@@ -38,6 +44,64 @@ def test_load_recent_captures_returns_empty_when_file_missing(tmp_path):
     storage = LocalStorage(base_dir=str(tmp_path))
     result = load_recent_captures(storage)
     assert result == ""
+
+
+def test_load_recent_captures_excludes_entries_older_than_default_window(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("captures.md", (
+        f"## {_stamp(30)} — [todo] Fill out Kisi documentation\n"
+        f"## {_stamp(2)} — [note] Fresh capture from this week\n"
+    ))
+    result = load_recent_captures(storage)
+    assert "Fresh capture from this week" in result
+    assert "Kisi documentation" not in result
+
+
+def test_load_recent_captures_keeps_multiline_entry_body(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("captures.md", (
+        f"## {_stamp(20)} — [note] Old entry\nold body line\n"
+        f"## {_stamp(1)} — [note] Recent entry\nrecent body line\nsecond body line\n"
+    ))
+    result = load_recent_captures(storage)
+    assert "Recent entry" in result
+    assert "recent body line" in result
+    assert "second body line" in result
+    assert "old body line" not in result
+
+
+def test_load_recent_captures_respects_within_days_param(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("captures.md", f"## {_stamp(10)} — [idea] Ten days old\n")
+    assert "Ten days old" not in load_recent_captures(storage)
+    assert "Ten days old" in load_recent_captures(storage, within_days=30)
+
+
+def test_load_recent_captures_keeps_entries_with_unparseable_headings(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("captures.md", (
+        "## someday — [todo] No date on this one\n"
+        f"## {_stamp(30)} — [todo] Definitely old\n"
+    ))
+    result = load_recent_captures(storage)
+    assert "No date on this one" in result
+    assert "Definitely old" not in result
+
+
+def test_load_recent_captures_falls_back_to_tail_when_no_headings(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write("captures.md", "just some free text with no headings\n")
+    result = load_recent_captures(storage)
+    assert "just some free text" in result
+
+
+def test_load_recent_captures_still_truncates_to_max_chars(tmp_path):
+    storage = LocalStorage(base_dir=str(tmp_path))
+    lines = "".join(f"## {_stamp(1)} — [note] entry {i} {'x' * 80}\n" for i in range(50))
+    storage.write("captures.md", lines)
+    result = load_recent_captures(storage, max_chars=500)
+    assert len(result) <= 500
+    assert "entry 49" in result
 
 
 def test_load_brief_feedback_returns_empty_when_file_missing(tmp_path):

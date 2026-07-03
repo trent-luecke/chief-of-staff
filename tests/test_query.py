@@ -26,6 +26,9 @@ def _make_config(tmp_dir: str) -> dict:
 
     return {
         "email": "trent@teambuildr.com",
+        # keep build_storage(config) fallbacks inside the tempdir — without this,
+        # execute_tool writes to the real data/ directory of whatever CWD pytest runs in
+        "data_dir": tmp_dir,
         "pipeline": {"enabled": True, "cache_path": pipeline_cache},
         "people_dir": people_dir,
         "issues_file": issues_file,
@@ -220,10 +223,22 @@ def test_answer_query_with_tools_caps_at_10_iterations():
             mock_client = MagicMock()
             mock_client.messages.create.return_value = looping_response
             mock_cls.return_value = mock_client
-            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "loop forever", config)
+            result = answer_query_with_tools("fake-key", "claude-sonnet-4-6", "loop forever", config,
+                                             storage=LocalStorage(tmp))
 
         assert isinstance(result, str)
         assert mock_client.messages.create.call_count == 10
+
+
+def test_load_local_context_reads_tasks_from_registry_dir_not_runtime_storage():
+    # tasks.jsonl lives on git main (Slack /task, Registry UI); runtime storage is R2.
+    with tempfile.TemporaryDirectory() as reg_dir, tempfile.TemporaryDirectory() as rt_dir:
+        config = _make_config(reg_dir)  # data_dir = reg_dir
+        from lib.tasks import add_task
+        add_task(LocalStorage(reg_dir), "Slack-added task")
+        runtime_storage = LocalStorage(rt_dir)
+        context = _load_local_context(config, runtime_storage)
+        assert "Slack-added task" in context
 
 
 def test_load_local_context_includes_current_time():

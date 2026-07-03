@@ -31,6 +31,32 @@ def test_add_capture_writes_to_file():
         assert any("Call Marcus" in t["title"] for t in tasks)
 
 
+def test_task_tools_use_registry_dir_not_runtime_storage():
+    # tasks.jsonl is git-anchored (Slack /task, Registry UI); runtime storage is R2.
+    with tempfile.TemporaryDirectory() as reg_dir, tempfile.TemporaryDirectory() as rt_dir:
+        config = _config(reg_dir)
+        runtime = LocalStorage(rt_dir)
+        from lib.tasks import get_open_tasks
+        execute_tool("add_capture", {"capture_type": "todo", "text": "Registry task"}, config, storage=runtime)
+        assert any(t["title"] == "Registry task" for t in get_open_tasks(LocalStorage(reg_dir)))
+        assert get_open_tasks(runtime) == []
+        listed = execute_tool("list_tasks", {}, config, storage=runtime)
+        assert "Registry task" in listed
+        result = execute_tool("complete_task", {"description": "Registry task"}, config, storage=runtime)
+        assert "completed" in result.lower()
+        assert get_open_tasks(LocalStorage(reg_dir)) == []
+
+
+def test_non_todo_capture_stays_on_runtime_storage():
+    # captures.md lives in R2 — non-todo captures keep using the runtime storage.
+    with tempfile.TemporaryDirectory() as reg_dir, tempfile.TemporaryDirectory() as rt_dir:
+        config = _config(reg_dir)
+        runtime = LocalStorage(rt_dir)
+        execute_tool("add_capture", {"capture_type": "note", "text": "R2 note"}, config, storage=runtime)
+        assert "R2 note" in (runtime.read("captures.md") or "")
+        assert LocalStorage(reg_dir).read("captures.md") is None
+
+
 def test_complete_task_removes_from_captures():
     with tempfile.TemporaryDirectory() as tmp:
         config = _config(tmp)

@@ -159,10 +159,13 @@ def _handle_task_selection(
         "call_title": transcript_json.get("title", ""),
         "call_date": (transcript_json.get("start_at") or "")[:10],
     }
+    # tasks.jsonl is git-anchored (Slack /task, Registry UI) — the workflow's
+    # commit-back step must include data/tasks.jsonl
+    from lib.storage import registry_storage
     for item in selected:
-        add_task(storage, item, source="avoma", metadata=metadata)
+        add_task(registry_storage(config), item, source="avoma", metadata=metadata)
 
-    _sync_canvas(config, storage)
+    _sync_canvas(config)
 
     count = len(selected)
     noun = "task" if count == 1 else "tasks"
@@ -249,10 +252,14 @@ def _handle_project_link_proposal(
 def _apply_project_link(
     pending_link: dict,
     storage,
+    links_storage,
     slack_bot_token: str,
     channel_id: str,
     thread_ts: str,
 ) -> None:
+    """storage = runtime store (candidate state); links_storage = git-anchored
+    registry store, since project_observation_links.jsonl is read by the brief
+    from the working tree."""
     from lib.project_candidates import resolve_candidate
     from lib.project_links import add_link
 
@@ -266,7 +273,7 @@ def _apply_project_link(
         pending_link.get("candidate_ids", []),
     ):
         add_link(
-            storage,
+            links_storage,
             project_id=pid,
             obs_date=obs_date,
             obs_entity=obs_entity,
@@ -300,7 +307,8 @@ def run_phase2(
 
     if pending_link and trigger_lower in _CONFIRMATIONS:
         try:
-            _apply_project_link(pending_link, storage, slack_bot_token, channel_id, thread_ts)
+            from lib.storage import registry_storage
+            _apply_project_link(pending_link, storage, registry_storage(config), slack_bot_token, channel_id, thread_ts)
         finally:
             clear_pending_project_link(storage, thread_ts)
         return

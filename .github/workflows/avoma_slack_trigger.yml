@@ -55,7 +55,7 @@ jobs:
 
       - name: Commit data changes
         run: |
-          git add data/people_registry.json 2>/dev/null || true
+          git add data/people_registry.json data/tasks.jsonl data/project_observation_links.jsonl 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: avoma slack processor data update [skip ci]"
           git pull --rebase origin main || true
           git push origin main || true
