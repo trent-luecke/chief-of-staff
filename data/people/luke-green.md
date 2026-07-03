@@ -13,7 +13,8 @@ Main strategic partner for Trent. They do "Brain Blasts" sessions together — b
 ## Notes
 - Active in group DMs with Trent and Hewitt
 - Involved in marketing partnership discussions (Australian market, GS growth)
-- 2026-05-14 | needs follow-up: BFU ticket giveaway — how to handle distribution (internal opt-in email, random draw, send ~June, possible care package: UberEats + t-shirt)
+- 2026-05-14 | BFU ticket giveaway (internal opt-in email, random draw, care package idea) — closed 2026-07-03, no further follow-up needed
+- Standing agenda item for Luke/Trent 1:1 (every other meeting, from 2026-05-14): mid-period check-in — pipeline health, follow-up status, mid-month flags
 
 <!-- AUTO-UPDATED: do not edit below this line -->
 ## Activity

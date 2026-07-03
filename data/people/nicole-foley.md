@@ -13,6 +13,7 @@ Trent delegates email and administrative tasks to Nicole. She handles all market
 ## Notes
 - Trent regularly sends her task instructions via Slack DM
 - 2026-05-14 | OS Marketing 2.0 meeting: discussed BFU ticket giveaway (internal opt-in email → random draw, ~June, possible care package), new lead magnet direction (youth athlete parents → adult members, summer traffic angle), Ken webinar reformat (build-on-itself series via interview, not standalone YouTube videos), Notion campaign timeline map to align content with upcoming seasons
+- Lead magnet idea (2026-05-04): "Scared of AI? Try Zapier" — walk through basic OS automations (lead follow-up etc.); low-barrier entry for AI-hesitant gym owners
 
 <!-- AUTO-UPDATED: do not edit below this line -->
 ## Activity
