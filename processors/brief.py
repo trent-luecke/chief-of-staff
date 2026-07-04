@@ -146,6 +146,21 @@ def _build_prompt(
         except Exception:
             pass  # non-fatal — brief continues without this section
 
+        try:
+            from lib.tasks import get_surfaced_tasks
+            surfaced = get_surfaced_tasks(storage)
+            if surfaced:
+                sections += section(
+                    "## Surfaced Today (deferred tasks whose horizon arrived — announce these)",
+                    [
+                        f"  - {t['title']}"
+                        + (f" (due {t['due_date']})" if t.get("due_date") else "")
+                        for t in surfaced
+                    ],
+                )
+        except Exception:
+            pass  # non-fatal — brief continues without this section
+
     sections += section("## Recurring Tasks Due Today",
                         [f"  {t.name} ({t.schedule})" for t in due_tasks])
     if inbox_text and inbox_text.strip():
