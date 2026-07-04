@@ -115,3 +115,4 @@
 {"event": "create", "task_id": "t-3c032b", "title": "Brief the team", "source": "routine", "created_at": "2026-07-04", "due_date": null, "metadata": {"routine": "zztest-ooo", "routine_run": "2026-07-04"}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-2bb8ce", "title": "Set OOO responder", "source": "routine", "created_at": "2026-07-04", "due_date": null, "metadata": {"routine": "zztest-ooo", "routine_run": "2026-07-04"}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "edit", "task_id": "t-e6cc94", "patch": {"horizon": "2026-07-05"}}
+{"event": "complete", "task_id": "t-053d1b", "completed_at": "2026-07-04"}
