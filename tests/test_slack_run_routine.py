@@ -53,3 +53,31 @@ def test_format_run_confirmation_with_note():
     out = format_run_confirmation(_r("R"), [{"title": "a"}], note="_Note: last ran 2026-07-01._")
     assert out.endswith("_Note: last ran 2026-07-01._")
     assert "created 1 task:" in out
+
+
+def test_match_exact_name_beats_superstring_sibling():
+    routines = [_r("OOO Prep"), _r("OOO Prep v2")]
+    assert [m["name"] for m in match_routines("ooo prep", routines)] == ["OOO Prep"]
+    assert len(match_routines("ooo", routines)) == 2  # non-exact still fans out
+
+
+def test_detect_trigger_key_skips_already_keyed_window(monkeypatch):
+    from datetime import date, timedelta
+    import scripts.slack_run_routine as srr
+    from lib.ooo import OooWindow
+
+    near = OooWindow(event_id="w1", summary="OOO", start=date.today() + timedelta(days=2), end=date.today() + timedelta(days=3))
+    far = OooWindow(event_id="w2", summary="OOO", start=date.today() + timedelta(days=6), end=date.today() + timedelta(days=7))
+
+    import lib.ooo as ooo_mod
+    import lib.google_auth as ga
+    monkeypatch.setattr(ga, "build_calendar_service", lambda: object())
+    monkeypatch.setattr(ooo_mod, "detect_ooo_windows", lambda service, lead, today=None: [near, far])
+
+    routine = {"id": "r", "name": "R", "steps": [{"title": "a"}],
+               "trigger": {"type": "calendar_ooo", "lead_days": 7},
+               "runs": [{"date": "2026-01-01", "trigger_key": "gcal:w1", "source": "slack"}]}
+    assert srr.detect_trigger_key(routine) == "gcal:w2"
+
+    routine["runs"] = []
+    assert srr.detect_trigger_key(routine) == "gcal:w1"

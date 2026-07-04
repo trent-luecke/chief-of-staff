@@ -87,6 +87,7 @@ New tracked file (add to `.gitignore` allow-list and registry storage layer, sam
 - **Suggestion:** if a window is found and the routine has no run whose `trigger_key` matches that calendar event, the brief includes a suggestion block: *"OOO detected Aug 10–14 — activate 'Out of Office Prep': type `/routine ooo prep` in Slack."* Re-appears daily until activated or the window starts, then goes quiet.
 - **No separate suggestion-state file:** the brief recomputes eligibility each morning from calendar + `runs`. Idempotent; survives missed runs.
 - Each calendar event is its own window — back-to-back trips each get their own suggestion cycle.
+- **Recurring OOO instances are skipped** (events with `recurringEventId`): a weekly recurring OOO block would otherwise re-suggest every morning forever. Trade-off: an annually-recurring trip is never suggested — create trips as one-off events. (Added 2026-07-04 from a live-data finding.)
 
 ### `/routine` Slack command
 

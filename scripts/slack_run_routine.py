@@ -42,10 +42,20 @@ def post_to_slack(response_url: str, text: str) -> None:
 
 
 def match_routines(query: str, routines: list) -> list:
-    """Case-insensitive substring match on name or id, either direction."""
+    """Case-insensitive substring match on name or id, either direction.
+
+    An exact (case-insensitive) name/id match wins outright over fuzzy
+    substring matches. This guarantees the disambiguation loop terminates:
+    if one routine's full name is a substring of another's (e.g. "OOO Prep"
+    vs. "OOO Prep v2"), an exact query resolves to exactly one routine
+    instead of matching both forever.
+    """
     q = query.lower().strip()
     if not q:
         return []
+    exact = [r for r in routines if q == r["name"].lower() or q == r["id"]]
+    if exact:
+        return exact
     return [
         r for r in routines
         if q in r["name"].lower() or r["name"].lower() in q or q == r["id"]
@@ -86,6 +96,8 @@ def detect_trigger_key(routine: dict) -> Optional[str]:
             w for w in detect_ooo_windows(build_calendar_service(), int(trig.get("lead_days", 7)))
             if w.start >= date.today()
         ]
+        run_keys = {run.get("trigger_key") for run in (routine.get("runs") or [])}
+        windows = [w for w in windows if trigger_key(w) not in run_keys]
         if not windows:
             return None
         return trigger_key(min(windows, key=lambda w: w.start))
