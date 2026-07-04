@@ -69,6 +69,7 @@ def _replay(storage) -> dict:
                 "project_id": event.get("project_id"),
                 "collaborators": event.get("collaborators") or [],
                 "owner": event.get("owner"),
+                "horizon": event.get("horizon"),
             }
         elif etype == "complete" and task_id in tasks:
             tasks[task_id]["status"] = "completed"
@@ -93,6 +94,7 @@ def add_task(
     project_id: Optional[str] = None,
     collaborators: Optional[list] = None,
     owner: Optional[str] = None,
+    horizon: Optional[str] = None,
 ) -> dict:
     _migrate_if_needed(storage)
     task_id = f"t-{uuid.uuid4().hex[:6]}"
@@ -108,6 +110,7 @@ def add_task(
         "project_id": project_id,
         "collaborators": collaborators or [],
         "owner": owner,
+        "horizon": horizon,
     }
     _append(storage, event)
     return {
@@ -122,6 +125,7 @@ def add_task(
         "project_id": project_id,
         "collaborators": collaborators or [],
         "owner": owner,
+        "horizon": horizon,
     }
 
 
@@ -160,6 +164,33 @@ def get_recent_completions(storage, days: int = 7) -> list:
     return [
         t for t in _replay(storage).values()
         if t["status"] == "completed" and (t.get("completed_at") or "") >= cutoff
+    ]
+
+
+def is_behind_horizon(task: dict, today: Optional[str] = None) -> bool:
+    """True when the task's horizon date is strictly after today.
+
+    Behind-horizon tasks stay in the data and API; each surface decides
+    how to de-emphasize them. On the horizon date itself this is False.
+    """
+    horizon = task.get("horizon")
+    if not horizon:
+        return False
+    return horizon > (today or date.today().isoformat())
+
+
+def get_surfaced_tasks(storage, lookback_days: int = 1) -> list:
+    """Open tasks whose horizon arrived within the last lookback_days.
+
+    Window: today - lookback_days < horizon <= today. Used by the brief to
+    announce tasks that just came off the horizon.
+    """
+    today = date.today()
+    since = (today - timedelta(days=lookback_days)).isoformat()
+    today_s = today.isoformat()
+    return [
+        t for t in get_open_tasks(storage)
+        if t.get("horizon") and since < t["horizon"] <= today_s
     ]
 
 

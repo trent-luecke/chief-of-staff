@@ -1,7 +1,8 @@
 import json
 import pytest
+from datetime import date, timedelta
 from lib.storage import LocalStorage
-from lib.tasks import add_task, complete_task, get_open_tasks, get_recent_completions, edit_task
+from lib.tasks import add_task, complete_task, get_open_tasks, get_recent_completions, edit_task, is_behind_horizon, get_surfaced_tasks
 
 
 def _s(tmp_path):
@@ -244,3 +245,70 @@ def test_legacy_record_without_owner_field(tmp_path):
         '"due_date": null, "metadata": {}}\n'
     )
     assert get_open_tasks(s)[0].get("owner") is None
+
+
+# --- Horizon ---
+
+def test_add_task_with_horizon(tmp_path):
+    s = _s(tmp_path)
+    task = add_task(s, "Renew SSL", horizon="2099-01-01")
+    assert task["horizon"] == "2099-01-01"
+    assert get_open_tasks(s)[0]["horizon"] == "2099-01-01"
+
+
+def test_add_task_defaults_horizon_none(tmp_path):
+    assert add_task(_s(tmp_path), "Send deck")["horizon"] is None
+
+
+def test_replay_tolerates_legacy_events_without_horizon(tmp_path):
+    s = _s(tmp_path)
+    s.append_line("tasks.jsonl", json.dumps({
+        "event": "create", "task_id": "t-legacy", "title": "Old task",
+        "source": "slack", "created_at": "2026-01-01", "due_date": None,
+        "metadata": {}, "project_id": None, "collaborators": [],
+    }))
+    tasks = get_open_tasks(s)
+    assert tasks[0]["horizon"] is None
+
+
+def test_edit_task_sets_and_clears_horizon(tmp_path):
+    s = _s(tmp_path)
+    t = add_task(s, "Send deck")
+    assert edit_task(s, t["id"], {"horizon": "2099-01-01"})["horizon"] == "2099-01-01"
+    assert edit_task(s, t["id"], {"horizon": None})["horizon"] is None
+    assert get_open_tasks(s)[0]["horizon"] is None
+
+
+def test_is_behind_horizon():
+    today = date.today().isoformat()
+    future = (date.today() + timedelta(days=1)).isoformat()
+    past = (date.today() - timedelta(days=1)).isoformat()
+    assert is_behind_horizon({"horizon": None}) is False
+    assert is_behind_horizon({}) is False
+    assert is_behind_horizon({"horizon": today}) is False   # visible ON the horizon date
+    assert is_behind_horizon({"horizon": future}) is True
+    assert is_behind_horizon({"horizon": past}) is False
+
+
+def test_is_behind_horizon_explicit_today():
+    assert is_behind_horizon({"horizon": "2026-07-10"}, today="2026-07-09") is True
+    assert is_behind_horizon({"horizon": "2026-07-10"}, today="2026-07-10") is False
+
+
+def test_get_surfaced_tasks(tmp_path):
+    s = _s(tmp_path)
+    today = date.today().isoformat()
+    yesterday = (date.today() - timedelta(days=1)).isoformat()
+    future = (date.today() + timedelta(days=3)).isoformat()
+    add_task(s, "Arrived today", horizon=today)
+    add_task(s, "Arrived yesterday", horizon=yesterday)
+    add_task(s, "Still deferred", horizon=future)
+    add_task(s, "No horizon")
+    assert [t["title"] for t in get_surfaced_tasks(s)] == ["Arrived today"]
+
+
+def test_get_surfaced_tasks_excludes_completed(tmp_path):
+    s = _s(tmp_path)
+    add_task(s, "Done already", horizon=date.today().isoformat())
+    complete_task(s, "Done already")
+    assert get_surfaced_tasks(s) == []
