@@ -21,6 +21,7 @@ def client(monkeypatch):
         "data/people_registry.json": json.dumps({"people": [{"id": "trent-luecke", "canonical_name": "Trent Luecke"}]}),
         "data/notes.jsonl": "",
         "data/notes_tags.json": "[]",
+        "data/routines.json": json.dumps({"version": 1, "routines": []}),
     }
     committed = []
 
@@ -242,3 +243,67 @@ def test_patch_task_horizon(client):
     r = client.patch(f"/api/tasks/{task_id}", json={"horizon": "2099-01-01"})
     assert r.status_code == 200
     assert json.loads(r.data)["task"]["horizon"] == "2099-01-01"
+
+
+# --- Routines ---
+
+def _mk_routine(client, name="OOO Prep", steps=("Cancel meetings", "Set responder")):
+    r = client.post("/api/routines", json={"name": name, "steps": list(steps)})
+    assert r.status_code == 201
+    return json.loads(r.data)["routine"]
+
+
+def test_routines_crud_roundtrip(client):
+    r = _mk_routine(client)
+    assert r["id"] == "ooo-prep"
+    listed = json.loads(client.get("/api/routines").data)
+    assert [x["id"] for x in listed] == ["ooo-prep"]
+
+    resp = client.patch("/api/routines/ooo-prep", json={"name": "OOO", "steps": ["Only step"]})
+    assert resp.status_code == 200
+    assert json.loads(resp.data)["routine"]["steps"] == [{"title": "Only step"}]
+
+    resp = client.delete("/api/routines/ooo-prep")
+    assert resp.status_code == 200
+    assert json.loads(client.get("/api/routines").data) == []
+
+
+def test_create_routine_requires_name_and_steps(client):
+    assert client.post("/api/routines", json={"steps": ["x"]}).status_code == 400
+    assert client.post("/api/routines", json={"name": "R", "steps": ["", "  "]}).status_code == 400
+
+
+def test_patch_delete_missing_routine_404(client):
+    assert client.patch("/api/routines/nope", json={"name": "x"}).status_code == 404
+    assert client.delete("/api/routines/nope").status_code == 404
+
+
+def test_run_routine_creates_tasks(client):
+    _mk_routine(client)
+    resp = client.post("/api/routines/ooo-prep/run", json={})
+    assert resp.status_code == 201
+    body = json.loads(resp.data)
+    assert [t["title"] for t in body["tasks"]] == ["Cancel meetings", "Set responder"]
+    tasks = json.loads(client.get("/api/tasks").data)
+    routine_tasks = [t for t in tasks if t["metadata"].get("routine") == "ooo-prep"]
+    assert len(routine_tasks) == 2
+
+
+def test_run_routine_recent_guard_and_force(client):
+    _mk_routine(client)
+    assert client.post("/api/routines/ooo-prep/run", json={}).status_code == 201
+    resp = client.post("/api/routines/ooo-prep/run", json={})
+    assert resp.status_code == 409
+    assert json.loads(resp.data)["error"] == "recent_run"
+    assert client.post("/api/routines/ooo-prep/run", json={"force": True}).status_code == 201
+
+
+def test_run_routine_missing_and_empty(client):
+    assert client.post("/api/routines/nope/run", json={}).status_code == 404
+    assert client.post("/api/routines", json={"name": "E2", "steps": []}).status_code == 400
+
+
+def test_bootstrap_includes_routines(client):
+    _mk_routine(client)
+    boot = json.loads(client.get("/api/bootstrap").data)
+    assert [r["id"] for r in boot["routines"]] == ["ooo-prep"]
