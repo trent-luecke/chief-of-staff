@@ -615,6 +615,12 @@
     }
     .due-chip.upcoming { color: #f59e0b; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); }
     .due-chip.overdue  { color: #ef4444; background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.3); }
+    .horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
+    .horizon-ghost { color:#bbb; font-size:11px; cursor:pointer; }
+    .proj-horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
+    .later-section { margin-top:18px; opacity:.9; }
+    .later-header { display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0; }
+    .proj-later-rows { border-top:1px dashed #ddd; margin-top:6px; padding-top:6px; }
     .due-chip-input {
       font-size: 11px; background: var(--surface); border: 1px solid var(--accent);
       color: var(--text); padding: 2px 5px; border-radius: 3px; width: 110px;
@@ -2008,7 +2014,7 @@ async function fetchJSON(url, opts = {}) {
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
-const workState = { expanded: new Set(), editing: new Set() };
+const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set() };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(iso) {
@@ -2040,6 +2046,18 @@ function renderDueDateChip(task) {
   const cls = task.due_date < today ? 'overdue' : 'upcoming';
   const label = cls === 'overdue' ? 'Overdue' : formatDate(task.due_date);
   return `<span class="due-chip ${cls}" data-task-id="${esc(task.id)}" data-due="${esc(task.due_date)}">${esc(label)}</span>`;
+}
+
+function isBehindHorizon(t) {
+  const today = new Date().toISOString().slice(0, 10);
+  return !!(t.horizon && t.horizon > today);
+}
+
+function renderHorizonChip(task) {
+  if (!task.horizon) return `<span class="horizon-ghost" data-task-id="${esc(task.id)}">+ horizon</span>`;
+  const today = new Date().toISOString().slice(0, 10);
+  const label = task.horizon > today ? `until ${formatDate(task.horizon)}` : formatDate(task.horizon);
+  return `<span class="horizon-chip" data-task-id="${esc(task.id)}" data-horizon="${esc(task.horizon)}">${esc(label)}</span>`;
 }
 
 function renderOwnerChip(task, people) {
@@ -2074,10 +2092,11 @@ function renderTaskRow(task, people, withLinkProj = false, notesForTask = []) {
     ? `<div class="task-note-drawer hidden" id="task-notes-${esc(task.id)}">${linkedNoteLinesHtmlForTask(notesForTask)}</div>`
     : '';
   return `
-    <div class="task-row" id="task-row-${esc(task.id)}">
+    <div class="task-row" id="task-row-${esc(task.id)}" data-due="${esc(task.due_date || '')}" data-horizon="${esc(task.horizon || '')}">
       <button class="btn-done" data-task-id="${esc(task.id)}">Done</button>
       <span class="task-title">${esc(task.title)}</span>
       ${task.due_date ? renderDueDateChip(task) : `<span class="due-ghost" data-task-id="${esc(task.id)}">+ due</span>`}
+      ${renderHorizonChip(task)}
       <span style="position:relative;display:inline-flex;align-items:center">
         ${renderOwnerChip(task, people)}
       </span>
@@ -2233,6 +2252,12 @@ function wireTaskInteractions(container, people, onChanged) {
       const taskId = e.target.dataset.taskId;
       const cur = e.target.dataset.due || null;
       showDatePicker(e.target, cur, async iso => {
+        const row = document.getElementById(`task-row-${taskId}`);
+        const horizon = row?.dataset.horizon || null;
+        if (iso && horizon && horizon > iso) {
+          alert(`This task's horizon ${formatDate(horizon)} is after the new due date ${formatDate(iso)} — move or clear the horizon first.`);
+          return;
+        }
         if (iso !== cur) {
           try {
             await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
@@ -2241,6 +2266,26 @@ function wireTaskInteractions(container, people, onChanged) {
             onChanged();
           } catch (err) { /* arc toasted; leave view unchanged */ }
         }
+      });
+      return;
+    }
+    if (e.target.matches('.horizon-chip') || e.target.matches('.horizon-ghost')) {
+      const taskId = e.target.dataset.taskId;
+      const cur = e.target.dataset.horizon || null;
+      const row = document.getElementById(`task-row-${taskId}`);
+      const due = row?.dataset.due || null;
+      showDatePicker(e.target, cur, async iso => {
+        if (iso === cur) return;
+        if (iso && due && iso > due) {
+          alert(`Horizon ${formatDate(iso)} is after the due date ${formatDate(due)} — move or clear the due date first.`);
+          return;
+        }
+        try {
+          await fetchJSON(`${API}/api/tasks/${encodeURIComponent(taskId)}`, {
+            method: 'PATCH', body: JSON.stringify({ horizon: iso }), label: 'Task updated',
+          });
+          onChanged();
+        } catch (err) { /* arc toasted; leave view unchanged */ }
       });
       return;
     }
@@ -2267,6 +2312,7 @@ function renderAddTaskForm(projectId, people) {
     <div class="add-task-form-row" id="${formId}">
       <input class="add-task-input" id="${formId}-title" placeholder="Add a task…" style="flex:1" />
       <input class="add-task-input add-task-due" id="${formId}-due" placeholder="Due date" style="width:90px;cursor:pointer;caret-color:transparent" readonly />
+      <input class="add-task-input add-task-horizon" id="${formId}-horizon" placeholder="Horizon" style="width:90px;cursor:pointer;caret-color:transparent" readonly />
       <select class="add-task-assign" id="${formId}-owner">
         <option value="">Me</option>
         ${peopleOptions}
@@ -2276,10 +2322,11 @@ function renderAddTaskForm(projectId, people) {
 }
 
 function wireAddTaskForm(formId, projectId, onAdded) {
-  const titleInput = document.getElementById(`${formId}-title`);
-  const dueInput   = document.getElementById(`${formId}-due`);
-  const ownerSel   = document.getElementById(`${formId}-owner`);
-  const btn        = document.getElementById(`${formId}-btn`);
+  const titleInput   = document.getElementById(`${formId}-title`);
+  const dueInput     = document.getElementById(`${formId}-due`);
+  const horizonInput = document.getElementById(`${formId}-horizon`);
+  const ownerSel     = document.getElementById(`${formId}-owner`);
+  const btn          = document.getElementById(`${formId}-btn`);
   if (!titleInput || !btn) return;
 
   if (dueInput) {
@@ -2291,9 +2338,24 @@ function wireAddTaskForm(formId, projectId, onAdded) {
     });
   }
 
+  if (horizonInput) {
+    horizonInput.addEventListener('click', () => {
+      showDatePicker(horizonInput, horizonInput.dataset.isoDate || '', iso => {
+        horizonInput.dataset.isoDate = iso || '';
+        horizonInput.value = iso ? formatDate(iso) : '';
+      });
+    });
+  }
+
   const submit = async () => {
     const title = titleInput.value.trim();
     if (!title) { titleInput.focus(); return; }
+    const dueIso = dueInput?.dataset.isoDate || null;
+    const horizonIso = horizonInput?.dataset.isoDate || null;
+    if (dueIso && horizonIso && horizonIso > dueIso) {
+      alert('Horizon is after the due date — adjust one.');
+      return;
+    }
     btn.disabled = true;
     try {
       await fetchJSON(`${API}/api/tasks`, {
@@ -2304,10 +2366,13 @@ function wireAddTaskForm(formId, projectId, onAdded) {
           source: 'ui',
           project_id: projectId || null,
           due_date: dueInput.dataset.isoDate || null,
+          horizon: horizonIso,
           owner: ownerSel.value || null,
         }),
       });
-      titleInput.value = ''; dueInput.value = ''; dueInput.dataset.isoDate = ''; ownerSel.value = '';
+      titleInput.value = ''; dueInput.value = ''; dueInput.dataset.isoDate = '';
+      if (horizonInput) { horizonInput.value = ''; horizonInput.dataset.isoDate = ''; }
+      ownerSel.value = '';
       await onAdded();
     } catch (err) {
       /* arc toasted the failure */
@@ -2514,12 +2579,17 @@ async function renderWorkView() {
   }
 
   const activeProjects = (projects || []).filter(p => p.status !== 'archived');
-  const standaloneTasks = sortTasks((allTasks || []).filter(t => !t.project_id));
+  const standaloneAll = sortTasks((allTasks || []).filter(t => !t.project_id));
+  const standaloneTasks = standaloneAll.filter(t => !isBehindHorizon(t));
+  const laterTasks = standaloneAll.filter(isBehindHorizon).sort((a, b) => (a.horizon < b.horizon ? -1 : 1));
 
   // ── Projects section ────────────────────────────────────────────────────
   const projGroupsHtml = activeProjects.length
     ? activeProjects.map(p => {
-        const pTasks = sortTasks((allTasks || []).filter(t => t.project_id === p.id));
+        const pAll = sortTasks((allTasks || []).filter(t => t.project_id === p.id));
+        const pTasks = pAll.filter(t => !isBehindHorizon(t));
+        const pLater = pAll.filter(isBehindHorizon).sort((a, b) => (a.horizon < b.horizon ? -1 : 1));
+        const showLater = workState.horizonShown.has(p.id);
         const isExpanded = workState.expanded.has(p.id);
         const statusCls = p.status === 'active' ? 'badge-active' : 'badge-archived';
         const taskRowsHtml = pTasks.length
@@ -2545,12 +2615,14 @@ async function renderWorkView() {
               <span class="proj-group-name">${esc(p.canonical_name)}</span>
               <span class="badge ${statusCls}">${esc(p.status ?? 'active')}</span>
               <span class="proj-group-count">${pTasks.length} task${pTasks.length !== 1 ? 's' : ''}</span>
+              ${pLater.length ? `<span class="proj-horizon-chip" data-proj-id="${esc(p.id)}">${pLater.length} on horizon</span>` : ''}
               <button class="proj-group-edit-btn${workState.editing.has(p.id) ? ' active' : ''}" data-proj-id="${esc(p.id)}" title="Edit project">✎</button>
               <button class="btn-delete-proj" data-proj-id="${esc(p.id)}" title="Delete project">✕</button>
             </div>
             <div class="proj-group-body${workState.editing.has(p.id) ? ' edit-active' : ''}${isExpanded ? '' : ' hidden'}" id="group-body-${esc(p.id)}">
               <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
               <div id="group-tasks-${esc(p.id)}">${taskRowsHtml}</div>
+              ${showLater && pLater.length ? `<div class="proj-later-rows">${pLater.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')}</div>` : ''}
               ${renderAddTaskForm(p.id, people)}
               ${projNotesHtml}
             </div>
@@ -2562,6 +2634,17 @@ async function renderWorkView() {
   const standaloneHtml = standaloneTasks.length
     ? standaloneTasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')
     : '<div class="muted" style="font-size:12px">No standalone tasks.</div>';
+
+  const laterHtml = laterTasks.length ? `
+    <div class="later-section">
+      <div class="later-header" id="later-toggle">
+        <span class="proj-group-chevron">${workState.laterExpanded ? '▼' : '▶'}</span>
+        <span class="work-section-label">Later (${laterTasks.length})</span>
+      </div>
+      <div id="later-tasks" class="${workState.laterExpanded ? '' : 'hidden'}">
+        ${laterTasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')}
+      </div>
+    </div>` : '';
 
   view.innerHTML = `
     <div class="work-section-header">
@@ -2580,6 +2663,7 @@ async function renderWorkView() {
       </div>
       <div id="standalone-tasks">${standaloneHtml}</div>
       ${renderAddTaskForm(null, people)}
+      ${laterHtml}
     </div>`;
 
   // ── Wire new project form ───────────────────────────────────────────────
@@ -2722,6 +2806,22 @@ async function renderWorkView() {
   });
   view.querySelectorAll('.task-note-drawer').forEach(drawer => {
     wireLinkedNoteClicks(drawer, allNotes, () => renderWorkView());
+  });
+
+  // ── Wire Later section toggle + project horizon chips ───────────────────
+  const laterToggle = document.getElementById('later-toggle');
+  if (laterToggle) laterToggle.addEventListener('click', () => {
+    workState.laterExpanded = !workState.laterExpanded;
+    renderWorkView();
+  });
+  view.querySelectorAll('.proj-horizon-chip').forEach(chip => {
+    chip.addEventListener('click', e => {
+      e.stopPropagation();  // header click also toggles project expand
+      const pid = chip.dataset.projId;
+      if (workState.horizonShown.has(pid)) workState.horizonShown.delete(pid);
+      else { workState.horizonShown.add(pid); workState.expanded.add(pid); }
+      renderWorkView();
+    });
   });
 }
 
