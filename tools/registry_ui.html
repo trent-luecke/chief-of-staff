@@ -2622,7 +2622,7 @@ async function renderWorkView() {
             <div class="proj-group-body${workState.editing.has(p.id) ? ' edit-active' : ''}${isExpanded ? '' : ' hidden'}" id="group-body-${esc(p.id)}">
               <div class="proj-edit-panel hidden" id="edit-panel-${esc(p.id)}"></div>
               <div id="group-tasks-${esc(p.id)}">${taskRowsHtml}</div>
-              ${showLater && pLater.length ? `<div class="proj-later-rows">${pLater.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')}</div>` : ''}
+              ${showLater && pLater.length ? `<div class="proj-later-rows" id="proj-later-${esc(p.id)}">${pLater.map(t => renderTaskRow(t, people, false, notesByTask[t.id] || [])).join('')}</div>` : ''}
               ${renderAddTaskForm(p.id, people)}
               ${projNotesHtml}
             </div>
@@ -2745,6 +2745,10 @@ async function renderWorkView() {
       wireTaskInteractions(container, people, () => renderWorkView());
       wireAddTaskForm(`atf-${p.id}`, p.id, () => renderWorkView());
     }
+    const laterRows = document.getElementById(`proj-later-${p.id}`);
+    if (laterRows) {
+      wireTaskInteractions(laterRows, people, () => renderWorkView());
+    }
   });
 
   // ── Wire task interactions — standalone ─────────────────────────────────
@@ -2778,6 +2782,12 @@ async function renderWorkView() {
     });
 
     wireAddTaskForm('atf-standalone', null, () => renderWorkView());
+  }
+
+  // ── Wire task interactions — standalone Later rows ──────────────────────
+  const laterContainer = document.getElementById('later-tasks');
+  if (laterContainer) {
+    wireTaskInteractions(laterContainer, people, () => renderWorkView());
   }
 
   // Re-open edit panels that were active before re-render
