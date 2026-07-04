@@ -117,3 +117,4 @@
 {"event": "edit", "task_id": "t-e6cc94", "patch": {"horizon": "2026-07-05"}}
 {"event": "complete", "task_id": "t-053d1b", "completed_at": "2026-07-04"}
 {"event": "delete", "task_id": "t-e6cc94"}
+{"event": "delete", "task_id": "t-8eeb46"}
