@@ -65,6 +65,20 @@ def test_datetime_event_midday_end_is_same_day():
     assert (w.start, w.end) == (date(2026, 8, 10), date(2026, 8, 10))
 
 
+def test_recurring_instances_are_skipped():
+    ev = _ooo_event(eid="evt8_20260710")
+    ev["recurringEventId"] = "evt8"
+    assert detect_ooo_windows(_svc([ev]), 7, today=TODAY) == []
+
+
+def test_one_off_still_detected_alongside_recurring():
+    recurring = _ooo_event(eid="evt8_20260710")
+    recurring["recurringEventId"] = "evt8"
+    one_off = _ooo_event(eid="evt9")
+    windows = detect_ooo_windows(_svc([recurring, one_off]), 7, today=TODAY)
+    assert [w.event_id for w in windows] == ["evt9"]
+
+
 def test_query_window_uses_lead_days():
     svc = _svc([])
     detect_ooo_windows(svc, lead_days=5, today=TODAY)

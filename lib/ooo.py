@@ -4,6 +4,11 @@
 Owns the OOO query (independent of collectors/calendar.py, which drops
 eventType) and the brief's suggestion lines. All functions take the calendar
 service as an argument — callers build it via lib.google_auth.
+
+Detection matches native `eventType: outOfOffice` events or titles containing
+"OOO"/"out of office" (word-boundary match) — one-off events only; recurring
+instances (identified by `recurringEventId`) are skipped since weekly/monthly
+OOO blocks are schedule structure, not trips.
 """
 import re
 from dataclasses import dataclass
@@ -59,6 +64,8 @@ def detect_ooo_windows(service, lead_days: int, today: Optional[date] = None) ->
     windows = []
     for item in result.get("items", []):
         summary = item.get("summary", "")
+        if item.get("recurringEventId"):
+            continue  # weekly OOO blocks etc. are schedule structure, not trips
         if item.get("eventType") != "outOfOffice" and not _OOO_TITLE_RE.search(summary):
             continue
         start = _parse_day(item.get("start", {}))
