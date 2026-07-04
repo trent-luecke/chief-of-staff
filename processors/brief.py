@@ -55,6 +55,7 @@ def _build_prompt(
     brief_prefs_context: str = "",
     storage=None,
     what_moved_context: str = "",
+    routine_suggestions_context: str = "",
 ) -> str:
     def fmt_event(e: CalendarEvent) -> str:
         return f"  {e.start.strftime('%I:%M%p').lstrip('0')} — {e.summary}"
@@ -161,6 +162,13 @@ def _build_prompt(
         except Exception:
             pass  # non-fatal — brief continues without this section
 
+    if routine_suggestions_context and routine_suggestions_context.strip():
+        sections += [
+            "## Routine Suggestions (upcoming OOO detected — put the activation hint in act_today)",
+            routine_suggestions_context,
+            "",
+        ]
+
     sections += section("## Recurring Tasks Due Today",
                         [f"  {t.name} ({t.schedule})" for t in due_tasks])
     if inbox_text and inbox_text.strip():
@@ -204,6 +212,7 @@ def generate_brief(
     storage=None,
     metric_flags: list[str] = None,
     what_moved_context: str = "",
+    routine_suggestions_context: str = "",
 ) -> BriefContent:
     client = anthropic.Anthropic(api_key=api_key)
     prompt = _build_prompt(
@@ -222,6 +231,7 @@ def generate_brief(
         brief_prefs_context=brief_prefs_context,
         storage=storage,
         what_moved_context=what_moved_context,
+        routine_suggestions_context=routine_suggestions_context,
     )
     response = client.messages.create(
         model=model,

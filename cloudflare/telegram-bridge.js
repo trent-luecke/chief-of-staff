@@ -188,6 +188,37 @@ async function handleSlackNote(request, env, ctx) {
   return Response.json({ response_type: "ephemeral", text: "Adding note..." });
 }
 
+async function handleSlackRoutine(request, env, ctx) {
+  const timestamp = request.headers.get("X-Slack-Request-Timestamp") || "";
+  const signature = request.headers.get("X-Slack-Signature") || "";
+
+  if (!timestamp || !signature) return new Response("Unauthorized", { status: 401 });
+
+  const rawBody = await request.text();
+
+  if (!await verifySlackSig(env.SLACK_SIGNING_SECRET, timestamp, rawBody, signature)) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const params = new URLSearchParams(rawBody);
+  const text = (params.get("text") || "").trim();
+  const responseUrl = params.get("response_url") || "";
+
+  ctx.waitUntil(
+    dispatchToGitHub(env, "routine_run.yml", {
+      routine_query: text,
+      response_url: responseUrl,
+    }).then(ok => {
+      if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue routine — GitHub dispatch error. Try again or check the PAT.");
+    })
+  );
+
+  return Response.json({
+    response_type: "ephemeral",
+    text: text ? `Running routine "${text}"...` : "Fetching routines...",
+  });
+}
+
 // Handles button clicks from interactive owner-disambiguation messages.
 async function handleSlackInteractive(request, env, ctx) {
   const timestamp = request.headers.get("X-Slack-Request-Timestamp") || "";
@@ -284,6 +315,10 @@ export default {
 
     if (url.pathname === "/slack/note") {
       return handleSlackNote(request, env, ctx);
+    }
+
+    if (url.pathname === "/slack/routine") {
+      return handleSlackRoutine(request, env, ctx);
     }
 
     if (url.pathname === "/slack/interactive") {

@@ -825,6 +825,20 @@ def generate_and_deliver(
         except Exception as e:
             print(f"⚠️  What Moved context error (non-fatal): {e}", file=sys.stderr)
 
+        # Routine trigger suggestions (calendar OOO) — non-fatal
+        _routine_suggestions = ""
+        try:
+            from lib.ooo import routine_suggestions
+            from lib.routines import list_routines
+            from lib.storage import registry_storage as _reg_storage
+            _routines = list_routines(_reg_storage(config))
+            if any((r.get("trigger") or {}).get("type") == "calendar_ooo" for r in _routines):
+                from lib.google_auth import build_calendar_service
+                _suggestions = routine_suggestions(build_calendar_service(), _routines)
+                _routine_suggestions = "\n".join(f"  {s}" for s in _suggestions)
+        except Exception as e:
+            print(f"⚠️  Routine trigger detection error (non-fatal): {e}", file=sys.stderr)
+
         # Brief generation
         from lib.storage import registry_storage
         _brief_error = None
@@ -855,6 +869,7 @@ def generate_and_deliver(
                     storage=registry_storage(config),
                     metric_flags=_metric_flags,
                     what_moved_context=_what_moved_context,
+                    routine_suggestions_context=_routine_suggestions,
                 )
             except Exception as e:
                 _brief_error = str(e)[:200]
