@@ -77,26 +77,37 @@ async function handleSlackTask(request, env, ctx) {
   if (!text) {
     return Response.json({
       response_type: "ephemeral",
-      text: "Usage: /task <title> [owner:<name>] [due:<date>]",
+      text: "Usage: /task <title> [owner:<name>] [due:<date>] [horizon:<date>]",
     });
   }
 
-  // Extract owner:<name> token (single word; order-independent with due:)
+  // Extract owner:<name> token (single word; order-independent with due:/horizon:)
   const ownerMatch = text.match(/\bowner:(\S+)/i);
   const ownerRaw = ownerMatch ? ownerMatch[1] : "";
   const textWithoutOwner = ownerMatch
     ? text.replace(ownerMatch[0], "").replace(/\s+/g, " ").trim()
     : text;
 
-  // Extract due:<date> from whatever remains (may be multi-word phrase to end of string)
-  const dueMatch = textWithoutOwner.match(/\bdue:(.+)$/i);
-  const dueDateRaw = dueMatch ? dueMatch[1].trim() : "";
-  const title = dueMatch ? textWithoutOwner.slice(0, dueMatch.index).trim() : textWithoutOwner.trim();
+  // Extract due:<date> and horizon:<date> tokens (multi-word values; either order)
+  const tokenRe = /\b(due|horizon):/gi;
+  const tokens = [...textWithoutOwner.matchAll(tokenRe)];
+  const title = tokens.length
+    ? textWithoutOwner.slice(0, tokens[0].index).trim()
+    : textWithoutOwner.trim();
+  let dueDateRaw = "";
+  let horizonRaw = "";
+  tokens.forEach((m, i) => {
+    const start = m.index + m[0].length;
+    const end = i + 1 < tokens.length ? tokens[i + 1].index : textWithoutOwner.length;
+    const val = textWithoutOwner.slice(start, end).trim();
+    if (m[1].toLowerCase() === "due") dueDateRaw = val;
+    else horizonRaw = val;
+  });
 
   if (!title) {
     return Response.json({
       response_type: "ephemeral",
-      text: "Usage: /task <title> [owner:<name>] [due:<date>]",
+      text: "Usage: /task <title> [owner:<name>] [due:<date>] [horizon:<date>]",
     });
   }
 
@@ -105,6 +116,7 @@ async function handleSlackTask(request, env, ctx) {
       title,
       response_url: responseUrl,
       due_date_raw: dueDateRaw,
+      horizon_raw: horizonRaw,
       owner_raw: ownerRaw,
       channel_id: channelId,
       user_id: userId,
@@ -234,11 +246,13 @@ async function handleSlackInteractive(request, env, ctx) {
   // Task owner disambiguation → task_add.yml (unchanged behavior)
   if (action?.action_id?.startsWith("assign_owner")) {
     const { title, due_date_raw = "", owner_raw } = data;
+    const horizon_raw = data.horizon_raw || "";
     ctx.waitUntil(
       dispatchToGitHub(env, "task_add.yml", {
         title,
         response_url: responseUrl,
         due_date_raw,
+        horizon_raw,
         owner_raw,
       }).then(ok => {
         if (!ok) return postEphemeral(responseUrl, "❌ Failed to queue task — GitHub dispatch error. Try again or check the PAT.");

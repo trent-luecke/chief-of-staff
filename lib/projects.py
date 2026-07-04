@@ -101,7 +101,7 @@ def delete_project(storage, project_id: str) -> bool:
 
 def project_context_for_brief(storage, observation_days: int = 14) -> list[dict]:
     """Active projects with open tasks and recently linked observations."""
-    from lib.tasks import get_open_tasks
+    from lib.tasks import get_open_tasks, is_behind_horizon
     from lib.project_links import get_links_for_project
 
     active = list_projects(storage, status="active")
@@ -114,7 +114,10 @@ def project_context_for_brief(storage, observation_days: int = 14) -> list[dict]
     results = []
     for project in active:
         pid = project["id"]
-        p_tasks = [t for t in all_tasks if t.get("project_id") == pid]
+        p_tasks = [
+            t for t in all_tasks
+            if t.get("project_id") == pid and not is_behind_horizon(t)
+        ]
         all_links = get_links_for_project(storage, pid)
         recent_links = [lk for lk in all_links if lk.get("obs_date", "") >= cutoff]
         results.append({

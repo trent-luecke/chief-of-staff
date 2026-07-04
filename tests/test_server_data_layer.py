@@ -226,3 +226,19 @@ def test_merge_offline_returns_503_no_commit(client, monkeypatch):
                     json={"merge_id": "trent-l", "fields": {}})
     assert r.status_code == 503
     assert client._main["data/people_registry.json"] == before
+
+
+def test_create_task_with_horizon_roundtrips(client):
+    r = client.post("/api/tasks", json={"title": "Renew SSL", "horizon": "2099-01-01"})
+    assert r.status_code == 201
+    assert json.loads(r.data)["task"]["horizon"] == "2099-01-01"
+    tasks = json.loads(client.get("/api/tasks").data)
+    assert tasks[0]["horizon"] == "2099-01-01"
+
+
+def test_patch_task_horizon(client):
+    r = client.post("/api/tasks", json={"title": "Send deck"})
+    task_id = json.loads(r.data)["task"]["id"]
+    r = client.patch(f"/api/tasks/{task_id}", json={"horizon": "2099-01-01"})
+    assert r.status_code == 200
+    assert json.loads(r.data)["task"]["horizon"] == "2099-01-01"

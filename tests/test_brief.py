@@ -303,3 +303,39 @@ def test_brief_already_sent_today_false_for_prior_day(tmp_path):
         "date": "2026-01-01",
     })
     assert _brief_already_sent_today(storage) is False
+
+
+def test_brief_includes_surfaced_today_section(tmp_path):
+    from datetime import date
+    from lib.storage import LocalStorage
+    from lib.tasks import add_task
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    storage = LocalStorage(str(tmp_path))
+    add_task(storage, title="Renew SSL cert", horizon=date.today().isoformat())
+
+    prompt = _build_prompt(
+        today_events=[], tomorrow_events=[], projects=[], due_tasks=[],
+        loop_summary=LoopSummary(), open_issues=[], meeting_prep=[],
+        inbox_text="", storage=storage,
+    )
+    assert "Surfaced Today" in prompt
+    assert "Renew SSL cert" in prompt
+
+
+def test_brief_omits_surfaced_today_when_none(tmp_path):
+    from lib.storage import LocalStorage
+    from lib.tasks import add_task
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    storage = LocalStorage(str(tmp_path))
+    add_task(storage, title="Plain task")
+
+    prompt = _build_prompt(
+        today_events=[], tomorrow_events=[], projects=[], due_tasks=[],
+        loop_summary=LoopSummary(), open_issues=[], meeting_prep=[],
+        inbox_text="", storage=storage,
+    )
+    assert "Surfaced Today" not in prompt

@@ -36,3 +36,22 @@ def test_format_confirmation_no_date():
 def test_format_confirmation_with_date():
     result = format_confirmation("Follow up with Acme", "2026-06-06")
     assert result == "Task added: Follow up with Acme — due 2026-06-06"
+
+
+def test_format_confirmation_with_horizon():
+    result = format_confirmation("Renew SSL", None, horizon="2026-09-01")
+    assert result == "Task added: Renew SSL — on horizon until 2026-09-01"
+
+
+def test_format_confirmation_due_and_horizon():
+    result = format_confirmation("Renew SSL", "2026-09-15", horizon="2026-09-01")
+    assert result == "Task added: Renew SSL — due 2026-09-15 — on horizon until 2026-09-01"
+
+
+def test_horizon_conflict_message():
+    from scripts.slack_add_task import horizon_conflict_message
+    assert horizon_conflict_message("2026-09-15", "2026-09-01") is not None
+    assert "2026-09-15" in horizon_conflict_message("2026-09-15", "2026-09-01")
+    assert horizon_conflict_message("2026-09-01", "2026-09-15") is None  # horizon before due: fine
+    assert horizon_conflict_message(None, "2026-09-01") is None
+    assert horizon_conflict_message("2026-09-01", None) is None

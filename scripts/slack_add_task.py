@@ -67,13 +67,25 @@ def resolve_owner_name(owner_id: str, registry_path: Path) -> str:
     return owner_id
 
 
-def format_confirmation(title: str, due_date, owner_name: str | None = None) -> str:
+def format_confirmation(title: str, due_date, owner_name: str | None = None, horizon: str | None = None) -> str:
     parts = [f"Task added: {title}"]
     if owner_name:
         parts.append(f"owner: {owner_name}")
     if due_date:
         parts.append(f"due {due_date}")
+    if horizon:
+        parts.append(f"on horizon until {horizon}")
     return " — ".join(parts)
+
+
+def horizon_conflict_message(horizon, due_date):
+    """Error string when horizon lands after the due date, else None."""
+    if horizon and due_date and horizon > due_date:
+        return (
+            f"⚠️ Horizon ({horizon}) is after the due date ({due_date}) — "
+            "task not created. Adjust one and retry."
+        )
+    return None
 
 
 def _post_json(response_url: str, payload: dict) -> None:
@@ -100,7 +112,7 @@ def post_to_slack(response_url: str, text: str, replace: bool = False) -> None:
 
 
 def post_ambiguous_message(
-    response_url: str, raw_name: str, matches: list, title: str, due_date_raw: str
+    response_url: str, raw_name: str, matches: list, title: str, due_date_raw: str, horizon_raw: str = ""
 ) -> None:
     """Post an interactive message via response_url with a button per candidate owner."""
     if not response_url:
@@ -113,7 +125,7 @@ def post_ambiguous_message(
 
     buttons = []
     for person in capped:
-        value = json.dumps({"title": title, "due_date_raw": due_date_raw, "owner_raw": person["canonical_name"]})
+        value = json.dumps({"title": title, "due_date_raw": due_date_raw, "horizon_raw": horizon_raw, "owner_raw": person["canonical_name"]})
         buttons.append({
             "type": "button",
             "text": {"type": "plain_text", "text": person["canonical_name"]},
@@ -121,7 +133,7 @@ def post_ambiguous_message(
             "value": value,
         })
 
-    assign_to_me_value = json.dumps({"title": title, "due_date_raw": due_date_raw, "owner_raw": "Trent Luecke"})
+    assign_to_me_value = json.dumps({"title": title, "due_date_raw": due_date_raw, "horizon_raw": horizon_raw, "owner_raw": "Trent Luecke"})
     buttons.append({
         "type": "button",
         "text": {"type": "plain_text", "text": "Assign to me"},
@@ -153,6 +165,7 @@ def main():
     title = os.environ.get("TASK_TITLE", "").strip()
     response_url = os.environ.get("RESPONSE_URL", "")
     due_date_raw = os.environ.get("DUE_DATE_RAW", "")
+    horizon_raw = os.environ.get("HORIZON_RAW", "")
     owner_raw = os.environ.get("OWNER_RAW", "").strip()
     user_id = os.environ.get("USER_ID", "").strip()
     bot_token = os.environ.get("SLACK_BOT_TOKEN", "").strip()
@@ -163,6 +176,12 @@ def main():
 
     storage = LocalStorage(base_dir=str(ROOT / "data"))
     due_date = parse_due_date(due_date_raw)
+    horizon = parse_due_date(horizon_raw)  # same parser; "sept 1" → "2026-09-01"
+    conflict = horizon_conflict_message(horizon, due_date)
+    if conflict:
+        post_to_slack(response_url, conflict)
+        print(conflict)
+        return
     registry_path = ROOT / "data" / "people_registry.json"
 
     if owner_raw:
@@ -176,7 +195,7 @@ def main():
         else:
             # Ambiguous — prompt via buttons; don't create the task yet
             if response_url:
-                post_ambiguous_message(response_url, owner_raw, matches, title, due_date_raw)
+                post_ambiguous_message(response_url, owner_raw, matches, title, due_date_raw, horizon_raw)
                 print(f"Ambiguous owner '{owner_raw}': {[m['canonical_name'] for m in matches]} — posted buttons, task not created")
                 return
             else:
@@ -187,11 +206,11 @@ def main():
         owner_id = TRENT_ID
 
     owner_name = resolve_owner_name(owner_id, registry_path)
-    add_task(storage, title=title, source="slack", due_date=due_date, owner=owner_id)
+    add_task(storage, title=title, source="slack", due_date=due_date, owner=owner_id, horizon=horizon)
 
     # Only surface owner name in confirmation when explicitly assigned to someone else
     display_owner = owner_name if owner_raw else None
-    confirmation = format_confirmation(title, due_date, display_owner)
+    confirmation = format_confirmation(title, due_date, display_owner, horizon)
     # replace_original=True swaps out the ⏳ processing message posted by the button handler
     post_to_slack(response_url, confirmation, replace=bool(owner_raw))
     print(confirmation)
