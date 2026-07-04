@@ -29,3 +29,4 @@
 {"event": "update", "id": "n-e38748", "ts": "2026-07-04T18:57:31", "tags": ["IDEAS"]}
 {"event": "delete", "id": "n-bea9ac", "ts": "2026-07-04T18:57:57"}
 {"event": "update", "id": "n-d850db", "ts": "2026-07-04T18:58:09", "body": "what if we built \u201ctemplate\u201d workflows for gym operations? This would be for areas like retention, lead follow up, reactivation, etc that could be a purchase add on for Claude Builder\n\nre: the last note I sent regarding templated workflows and automations for Claude Builder. This idea came from a LinkedIn post from Thomas Andelik, where his whole business is implementing automations and workflows for gyms. I effectively want to put him out of business and make it so easy for someone that uses OS to implement and build out their own automation and operations system that he is put out of a job.", "tags": ["IDEAS"]}
+{"event": "update", "id": "n-c68f53", "ts": "2026-07-04T18:58:38"}
