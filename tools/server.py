@@ -20,6 +20,7 @@ sys.path.insert(0, str(ROOT))
 from flask import Flask, jsonify, request, send_file
 import lib.tasks as tasks_lib
 import lib.projects as projects_lib
+import lib.routines as routines_lib
 import lib.git_sync as git_sync
 from lib.main_storage import MainStorage
 from lib.notes import replay_notes_content
@@ -38,6 +39,7 @@ class _Snapshot:
         self.fetched_at = None
         self.tasks = []
         self.projects = []
+        self.routines = []
         self.people = {"people": []}
         self.notes = []
         self.tags = []
@@ -64,6 +66,7 @@ def rebuild_snapshot(known_online=None) -> None:
     store = _read_store()
     SNAPSHOT.tasks = tasks_lib.get_open_tasks(store)
     SNAPSHOT.projects = projects_lib.list_projects(store, status=None)
+    SNAPSHOT.routines = routines_lib.list_routines(store)
     SNAPSHOT.people = store.read_json("people_registry.json", default={"people": []})
     SNAPSHOT.notes = replay_notes_content(store.read("notes.jsonl") or "")
     SNAPSHOT.tags = store.read_json("notes_tags.json", default=[])
@@ -143,6 +146,7 @@ def bootstrap():
         "fetched_at": SNAPSHOT.fetched_at,
         "tasks": SNAPSHOT.tasks,
         "projects": SNAPSHOT.projects,
+        "routines": SNAPSHOT.routines,
         "people": _people_list(),
         "notes": SNAPSHOT.notes,
         "tags": SNAPSHOT.tags,
@@ -289,6 +293,90 @@ def delete_project(project_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": project_id, "tasks_deleted": result["tasks_deleted"], "push": push})
+
+
+# --- Routines ---
+
+@app.route("/api/routines", methods=["GET"])
+def list_routines():
+    return jsonify(SNAPSHOT.routines)
+
+
+@app.route("/api/routines", methods=["POST"])
+def create_routine():
+    body = request.get_json(force=True)
+    if not body or not body.get("name"):
+        return jsonify({"error": "name is required"}), 400
+    if not routines_lib._normalize_steps(body.get("steps")):
+        return jsonify({"error": "at least one step is required"}), 400
+
+    def mutate(store):
+        return routines_lib.add_routine(
+            store,
+            name=body["name"],
+            steps=body.get("steps") or [],
+            trigger=body.get("trigger"),
+        )
+
+    routine, push, status = _write_main(mutate, lambda r: f"data: add routine '{r['name']}'")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    return jsonify({"routine": routine, "push": push}), 201
+
+
+@app.route("/api/routines/<routine_id>", methods=["PATCH"])
+def update_routine(routine_id: str):
+    updates = request.get_json(force=True)
+    if "name" in updates and not (updates["name"] or "").strip():
+        return jsonify({"error": "name cannot be blank"}), 400
+    if "steps" in updates and not routines_lib._normalize_steps(updates["steps"]):
+        return jsonify({"error": "at least one step is required"}), 400
+    routine, push, status = _write_main(
+        lambda store: routines_lib.update_routine(store, routine_id, updates),
+        f"data: update routine {routine_id}",
+    )
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if routine is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"routine": routine, "push": push})
+
+
+@app.route("/api/routines/<routine_id>", methods=["DELETE"])
+def delete_routine(routine_id: str):
+    def mutate(store):
+        return routine_id if routines_lib.delete_routine(store, routine_id) else None
+
+    result, push, status = _write_main(mutate, f"data: delete routine {routine_id}")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"deleted": routine_id, "push": push})
+
+
+@app.route("/api/routines/<routine_id>/run", methods=["POST"])
+def run_routine(routine_id: str):
+    body = request.get_json(force=True, silent=True) or {}
+    routine = routines_lib.get_routine(_read_store(), routine_id)
+    if routine is None:
+        return jsonify({"error": "not found"}), 404
+    if not routine.get("steps"):
+        return jsonify({"error": "no_steps"}), 400
+    if not body.get("force") and routines_lib.ran_within(routine, days=7):
+        return jsonify({"error": "recent_run",
+                        "last_run": routines_lib.last_run_date(routine)}), 409
+
+    def mutate(store):
+        return routines_lib.run_routine(store, routine_id, source="ui")
+
+    result, push, status = _write_main(
+        mutate, lambda r: f"data: run routine {routine_id} ({len(r['tasks']) if r else 0} tasks)")
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    if result is None:
+        return jsonify({"error": "not found"}), 404
+    return jsonify({"routine": result["routine"], "tasks": result["tasks"], "push": push}), 201
 
 
 # --- People ---
