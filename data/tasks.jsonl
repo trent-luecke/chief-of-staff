@@ -101,3 +101,4 @@
 {"event": "complete", "task_id": "t-20b200", "completed_at": "2026-07-04"}
 {"event": "create", "task_id": "t-e8f8b4", "title": "ZZTEST horizon tomorrow", "source": "ui", "created_at": "2026-07-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-07-05"}
 {"event": "create", "task_id": "t-e1b76e", "title": "ZZTEST horizon today", "source": "ui", "created_at": "2026-07-04", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-07-04"}
+{"event": "create", "task_id": "t-3f5dcf", "title": "ZZTEST guard task", "source": "ui", "created_at": "2026-07-04", "due_date": "2026-07-05", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
