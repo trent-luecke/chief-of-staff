@@ -3,16 +3,22 @@
   "routines": [
     {
       "id": "zztest-ooo",
-      "name": "ZZTEST OOO",
+      "name": "ZZTEST OOO Prep",
       "steps": [
         {
           "title": "Cancel meetings in window"
         },
         {
+          "title": "Brief the team"
+        },
+        {
           "title": "Set OOO responder"
         }
       ],
-      "trigger": null,
+      "trigger": {
+        "type": "calendar_ooo",
+        "lead_days": 5
+      },
       "created": "2026-07-04",
       "runs": []
     }
