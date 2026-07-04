@@ -1,20 +1,4 @@
 {
   "version": 1,
-  "routines": [
-    {
-      "id": "zztest-crashcheck",
-      "name": "ZZTEST crashcheck",
-      "steps": [
-        {
-          "title": "a"
-        },
-        {
-          "title": "b"
-        }
-      ],
-      "trigger": null,
-      "created": "2026-07-04",
-      "runs": []
-    }
-  ]
+  "routines": []
 }
