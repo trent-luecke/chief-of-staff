@@ -633,6 +633,8 @@
       font-size: 11px;
       border-radius: 3px;
     }
+    .routine-run-group { border-left: 2px solid #c4b5fd; padding-left: 10px; margin: 8px 0; }
+    .routine-run-label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #8b8b94; margin-bottom: 2px; }
     .proj-horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
     .later-section { margin-top:18px; opacity:.9; }
     .later-header { display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0; }
@@ -2802,9 +2804,27 @@ async function renderWorkView() {
     : '<div class="muted" style="padding:8px 0">No active projects.</div>';
 
   // ── Standalone section ──────────────────────────────────────────────────
-  const standaloneHtml = standaloneTasks.length
-    ? standaloneTasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')
-    : '<div class="muted" style="font-size:12px">No standalone tasks.</div>';
+  const isRunTask = t => !!(t.metadata && t.metadata.routine_run);
+  const ungrouped = standaloneTasks.filter(t => !isRunTask(t));
+  const runGroups = new Map();
+  for (const t of standaloneTasks.filter(isRunTask)) {
+    const key = `${t.metadata.routine || ''}|${t.metadata.routine_run}`;
+    if (!runGroups.has(key)) runGroups.set(key, []);
+    runGroups.get(key).push(t);
+  }
+  const routineNameById = new Map((routines || []).map(r => [r.id, r.name]));
+  const runGroupsHtml = [...runGroups.entries()].map(([key, tasks]) => {
+    const [rid, runDate] = key.split('|');
+    const label = `${routineNameById.get(rid) || rid || 'Routine'} — ${formatDate(runDate)}`;
+    return `<div class="routine-run-group">
+      <div class="routine-run-label">${esc(label)}</div>
+      ${tasks.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')}
+    </div>`;
+  }).join('');
+  const ungroupedHtml = ungrouped.length
+    ? ungrouped.map(t => renderTaskRow(t, people, true, notesByTask[t.id] || [])).join('')
+    : (runGroups.size ? '' : '<div class="muted" style="font-size:12px">No standalone tasks.</div>');
+  const standaloneHtml = ungroupedHtml + runGroupsHtml;
 
   const laterHtml = laterTasks.length ? `
     <div class="later-section">
