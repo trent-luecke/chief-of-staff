@@ -20,7 +20,13 @@
         "lead_days": 5
       },
       "created": "2026-07-04",
-      "runs": []
+      "runs": [
+        {
+          "date": "2026-07-04",
+          "trigger_key": null,
+          "source": "ui"
+        }
+      ]
     }
   ]
 }
