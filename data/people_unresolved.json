@@ -303,6 +303,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-01"
+    },
+    {
+      "entity": "Bpattison",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-04"
     }
   ],
   "previously_notified": [
