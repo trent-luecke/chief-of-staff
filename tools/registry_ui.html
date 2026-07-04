@@ -633,6 +633,7 @@
       font-size: 11px;
       border-radius: 3px;
     }
+    .btn-run-routine:hover { background: rgba(34,197,94,.1); }
     .routine-run-group { border-left: 2px solid #c4b5fd; padding-left: 10px; margin: 8px 0; }
     .routine-run-label { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #8b8b94; margin-bottom: 2px; }
     .proj-horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
@@ -2608,7 +2609,9 @@ function readRoutineForm(idPrefix) {
 
 function wireRoutineForm(idPrefix, onSave) {
   const panel = document.getElementById(`${idPrefix}-steps`);
-  document.getElementById(`${idPrefix}-add-step`).addEventListener('click', () => {
+  const addStepBtn = document.getElementById(`${idPrefix}-add-step`);
+  if (!document.getElementById(`${idPrefix}-name`) || !addStepBtn) return;
+  addStepBtn.addEventListener('click', () => {
     panel.insertAdjacentHTML('beforeend', routineStepInputHtml(''));
   });
   document.getElementById(`${idPrefix}-trigger`).addEventListener('change', e => {
@@ -2706,6 +2709,7 @@ function wireRoutinesSection(view, onChanged) {
       setBusy(e.target);
       try {
         await fetchJSON(`${API}/api/routines/${encodeURIComponent(id)}`, { method: 'DELETE', label: 'Routine deleted' });
+        workState.routineEditing.delete(id);
         onChanged();
       } catch (err) { setBusy(e.target, false); }
     }

@@ -307,3 +307,9 @@ def test_bootstrap_includes_routines(client):
     _mk_routine(client)
     boot = json.loads(client.get("/api/bootstrap").data)
     assert [r["id"] for r in boot["routines"]] == ["ooo-prep"]
+
+
+def test_patch_routine_rejects_blank_name_and_steps(client):
+    _mk_routine(client)
+    assert client.patch("/api/routines/ooo-prep", json={"name": "  "}).status_code == 400
+    assert client.patch("/api/routines/ooo-prep", json={"steps": ["", " "]}).status_code == 400

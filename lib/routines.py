@@ -40,6 +40,19 @@ def _normalize_steps(steps) -> list:
     return out
 
 
+def normalize_trigger(trigger) -> Optional[dict]:
+    """Coerce to {'type': 'calendar_ooo', 'lead_days': int 1-60} or None."""
+    if not trigger or not isinstance(trigger, dict):
+        return None
+    if trigger.get("type") != "calendar_ooo":
+        return None
+    try:
+        lead = int(trigger.get("lead_days", 7))
+    except (TypeError, ValueError):
+        lead = 7
+    return {"type": "calendar_ooo", "lead_days": min(max(lead, 1), 60)}
+
+
 def list_routines(storage) -> list:
     return _load(storage)["routines"]
 
@@ -58,7 +71,7 @@ def add_routine(storage, name: str, steps: list, trigger: Optional[dict] = None)
         "id": _unique_id(_slug(name), existing_ids),
         "name": name,
         "steps": _normalize_steps(steps),
-        "trigger": trigger or None,
+        "trigger": normalize_trigger(trigger),
         "created": date.today().isoformat(),
         "runs": [],
     }
@@ -76,7 +89,7 @@ def update_routine(storage, routine_id: str, updates: dict) -> Optional[dict]:
             if "steps" in updates:
                 r["steps"] = _normalize_steps(updates["steps"])
             if "trigger" in updates:
-                r["trigger"] = updates["trigger"] or None
+                r["trigger"] = normalize_trigger(updates["trigger"])
             _save(storage, data)
             return r
     return None

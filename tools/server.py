@@ -327,6 +327,10 @@ def create_routine():
 @app.route("/api/routines/<routine_id>", methods=["PATCH"])
 def update_routine(routine_id: str):
     updates = request.get_json(force=True)
+    if "name" in updates and not (updates["name"] or "").strip():
+        return jsonify({"error": "name cannot be blank"}), 400
+    if "steps" in updates and not routines_lib._normalize_steps(updates["steps"]):
+        return jsonify({"error": "at least one step is required"}), 400
     routine, push, status = _write_main(
         lambda store: routines_lib.update_routine(store, routine_id, updates),
         f"data: update routine {routine_id}",
@@ -367,7 +371,7 @@ def run_routine(routine_id: str):
         return routines_lib.run_routine(store, routine_id, source="ui")
 
     result, push, status = _write_main(
-        mutate, lambda r: f"data: run routine {routine_id} ({len(r['tasks'])} tasks)")
+        mutate, lambda r: f"data: run routine {routine_id} ({len(r['tasks']) if r else 0} tasks)")
     if status >= 500:
         return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
     if result is None:

@@ -141,3 +141,25 @@ def test_ran_within_explicit_today():
     r = {"runs": [{"date": "2026-07-01", "trigger_key": None, "source": "ui"}]}
     assert ran_within(r, days=7, today="2026-07-05") is True
     assert ran_within(r, days=7, today="2026-07-20") is False
+
+
+# --- Trigger normalization ---
+
+def test_trigger_normalization(tmp_path):
+    from lib.routines import normalize_trigger
+    assert normalize_trigger(None) is None
+    assert normalize_trigger({"type": "bogus"}) is None
+    assert normalize_trigger("junk") is None
+    assert normalize_trigger({"type": "calendar_ooo"}) == {"type": "calendar_ooo", "lead_days": 7}
+    assert normalize_trigger({"type": "calendar_ooo", "lead_days": "5"}) == {"type": "calendar_ooo", "lead_days": 5}
+    assert normalize_trigger({"type": "calendar_ooo", "lead_days": 999}) == {"type": "calendar_ooo", "lead_days": 60}
+    assert normalize_trigger({"type": "calendar_ooo", "lead_days": "junk"}) == {"type": "calendar_ooo", "lead_days": 7}
+
+
+def test_add_and_update_normalize_trigger(tmp_path):
+    from lib.storage import LocalStorage
+    s = LocalStorage(base_dir=str(tmp_path))
+    r = add_routine(s, name="R", steps=["a"], trigger={"type": "bogus"})
+    assert r["trigger"] is None
+    out = update_routine(s, r["id"], {"trigger": {"type": "calendar_ooo", "lead_days": 0}})
+    assert out["trigger"] == {"type": "calendar_ooo", "lead_days": 1}
