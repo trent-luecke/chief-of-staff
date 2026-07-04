@@ -1,37 +1,4 @@
 {
   "version": 1,
-  "routines": [
-    {
-      "id": "zztest-ooo",
-      "name": "ZZTEST OOO Prep",
-      "steps": [
-        {
-          "title": "Cancel meetings in window"
-        },
-        {
-          "title": "Brief the team"
-        },
-        {
-          "title": "Set OOO responder"
-        }
-      ],
-      "trigger": {
-        "type": "calendar_ooo",
-        "lead_days": 5
-      },
-      "created": "2026-07-04",
-      "runs": [
-        {
-          "date": "2026-07-04",
-          "trigger_key": null,
-          "source": "ui"
-        },
-        {
-          "date": "2026-07-04",
-          "trigger_key": null,
-          "source": "ui"
-        }
-      ]
-    }
-  ]
+  "routines": []
 }
