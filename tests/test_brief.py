@@ -339,3 +339,31 @@ def test_brief_omits_surfaced_today_when_none(tmp_path):
         inbox_text="", storage=storage,
     )
     assert "Surfaced Today" not in prompt
+
+
+def test_brief_includes_routine_suggestions_section(tmp_path):
+    from lib.storage import LocalStorage
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    prompt = _build_prompt(
+        today_events=[], tomorrow_events=[], projects=[], due_tasks=[],
+        loop_summary=LoopSummary(), open_issues=[], meeting_prep=[],
+        inbox_text="", storage=LocalStorage(str(tmp_path)),
+        routine_suggestions_context="  OOO detected Aug 10–14 — activate 'OOO Prep': type `/routine OOO Prep` in Slack.",
+    )
+    assert "Routine Suggestions" in prompt
+    assert "/routine OOO Prep" in prompt
+
+
+def test_brief_omits_routine_suggestions_when_empty(tmp_path):
+    from lib.storage import LocalStorage
+    from processors.brief import _build_prompt
+    from processors.loops import LoopSummary
+
+    prompt = _build_prompt(
+        today_events=[], tomorrow_events=[], projects=[], due_tasks=[],
+        loop_summary=LoopSummary(), open_issues=[], meeting_prep=[],
+        inbox_text="", storage=LocalStorage(str(tmp_path)),
+    )
+    assert "Routine Suggestions" not in prompt
