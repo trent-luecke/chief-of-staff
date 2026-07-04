@@ -28,7 +28,7 @@ A `horizon` date on a task hides it from active views until that date arrives.
 
 ### Slack `/task` (`scripts/slack_add_task.py`)
 
-- Trailing `horizon <date phrase>` parsed with the same `dateparser` used for due dates: `/task renew SSL cert horizon sept 1`. Confirmation message echoes it ("on horizon until Sep 1"). Same due-date guard applies. A "horizon" occurring mid-title (not in trailing position with a parseable date) is left in the title.
+- A `horizon:<date phrase>` token parsed with the same `dateparser` used for due dates, matching the existing `due:<date>` token convention: `/task renew SSL cert horizon:sept 1`. Works in either order with `due:`. Confirmation message echoes it ("on horizon until Sep 1"). Same due-date guard applies. The bare word "horizon" in a title (without the `:`) is left alone.
 
 ### Morning brief (`pipeline.py` / collectors)
 
