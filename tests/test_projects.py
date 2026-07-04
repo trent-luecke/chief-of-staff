@@ -119,3 +119,15 @@ def test_project_context_for_brief_with_open_task(tmp_path):
     assert ctx[0]["project"]["id"] == "nicole-campaign"
     assert len(ctx[0]["open_tasks"]) == 1
     assert ctx[0]["linked_obs"] == []
+
+
+def test_project_context_excludes_behind_horizon_tasks(tmp_path):
+    from datetime import date, timedelta
+    from lib.tasks import add_task
+    s = _s(tmp_path)
+    p = add_project(s, canonical_name="Q3 Launch")
+    future = (date.today() + timedelta(days=5)).isoformat()
+    add_task(s, "Visible now", project_id=p["id"])
+    add_task(s, "Deferred", project_id=p["id"], horizon=future)
+    ctx = project_context_for_brief(s)
+    assert [t["title"] for t in ctx[0]["open_tasks"]] == ["Visible now"]
