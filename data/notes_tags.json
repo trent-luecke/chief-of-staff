@@ -18,5 +18,9 @@
   {
     "id": "MARKETING",
     "color": "#f00505"
+  },
+  {
+    "id": "INSIGHTS",
+    "color": "#01d05b"
   }
 ]
