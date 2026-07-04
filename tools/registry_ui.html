@@ -617,6 +617,22 @@
     .due-chip.overdue  { color: #ef4444; background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.3); }
     .horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
     .horizon-ghost { color:#bbb; font-size:11px; cursor:pointer; }
+    .routines-section { margin-top: 24px; }
+    .routine-row { border-bottom: 1px solid var(--border, #333); padding: 6px 0; }
+    .routine-row-main { display: flex; align-items: center; gap: 8px; }
+    .routine-name { font-weight: 500; }
+    .routine-trigger-chip { background:#e0f2fe; color:#0369a1; border-radius:10px; padding:1px 8px; font-size:11px; white-space:nowrap; }
+    .routine-edit-panel { padding: 8px 0 4px 24px; }
+    .routine-step-row { display: flex; gap: 6px; margin-bottom: 4px; align-items: center; }
+    .routine-form-footer { display: flex; gap: 8px; align-items: center; margin-top: 6px; }
+    .btn-run-routine {
+      background: transparent;
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 3px;
+    }
     .proj-horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
     .later-section { margin-top:18px; opacity:.9; }
     .later-header { display:flex; align-items:center; gap:6px; cursor:pointer; padding:4px 0; }
@@ -2014,7 +2030,7 @@ async function fetchJSON(url, opts = {}) {
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
-const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set() };
+const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set(), routineEditing: new Set() };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(iso) {
@@ -2551,19 +2567,174 @@ function openEditPanel(project, people, groupEl) {
   render();
 }
 
+function routineStepInputHtml(val) {
+  return `<div class="routine-step-row">
+    <input class="add-task-input routine-step-input" value="${esc(val || '')}" placeholder="Step…" style="flex:1" />
+    <button class="routine-step-up" title="Move up">↑</button>
+    <button class="routine-step-del" title="Remove">×</button>
+  </div>`;
+}
+
+function routineFormHtml(idPrefix, r) {
+  const steps = (r?.steps?.length ? r.steps : [{ title: '' }])
+    .map(s => routineStepInputHtml(s.title)).join('');
+  const trigType = r?.trigger?.type || '';
+  const lead = r?.trigger?.lead_days ?? 7;
+  return `
+    <input class="add-task-input" id="${idPrefix}-name" placeholder="Routine name…" value="${esc(r?.name || '')}" style="width:100%;margin-bottom:6px" />
+    <div class="routine-steps" id="${idPrefix}-steps">${steps}</div>
+    <div class="routine-form-footer">
+      <button class="routine-add-step" id="${idPrefix}-add-step">+ Step</button>
+      <select id="${idPrefix}-trigger">
+        <option value="">Manual only</option>
+        <option value="calendar_ooo"${trigType === 'calendar_ooo' ? ' selected' : ''}>Auto-suggest on calendar OOO</option>
+      </select>
+      <input type="number" id="${idPrefix}-lead" value="${lead}" min="1" max="60" style="width:52px"${trigType ? '' : ' disabled'} />
+      <span class="muted" style="font-size:11px">days ahead</span>
+      <button class="btn-add-task" id="${idPrefix}-save">Save</button>
+    </div>`;
+}
+
+function readRoutineForm(idPrefix) {
+  const name = document.getElementById(`${idPrefix}-name`).value.trim();
+  const steps = [...document.querySelectorAll(`#${idPrefix}-steps .routine-step-input`)]
+    .map(i => i.value.trim()).filter(Boolean);
+  const trigSel = document.getElementById(`${idPrefix}-trigger`).value;
+  const lead = parseInt(document.getElementById(`${idPrefix}-lead`).value, 10) || 7;
+  return { name, steps, trigger: trigSel ? { type: trigSel, lead_days: lead } : null };
+}
+
+function wireRoutineForm(idPrefix, onSave) {
+  const panel = document.getElementById(`${idPrefix}-steps`);
+  document.getElementById(`${idPrefix}-add-step`).addEventListener('click', () => {
+    panel.insertAdjacentHTML('beforeend', routineStepInputHtml(''));
+  });
+  document.getElementById(`${idPrefix}-trigger`).addEventListener('change', e => {
+    document.getElementById(`${idPrefix}-lead`).disabled = !e.target.value;
+  });
+  panel.addEventListener('click', e => {
+    const row = e.target.closest('.routine-step-row');
+    if (!row) return;
+    if (e.target.matches('.routine-step-del')) row.remove();
+    else if (e.target.matches('.routine-step-up') && row.previousElementSibling) {
+      row.parentElement.insertBefore(row, row.previousElementSibling);
+    }
+  });
+  document.getElementById(`${idPrefix}-save`).addEventListener('click', async e => {
+    const form = readRoutineForm(idPrefix);
+    if (!form.name) { document.getElementById(`${idPrefix}-name`).focus(); return; }
+    if (!form.steps.length) { alert('Add at least one step.'); return; }
+    setBusy(e.target);
+    try { await onSave(form); } catch (err) { setBusy(e.target, false); }
+  });
+}
+
+function renderRoutineRow(r, editing) {
+  const n = (r.steps || []).length;
+  const trig = r.trigger
+    ? `<span class="routine-trigger-chip">auto · OOO −${esc(String(r.trigger.lead_days))}d</span>` : '';
+  return `
+    <div class="routine-row" id="routine-row-${esc(r.id)}">
+      <div class="routine-row-main">
+        <button class="btn-run-routine" data-routine-id="${esc(r.id)}">Run</button>
+        <span class="routine-name">${esc(r.name)}</span>
+        <span class="muted" style="font-size:12px">${n} step${n !== 1 ? 's' : ''}</span>
+        ${trig}
+        <button class="routine-edit-btn" data-routine-id="${esc(r.id)}" title="Edit routine">✎</button>
+        <button class="btn-delete-routine" data-routine-id="${esc(r.id)}" title="Delete routine">✕</button>
+      </div>
+      <div class="routine-edit-panel${editing ? '' : ' hidden'}" id="routine-edit-${esc(r.id)}">
+        ${editing ? routineFormHtml(`rf-${r.id}`, r) : ''}
+      </div>
+    </div>`;
+}
+
+async function runRoutineFromUi(id, btn, onChanged) {
+  setBusy(btn);
+  const post = body => fetchJSON(`${API}/api/routines/${encodeURIComponent(id)}/run`, {
+    method: 'POST', body: JSON.stringify(body), label: 'Routine run',
+  });
+  try {
+    await post({});
+    onChanged();
+  } catch (err) {
+    if (err.message === 'HTTP 409') {
+      if (confirm('This routine already ran in the last 7 days. Run it again?')) {
+        try { await post({ force: true }); onChanged(); return; }
+        catch (e2) { /* arc toasted */ }
+      }
+    }
+    setBusy(btn, false);
+  }
+}
+
+function wireRoutinesSection(view, onChanged) {
+  const list = document.getElementById('routines-list');
+  if (!list) return;
+
+  const toggle = document.getElementById('new-routine-toggle');
+  if (toggle) toggle.addEventListener('click', () => {
+    if (workState.routineEditing.has('__new__')) workState.routineEditing.delete('__new__');
+    else workState.routineEditing.add('__new__');
+    onChanged();
+  });
+
+  if (workState.routineEditing.has('__new__')) {
+    wireRoutineForm('rf-new', async form => {
+      await fetchJSON(`${API}/api/routines`, {
+        method: 'POST', body: JSON.stringify(form), label: 'Routine added',
+      });
+      workState.routineEditing.delete('__new__');
+      onChanged();
+    });
+  }
+
+  list.addEventListener('click', async e => {
+    const id = e.target.dataset.routineId;
+    if (!id) return;
+    if (e.target.matches('.btn-run-routine')) {
+      await runRoutineFromUi(id, e.target, onChanged);
+    } else if (e.target.matches('.routine-edit-btn')) {
+      if (workState.routineEditing.has(id)) workState.routineEditing.delete(id);
+      else workState.routineEditing.add(id);
+      onChanged();
+    } else if (e.target.matches('.btn-delete-routine')) {
+      const name = document.querySelector(`#routine-row-${CSS.escape(id)} .routine-name`)?.textContent || id;
+      if (!confirm(`Delete routine "${name}"? Tasks already created by past runs are kept.`)) return;
+      setBusy(e.target);
+      try {
+        await fetchJSON(`${API}/api/routines/${encodeURIComponent(id)}`, { method: 'DELETE', label: 'Routine deleted' });
+        onChanged();
+      } catch (err) { setBusy(e.target, false); }
+    }
+  });
+
+  workState.routineEditing.forEach(id => {
+    if (id === '__new__') return;
+    wireRoutineForm(`rf-${id}`, async form => {
+      await fetchJSON(`${API}/api/routines/${encodeURIComponent(id)}`, {
+        method: 'PATCH', body: JSON.stringify(form), label: 'Routine updated',
+      });
+      workState.routineEditing.delete(id);
+      onChanged();
+    });
+  });
+}
+
 // ── renderWorkView ───────────────────────────────────────────────────────────
 async function renderWorkView() {
   const view = el('view-work');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
 
-  let projects, allTasks, people, allNotes, noteTags;
+  let projects, allTasks, people, allNotes, noteTags, routines;
   try {
-    [projects, allTasks, people, allNotes, noteTags] = await Promise.all([
+    [projects, allTasks, people, allNotes, noteTags, routines] = await Promise.all([
       fetchJSON(`${API}/api/projects`),
       fetchJSON(`${API}/api/tasks`),
       fetchJSON(`${API}/api/people`),
       fetchJSON(`${API}/api/notes`),
       fetchJSON(`${API}/api/notes/tags`),
+      fetchJSON(`${API}/api/routines`),
     ]);
   } catch {
     view.innerHTML = `
@@ -2646,6 +2817,13 @@ async function renderWorkView() {
       </div>
     </div>` : '';
 
+  // ── Routines section ────────────────────────────────────────────────────
+  const routineRowsHtml = (routines || []).length
+    ? routines.map(r => renderRoutineRow(r, workState.routineEditing.has(r.id))).join('')
+    : '<div class="muted" style="font-size:12px">No routines yet.</div>';
+  const newRoutineHtml = workState.routineEditing.has('__new__')
+    ? `<div class="routine-edit-panel" id="routine-new-panel">${routineFormHtml('rf-new', null)}</div>` : '';
+
   view.innerHTML = `
     <div class="work-section-header">
       <span class="work-section-label">Projects</span>
@@ -2664,6 +2842,14 @@ async function renderWorkView() {
       <div id="standalone-tasks">${standaloneHtml}</div>
       ${renderAddTaskForm(null, people)}
       ${laterHtml}
+    </div>
+    <div class="routines-section">
+      <div class="work-section-header">
+        <span class="work-section-label">Routines</span>
+        <button class="btn-new-proj" id="new-routine-toggle">+ New Routine</button>
+      </div>
+      ${newRoutineHtml}
+      <div id="routines-list">${routineRowsHtml}</div>
     </div>`;
 
   // ── Wire new project form ───────────────────────────────────────────────
@@ -2833,6 +3019,9 @@ async function renderWorkView() {
       renderWorkView();
     });
   });
+
+  // ── Wire Routines section ────────────────────────────────────────────────
+  wireRoutinesSection(view, () => renderWorkView());
 }
 
 // ── Entry point ─────────────────────────────────────────────────────────────
