@@ -90,3 +90,42 @@ def delete_routine(storage, routine_id: str) -> bool:
         return False
     _save(storage, data)
     return True
+
+
+def run_routine(storage, routine_id: str, source: str = "ui",
+                trigger_key: Optional[str] = None) -> Optional[dict]:
+    """Instantiate a routine: one ordinary task per step, tagged so the UI can
+    group the batch, plus a run record on the routine itself."""
+    from lib.tasks import add_task
+
+    data = _load(storage)
+    routine = next((r for r in data["routines"] if r["id"] == routine_id), None)
+    if routine is None:
+        return None
+
+    today = date.today().isoformat()
+    tasks = [
+        add_task(
+            storage,
+            title=step["title"],
+            source="routine",
+            metadata={"routine": routine_id, "routine_run": today},
+        )
+        for step in routine["steps"]
+    ]
+    routine["runs"].append({"date": today, "trigger_key": trigger_key, "source": source})
+    _save(storage, data)
+    return {"routine": routine, "tasks": tasks}
+
+
+def last_run_date(routine: dict) -> Optional[str]:
+    runs = routine.get("runs") or []
+    return max((r["date"] for r in runs), default=None)
+
+
+def ran_within(routine: dict, days: int, today: Optional[str] = None) -> bool:
+    last = last_run_date(routine)
+    if not last:
+        return False
+    today_d = date.fromisoformat(today) if today else date.today()
+    return last >= (today_d - timedelta(days=days)).isoformat()

@@ -83,3 +83,61 @@ def test_delete_routine(tmp_path):
     assert delete_routine(s, r["id"]) is True
     assert list_routines(s) == []
     assert delete_routine(s, r["id"]) is False
+
+
+# --- Run ---
+
+def test_run_routine_creates_tagged_tasks_and_records_run(tmp_path):
+    from datetime import date
+    from lib.tasks import get_open_tasks
+    from lib.routines import run_routine
+    s = _s(tmp_path)
+    r = add_routine(s, name="OOO Prep", steps=["Cancel meetings", "Set responder"])
+    result = run_routine(s, r["id"])
+    today = date.today().isoformat()
+
+    assert [t["title"] for t in result["tasks"]] == ["Cancel meetings", "Set responder"]
+    for t in result["tasks"]:
+        assert t["source"] == "routine"
+        assert t["metadata"] == {"routine": r["id"], "routine_run": today}
+    assert result["routine"]["runs"] == [{"date": today, "trigger_key": None, "source": "ui"}]
+
+    # tasks landed in the real task ledger, run persisted in the registry
+    open_titles = {t["title"] for t in get_open_tasks(s)}
+    assert {"Cancel meetings", "Set responder"} <= open_titles
+    assert get_routine(s, r["id"])["runs"] == result["routine"]["runs"]
+
+
+def test_run_routine_with_source_and_trigger_key(tmp_path):
+    from lib.routines import run_routine
+    s = _s(tmp_path)
+    r = add_routine(s, name="R", steps=["a"])
+    result = run_routine(s, r["id"], source="slack", trigger_key="gcal:evt123")
+    assert result["routine"]["runs"][0]["source"] == "slack"
+    assert result["routine"]["runs"][0]["trigger_key"] == "gcal:evt123"
+
+
+def test_run_routine_missing_returns_none(tmp_path):
+    from lib.routines import run_routine
+    assert run_routine(_s(tmp_path), "nope") is None
+
+
+def test_ran_within(tmp_path):
+    from datetime import date, timedelta
+    from lib.routines import ran_within, last_run_date
+    today = date.today()
+    recent = {"runs": [{"date": (today - timedelta(days=3)).isoformat(), "trigger_key": None, "source": "ui"}]}
+    old = {"runs": [{"date": (today - timedelta(days=10)).isoformat(), "trigger_key": None, "source": "ui"}]}
+    never = {"runs": []}
+    assert ran_within(recent, days=7) is True
+    assert ran_within(old, days=7) is False
+    assert ran_within(never, days=7) is False
+    assert last_run_date(recent) == (today - timedelta(days=3)).isoformat()
+    assert last_run_date(never) is None
+
+
+def test_ran_within_explicit_today():
+    from lib.routines import ran_within
+    r = {"runs": [{"date": "2026-07-01", "trigger_key": None, "source": "ui"}]}
+    assert ran_within(r, days=7, today="2026-07-05") is True
+    assert ran_within(r, days=7, today="2026-07-20") is False
