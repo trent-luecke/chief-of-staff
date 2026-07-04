@@ -173,6 +173,7 @@ def create_task():
             title=body["title"],
             source=body.get("source", "ui"),
             due_date=body.get("due_date"),
+            horizon=body.get("horizon"),
             metadata=body.get("metadata"),
             project_id=body.get("project_id"),
             collaborators=body.get("collaborators"),
