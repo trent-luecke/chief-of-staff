@@ -1,4 +1,23 @@
 {
   "version": 1,
-  "routines": []
+  "routines": [
+    {
+      "id": "out-of-office-prep",
+      "name": "Out of Office Prep",
+      "steps": [
+        {
+          "title": "Cancel or reschedule meetings in the OOO window"
+        },
+        {
+          "title": "Set Gmail out-of-office responder"
+        }
+      ],
+      "trigger": {
+        "type": "calendar_ooo",
+        "lead_days": 7
+      },
+      "created": "2026-07-05",
+      "runs": []
+    }
+  ]
 }
