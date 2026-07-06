@@ -33,3 +33,4 @@
 {"event": "update", "id": "n-c68f53", "ts": "2026-07-04T18:59:21", "tags": ["INSIGHTS"]}
 {"event": "update", "id": "n-fdd84c", "ts": "2026-07-04T18:59:31", "tags": ["INSIGHTS"]}
 {"event": "delete", "id": "n-f7b906", "ts": "2026-07-04T18:59:46"}
+{"event": "create", "id": "n-7f3e18", "ts": "2026-07-06T14:45:47", "body": "what if we had an app that could take any export from a customers old member management platform and re-format it to perfectly upload into OS to reduce the spreadsheet translation friction?", "tags": ["IDEAS"], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
