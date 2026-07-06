@@ -1,13 +1,13 @@
 {
-  "fetched_at": "2026-07-05T00:00:00.000Z",
+  "fetched_at": "2026-07-06T00:00:00.000Z",
   "leads": [
     {
-      "name": "Holland High School",
-      "contact": "Michael Woodby",
-      "email": "mwoodby@hollandpublicschools.org",
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-05-22",
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -24,17 +24,6 @@
       "stale": false
     },
     {
-      "name": "Kim Johnston",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "David Arcemant",
       "contact": "",
       "email": "",
@@ -43,6 +32,17 @@
       "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": "",
+      "stale": false
+    },
+    {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
       "stale": false
     },
     {
@@ -74,6 +74,17 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Baxter Pattison",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -134,25 +145,14 @@
       "stale": false
     },
     {
-      "name": "Brigita Roemer",
+      "name": "Scott Silveus",
       "contact": "",
       "email": "",
       "status": "On-Hold",
       "priority": "",
-      "last_contacted": "2026-05-21",
+      "last_contacted": "2026-06-29",
       "estimated_value": null,
       "source": "",
-      "stale": false
-    },
-    {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
-      "status": "No Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
-      "estimated_value": null,
-      "source": "Inbound Email",
       "stale": false
     },
     {
