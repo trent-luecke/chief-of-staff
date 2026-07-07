@@ -311,6 +311,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-04"
+    },
+    {
+      "entity": "Scott Silveus",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "scottsilveus",
+      "candidate_score": 96.0,
+      "added": "2026-07-07"
     }
   ],
   "previously_notified": [

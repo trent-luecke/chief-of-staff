@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-07-06T00:00:00",
+  "resolved_at": "2026-07-07T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -3691,6 +3691,131 @@
       "confidence": "system"
     },
     "867": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "868": {
+      "primary_person_id": "holland-high-school",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "869": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "870": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "871": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "872": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "873": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "874": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "875": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "876": {
+      "primary_person_id": "brigita-roemer",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "877": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "878": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "879": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "880": {
+      "primary_person_id": "thomas-howes",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "881": {
+      "primary_person_id": "jamie-crone",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "882": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "883": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "884": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "885": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "886": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "887": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "888": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "889": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "890": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "891": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "892": {
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
