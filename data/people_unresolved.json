@@ -319,6 +319,22 @@
       "candidate_id": "scottsilveus",
       "candidate_score": 96.0,
       "added": "2026-07-07"
+    },
+    {
+      "entity": "Dawglb",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-08"
+    },
+    {
+      "entity": "Train",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-08"
     }
   ],
   "previously_notified": [
