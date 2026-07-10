@@ -142,3 +142,4 @@
 {"event": "create", "task_id": "t-ff0579", "title": "Raise 'OS Lite as official product' with Teofe \u2014 later this year", "source": "ui", "created_at": "2026-07-10", "due_date": null, "metadata": {"meeting": "OS Marketing 2.0", "date": "2026-07-09"}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
 {"event": "create", "task_id": "t-2450db", "title": "Lock Mark Fischl recording date \u2014 1st week of Aug (Fisher Course + StoryBuilder)", "source": "ui", "created_at": "2026-07-10", "due_date": null, "metadata": {"meeting": "OS Marketing 2.0", "date": "2026-07-09"}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
 {"event": "delete", "task_id": "t-2450db"}
+{"event": "delete", "task_id": "t-7239f8"}
