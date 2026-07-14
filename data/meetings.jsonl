@@ -61,3 +61,4 @@
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-07-14T14:22:58", "items": ["confirm Mark Fisher recording dates", "Tex is working on uploading his videos as we speak"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-07-14T14:23:20", "items": ["confirm Mark Fisher recording dates", "Tex is working on uploading his videos as we speak", "what all is left on the C&C course to complete?"]}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-07-14T15:10:46", "thread_id": "th-fe6a40", "text": "follow up with Tex about what he wants his CTA to be in final email", "person_id": null}
+{"event": "update_thread", "id": "nicole_os_meeting", "ts": "2026-07-14T15:10:51", "thread_id": "th-fe6a40", "task_id": "t-d89ba9"}
