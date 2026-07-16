@@ -63,3 +63,4 @@
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-07-14T15:10:46", "thread_id": "th-fe6a40", "text": "follow up with Tex about what he wants his CTA to be in final email", "person_id": null}
 {"event": "update_thread", "id": "nicole_os_meeting", "ts": "2026-07-14T15:10:51", "thread_id": "th-fe6a40", "task_id": "t-d89ba9"}
 {"event": "add_session", "id": "nicole_os_meeting", "ts": "2026-07-15T11:27:30", "session_id": "s-825914", "date": "2026-07-15", "body": "- C&C Course: all assets are set, landing page is done, just need Tex's final CTA and course content edited/formatted\n- get back to Mark about 8/5 recording date"}
+{"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-16T14:50:12", "items": ["should we have a sales X marketing meeting specific to OS?"]}
