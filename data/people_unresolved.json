@@ -343,6 +343,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-11"
+    },
+    {
+      "entity": "John Kurta",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-17"
+    },
+    {
+      "entity": "Chanelbrown",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-17"
     }
   ],
   "previously_notified": [
