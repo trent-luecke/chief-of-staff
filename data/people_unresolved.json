@@ -367,6 +367,30 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-18"
+    },
+    {
+      "entity": "Taylor",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-19"
+    },
+    {
+      "entity": "Support",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-19"
+    },
+    {
+      "entity": "Perry",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-19"
     }
   ],
   "previously_notified": [
