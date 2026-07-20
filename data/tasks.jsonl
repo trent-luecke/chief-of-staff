@@ -176,3 +176,4 @@
 {"event": "complete", "task_id": "t-fed515", "completed_at": "2026-07-16"}
 {"event": "create", "task_id": "t-fec183", "title": "look into Strength demos to see if there is an Lumin intel available to corroborate Razer's lumin interest", "source": "ui", "created_at": "2026-07-16", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-07-16"}
 {"event": "create", "task_id": "t-e53083", "title": "finish Leadership blogs", "source": "slack", "created_at": "2026-07-17", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": "2027-07-17"}
+{"event": "create", "task_id": "t-ecb293", "title": "create mobile app overview for OS in Strength", "source": "ui", "created_at": "2026-07-20", "due_date": "2026-07-20", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
