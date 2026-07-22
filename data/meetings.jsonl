@@ -71,3 +71,4 @@
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-22T14:54:37", "items": ["go through Mark Fisher outline"]}
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-22T21:00:23", "items": ["go through Mark Fisher outline", "where do i send the tiny mic"]}
 {"event": "delete_thread", "id": "os_marketing", "ts": "2026-07-22T21:00:44", "thread_id": "th-a73904"}
+{"event": "delete_thread", "id": "os_marketing", "ts": "2026-07-22T21:00:51", "thread_id": "th-0882f1"}
