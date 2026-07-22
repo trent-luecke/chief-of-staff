@@ -69,3 +69,4 @@
 {"event": "update_thread", "id": "os_marketing", "ts": "2026-07-16T18:06:18", "thread_id": "th-97b3dd", "closed": true, "closed_date": "2026-07-16"}
 {"event": "update_thread", "id": "os_marketing", "ts": "2026-07-16T18:06:32", "thread_id": "th-2192ec", "closed": true, "closed_date": "2026-07-16"}
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-22T14:54:37", "items": ["go through Mark Fisher outline"]}
+{"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-22T21:00:23", "items": ["go through Mark Fisher outline", "where do i send the tiny mic"]}
