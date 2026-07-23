@@ -47,3 +47,4 @@
 {"event": "update", "id": "n-a0d5e8", "ts": "2026-07-23T09:33:08", "tags": ["INSIGHTS"]}
 {"event": "update", "id": "n-cccc68", "ts": "2026-07-23T09:33:40", "project_id": "os-website-update"}
 {"event": "delete", "id": "n-2dd6aa", "ts": "2026-07-23T09:33:51"}
+{"event": "create", "id": "n-e46f9c", "ts": "2026-07-23T15:21:38", "body": "TEST meeting-notes visibility (delete me)", "tags": ["MEETING_NOTES"], "person_id": null, "task_id": null, "project_id": null, "brief": false, "pinned": false}
