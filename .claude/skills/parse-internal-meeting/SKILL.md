@@ -66,6 +66,14 @@ Call `GET /api/bootstrap` and read `meetings` (each has `id`, `name`, `people_id
   it recurs — STOP and ask Trent to pick from the existing meetings, name a new series, or
   declare it one-off. Never auto-create a series or guess.
 
+**Verify identity BEFORE writing (hard stop):** once you match a series, read that series'
+existing context (its prior sessions + the attendees' people files) and check it against
+Trent's header. If the existing context CONTRADICTS the header — names a different person,
+a wrong role, or a different meeting purpose (e.g. the series' notes say the 1:1 is with a
+different Luke, or call someone the wrong title) — do NOT write. STOP and confirm the meeting
+identity with Trent first. A name match alone (e.g. "Luke 1:1" when two Lukes exist) is not
+identity confirmation. Catching this after writing means the summary is already misfiled.
+
 Resolve attendee names to `people_ids` using `GET /api/bootstrap` → `people` (each `{id,
 name}`). Trent's own id is his people-registry id (look it up; do not hardcode). If a name
 does not resolve, ask.
