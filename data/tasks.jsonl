@@ -196,3 +196,4 @@
 {"event": "edit", "task_id": "t-67e36d", "patch": {"project_id": "os-website-update"}}
 {"event": "edit", "task_id": "t-f33622", "patch": {"project_id": "claude-assisted-onboarding"}}
 {"event": "complete", "task_id": "t-a88a25", "completed_at": "2026-07-23"}
+{"event": "complete", "task_id": "t-9b576d", "completed_at": "2026-07-23"}
