@@ -42,6 +42,12 @@ into the registry via the existing storage layer.
   (speaker-labeled, on paid Slack tiers) are noted as a future input upgrade the frame will
   handle without a rewrite, but investigating/adopting them is a separate track.
 
+**Deferred fast-follow (own project):** a Work-page view that groups tasks by `owner` into a
+"Mine" section (`owner` = Trent) and a "Watching / keep on track" section (`owner` = someone
+else). Useful for *all* tasks, not just meeting-sourced ones. This skill sets `owner`
+correctly now so the split sorts parsed tasks correctly whenever it's built — no migration.
+Not part of this project's plan.
+
 ## Chosen approach
 
 **Approach C — reference-frame skill + thin write-back helper.**
@@ -162,10 +168,31 @@ recurrences, and a one-off has no future recurrence to accumulate toward.
 | Bucket | Recurring meeting | One-off / impromptu |
 |---|---|---|
 | Headline + summary + FYI/status context | **Session** on the series (dated) | Standalone **Note** tagged `MEETING_NOTES` (+ meeting name, date, attendees) |
-| My commitments | **Thread** owned by Trent → **promoted to task** (default) | **Work-tab task** directly (`add_task`, source = meeting name + date) |
-| Owed to me | **Thread**, `person_id` = who owes it | Work-tab task **only if Trent wants it tracked** (per-item in approval); else lives in the Note body |
-| Team tasks I own the outcome of | **Thread**, `person_id` = assignee | Work-tab task **only if Trent wants it tracked**; else in the Note body |
+| My commitments | **Thread** owned by Trent → **promoted to task**, `owner` = Trent | **Work-tab task**, `owner` = Trent |
+| Owed to me | **Thread**, `person_id` = who owes it | **Work-tab task**, `owner` = who owes it |
+| Team tasks I own the outcome of | **Thread**, `person_id` = assignee | **Work-tab task**, `owner` = assignee |
 | Decisions | `data/memory/decisions.md` (+ vector memory) | `data/memory/decisions.md` (+ vector memory) |
+
+**One-off rule:** *every* action item becomes a Work-tab task — no optional/per-item
+tracking toggle. Rationale: untracked items would otherwise live only in the `MEETING_NOTES`
+note, which is hidden by default, making commitments-to-check-on *more* forgettable than a
+task Trent owns. Only the summary/FYI context (Note) and decisions (`decisions.md`) do not
+become tasks.
+
+### Owner semantics (the action-vs-monitor axis)
+
+Every task/thread carries an `owner` (`add_task` already supports it; the Work page already
+renders an owner chip + dropdown). Owner is the axis that separates "requires action on my
+end" from "monitor / keep on track":
+
+- **`owner` = Trent** → Trent acts on it (my commitments).
+- **`owner` = another person** → Trent monitors it (owed-to-me = who owes it; team task =
+  the assignee).
+
+The skill sets `owner` correctly on every write, in both paths. This encodes the distinction
+in the data from day one with no later migration, regardless of when the Work-page view is
+built (see Deferred fast-follow). A new task *type* is explicitly rejected — it would
+duplicate what `owner` already expresses.
 
 **Recurring path — functions:**
 - Reuse-or-create series via `lib.meetings.append_create` (+ `meeting_index.json` entry).
@@ -182,9 +209,9 @@ recurrences, and a one-off has no future recurrence to accumulate toward.
 - Summary Note: create a note (`notes.jsonl`) with tag `MEETING_NOTES` and a body carrying
   the headline + summary + FYI/status context; header line naming the meeting, date, and
   attendees. No meeting record is created, so nothing appears in the Meetings tab.
-- My commitments: `lib.tasks.add_task` directly, `source` = meeting name + date.
-- Owed-to-me / team tasks: `lib.tasks.add_task` only if Trent flags it for tracking in the
-  approval step; otherwise captured in the Note body only.
+- All action items via `lib.tasks.add_task`, each with correct `owner` and
+  `source` = meeting name + date: my commitments (`owner` = Trent), owed-to-me
+  (`owner` = who owes it), team tasks (`owner` = assignee).
 - Decisions: appended to `data/memory/decisions.md`.
 
 After writing, Claude confirms exactly what was written and where.
