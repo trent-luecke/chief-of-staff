@@ -36,6 +36,15 @@
       "members": [],
       "created": "2026-06-24",
       "last_seen": "2026-06-24"
+    },
+    {
+      "id": "os-website-update",
+      "canonical_name": "OS Website Update",
+      "aliases": [],
+      "status": "active",
+      "members": [],
+      "created": "2026-07-23",
+      "last_seen": "2026-07-23"
     }
   ]
 }
