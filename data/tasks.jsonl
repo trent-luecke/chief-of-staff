@@ -197,3 +197,4 @@
 {"event": "edit", "task_id": "t-f33622", "patch": {"project_id": "claude-assisted-onboarding"}}
 {"event": "complete", "task_id": "t-a88a25", "completed_at": "2026-07-23"}
 {"event": "complete", "task_id": "t-9b576d", "completed_at": "2026-07-23"}
+{"event": "create", "task_id": "t-0b20c6", "title": "create copy for consolidated time zone alert for OS Studio View", "source": "ui", "created_at": "2026-07-23", "due_date": "2026-07-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
