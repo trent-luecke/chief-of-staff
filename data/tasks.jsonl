@@ -188,3 +188,4 @@
 {"event": "create", "task_id": "t-d51a42", "title": "audit new use case page for OS", "source": "ui", "created_at": "2026-07-22", "due_date": "2026-07-22", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-f33622", "title": "create fake onboarding script and feed to Claude onboarding for testing", "source": "slack", "created_at": "2026-07-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
 {"event": "create", "task_id": "t-9b576d", "title": "look into capabilities for well-maintained HubSpot and Claude connection. Specific to GTM and sales use cases", "source": "slack", "created_at": "2026-07-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
+{"event": "complete", "task_id": "t-ecb293", "completed_at": "2026-07-23"}
