@@ -42,7 +42,12 @@
       "canonical_name": "OS Website Update",
       "aliases": [],
       "status": "active",
-      "members": [],
+      "members": [
+        {
+          "id": "clayton",
+          "role": "collaborator"
+        }
+      ],
       "created": "2026-07-23",
       "last_seen": "2026-07-23"
     }
