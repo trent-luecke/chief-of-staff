@@ -32,12 +32,16 @@ OS is **intentionally feature-light and operationally focused.** A traditional f
 The deciding fact is **whether the competitor has native workout delivery / programming.** If it doesn't, a gym on it needs a *second app* on every member's phone — OS's sharpest edge. If it does, that edge disappears and the page needs a different wedge.
 
 ### Archetype A — "Second app" (no native programming)
-**MindBody, Walla, Glofox, ZenPlanner.** Share one skeleton; lead with the one-app + built-for-coaches + focus story. Glofox (ABC Fitness) and ZenPlanner (Daxko) also get an "independent, not enterprise" angle.
+**MindBody, Walla, Glofox.** Share one skeleton; lead with the one-app + built-for-coaches + focus story. Glofox (ABC Fitness) also gets an "independent, not enterprise" angle.
 
-### Archetype B — "Has programming" (one-app hammer blunted)
-**PushPress, Wodify, exercise.com.** These have native workout/programming, so "one app, not two" and "built by gym people" don't differentiate. Same skeleton *minus* the member-experience row; each needs its own wedge (see below). **Design these deliberately — do not inherit Archetype A's framing.**
+### Archetype B — "Has programming" (one-app *existence* hammer blunted)
+**PushPress, Wodify, exercise.com, ZenPlanner.** These have native workout/programming, so "one app, not two" and "built by gym people" don't differentiate on existence alone. Same skeleton; each needs its own wedge (see below). **Design these deliberately — do not inherit Archetype A's framing.**
 
-> ⚑ **Archetype assignment depends on native-programming status — verify per competitor before building.** ZenPlanner (A) and all of B rest on this.
+B is not monolithic — split by programming *quality*:
+- **Competent programming (PushPress, Wodify, exercise.com):** can't win on programming existence *or* quality easily → win on depth, breadth, pricing, or simplicity. Drop the member-experience row.
+- **Weak/dated programming (ZenPlanner):** win on *quality* — a modern, coach-grade experience. Keep a reframed member-experience row, but **demonstrate** it (screens/clip), don't assert "theirs is bad." Confident, not petty; also more legally defensible.
+
+> ⚑ **Archetype assignment depends on native-programming status — verify per competitor before building.** All of B rests on this. (ZenPlanner confirmed: has native programming, but dated.)
 
 ---
 
@@ -120,13 +124,19 @@ Boutique studio management, now part of ABC Fitness (enterprise), no native prog
 
 **Hero:** One-app hammer + **"independent, not enterprise"** — built and supported by people who know gyms, vs. a product folded into a large corporate portfolio.
 
-### Page 4 — OS vs. ZenPlanner
-Gym/martial-arts/affiliate member management, owned by Daxko. Thin/no native programming (verify).
+---
+
+## Archetype B pages (design deliberately — no one-app-*existence* hero, no "built by gym people" claim)
+
+These competitors have native programming, so lead with a *different* wedge. Shared skeleton applies **minus the Member-experience row** (except ZenPlanner — see below). Do not draft cells until each competitor's capabilities and pricing are verified.
+
+**ZenPlanner** — gym/martial-arts/affiliate member management, owned by Daxko. Has native programming, but dated.
+Wedge: **modern, coach-grade programming** + **"independent, not enterprise"** (Daxko). Keep a reframed member-experience row — "one modern app your members want to open," shown via OS screens/clip rather than asserting ZenPlanner is bad (defensible + on-brand). ⚑ Verify pricing, contracts, marketing/CRM scope.
 
 | Row | **TeamBuildr OS** | **ZenPlanner** |
 |---|---|---|
 | **Built for** | Strength & performance gyms and their coaches | Membership management for gyms & martial arts ⚑ |
-| **Member experience** | One app — booking, billing, *and* workouts | Ops/member management; second app for programming ⚑ |
+| **Member experience** | One modern app — booking, billing, *and* coach-grade workouts | Has programming, but a dated experience *(demonstrate, don't assert)* ⚑ |
 | **What you pay for** | The features your staff use every day | Member-management modules ⚑ |
 | **Pricing** | $200/mo or $2,000/yr — published, flat | Quote-only ⚑ |
 | **How we make money** | Only your subscription — 0% cut of Stripe fees | Verify ⚑ |
@@ -134,15 +144,6 @@ Gym/martial-arts/affiliate member management, owned by Daxko. Thin/no native pro
 | **Contracts** | Month-to-month or annual | Verify ⚑ |
 | **Support** | Real people who understand gyms | Verify ⚑ |
 | **Time to go live** | Days | Verify ⚑ |
-
-**Hero:** One-app hammer + **"independent, not enterprise"** (Daxko-owned) — same angle as Glofox.
-**⚑ Confirm ZenPlanner has no serious native programming before locking it into Archetype A.**
-
----
-
-## Archetype B pages (design deliberately — no one-app hero, no "built by gym people" claim)
-
-These competitors have native programming, so lead with a *different* wedge. Shared skeleton applies **minus the Member-experience row.** Do not draft cells until each competitor's capabilities and pricing are verified.
 
 **PushPress** — gym-owner-built, has workout/programming.
 Candidate wedge: **programming depth** (TeamBuildr's origin is a serious S&C programming platform vs. PushPress's lighter add-on) and/or **pricing model** contrast. ⚑ Verify PushPress programming depth + pricing (free tier / per-member?).
@@ -181,7 +182,7 @@ Every ⚑ cell is a **competitor-specific factual claim** (pricing, contracts, p
 
 ## Open items
 
-1. **Verify native-programming status** for ZenPlanner, PushPress, Wodify, exercise.com — this decides archetype.
+1. **Verify native-programming status** for PushPress, Wodify, exercise.com — this decides archetype. (ZenPlanner confirmed: has native but dated programming → Archetype B.)
 2. RevOps to source/date all ⚑ competitor cells; cut any that can't be substantiated.
 3. Fill Archetype A competitor cells (Walla, Glofox, ZenPlanner) with sourced data.
 4. Design the three Archetype B pages once capabilities/pricing are confirmed.
