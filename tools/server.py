@@ -25,6 +25,7 @@ import lib.git_sync as git_sync
 from lib.main_storage import MainStorage
 from lib.notes import replay_notes_content
 import lib.meetings as meetings_lib
+import lib.decisions as decisions_lib
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
 
@@ -528,6 +529,24 @@ def delete_note(note_id: str):
     if result is None:
         return jsonify({"error": "not found"}), 404
     return jsonify({"deleted": note_id, "push": push})
+
+
+# --- Decisions ---
+
+@app.route("/api/decisions", methods=["POST"])
+def create_decision():
+    body = request.get_json(force=True)
+    if not body or not body.get("text"):
+        return jsonify({"error": "text is required"}), 400
+    date_str = body.get("date") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    line, push, status = _write_main(
+        lambda store: decisions_lib.append_decision(store, body["text"], date_str),
+        lambda ln: f"data: append decision {date_str}",
+    )
+    if status >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), status
+    return jsonify({"decision": line, "push": push}), 201
 
 
 # --- Notes Tags ---
