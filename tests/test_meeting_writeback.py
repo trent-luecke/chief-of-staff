@@ -131,3 +131,38 @@ def test_oneoff_partial_failure_preserves_created_and_reports_error():
     ]
     assert len(summary["errors"]) == 1
     assert "500 Server Error" in summary["errors"][0]
+
+
+def test_missing_meeting_kind_surfaces_error_without_http_call():
+    payload = {
+        "meeting": {"name": "Impromptu Sync", "people_ids": [], "date": "2026-07-23"},
+        "summary": "Talked pricing.",
+        "commitments": [],
+        "owed_to_me": [],
+        "team_tasks": [],
+        "decisions": [],
+    }
+    with patch("scripts.meeting_writeback.requests.post") as post:
+        summary = meeting_writeback.write_back(payload, base_url="http://x")
+
+    assert summary["created"] == []
+    assert len(summary["errors"]) == 1
+    post.assert_not_called()
+
+
+def test_commitment_missing_text_surfaces_error_without_http_call():
+    payload = {
+        "meeting": {"kind": "oneoff", "name": "Impromptu Sync",
+                    "people_ids": [], "date": "2026-07-23"},
+        "summary": "Talked pricing.",
+        "commitments": [{"owner": "trent-luecke"}],
+        "owed_to_me": [],
+        "team_tasks": [],
+        "decisions": [],
+    }
+    with patch("scripts.meeting_writeback.requests.post") as post:
+        summary = meeting_writeback.write_back(payload, base_url="http://x")
+
+    assert summary["created"] == []
+    assert len(summary["errors"]) == 1
+    post.assert_not_called()

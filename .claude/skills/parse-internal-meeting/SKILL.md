@@ -95,8 +95,14 @@ Remember the owner rule (the action-vs-monitor axis):
 2. Build the approved-items payload (schema below) and write it to a temp file in the
    scratchpad.
 3. Run: `python -m scripts.meeting_writeback <payload.json>`
-4. Report back exactly what was written (the command prints a `created` list), including
-   any `errors`. If there are errors, surface them — the write did NOT fully land.
+4. Report exactly what was written (the `created` list) and any `errors`. If `errors` is
+   non-empty, the write only PARTIALLY landed: the `created` list is the precise record of
+   what already exists on origin/main. Do NOT blindly re-run the same payload — that
+   duplicates everything in `created` (duplicate dated session, duplicate threads,
+   duplicate tasks). Instead, either (a) build a new payload containing ONLY the un-written
+   items and run that, or (b) delete the partial writes (via the registry UI / DELETE
+   endpoints) and then re-run the whole payload. Tell Trent what partially landed and which
+   option you're taking before re-running.
 
 Payload schema:
 

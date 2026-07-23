@@ -15,6 +15,8 @@ import requests
 
 MEETING_NOTES_TAG = "MEETING_NOTES"
 TIMEOUT = 30
+VALID_MEETING_KINDS = {"recurring", "oneoff"}
+ITEM_BUCKETS = ("commitments", "owed_to_me", "team_tasks")
 
 
 def _post(base_url: str, path: str, body: dict) -> dict:
@@ -23,9 +25,32 @@ def _post(base_url: str, path: str, body: dict) -> dict:
     return resp.json()
 
 
+def _validate_payload(payload: dict) -> str | None:
+    """Return a clear error message if payload is malformed, else None."""
+    mtg = payload.get("meeting")
+    if not isinstance(mtg, dict):
+        return "payload['meeting'] is missing or not an object"
+    if mtg.get("kind") not in VALID_MEETING_KINDS:
+        return f"meeting.kind must be one of {sorted(VALID_MEETING_KINDS)}, got {mtg.get('kind')!r}"
+    if not mtg.get("name"):
+        return "meeting.name is missing or empty"
+
+    for bucket in ITEM_BUCKETS:
+        for i, item in enumerate(payload.get(bucket, []) or []):
+            if not isinstance(item, dict) or not item.get("text"):
+                return f"{bucket}[{i}] is missing a non-empty 'text' field"
+
+    return None
+
+
 def write_back(payload: dict, base_url: str = "http://localhost:8787") -> dict:
     created: list[str] = []
     errors: list[str] = []
+
+    validation_error = _validate_payload(payload)
+    if validation_error:
+        return {"created": created, "errors": [validation_error]}
+
     mtg = payload["meeting"]
     date = mtg.get("date")
 
