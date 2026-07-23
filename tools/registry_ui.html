@@ -3130,6 +3130,7 @@ const notesState = {
   groupByDate: false,
   compact: false,
   showTagMgmt: false,
+  showMeetingNotes: false,
   _tags: [],
   _people: [],
   _tasks: [],
@@ -3288,6 +3289,7 @@ async function renderNotesView() {
 
   // Filter
   let filtered = notes.filter(n => {
+    if (!notesState.showMeetingNotes && (n.tags || []).includes('MEETING_NOTES')) return false;
     if (notesState.search) {
       const q = notesState.search.toLowerCase();
       if (!n.body.toLowerCase().includes(q) && !n.ts.includes(q)) return false;
@@ -3356,6 +3358,7 @@ async function renderNotesView() {
       <button class="notes-sort-btn${notesState.sortAsc ? ' active' : ''}" id="notes-sort-btn">${notesState.sortAsc ? 'Oldest first' : 'Newest first'}</button>
       <button class="notes-group-btn${notesState.groupByDate ? ' active' : ''}" id="notes-group-btn">Group by date</button>
       <button class="notes-compact-btn${notesState.compact ? ' active' : ''}" id="notes-compact-btn">Compact</button>
+      <button class="notes-compact-btn${notesState.showMeetingNotes ? ' active' : ''}" id="notes-meeting-toggle-btn">Show meeting notes</button>
     </div>
     ${tagMgmtHtml}
     ${pinnedHtml}
@@ -3388,6 +3391,10 @@ async function renderNotesView() {
   });
   el('notes-compact-btn').addEventListener('click', () => {
     notesState.compact = !notesState.compact;
+    renderNotesView();
+  });
+  el('notes-meeting-toggle-btn').addEventListener('click', () => {
+    notesState.showMeetingNotes = !notesState.showMeetingNotes;
     renderNotesView();
   });
 
