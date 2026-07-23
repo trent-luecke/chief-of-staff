@@ -72,3 +72,4 @@
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-22T21:00:23", "items": ["go through Mark Fisher outline", "where do i send the tiny mic"]}
 {"event": "delete_thread", "id": "os_marketing", "ts": "2026-07-22T21:00:44", "thread_id": "th-a73904"}
 {"event": "delete_thread", "id": "os_marketing", "ts": "2026-07-22T21:00:51", "thread_id": "th-0882f1"}
+{"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-23T10:34:37", "items": ["should we have a sales X marketing meeting specific to OS?", "what are your thoughts on the freemium type of pricing where we just institute a higher Stripe processing fee and the subscription cost is close to 0?"]}
