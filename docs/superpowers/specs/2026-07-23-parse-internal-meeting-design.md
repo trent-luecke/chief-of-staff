@@ -134,31 +134,79 @@ that owed-to-me is actually owed to Rachel not me, add a task about the deck Nic
 mentioned, recategorize #5." Claude revises and re-presents. **Write-back happens only on an
 explicit commit.** Nothing is auto-filed.
 
-## Write-back (thin helper)
+## Meeting-tie resolution (hard stop on ambiguity)
+
+Before any write-back, the skill must resolve which meeting the transcript ties to. This is a
+**hard stop, not a guess**:
+
+- If the transcript clearly maps to exactly one existing recurring meeting series, proceed.
+- If there is **any** ambiguity — no clear match, multiple plausible matches, or unclear
+  whether it's recurring at all — the skill **stops and asks Trent** to pick from existing
+  meetings or name it / declare it a one-off. It never silently auto-creates a series.
+
+This guardrail protects the context-accumulation payoff: duplicate or mis-tied series would
+scatter a meeting's history and break the "load prior sessions" step.
+
+## Write-back (thin helper) — two paths
 
 On approval, the helper writes to `origin/main` via `lib.storage.registry_storage(config)`,
-calling existing functions (no Flask server dependency):
+calling existing functions (no Flask server dependency). The destination depends on whether
+the meeting is **recurring** (gets a series record) or **one-off / impromptu** (must NOT
+clutter the Meetings tab).
 
-- **Meeting series record:** reuse-or-create via `lib.meetings.append_create` (+
-  `meeting_index.json` entry).
-  - **Recurring** internal meeting → reuse-or-create the series so sessions accumulate.
-  - **One-off** huddle → create the series with an **empty `calendar_pattern`** so it never
-    fires a nudge (nudges are calendar-pattern driven).
-  - Ask "recurring or one-off?" at parse time if ambiguous.
-- **Session** (`lib.meetings.append_add_session`, dated): headline + summary + FYI/status
-  context as the `body`. This is the durable per-meeting context reloaded on future parses.
-- **Threads** (`lib.meetings.append_add_thread`, with `person_id`):
-  - Owed to me → thread, `person_id` = who owes it.
-  - Team task I own → thread, `person_id` = assignee.
-  - My commitments → thread owned by Trent.
-- **Promote-to-task** (`/promote` semantics → `lib.tasks.add_task` with
-  `source=meeting-<id>`, `owner`, and `metadata` linking back to the thread):
-  - **Default:** *my commitments* auto-promote to Work-tab tasks (Trent will act on them).
-  - *Owed-to-me* and *team tasks* stay as threads unless Trent says promote in the approval
-    step.
-- **Decisions** → appended to `data/memory/decisions.md` (durable; + vector memory).
+Note: sessions and threads are *children of a meeting record* — they cannot exist without
+one. That is why one-offs (which create no meeting record) route to Notes + Work-tab tasks
+instead. This costs nothing: the session/thread model exists to accumulate context across
+recurrences, and a one-off has no future recurrence to accumulate toward.
+
+| Bucket | Recurring meeting | One-off / impromptu |
+|---|---|---|
+| Headline + summary + FYI/status context | **Session** on the series (dated) | Standalone **Note** tagged `MEETING_NOTES` (+ meeting name, date, attendees) |
+| My commitments | **Thread** owned by Trent → **promoted to task** (default) | **Work-tab task** directly (`add_task`, source = meeting name + date) |
+| Owed to me | **Thread**, `person_id` = who owes it | Work-tab task **only if Trent wants it tracked** (per-item in approval); else lives in the Note body |
+| Team tasks I own the outcome of | **Thread**, `person_id` = assignee | Work-tab task **only if Trent wants it tracked**; else in the Note body |
+| Decisions | `data/memory/decisions.md` (+ vector memory) | `data/memory/decisions.md` (+ vector memory) |
+
+**Recurring path — functions:**
+- Reuse-or-create series via `lib.meetings.append_create` (+ `meeting_index.json` entry).
+  Recurring meetings keep their `calendar_pattern` so sessions accumulate.
+- Session: `lib.meetings.append_add_session` (dated `body`) — the durable per-meeting context
+  reloaded on future parses.
+- Threads: `lib.meetings.append_add_thread` (with `person_id`).
+- Promote-to-task: `/promote` semantics → `lib.tasks.add_task` with `source=meeting-<id>`,
+  `owner`, `metadata` linking back to the thread.
+- **Default:** *my commitments* auto-promote to Work-tab tasks; *owed-to-me* and *team tasks*
+  stay as threads unless Trent says promote in the approval step.
+
+**One-off path — functions:**
+- Summary Note: create a note (`notes.jsonl`) with tag `MEETING_NOTES` and a body carrying
+  the headline + summary + FYI/status context; header line naming the meeting, date, and
+  attendees. No meeting record is created, so nothing appears in the Meetings tab.
+- My commitments: `lib.tasks.add_task` directly, `source` = meeting name + date.
+- Owed-to-me / team tasks: `lib.tasks.add_task` only if Trent flags it for tracking in the
+  approval step; otherwise captured in the Note body only.
+- Decisions: appended to `data/memory/decisions.md`.
 
 After writing, Claude confirms exactly what was written and where.
+
+## Notes UI: `MEETING_NOTES` tag hidden by default
+
+To keep the Notes page reserved for Trent's own notes, one-off meeting summaries are tagged
+`MEETING_NOTES` and hidden from the Notes view by default, with a toggle to reveal them.
+
+Current behavior: tag chips are an *include* filter (`notesState.activeTags`,
+`renderNotesView` in `tools/registry_ui.html` ~line 3266–3313). The change adds an
+*exclude-by-default* behavior for a single tag:
+
+1. Add a `MEETING_NOTES` tag record to `data/notes_tags.json` (`{id, color}`).
+2. In `renderNotesView`, filter out notes containing `MEETING_NOTES` unless a new
+   `notesState.showMeetingNotes` (default `false`) is enabled.
+3. Add a "Show meeting notes" toggle near the filter chips that flips `showMeetingNotes` and
+   re-renders.
+
+Scope decision (YAGNI): hardcode the single `MEETING_NOTES` tag + dedicated toggle. The
+general alternative — a `hidden_by_default` flag on any tag record — is deferred until a
+second hidden tag type is actually needed.
 
 ### Registry storage rules (from CLAUDE.md — must hold)
 
@@ -180,13 +228,17 @@ context problem compounds toward solved instead of resetting each time.
 ## Components & boundaries
 
 1. **`SKILL.md`** — the reference frame. Governs input contract, context load, buckets,
-   filter rules, language, readout shape, approval loop, and when/what to write. Iterable via
-   markdown edits; this is where judgment lives.
+   filter rules, language, readout shape, meeting-tie resolution (hard stop), approval loop,
+   and when/what to write. Iterable via markdown edits; this is where judgment lives.
 2. **Write-back helper** (small module/script, e.g. `scripts/meeting_writeback.py` or a
    `lib` function) — takes the approved, structured result and commits it via
-   `registry_storage` + `lib.meetings` / `lib.tasks`. Single responsibility: correct,
-   committed registry writes. Interface: approved-items structure in → confirmation of what
-   was written out. No parsing judgment inside it.
+   `registry_storage` + `lib.meetings` / `lib.tasks` / `lib.notes`, choosing the recurring vs
+   one-off path. Single responsibility: correct, committed registry writes. Interface:
+   approved-items structure in → confirmation of what was written out. No parsing judgment
+   inside it.
+3. **Notes UI change** (`tools/registry_ui.html` + one `notes_tags.json` entry) — the
+   `MEETING_NOTES` tag and its default-hidden view toggle. Self-contained front-end change;
+   independent of the parsing logic.
 
 ## Open items for the implementation plan
 
