@@ -1,6 +1,8 @@
 import json
 from unittest.mock import patch, MagicMock
 
+import requests
+
 from scripts import meeting_writeback
 
 
@@ -100,3 +102,32 @@ def test_recurring_creates_series_when_meeting_id_absent():
     assert urls[0] == "http://x/api/meetings"
     assert urls[1] == "http://x/api/meetings/new_sync/sessions"
     assert summary["errors"] == []
+
+
+def test_oneoff_partial_failure_preserves_created_and_reports_error():
+    payload = {
+        "meeting": {"kind": "oneoff", "name": "Impromptu Sync",
+                    "people_ids": [], "date": "2026-07-23"},
+        "summary": "Talked pricing.",
+        "commitments": [
+            {"text": "Send recap", "owner": "trent-luecke"},
+            {"text": "Follow up with legal", "owner": "trent-luecke"},
+        ],
+        "owed_to_me": [],
+        "team_tasks": [],
+        "decisions": ["Hold pricing flat for Q3"],
+    }
+    with patch("scripts.meeting_writeback.requests.post") as post:
+        post.side_effect = [
+            _resp({"note": {"id": "n-1"}}),   # POST /api/notes succeeds
+            _resp({"task": {"id": "t-1"}}),   # first commitment task succeeds
+            requests.exceptions.HTTPError("500 Server Error"),  # second task fails
+        ]
+        summary = meeting_writeback.write_back(payload, base_url="http://x")
+
+    assert summary["created"] == [
+        "note n-1 (MEETING_NOTES)",
+        "task t-1 (commitments, owner=trent-luecke)",
+    ]
+    assert len(summary["errors"]) == 1
+    assert "500 Server Error" in summary["errors"][0]
