@@ -75,3 +75,4 @@
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-23T10:34:37", "items": ["should we have a sales X marketing meeting specific to OS?", "what are your thoughts on the freemium type of pricing where we just institute a higher Stripe processing fee and the subscription cost is close to 0?"]}
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-23T10:34:52", "items": ["should we have a sales X marketing meeting specific to OS?", "what are your thoughts on the freemium type of pricing where we just institute a higher Stripe processing fee and the subscription cost is close to 0?", "how are we looking on the hubspot project"]}
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-23T14:43:45", "items": ["go through Mark Fisher outline"]}
+{"event": "set_agenda", "id": "os_marketing", "ts": "2026-07-23T14:43:51", "items": []}
