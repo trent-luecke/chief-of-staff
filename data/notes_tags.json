@@ -22,5 +22,9 @@
   {
     "id": "INSIGHTS",
     "color": "#01d05b"
+  },
+  {
+    "id": "MEETING_NOTES",
+    "color": "#6b7280"
   }
 ]
