@@ -6,9 +6,26 @@
       "canonical_name": "Captains & Coaches Coaches Course",
       "aliases": [],
       "status": "active",
-      "members": [],
+      "members": [
+        {
+          "id": "tex",
+          "role": "collaborator"
+        },
+        {
+          "id": "nicole-foley",
+          "role": "collaborator"
+        },
+        {
+          "id": "rachel-hodgson",
+          "role": "collaborator"
+        },
+        {
+          "id": "heather",
+          "role": "collaborator"
+        }
+      ],
       "created": "2026-06-05",
-      "last_seen": "2026-06-05"
+      "last_seen": "2026-07-24"
     },
     {
       "id": "claude-assisted-onboarding",
