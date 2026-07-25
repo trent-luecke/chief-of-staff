@@ -351,6 +351,7 @@ def test_tool_schemas_cover_all_expected_tools():
         "get_calendar_events", "get_pipeline_lead", "create_email_draft",
         "set_reminder", "list_tasks",
         "queue_notion_update", "set_brief_preference", "propose_code_change",
+        "schedule_buyer_story",
     }
     assert names == expected
 
@@ -417,3 +418,48 @@ def test_set_reminder_in_tool_schemas():
     from processors.query_tools import TOOL_SCHEMAS
     names = {s["name"] for s in TOOL_SCHEMAS}
     assert "set_reminder" in names
+
+
+def test_schedule_buyer_story_creates_horizon_task():
+    from datetime import date, timedelta
+    from lib.tasks import get_open_tasks
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        result = execute_tool(
+            "schedule_buyer_story", {"account": "Baxter Pattison"}, config,
+            storage=LocalStorage(tmp),
+        )
+        expected_horizon = (date.today() + timedelta(days=14)).isoformat()
+        assert "Baxter Pattison" in result and expected_horizon in result
+        tasks = get_open_tasks(LocalStorage(tmp))
+        story = [t for t in tasks if t.get("metadata", {}).get("kind") == "buyer_story"]
+        assert len(story) == 1
+        t = story[0]
+        assert t["horizon"] == expected_horizon and t["due_date"] == expected_horizon
+        assert t["metadata"]["account"] == "Baxter Pattison"
+        assert "buyer's-story" in t["title"] and "notion" in t["title"].lower()
+
+
+def test_schedule_buyer_story_explicit_signed_date():
+    from lib.tasks import get_open_tasks
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        result = execute_tool(
+            "schedule_buyer_story", {"account": "Acme Gym", "signed_date": "2026-07-01"},
+            config, storage=LocalStorage(tmp),
+        )
+        assert "2026-07-15" in result  # 2026-07-01 + 14 days
+        t = get_open_tasks(LocalStorage(tmp))[0]
+        assert t["horizon"] == "2026-07-15"
+
+
+def test_schedule_buyer_story_bad_date_is_rejected():
+    from lib.tasks import get_open_tasks
+    with tempfile.TemporaryDirectory() as tmp:
+        config = _config(tmp)
+        result = execute_tool(
+            "schedule_buyer_story", {"account": "Acme", "signed_date": "07/01/2026"},
+            config, storage=LocalStorage(tmp),
+        )
+        assert "parse" in result.lower()
+        assert get_open_tasks(LocalStorage(tmp)) == []

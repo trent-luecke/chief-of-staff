@@ -32,6 +32,10 @@ CHANGE_WHITELIST = frozenset({
 
 PENDING_CHANGE_PATH = "data/pending_change.json"
 
+# Buyer's-story program: interview-guide template inside the Notion DB.
+BUYER_STORY_TEMPLATE_URL = "https://app.notion.com/p/3a724bca36d781c59753f174d9f0e2d6"
+BUYER_STORY_LEAD_DAYS = 14  # days after signing to send the interview request
+
 
 def _sync_canvas(config: dict) -> None:
     """Push current task state to the Slack canvas. Non-fatal.
@@ -65,6 +69,38 @@ def _tool_add_capture(capture_type: str, text: str, storage, config: dict, due_d
         return f"Task added [{task['id']}]: {text}"
     append_capture(storage, capture_type, None, text)
     return f"Captured [{capture_type}]: {text}"
+
+
+def _tool_schedule_buyer_story(account: str, config: dict, signed_date: str = "") -> str:
+    """Queue a post-signing buyer's-story interview for a newly signed account.
+
+    Creates a git-anchored registry task whose horizon is BUYER_STORY_LEAD_DAYS
+    after signing. It stays de-emphasized in the Work UI until then, and the
+    daily brief's "Surfaced Today" section announces it on the horizon date —
+    that day-14 callout is the whole point. Signing date defaults to today."""
+    from datetime import datetime, timedelta
+    from lib.storage import registry_storage
+
+    account = (account or "").strip()
+    if not account:
+        return "Need an account name to schedule a buyer's-story interview."
+    try:
+        signed = datetime.strptime(signed_date, "%Y-%m-%d").date() if signed_date else date.today()
+    except ValueError:
+        return f"Couldn't parse signed date '{signed_date}' — use YYYY-MM-DD."
+
+    horizon = (signed + timedelta(days=BUYER_STORY_LEAD_DAYS)).isoformat()
+    title = (f"Send {account} the buyer's-story interview request "
+             f"(signed {signed.isoformat()}). Template: {BUYER_STORY_TEMPLATE_URL}")
+    task = add_task(
+        registry_storage(config), title, source="slack",
+        due_date=horizon, horizon=horizon,
+        metadata={"kind": "buyer_story", "account": account, "signed_date": signed.isoformat()},
+    )
+    _sync_canvas(config)
+    return (f"Buyer's-story interview queued for {account} [{task['id']}] — "
+            f"surfaces in your brief on {horizon} ({BUYER_STORY_LEAD_DAYS} days after "
+            f"signing on {signed.isoformat()}).")
 
 
 def _tool_complete_task(description: str, storage, config: dict) -> str:
@@ -517,6 +553,8 @@ def execute_tool(name: str, input_: dict, config: dict, storage=None) -> str:
             return _tool_add_capture(input_["capture_type"], input_["text"], storage, config, due_date=input_.get("due_date", ""))
         elif name == "complete_task":
             return _tool_complete_task(input_["description"], storage, config)
+        elif name == "schedule_buyer_story":
+            return _tool_schedule_buyer_story(input_["account"], config, signed_date=input_.get("signed_date", ""))
         elif name == "list_tasks":
             from lib.storage import registry_storage
             return _tool_list_tasks(registry_storage(config), include_recent_completions=input_.get("include_recent_completions", False))
@@ -597,6 +635,18 @@ TOOL_SCHEMAS = [
                 "due_date": {"type": "string", "description": "Optional due date in YYYY-MM-DD format (todos only)"},
             },
             "required": ["capture_type", "text"],
+        },
+    },
+    {
+        "name": "schedule_buyer_story",
+        "description": "Queue a post-signing buyer's-story interview for a newly SIGNED account. Use when Trent reports a new signed customer and wants the buyer's-story follow-up (e.g. 'we just signed Baxter — schedule the buyer's story', 'log the Acme signing', 'set up a buyer's-story interview for X'). Creates a registry task that surfaces in the daily brief 14 days after signing, prompting him to send the interview request email. Defaults the signing date to today; pass signed_date if it signed earlier. Do NOT use this for generic to-dos — that's add_capture.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "account": {"type": "string", "description": "Name of the newly signed account / customer."},
+                "signed_date": {"type": "string", "description": "Signing date YYYY-MM-DD. Defaults to today if omitted."},
+            },
+            "required": ["account"],
         },
     },
     {
