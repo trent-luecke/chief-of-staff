@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-24T00:00:00.000Z",
+  "fetched_at": "2026-07-25T00:00:00.000Z",
   "leads": [
     {
       "name": "Kim Johnston",
@@ -8,171 +8,6 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Meredith Ingbretson",
-      "contact": "Meredith Ingbretson",
-      "email": "mingbretson@hayward.k12.wi.us",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-12",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "David Arcemant",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
-      "estimated_value": null,
-      "source": "Inbound Email",
-      "stale": false
-    },
-    {
-      "name": "Mike Brown (SAPT)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Asher Wojciechowski",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-05-21",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-01",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-06",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-09",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "The Bullpen Utah",
-      "contact": "William Schlee",
-      "email": "billy@thebullpenut.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "Medium",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Cody Coley",
-      "contact": "Cody Coley",
-      "email": "ccoley@cbhs.org",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Dustin Sport Performance",
-      "contact": "Jack Dustin",
-      "email": "dustin.sportperformance@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 750,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Dante Perez",
-      "contact": "Dante Perez",
-      "email": "dante@vlfsportsperformance.com",
-      "status": "On-Hold",
-      "priority": "",
-      "last_contacted": "2026-04-30",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Scott Silveus",
-      "contact": "",
-      "email": "",
-      "status": "On-Hold",
-      "priority": "",
-      "last_contacted": "2026-06-29",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -195,6 +30,61 @@
       "status": "No Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-12",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "David Arcemant",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Mike Brown (SAPT)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
+      "stale": false
+    },
+    {
+      "name": "Asher Wojciechowski",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-05-21",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -244,6 +134,50 @@
       "stale": false
     },
     {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Baxter Pattison",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-01",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Dante Perez",
+      "contact": "Dante Perez",
+      "email": "dante@vlfsportsperformance.com",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-04-30",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Meredith Ingbretson",
+      "contact": "Meredith Ingbretson",
+      "email": "mingbretson@hayward.k12.wi.us",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-12",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Jasmin Bray – Rise Sports Performance (OS)",
       "contact": "",
       "email": "",
@@ -251,6 +185,72 @@
       "priority": "",
       "last_contacted": "2026-07-06",
       "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Scott Silveus",
+      "contact": "",
+      "email": "",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-06-29",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-09",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 2000.0,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Cody Coley",
+      "contact": "Cody Coley",
+      "email": "ccoley@cbhs.org",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 2000.0,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Dustin Sport Performance",
+      "contact": "Jack Dustin",
+      "email": "dustin.sportperformance@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 750.0,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "The Bullpen Utah",
+      "contact": "William Schlee",
+      "email": "billy@thebullpenut.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     }
