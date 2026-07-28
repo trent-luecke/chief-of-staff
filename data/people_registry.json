@@ -1429,12 +1429,12 @@
     },
     {
       "id": "brian",
-      "canonical_name": "Brian",
+      "canonical_name": "Brian Szutkowski",
       "aliases": [
         "Brian"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "brian@teambuildr.com",
+      "type": "internal",
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-22",
