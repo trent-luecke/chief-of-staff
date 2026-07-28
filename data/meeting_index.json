@@ -6,7 +6,13 @@
       "nudge_subject": "Dev sync notes?",
       "nudge_minutes_after": 5,
       "name": "OS Dev Sync",
-      "people_ids": []
+      "people_ids": [
+        "james-peters",
+        "quinn-kastle",
+        "luke-green",
+        "elvis-guillen",
+        "brian"
+      ]
     },
     {
       "calendar_pattern": "weekly os meeting",
