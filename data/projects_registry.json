@@ -67,6 +67,15 @@
       ],
       "created": "2026-07-23",
       "last_seen": "2026-07-23"
+    },
+    {
+      "id": "social-media-content-assistant-for-sales-team",
+      "canonical_name": "Social Media Content Assistant for Sales Team",
+      "aliases": [],
+      "status": "active",
+      "members": [],
+      "created": "2026-07-28",
+      "last_seen": "2026-07-28"
     }
   ]
 }
