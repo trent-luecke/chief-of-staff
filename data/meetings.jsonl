@@ -88,3 +88,4 @@
 {"event": "add_thread", "id": "dev_triage", "ts": "2026-07-28T18:38:38", "thread_id": "th-479abb", "text": "Build a super-admin toggle to gate the Stripe Connect button (manually enable after the customer talks to Trent), mirroring TeamBuildr Strength", "person_id": "james-peters"}
 {"event": "add_thread", "id": "dev_triage", "ts": "2026-07-28T18:38:42", "thread_id": "th-edd69a", "text": "Raise the TB Strength mobile 'view pricing does nothing' bug with the dev team and get it into the next build", "person_id": "james-peters"}
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-29T16:17:59", "items": ["should we have a sales X marketing meeting specific to OS?", "what are your thoughts on the freemium type of pricing where we just institute a higher Stripe processing fee and the subscription cost is close to 0?"]}
+{"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-29T16:18:07", "items": ["should we have a sales X marketing meeting specific to OS?"]}
