@@ -131,6 +131,19 @@ Before building features on top of them:
 2. **Avoma API — org-wide recent demos.** Confirm "demos org-wide completed in last ~24h, excluding Trent" is queryable (Trent confirms the key is org-scoped; verify the response shape). Falls back to Trent's own recent closed-loop calls if not.
 3. New capabilities to build: attendee-owned task query, topic-scoped email pull, agenda-mode internal prep, identity resolution.
 
+### Verification results (2026-07-29) — both contingencies GREEN
+
+Probed the live Avoma REST API (`GET /v1/meetings`, `is_internal=false`, read-only). Findings:
+
+- **C1 (attendee search) — CONFIRMED, with a paging constraint.** Attendee **emails are fully populated** on meeting records (39/39 on the sample), so a calendar attendee matches to their call history by email. There is **NO server-side participant/email filter** — all param guesses (`attendee_email`, `participant_email`, `email`, `attendees`) were ignored. So history lookup is **client-side**: fetch newest-first (`o=-start_at`) and filter by attendee email. Verified end-to-end against real external prospects (e.g. `evan@outlierathlete.com`, `austin@irontribefitness.com`, `nick.ficker@ashevillechristian.org`).
+- **C2 (org-wide demos) — CONFIRMED strongly.** The org-scoped key returns meetings hosted across the whole team. **`organizer_email` is present on every meeting** and is the clean rep-attribution key: last-90d organizer distribution included chris(8), trent(5), jeff(5), luke(4), kylah(4), ryan(3), irene(3), quinn(2), brian, antonio, lmartin, elodder. "What moved" = `is_internal=false` + last-24h + `organizer_email != trent@teambuildr.com`.
+- **⚠️ Hard constraint — `page_size` is ignored; the API returns 10 results/page.** 90d of external meetings = `count=945` → ~95 requests to walk fully. Implications:
+  - *"What moved" (last 24h):* newest-first → ~1–2 pages. Cheap. ✅
+  - *External prep (last call with person X):* newest-first + early-stop is cheap for people **with** recent calls; a person with **no** history forces paging to the horizon. **Bound the lookback** (e.g. ~90 days / N pages) and treat "no hit within horizon" as the cold-demo fallback (email + invite topics).
+- **Bonus:** the meeting-list object carries `organizer_email`, `subject`, `attendees` (with emails), `start_at`, `outcome`, `purpose`, `type`, `transcript_ready` — so "what moved" one-liners can be built **without** fetching each transcript; only the recap (external prep) needs the transcript body + Claude analysis.
+- **Plan 5 design note:** do NOT gate "what moved" on the stale 6-entry `avoma.sales_rep_emails` roster — `organizer_email` shows far more hosts (kylah, irene, brian, antonio…). Gate on `is_internal=false` + `organizer_email != Trent` instead.
+- **Reusable code:** `collectors/avoma.py::fetch_recent_meetings` already does org-wide external fetch + transcript analysis (`AvomaTranscript`); `processors/what_moved.py` already builds a "What Moved Yesterday" section (includes demos via `call_type=="demo"` + yesterday filter) — Plan 5 refines/reuses rather than starts fresh.
+
 ## Non-Goals / Out of Scope
 
 - Slack or email delivery of the new brief (pure pull only).
