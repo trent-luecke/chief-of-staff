@@ -55,3 +55,6 @@ docs/archive/
 
 # SDD controller scratch (briefs, reports, review diffs)
 .superpowers/sdd/
+
+# Brainstorming visual-companion mockups/state
+.superpowers/brainstorm/
