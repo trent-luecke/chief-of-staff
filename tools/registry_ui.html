@@ -939,6 +939,16 @@
       padding: 4px 12px; border-radius: 3px; font-size: 11px; cursor: pointer;
     }
     .btn-pin:hover { color: var(--text); border-color: var(--accent); }
+    /* ── Today tab ── */
+    .today-mtg { border: 1px solid var(--border); border-radius: 6px; margin: 6px 0; }
+    .today-mtg-head { display: flex; gap: 10px; align-items: center; padding: 8px 12px; cursor: pointer; }
+    .today-mtg-time { font-variant-numeric: tabular-nums; opacity: .8; }
+    .today-mtg-title { font-weight: 600; flex: 1; }
+    .today-mtg-kind { font-size: 11px; text-transform: uppercase; opacity: .6; }
+    .today-mtg-prep { padding: 0 12px 10px; }
+    .today-header { display: flex; align-items: center; gap: 8px; }
+    .today-needs { list-style: none; padding-left: 0; }
+    .today-need-reason { display: inline-block; min-width: 62px; font-size: 11px; text-transform: uppercase; opacity: .7; }
     /* ── Meetings tab ── */
     .mtg-layout { display: flex; gap: 16px; padding: 12px 0; }
     .mtg-list {
@@ -1029,7 +1039,8 @@
   <!-- App -->
   <div id="app" class="hidden">
     <nav class="tabs">
-      <button class="tab active" data-view="pending">Pending <span id="pending-count"></span></button>
+      <button class="tab active" data-view="today">Today</button>
+      <button class="tab" data-view="pending">Pending <span id="pending-count"></span></button>
       <button class="tab" data-view="registry">People</button>
       <button class="tab" data-view="observations">Observations</button>
       <button class="tab" data-view="work">Work</button>
@@ -1037,7 +1048,8 @@
       <button class="tab" data-view="meetings">Meetings</button>
     </nav>
     <main>
-      <div id="view-pending" class="view"></div>
+      <div id="view-today" class="view"></div>
+      <div id="view-pending" class="view hidden"></div>
       <div id="view-registry" class="view hidden"></div>
       <div id="view-observations" class="view hidden"></div>
       <div id="view-work" class="view hidden"></div>
@@ -1889,7 +1901,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
-  ['pending','registry','observations','work','notes','meetings'].forEach(v => {
+  ['today','pending','registry','observations','work','notes','meetings'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
   });
 }
@@ -3069,7 +3081,8 @@ async function init() {
     }
     el('screen-loading').classList.add('hidden');
     el('app').classList.remove('hidden');
-    renderPendingView();
+    switchTab('today');
+    renderTodayView();
     setupTabs();
     return;
   }
@@ -3111,6 +3124,7 @@ function setupTabs() {
     tab.addEventListener('click', () => {
       const view = tab.dataset.view;
       switchTab(view);
+      if (view === 'today') renderTodayView();
       if (view === 'registry') renderRegistryView();
       if (view === 'observations') renderObservationsView();
       if (view === 'work') renderWorkView();
@@ -3747,6 +3761,62 @@ function wireTagMgmt(view, tags) {
 
 // ── Meetings tab ──────────────────────────────────────────────────────────────
 const meetingsState = { selectedId: null, _people: [] };
+
+async function renderTodayView() {
+  const view = el('view-today');
+  view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
+  let brief;
+  try {
+    brief = await fetchJSON(`${API}/api/brief_today`);
+  } catch {
+    view.innerHTML = `<div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
+    return;
+  }
+  if (!brief || !brief.date) {
+    view.innerHTML = `<div class="empty-state"><h3>No brief yet</h3><p>The morning run hasn't generated today's brief.</p></div>`;
+    return;
+  }
+  const meetings = brief.meetings || [];
+  const needs = brief.needs_today || [];
+
+  const meetingsHtml = meetings.length ? meetings.map((m, i) => {
+    const time = m.start ? new Date(m.start).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}) : '';
+    const who = (m.attendees || []).map(a => esc(a.name || a.email)).join(', ');
+    return `<div class="today-mtg" data-idx="${i}">
+      <div class="today-mtg-head">
+        <span class="today-mtg-time">${esc(time)}</span>
+        <span class="today-mtg-title">${esc(m.title || '(no title)')}</span>
+        <span class="today-mtg-kind">${esc(m.kind)}</span>
+      </div>
+      <div class="today-mtg-prep hidden">
+        ${m.prep ? esc(JSON.stringify(m.prep)) : '<span class="muted">No prep yet.</span>'}
+        ${who ? `<div class="muted" style="margin-top:6px">${who}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('') : '<div class="muted">No meetings today.</div>';
+
+  const needsHtml = needs.length ? needs.map(n =>
+    `<li><span class="today-need-reason">${esc(n.reason)}</span> ${esc(n.title)}</li>`
+  ).join('') : '<li class="muted">Nothing due.</li>';
+
+  const gen = brief.generated_at ? new Date(brief.generated_at).toLocaleString() : '';
+  view.innerHTML = `
+    <div class="today-header">
+      <h2>Today — ${esc(brief.date)}</h2>
+      <button id="today-refresh" class="btn">Refresh</button>
+      <span class="muted" style="margin-left:8px">generated ${esc(gen)}</span>
+    </div>
+    <section><h3>Meetings</h3>${meetingsHtml}</section>
+    <section><h3>Needs you today</h3><ul class="today-needs">${needsHtml}</ul></section>
+  `;
+  view.querySelectorAll('.today-mtg-head').forEach(head => {
+    head.addEventListener('click', () => head.nextElementSibling.classList.toggle('hidden'));
+  });
+  el('today-refresh').addEventListener('click', async () => {
+    await refreshFromMain();
+    renderTodayView();
+  });
+}
 
 async function renderMeetingsView() {
   const view = el('view-meetings');
