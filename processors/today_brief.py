@@ -24,18 +24,20 @@ def _reason(task: dict, today: str) -> str:
 
 
 def rank_needs(task_list: list, today: str, cap: int = _NEEDS_CAP) -> list:
-    items = [
-        {
+    ranked = []
+    for t in task_list:
+        reason = _reason(t, today)
+        sort_date = t.get("due_date") if reason in ("overdue", "due") else t.get("horizon")
+        item = {
             "id": t["id"],
             "title": t.get("title", ""),
-            "reason": _reason(t, today),
+            "reason": reason,
             "due_date": t.get("due_date"),
             "project_id": t.get("project_id"),
         }
-        for t in task_list
-    ]
-    items.sort(key=lambda x: (_RANK[x["reason"]], x["due_date"] or "9999-12-31"))
-    return items[:cap]
+        ranked.append((_RANK[reason], sort_date or "9999-12-31", item))
+    ranked.sort(key=lambda r: (r[0], r[1]))
+    return [item for _, _, item in ranked[:cap]]
 
 
 def _meeting_dict(ev, internal_domains: list) -> dict:
@@ -69,9 +71,11 @@ def build_today_brief(events, needs_items, internal_domains, today: str, generat
 
 def generate_and_write(config: dict, events, storage, today: str, generated_at: str) -> dict:
     internal_domains = config.get("demo_scan", {}).get("internal_domains", _DEFAULT_INTERNAL_DOMAINS)
+    # Filter declined meetings once; use for both provisioning and assembly
+    active_events = [ev for ev in events if not getattr(ev, "declined", False)]
     # Plan 1: provision stubs for unresolved external attendees (writes people_registry.json)
-    provision_from_events(events, storage, config, today)
+    provision_from_events(active_events, storage, config, today)
     needs = rank_needs(tasks_lib.get_due_or_surfaced(storage, today=today), today)
-    brief = build_today_brief(events, needs, internal_domains, today, generated_at)
+    brief = build_today_brief(active_events, needs, internal_domains, today, generated_at)
     storage.write_json("brief_today.json", brief)
     return brief

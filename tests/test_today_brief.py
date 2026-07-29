@@ -68,3 +68,14 @@ def test_generate_and_write_persists_and_provisions(tmp_path):
     # provisioning created a stub for the external attendee
     people = storage.read_json("people_registry.json")["people"]
     assert any(p["email"] == "jane@acme.com" for p in people)
+
+
+def test_rank_needs_horizon_bucket_orders_by_horizon_date():
+    # Two horizon tasks (no due_date); cap high enough to keep both.
+    tasks = [
+        {"id": "h_new", "title": "newer horizon", "due_date": None, "horizon": "2026-07-29", "project_id": None},
+        {"id": "h_old", "title": "older horizon", "due_date": None, "horizon": "2026-07-10", "project_id": None},
+    ]
+    out = tb.rank_needs(tasks, today="2026-07-29", cap=5)
+    assert [x["id"] for x in out] == ["h_old", "h_new"]  # oldest horizon first
+    assert all(x["reason"] == "horizon" for x in out)
