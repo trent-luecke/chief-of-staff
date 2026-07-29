@@ -25,6 +25,7 @@ data/*
 !data/tasks.json
 !data/tasks.jsonl
 !data/people_registry.json
+!data/brief_today.json
 !data/people_resolution.json
 !data/people_unresolved.json
 !data/onboarding_cache.json
