@@ -45,6 +45,11 @@ from processors.memory_retriever import retrieve_memories, get_cold_start_messag
 from lib.captures import load_recent_captures, load_brief_feedback, load_brief_prefs
 
 
+def _email_enabled(config: dict) -> bool:
+    """Email delivery is opt-in; the Today tab replaces the emailed brief."""
+    return bool(config.get("brief", {}).get("email_enabled", False))
+
+
 # ---------------------------------------------------------------------------
 # Dataclasses
 # ---------------------------------------------------------------------------
@@ -928,9 +933,10 @@ def generate_and_deliver(
         _email_status = "ok"
         _already_sent_today = False
         with timed() as t:
-            if dry_run or no_email:
+            if dry_run or no_email or not _email_enabled(config):
                 _email_status = "skipped"
-                print("   (email skipped)")
+                reason = "email skipped" if (dry_run or no_email) else "email disabled by config"
+                print(f"   ({reason})")
             else:
                 if _brief_already_sent_today(storage):
                     _prev = storage.read_json("state/brief_message_id.json")
