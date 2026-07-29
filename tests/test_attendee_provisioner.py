@@ -74,3 +74,29 @@ def test_provision_from_events_writes_registry(tmp_path):
     saved = storage.read_json("people_registry.json")
     assert saved["version"] == 1
     assert any(p["email"] == "jane@acme.com" for p in saved["people"])
+
+
+def test_exactly_five_attendees_allowed():
+    # 5 external attendees is below the >=6 skip threshold -> all 5 provision
+    details = [{"email": f"p{i}@acme.com", "name": ""} for i in range(5)]
+    ev = _event("e1", "Small call", details)
+    new_stubs, _ = ap.stubs_for_events([ev], [], ["teambuildr.com"], "2026-07-29")
+    assert len(new_stubs) == 5
+
+
+def test_no_write_when_no_new_stubs(tmp_path):
+    # all-internal event -> zero new stubs -> provision_from_events must NOT write
+    from lib.storage import LocalStorage
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("people_registry.json", {"version": 1, "people": []})
+    writes = []
+    orig_write = storage.write_json
+    def spy(key, data, *a, **k):
+        writes.append(key)
+        return orig_write(key, data, *a, **k)
+    storage.write_json = spy
+    ev = _event("e1", "Internal sync", [{"email": "q@teambuildr.com", "name": "Quinn"}])
+    config = {"demo_scan": {"internal_domains": ["teambuildr.com"]}}
+    new_stubs = ap.provision_from_events([ev], storage, config, "2026-07-29")
+    assert new_stubs == []
+    assert writes == []  # write skipped entirely when no new stubs

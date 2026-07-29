@@ -7,8 +7,6 @@ attendees. Writes the git-anchored registry via storage.write_json.
 """
 from __future__ import annotations
 
-from typing import Optional
-
 from lib import identity
 
 DEFAULT_INTERNAL_DOMAINS = ["teambuildr.com"]
