@@ -219,3 +219,4 @@
 {"event": "create", "task_id": "t-2ef56b", "title": "look at changing the daily brief email to something that I manually generate each morning", "source": "ui", "created_at": "2026-07-28", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-07-28"}
 {"event": "create", "task_id": "t-020930", "title": "Spec the 'insufficient credits' modal rewrite for Teofe: screenshot the current modals and write the desired copy per case (out of credits + 'next booking window starts X'; not-applicable-to-membership) \u2014 FastTwitch project", "source": "meeting-dev_triage", "created_at": "2026-07-28", "due_date": null, "metadata": {"meeting_id": "dev_triage", "thread_id": "th-dd92ea"}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
 {"event": "complete", "task_id": "t-00fab6", "completed_at": "2026-07-29"}
+{"event": "complete", "task_id": "t-2ef56b", "completed_at": "2026-07-29"}
