@@ -162,3 +162,37 @@ def test_fetch_date_range_events_empty_range():
         end_date=date(2026, 4, 17),  # end == start: empty
     )
     assert events == []
+
+
+_EVENTS_WITH_NAMES = {
+    "items": [
+        {
+            "id": "evt1",
+            "summary": "Acme demo",
+            "start": {"dateTime": "2026-07-29T09:00:00-05:00"},
+            "end": {"dateTime": "2026-07-29T09:30:00-05:00"},
+            "attendees": [
+                {"email": "trent@teambuildr.com", "self": True},
+                {"email": "jane@acme.com", "displayName": "Jane Smith"},
+                {"email": "no-name@acme.com"},
+            ],
+        }
+    ]
+}
+
+
+def test_attendee_details_capture_names_and_exclude_self():
+    with patch("collectors.calendar._build_service") as mock:
+        service = MagicMock()
+        mock.return_value = service
+        service.events.return_value.list.return_value.execute.return_value = _EVENTS_WITH_NAMES
+        events = fetch_today_events(target_date=date(2026, 7, 29), user_email="trent@teambuildr.com")
+    assert len(events) == 1
+    ev = events[0]
+    # emails list unchanged (owner excluded)
+    assert ev.attendees == ["jane@acme.com", "no-name@acme.com"]
+    # details carry names; missing displayName -> ""
+    assert ev.attendee_details == [
+        {"email": "jane@acme.com", "name": "Jane Smith"},
+        {"email": "no-name@acme.com", "name": ""},
+    ]

@@ -15,6 +15,7 @@ class CalendarEvent:
     end: datetime
     description: str = ""
     attendees: list[str] = field(default_factory=list)
+    attendee_details: list[dict] = field(default_factory=list)
     declined: bool = False
 
 
@@ -69,6 +70,10 @@ def fetch_today_events(
                     description=item.get("description", ""),
                     attendees=[
                         a["email"] for a in raw_attendees if not a.get("self")
+                    ],
+                    attendee_details=[
+                        {"email": a["email"], "name": a.get("displayName", "")}
+                        for a in raw_attendees if not a.get("self")
                     ],
                     declined=owner_declined,
                 )
