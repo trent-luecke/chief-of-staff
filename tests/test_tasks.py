@@ -349,3 +349,16 @@ def test_get_due_or_surfaced_excludes_completed(tmp_path):
     complete_task_by_id(s, t["id"])
     got = get_due_or_surfaced(s, today="2026-07-29")
     assert got == []
+
+
+def test_get_due_or_surfaced_horizon_honors_explicit_today(tmp_path):
+    # Proves the horizon branch uses the injected `today`, not the system clock.
+    from lib.tasks import get_due_or_surfaced
+    s = _s(tmp_path)
+    # A date far from "now" so this can't accidentally pass via the real clock.
+    t = add_task(s, "old horizon", horizon="2020-01-15")
+    got = get_due_or_surfaced(s, today="2020-01-15")
+    assert t["id"] in {x["id"] for x in got}
+    # And it must NOT surface when today is a different date
+    none_got = get_due_or_surfaced(s, today="2020-02-20")
+    assert t["id"] not in {x["id"] for x in none_got}

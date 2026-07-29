@@ -179,15 +179,20 @@ def is_behind_horizon(task: dict, today: Optional[str] = None) -> bool:
     return horizon > (today or date.today().isoformat())
 
 
-def get_surfaced_tasks(storage, lookback_days: int = 1) -> list:
+def get_surfaced_tasks(storage, lookback_days: int = 1, today: Optional[str] = None) -> list:
     """Open tasks whose horizon arrived within the last lookback_days.
 
     Window: today - lookback_days < horizon <= today. Used by the brief to
     announce tasks that just came off the horizon.
     """
-    today = date.today()
-    since = (today - timedelta(days=lookback_days)).isoformat()
-    today_s = today.isoformat()
+    if today is None:
+        today_date = date.today()
+    elif isinstance(today, str):
+        today_date = date.fromisoformat(today)
+    else:
+        today_date = today
+    since = (today_date - timedelta(days=lookback_days)).isoformat()
+    today_s = today_date.isoformat()
     return [
         t for t in get_open_tasks(storage)
         if t.get("horizon") and since < t["horizon"] <= today_s
@@ -205,14 +210,13 @@ def get_due_or_surfaced(storage, today=None) -> list:
     if today is None:
         today = date.today().isoformat()
     open_tasks = get_open_tasks(storage)
-    surfaced_ids = {t["id"] for t in get_surfaced_tasks(storage)}
-    result, seen = [], set()
+    surfaced_ids = {t["id"] for t in get_surfaced_tasks(storage, today=today)}
+    result = []
     for t in open_tasks:
         due = t.get("due_date")
         is_due = bool(due) and due <= today
-        if (is_due or t["id"] in surfaced_ids) and t["id"] not in seen:
+        if is_due or t["id"] in surfaced_ids:
             result.append(t)
-            seen.add(t["id"])
     return result
 
 
