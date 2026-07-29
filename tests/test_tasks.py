@@ -312,3 +312,40 @@ def test_get_surfaced_tasks_excludes_completed(tmp_path):
     add_task(s, "Done already", horizon=date.today().isoformat())
     complete_task(s, "Done already")
     assert get_surfaced_tasks(s) == []
+
+
+# --- get_due_or_surfaced ---
+
+def test_get_due_or_surfaced_unions_due_overdue_and_horizon(tmp_path):
+    from lib.tasks import get_due_or_surfaced
+    s = _s(tmp_path)
+    today = "2026-07-29"
+    # overdue (due before today)
+    t_overdue = add_task(s, "overdue task", due_date="2026-07-01")
+    # due today
+    t_due = add_task(s, "due today task", due_date="2026-07-29")
+    # horizon arrived today
+    t_horizon = add_task(s, "horizon task", horizon="2026-07-29")
+    # future due -> excluded
+    add_task(s, "future task", due_date="2026-08-30")
+    # future horizon -> excluded
+    add_task(s, "future horizon", horizon="2026-08-30")
+    # no dates -> excluded
+    add_task(s, "someday task")
+
+    got = get_due_or_surfaced(s, today=today)
+    ids = {t["id"] for t in got}
+    assert t_overdue["id"] in ids
+    assert t_due["id"] in ids
+    assert t_horizon["id"] in ids
+    assert len(got) == 3  # the three future/dateless tasks excluded
+
+
+def test_get_due_or_surfaced_excludes_completed(tmp_path):
+    from lib.tasks import get_due_or_surfaced
+    s = _s(tmp_path)
+    t = add_task(s, "done overdue", due_date="2026-07-01")
+    from lib.tasks import complete_task_by_id
+    complete_task_by_id(s, t["id"])
+    got = get_due_or_surfaced(s, today="2026-07-29")
+    assert got == []

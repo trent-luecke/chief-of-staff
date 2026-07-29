@@ -194,6 +194,28 @@ def get_surfaced_tasks(storage, lookback_days: int = 1) -> list:
     ]
 
 
+def get_due_or_surfaced(storage, today=None) -> list:
+    """Open tasks needing attention today: due today, overdue, or horizon-arrived.
+
+    Union (by id) of:
+      - open tasks with due_date <= today
+      - open tasks surfaced by get_surfaced_tasks (horizon just arrived)
+    Ordering is not guaranteed; the caller ranks/caps.
+    """
+    if today is None:
+        today = date.today().isoformat()
+    open_tasks = get_open_tasks(storage)
+    surfaced_ids = {t["id"] for t in get_surfaced_tasks(storage)}
+    result, seen = [], set()
+    for t in open_tasks:
+        due = t.get("due_date")
+        is_due = bool(due) and due <= today
+        if (is_due or t["id"] in surfaced_ids) and t["id"] not in seen:
+            result.append(t)
+            seen.add(t["id"])
+    return result
+
+
 def delete_task_by_id(storage, task_id: str) -> Optional[dict]:
     """Append a delete event so the task is excluded from future replays."""
     tasks = _replay(storage)
