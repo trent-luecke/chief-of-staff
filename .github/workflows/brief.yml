@@ -53,6 +53,11 @@ jobs:
       - name: Commit brief_today.json + provisioned people
         if: always()
         run: |
-          git add data/brief_today.json data/people_registry.json 2>/dev/null || true
-          git diff --staged --quiet || git commit -m "chore(brief): update brief_today.json + provisioned people [skip ci]"
-          git push origin main || true
+          git add data/brief_today.json 2>/dev/null || true
+          git add data/people_registry.json 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No brief/people changes to commit."
+          else
+            git commit -m "chore(brief): update brief_today.json + provisioned people [skip ci]"
+            git push origin main || true
+          fi
