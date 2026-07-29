@@ -46,6 +46,7 @@ class _Snapshot:
         self.tags = []
         self.meetings = {}        # slug -> replayed doc state
         self.meeting_index = []   # list of config dicts from meeting_index.json
+        self.brief = {}
 
 
 SNAPSHOT = _Snapshot()
@@ -73,6 +74,7 @@ def rebuild_snapshot(known_online=None) -> None:
     SNAPSHOT.tags = store.read_json("notes_tags.json", default=[])
     SNAPSHOT.meetings = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
     SNAPSHOT.meeting_index = store.read_json("meeting_index.json", default={"meetings": []}).get("meetings", [])
+    SNAPSHOT.brief = store.read_json("brief_today.json", default={})
     SNAPSHOT.online = online
     SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
 
@@ -390,6 +392,11 @@ def list_people():
 @app.route("/api/registry", methods=["GET"])
 def get_registry():
     return jsonify(SNAPSHOT.people)
+
+
+@app.route("/api/brief_today", methods=["GET"])
+def get_brief_today():
+    return jsonify(SNAPSHOT.brief)
 
 
 # Fields the Registry UI edit form is allowed to write back. Anything else in

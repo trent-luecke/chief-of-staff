@@ -29,3 +29,19 @@ def test_list_people_falls_back_to_id_when_no_canonical_name():
     resp = app.test_client().get("/api/people")
     data = json.loads(resp.data)
     assert data[0] == {"id": "unknown-person", "name": "unknown-person"}
+
+
+def test_brief_today_endpoint_returns_snapshot():
+    SNAPSHOT.brief = {
+        "date": "2026-07-29",
+        "generated_at": "2026-07-29T11:00:00Z",
+        "meetings": [{"id": "m1", "title": "Acme demo", "kind": "external",
+                      "attendees": [], "prep": None, "start": None, "end": None}],
+        "needs_today": [],
+        "what_moved": [],
+    }
+    resp = app.test_client().get("/api/brief_today")
+    assert resp.status_code == 200
+    body = json.loads(resp.data)
+    assert body["date"] == "2026-07-29"
+    assert body["meetings"][0]["title"] == "Acme demo"
