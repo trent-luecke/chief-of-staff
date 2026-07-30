@@ -92,3 +92,4 @@
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-29T16:18:11", "items": ["what are your thoughts on the freemium type of pricing where we just institute a higher Stripe processing fee and the subscription cost is close to 0?"]}
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-29T16:18:18", "items": []}
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-07-29T16:19:08", "items": ["anthropic API keys for team tools, can I possibly get a company key for them?"]}
+{"event": "delete_thread", "id": "os_sit_down", "ts": "2026-07-30T15:08:24", "thread_id": "th-654dca"}
