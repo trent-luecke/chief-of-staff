@@ -62,6 +62,7 @@ jobs:
         run: |
           git add data/people_registry.json data/people_resolution.json data/people_unresolved.json
           git diff --staged --quiet || git commit -m "chore: update people registry and resolution sidecar [skip ci]"
+          git pull --rebase origin main || true
           git push origin main || true
 
       - name: Notify on new unresolved entities
@@ -120,4 +121,5 @@ jobs:
         run: |
           git add data/people_unresolved.json
           git diff --staged --quiet || git commit -m "chore: update unresolved notification state [skip ci]"
+          git pull --rebase origin main || true
           git push origin main || true
