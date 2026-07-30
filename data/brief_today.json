@@ -1,0 +1,76 @@
+{
+  "date": "2026-07-30",
+  "generated_at": "2026-07-30T12:09:30.742552+00:00",
+  "meetings": [
+    {
+      "id": "05qo705ca6f27ai8m3usq7fp05_20260730T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-07-30T12:00:00-05:00",
+      "end": "2026-07-30T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6judhmptlohe2rklibhomisvvr",
+      "title": "Razer / TeamBuildr",
+      "start": "2026-07-30T13:00:00-05:00",
+      "end": "2026-07-30T14:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "razer@fspbr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "m6f1g5odvs85gt2a5etbobumk8",
+      "title": "Kersten, Craig and Trent Luecke",
+      "start": "2026-07-30T14:30:00-05:00",
+      "end": "2026-07-30T15:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "craig@optimumfitnessomaha.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    }
+  ],
+  "needs_today": [
+    {
+      "id": "t-488053",
+      "title": "Draft Q3 roadmap",
+      "reason": "overdue",
+      "due_date": "2026-06-30",
+      "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-2fad19",
+      "title": "rework slide deck based on new findings and feedback",
+      "reason": "overdue",
+      "due_date": "2026-07-08",
+      "project_id": "claude-builder"
+    },
+    {
+      "id": "t-356ccf",
+      "title": "determine who needs to be informed about project to determine next steps",
+      "reason": "overdue",
+      "due_date": "2026-07-08",
+      "project_id": "claude-builder"
+    }
+  ],
+  "what_moved": []
+}
