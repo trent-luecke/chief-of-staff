@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-30T00:14:22Z",
+  "fetched_at": "2026-07-30T10:50:00Z",
   "leads": [
     {
       "name": "Asher Wojciechowski",
@@ -8,6 +8,17 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-21",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Andrew Levine",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-21",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -30,6 +41,28 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Evan Nystrom",
+      "contact": "Evan Nystrom",
+      "email": "evan@outlierathlete.com",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-28",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Jamie Tellier",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -328,17 +361,6 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": 750.0,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Evan Nystrom",
-      "contact": "Evan Nystrom",
-      "email": "evan@outlierathlete.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2025-11-13",
-      "estimated_value": null,
       "source": null,
       "stale": false
     },
