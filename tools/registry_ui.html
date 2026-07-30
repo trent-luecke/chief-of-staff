@@ -5,20 +5,25 @@
   <title>People Registry</title>
   <style>
     :root {
-      --bg: #0f0f0f;
-      --surface: #181818;
-      --surface2: #202020;
-      --border: #2c2c2c;
-      --text: #ddd;
-      --muted: #666;
-      --accent: #4a9eff;
+      --bg: #fdfdfc;
+      --surface: #f7f6f3;
+      --surface2: #ececea;
+      --border: #e3e3e0;
+      --text: #181d26;
+      --muted: #767b85;
+      --accent: #0a5c3d;
       --success: #22c55e;
       --danger: #ef4444;
-      --lead: #3b82f6;
-      --customer: #22c55e;
-      --partner: #f59e0b;
-      --internal: #6b7280;
-      --unknown: #ef4444;
+      --b-lead-bg: #e6eefc;
+      --b-lead-fg: #1c5fc9;
+      --b-customer-bg: #e3f3ea;
+      --b-customer-fg: #0e7a4f;
+      --b-partner-bg: #fcefdc;
+      --b-partner-fg: #a9720d;
+      --b-internal-bg: #eceded;
+      --b-internal-fg: #68707a;
+      --b-unknown-bg: #fbe4e1;
+      --b-unknown-fg: #c23b2d;
     }
     /* ── Action feedback: toast + busy ─────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -215,11 +220,11 @@
       letter-spacing: 0.05em;
       font-weight: 600;
     }
-    .badge-lead { background: rgba(59,130,246,.2); color: var(--lead); }
-    .badge-customer { background: rgba(34,197,94,.2); color: var(--customer); }
-    .badge-partner { background: rgba(245,158,11,.2); color: var(--partner); }
-    .badge-internal { background: rgba(107,114,128,.2); color: var(--internal); }
-    .badge-unknown { background: rgba(239,68,68,.2); color: var(--unknown); }
+    .badge-lead { background: var(--b-lead-bg); color: var(--b-lead-fg); }
+    .badge-customer { background: var(--b-customer-bg); color: var(--b-customer-fg); }
+    .badge-partner { background: var(--b-partner-bg); color: var(--b-partner-fg); }
+    .badge-internal { background: var(--b-internal-bg); color: var(--b-internal-fg); }
+    .badge-unknown { background: var(--b-unknown-bg); color: var(--b-unknown-fg); }
 
     /* ── Inline typeahead ── */
     .typeahead-wrap { position: relative; }
@@ -430,7 +435,7 @@
     .proj-name { flex: 1; font-size: 13px; }
     .proj-meta { font-size: 11px; color: var(--muted); }
     .badge-active { background: rgba(34,197,94,.2); color: var(--success); }
-    .badge-archived { background: rgba(107,114,128,.2); color: var(--internal); }
+    .badge-archived { background: var(--b-internal-bg); color: var(--b-internal-fg); }
     .proj-detail {
       background: var(--surface2);
       border: 1px solid var(--border);
