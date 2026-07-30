@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-07-29T00:00:00",
+  "resolved_at": "2026-07-30T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -7626,6 +7626,202 @@
         "ryan-allwein"
       ],
       "confidence": "embedded"
+    },
+    "1669": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1670": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1671": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1672": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1673": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1674": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1675": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1676": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1677": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1678": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1679": {
+      "primary_person_id": "jasmin-bray-rise-sports-performance-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1680": {
+      "primary_person_id": "thomas-howes",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1681": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1682": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1683": {
+      "primary_person_id": "jamie-crone",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1684": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1685": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1686": {
+      "primary_person_id": "scottsilveus",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1687": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1688": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1689": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1690": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1691": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1692": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1693": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1694": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1695": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1696": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1697": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1698": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1699": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1700": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1701": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1702": {
+      "primary_person_id": "chanelbrown",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "1703": {
+      "primary_person_id": "trent-luecke",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1704": {
+      "primary_person_id": "ryan-allwein",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1705": {
+      "primary_person_id": "thomasohowes",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "1706": {
+      "primary_person_id": "deseanlberger",
+      "related_person_ids": [
+        "chris-reynolds"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -7788,7 +7984,10 @@
     1476,
     1506,
     1507,
-    1641
+    1641,
+    1666,
+    1667,
+    1668
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -7843,6 +8042,8 @@
     "thread:Re: D1 Stats.",
     "thread:TeamBuildr OS Call",
     "thread:Re: Recording",
-    "thread:Re: Intermountain Agreement call"
+    "thread:Re: Intermountain Agreement call",
+    "thread:Re: Transition with Stripe",
+    "thread:Re: TeamBuildr Demo Recap + Next Steps"
   ]
 }

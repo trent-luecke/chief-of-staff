@@ -415,6 +415,30 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-29"
+    },
+    {
+      "entity": "Evan",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-30"
+    },
+    {
+      "entity": "Jtellier",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-30"
+    },
+    {
+      "entity": "Tweber",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-07-30"
     }
   ],
   "previously_notified": [
