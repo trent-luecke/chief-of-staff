@@ -2113,7 +2113,7 @@ async function fetchJSON(url, opts = {}) {
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
-const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set(), routineEditing: new Set() };
+const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set(), routineEditing: new Set(), subFilter: 'all' };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(iso) {
@@ -2807,6 +2807,29 @@ function wireRoutinesSection(view, onChanged) {
   });
 }
 
+// ── Work sub-panel ───────────────────────────────────────────────────────────
+const WORK_SUBPANEL_FILTERS = [
+  { value: 'all',        label: 'All Work' },
+  { value: 'projects',   label: 'Projects' },
+  { value: 'standalone', label: 'Standalone' },
+  { value: 'routines',   label: 'Routines' },
+];
+
+function renderWorkSubpanel(container) {
+  container.innerHTML = `
+    <div class="subpanel-label">Work</div>
+    ${WORK_SUBPANEL_FILTERS.map(f => `
+      <button class="sub-item${f.value === workState.subFilter ? ' active' : ''}" data-filter="${f.value}">${esc(f.label)}</button>
+    `).join('')}`;
+  container.querySelectorAll('.sub-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      workState.subFilter = btn.dataset.filter;
+      renderWorkSubpanel(container);
+      renderWorkView();
+    });
+  });
+}
+
 // ── renderWorkView ───────────────────────────────────────────────────────────
 async function renderWorkView() {
   const view = el('view-work');
@@ -2839,6 +2862,10 @@ async function renderWorkView() {
   const standaloneAll = sortTasks((allTasks || []).filter(t => !t.project_id));
   const standaloneTasks = standaloneAll.filter(t => !isBehindHorizon(t));
   const laterTasks = standaloneAll.filter(isBehindHorizon).sort((a, b) => (a.horizon < b.horizon ? -1 : 1));
+
+  const showProjects = workState.subFilter === 'all' || workState.subFilter === 'projects';
+  const showStandalone = workState.subFilter === 'all' || workState.subFilter === 'standalone';
+  const showRoutines = workState.subFilter === 'all' || workState.subFilter === 'routines';
 
   // ── Projects section ────────────────────────────────────────────────────
   const projGroupsHtml = activeProjects.length
@@ -2928,7 +2955,7 @@ async function renderWorkView() {
   const newRoutineHtml = workState.routineEditing.has('__new__')
     ? `<div class="routine-edit-panel" id="routine-new-panel">${routineFormHtml('rf-new', null)}</div>` : '';
 
-  view.innerHTML = `
+  const projectsSectionHtml = showProjects ? `
     <div class="work-section-header">
       <span class="work-section-label">Projects</span>
       <button class="btn-new-proj" id="new-proj-toggle">+ New Project</button>
@@ -2938,7 +2965,9 @@ async function renderWorkView() {
       <button class="btn-add-task" id="new-proj-submit">Create</button>
       <span class="new-proj-status" id="new-proj-status"></span>
     </div>
-    <div id="work-proj-list">${projGroupsHtml}</div>
+    <div id="work-proj-list">${projGroupsHtml}</div>` : '';
+
+  const standaloneSectionHtml = showStandalone ? `
     <div class="standalone-section">
       <div class="work-section-header">
         <span class="work-section-label">Standalone</span>
@@ -2946,7 +2975,9 @@ async function renderWorkView() {
       <div id="standalone-tasks">${standaloneHtml}</div>
       ${renderAddTaskForm(null, people)}
       ${laterHtml}
-    </div>
+    </div>` : '';
+
+  const routinesSectionHtml = showRoutines ? `
     <div class="routines-section">
       <div class="work-section-header">
         <span class="work-section-label">Routines</span>
@@ -2954,31 +2985,35 @@ async function renderWorkView() {
       </div>
       ${newRoutineHtml}
       <div id="routines-list">${routineRowsHtml}</div>
-    </div>`;
+    </div>` : '';
+
+  view.innerHTML = projectsSectionHtml + standaloneSectionHtml + routinesSectionHtml;
 
   // ── Wire new project form ───────────────────────────────────────────────
-  el('new-proj-toggle').addEventListener('click', () => {
-    el('new-proj-inline').classList.toggle('hidden');
-    el('new-proj-name').focus();
-  });
-  const submitNewProject = async () => {
-    const name = el('new-proj-name').value.trim();
-    if (!name) { el('new-proj-name').focus(); return; }
-    el('new-proj-submit').disabled = true;
-    el('new-proj-status').textContent = 'Creating…';
-    try {
-      await fetchJSON(`${API}/api/projects`, {
-        method: 'POST',
-        body: JSON.stringify({ canonical_name: name, members: [] }),
-      });
-      await renderWorkView();
-    } catch (err) {
-      el('new-proj-status').textContent = 'Error: ' + err.message;
-      el('new-proj-submit').disabled = false;
-    }
-  };
-  el('new-proj-submit').addEventListener('click', submitNewProject);
-  el('new-proj-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitNewProject(); });
+  if (showProjects) {
+    el('new-proj-toggle').addEventListener('click', () => {
+      el('new-proj-inline').classList.toggle('hidden');
+      el('new-proj-name').focus();
+    });
+    const submitNewProject = async () => {
+      const name = el('new-proj-name').value.trim();
+      if (!name) { el('new-proj-name').focus(); return; }
+      el('new-proj-submit').disabled = true;
+      el('new-proj-status').textContent = 'Creating…';
+      try {
+        await fetchJSON(`${API}/api/projects`, {
+          method: 'POST',
+          body: JSON.stringify({ canonical_name: name, members: [] }),
+        });
+        await renderWorkView();
+      } catch (err) {
+        el('new-proj-status').textContent = 'Error: ' + err.message;
+        el('new-proj-submit').disabled = false;
+      }
+    };
+    el('new-proj-submit').addEventListener('click', submitNewProject);
+    el('new-proj-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitNewProject(); });
+  }
 
   // ── Wire project group expand/collapse and edit ─────────────────────────
   view.querySelectorAll('.proj-group-header').forEach(header => {
