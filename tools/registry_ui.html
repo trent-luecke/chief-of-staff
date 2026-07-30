@@ -5,15 +5,16 @@
   <title>People Registry</title>
   <style>
     :root {
-      --bg: #fdfdfc;
-      --surface: #f7f6f3;
-      --surface2: #ececea;
-      --border: #e3e3e0;
-      --text: #181d26;
+      --canvas: #fdfdfc;
+      --ink: #181d26;
+      --body-c: #333840;
       --muted: #767b85;
+      --hairline: #e3e3e0;
+      --surface-soft: #f7f6f3;
+      --surface-strong: #ececea;
       --accent: #0a5c3d;
-      --success: #22c55e;
-      --danger: #ef4444;
+      --accent-soft: #e2f0ea;
+      --accent-ink: #ffffff;
       --b-lead-bg: #e6eefc;
       --b-lead-fg: #1c5fc9;
       --b-customer-bg: #e3f3ea;
@@ -24,6 +25,14 @@
       --b-internal-fg: #68707a;
       --b-unknown-bg: #fbe4e1;
       --b-unknown-fg: #c23b2d;
+      /* Aliases for backward compatibility with existing code */
+      --bg: var(--canvas);
+      --surface: var(--surface-soft);
+      --surface2: var(--surface-strong);
+      --border: var(--hairline);
+      --text: var(--ink);
+      --success: #22c55e;
+      --danger: #ef4444;
     }
     /* ── Action feedback: toast + busy ─────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -90,9 +99,9 @@
       padding: 9px 20px;
       font-size: 13px;
     }
-    .btn-primary:hover { background: #3a8eef; }
+    .btn-primary:hover { background: #084e34; }
     .btn { background: var(--surface2); color: var(--text); padding: 5px 12px; border: 1px solid var(--border); }
-    .btn:hover:not(:disabled) { background: #2a2a2a; }
+    .btn:hover:not(:disabled) { background: #e2e1dd; }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-confirm { border-color: var(--success); color: var(--success); }
     .btn-confirm:hover:not(:disabled) { background: rgba(34,197,94,.1); }
@@ -106,7 +115,7 @@
       border-radius: 4px;
     }
     .btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-save:hover:not(:disabled) { background: #3a8eef; }
+    .btn-save:hover:not(:disabled) { background: #084e34; }
 
     /* ── App layout ── */
     #app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -499,7 +508,7 @@
       border-radius: 4px;
       border: none;
     }
-    .btn-add-task:hover { background: #3a8eef; }
+    .btn-add-task:hover { background: #084e34; }
     .btn-add-task:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ── Work tab ── */
