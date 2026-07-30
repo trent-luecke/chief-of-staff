@@ -194,13 +194,13 @@
       font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
       font-size: 14px;
       font-weight: 600;
-      color: #fff;
+      color: var(--ink);
     }
     .resolution-badge {
       font-size: 11px;
-      background: rgba(74,158,255,.15);
+      background: var(--accent-soft);
       color: var(--accent);
-      border: 1px solid rgba(74,158,255,.3);
+      border: 1px solid var(--accent-soft);
       border-radius: 3px;
       padding: 1px 7px;
     }
@@ -638,7 +638,7 @@
     .due-chip.upcoming { color: #f59e0b; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); }
     .due-chip.overdue  { color: #ef4444; background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.3); }
     .horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
-    .horizon-ghost { color:#bbb; font-size:11px; cursor:pointer; }
+    .horizon-ghost { color:var(--muted); font-size:11px; cursor:pointer; }
     .routines-section { margin-top: 24px; }
     .routine-row { border-bottom: 1px solid var(--border, #333); padding: 6px 0; }
     .routine-row-main { display: flex; align-items: center; gap: 8px; }
@@ -817,7 +817,7 @@
       font-size: 11px; padding: 2px 8px; border-radius: 12px;
       border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: transparent;
     }
-    .notes-filter-chip.active { background: rgba(255,255,255,.08); color: var(--text); }
+    .notes-filter-chip.active { background: var(--surface-strong); color: var(--text); }
     .notes-manage-tags-btn, .notes-sort-btn, .notes-group-btn, .notes-compact-btn {
       font-size: 11px; color: var(--muted); background: transparent;
       border: 1px solid var(--border); padding: 3px 10px; border-radius: 3px; cursor: pointer;
@@ -921,7 +921,7 @@
       font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;
       border: 1px solid var(--border); background: transparent; color: var(--muted);
     }
-    .note-tag-chip-toggle.selected { background: rgba(255,255,255,.08); color: var(--text); }
+    .note-tag-chip-toggle.selected { background: var(--surface-strong); color: var(--text); }
     .note-new-tag-form {
       display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 2px;
     }
