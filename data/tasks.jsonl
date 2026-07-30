@@ -224,3 +224,4 @@
 {"event": "delete", "task_id": "t-2fad19"}
 {"event": "delete", "task_id": "t-356ccf"}
 {"event": "edit", "task_id": "t-67e36d", "patch": {"horizon": null}}
+{"event": "create", "task_id": "t-60a815", "title": "send invoices to Ubuntu", "source": "ui", "created_at": "2026-07-30", "due_date": "2026-07-30", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
