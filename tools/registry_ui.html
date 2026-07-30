@@ -118,30 +118,38 @@
     .btn-save:hover:not(:disabled) { background: #084e34; }
 
     /* ── App layout ── */
-    #app { display: flex; flex-direction: column; min-height: 100vh; }
-    .tabs {
-      display: flex;
-      gap: 2px;
-      padding: 10px 16px 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+    #app { display: flex; flex-direction: row; min-height: 100vh; }
+    .rail {
+      width: 176px; flex-shrink: 0; background: var(--surface-soft);
+      border-right: 1px solid var(--hairline); padding: 14px 10px;
+      display: flex; flex-direction: column; gap: 2px;
     }
-    .tab {
-      background: none;
-      color: var(--muted);
-      padding: 7px 14px;
-      border-radius: 4px 4px 0 0;
-      border: 1px solid transparent;
-      border-bottom: none;
-      font-size: 13px;
+    .rail-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+      border-radius: 7px; font-size: 13px; color: var(--muted);
+      cursor: pointer; border: none; background: none; font: inherit;
+      width: 100%; text-align: left;
     }
-    .tab.active {
-      background: var(--bg);
-      color: var(--text);
-      border-color: var(--border);
+    .rail-item:hover { background: var(--surface-strong); }
+    .rail-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+    .rail-item .ic { width: 18px; height: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .rail-item .ic svg { width: 16px; height: 16px; }
+    #subpanel-container {
+      width: 170px; flex-shrink: 0; background: var(--canvas);
+      border-right: 1px solid var(--hairline); padding: 14px 12px;
     }
-    .tab:hover:not(.active) { color: var(--text); }
+    #subpanel-container.hidden { display: none; }
+    .subpanel-label {
+      font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; margin-bottom: 8px;
+    }
+    .sub-item {
+      display: block; width: 100%; text-align: left; padding: 6px 8px; margin-bottom: 1px;
+      border-radius: 6px; font-size: 13px; color: var(--body-c);
+      cursor: pointer; border: none; background: none; font: inherit;
+    }
+    .sub-item:hover { background: var(--surface-soft); }
+    .sub-item.active { background: var(--surface-strong); color: var(--ink); font-weight: 600; }
     main { flex: 1; overflow-y: auto; padding: 20px 16px; }
     .view { max-width: 780px; margin: 0 auto; }
     /* Notes tab spans the full window width (no centered 780px cap) */
@@ -1052,15 +1060,15 @@
 
   <!-- App -->
   <div id="app" class="hidden">
-    <nav class="tabs">
-      <button class="tab active" data-view="today">Today</button>
-      <button class="tab" data-view="pending">Pending <span id="pending-count"></span></button>
-      <button class="tab" data-view="registry">People</button>
-      <button class="tab" data-view="observations">Observations</button>
-      <button class="tab" data-view="work">Work</button>
-      <button class="tab" data-view="notes">Notes</button>
-      <button class="tab" data-view="meetings">Meetings</button>
+    <nav class="rail">
+      <button class="rail-item active" data-view="today"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.8 2.8"/></svg></span>Today</button>
+      <button class="rail-item" data-view="pending"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h4.2l1.3 2.4h2.9L12.7 9H17"/><path d="M3 9V5.6C3 5 3.5 4.5 4.1 4.5h11.8c.6 0 1.1.5 1.1 1.1V9"/><path d="M3 9v5.4c0 .6.5 1.1 1.1 1.1h11.8c.6 0 1.1-.5 1.1-1.1V9"/></svg></span>Pending <span id="pending-count"></span></button>
+      <button class="rail-item" data-view="registry"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg></span>People</button>
+      <button class="rail-item" data-view="work"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="12" height="10.5" rx="1.3"/><path d="M7.5 5.5V4.3c0-.6.5-1.1 1.1-1.1h2.8c.6 0 1.1.5 1.1 1.1v1.2"/><path d="M4 9.5h12"/></svg></span>Work</button>
+      <button class="rail-item" data-view="notes"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h7.5L16 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M12.2 3.5V7H16"/><path d="M6.6 10.5h6.3M6.6 13.2h6.3"/></svg></span>Notes</button>
+      <button class="rail-item" data-view="meetings"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="13" height="11.5" rx="1.3"/><path d="M3.5 8h13"/><path d="M7 3v3M13 3v3"/></svg></span>Meetings</button>
     </nav>
+    <div id="subpanel-container" class="hidden"></div>
     <main>
       <div id="view-today" class="view"></div>
       <div id="view-pending" class="view hidden"></div>
@@ -1912,12 +1920,27 @@ function renderObservationsView(filter = '') {
 
 // ── Tab navigation ──────────────────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t =>
+  document.querySelectorAll('.rail-item').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
   ['today','pending','registry','observations','work','notes','meetings'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
   });
+  renderSubpanel(name);
+}
+
+function renderSubpanel(name) {
+  const container = el('subpanel-container');
+  if (name === 'registry' && typeof renderPeopleSubpanel === 'function') {
+    container.classList.remove('hidden');
+    renderPeopleSubpanel(container);
+  } else if (name === 'work' && typeof renderWorkSubpanel === 'function') {
+    container.classList.remove('hidden');
+    renderWorkSubpanel(container);
+  } else {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+  }
 }
 
 // ── View: Work ──────────────────────────────────────────────────────────────
@@ -3134,7 +3157,7 @@ async function init() {
 }
 
 function setupTabs() {
-  document.querySelectorAll('.tab').forEach(tab => {
+  document.querySelectorAll('.rail-item').forEach(tab => {
     tab.addEventListener('click', () => {
       const view = tab.dataset.view;
       switchTab(view);
