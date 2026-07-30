@@ -5,20 +5,34 @@
   <title>People Registry</title>
   <style>
     :root {
-      --bg: #0f0f0f;
-      --surface: #181818;
-      --surface2: #202020;
-      --border: #2c2c2c;
-      --text: #ddd;
-      --muted: #666;
-      --accent: #4a9eff;
+      --canvas: #fdfdfc;
+      --ink: #181d26;
+      --body-c: #333840;
+      --muted: #767b85;
+      --hairline: #e3e3e0;
+      --surface-soft: #f7f6f3;
+      --surface-strong: #ececea;
+      --accent: #0a5c3d;
+      --accent-soft: #e2f0ea;
+      --accent-ink: #ffffff;
+      --b-lead-bg: #e6eefc;
+      --b-lead-fg: #1c5fc9;
+      --b-customer-bg: #e3f3ea;
+      --b-customer-fg: #0e7a4f;
+      --b-partner-bg: #fcefdc;
+      --b-partner-fg: #a9720d;
+      --b-internal-bg: #eceded;
+      --b-internal-fg: #68707a;
+      --b-unknown-bg: #fbe4e1;
+      --b-unknown-fg: #c23b2d;
+      /* Aliases for backward compatibility with existing code */
+      --bg: var(--canvas);
+      --surface: var(--surface-soft);
+      --surface2: var(--surface-strong);
+      --border: var(--hairline);
+      --text: var(--body-c);
       --success: #22c55e;
       --danger: #ef4444;
-      --lead: #3b82f6;
-      --customer: #22c55e;
-      --partner: #f59e0b;
-      --internal: #6b7280;
-      --unknown: #ef4444;
     }
     /* ── Action feedback: toast + busy ─────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -85,9 +99,9 @@
       padding: 9px 20px;
       font-size: 13px;
     }
-    .btn-primary:hover { background: #3a8eef; }
+    .btn-primary:hover { background: #084e34; }
     .btn { background: var(--surface2); color: var(--text); padding: 5px 12px; border: 1px solid var(--border); }
-    .btn:hover:not(:disabled) { background: #2a2a2a; }
+    .btn:hover:not(:disabled) { background: #e2e1dd; }
     .btn:disabled { opacity: 0.35; cursor: not-allowed; }
     .btn-confirm { border-color: var(--success); color: var(--success); }
     .btn-confirm:hover:not(:disabled) { background: rgba(34,197,94,.1); }
@@ -101,33 +115,41 @@
       border-radius: 4px;
     }
     .btn-save:disabled { opacity: 0.35; cursor: not-allowed; }
-    .btn-save:hover:not(:disabled) { background: #3a8eef; }
+    .btn-save:hover:not(:disabled) { background: #084e34; }
 
     /* ── App layout ── */
-    #app { display: flex; flex-direction: column; min-height: 100vh; }
-    .tabs {
-      display: flex;
-      gap: 2px;
-      padding: 10px 16px 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
+    #app { display: flex; flex-direction: row; min-height: 100vh; }
+    .rail {
+      width: 176px; flex-shrink: 0; background: var(--surface-soft);
+      border-right: 1px solid var(--hairline); padding: 14px 10px;
+      display: flex; flex-direction: column; gap: 2px;
     }
-    .tab {
-      background: none;
-      color: var(--muted);
-      padding: 7px 14px;
-      border-radius: 4px 4px 0 0;
-      border: 1px solid transparent;
-      border-bottom: none;
-      font-size: 13px;
+    .rail-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+      border-radius: 7px; font-size: 13px; color: var(--muted);
+      cursor: pointer; border: none; background: none; font: inherit;
+      width: 100%; text-align: left;
     }
-    .tab.active {
-      background: var(--bg);
-      color: var(--text);
-      border-color: var(--border);
+    .rail-item:hover { background: var(--surface-strong); }
+    .rail-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+    .rail-item .ic { width: 18px; height: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .rail-item .ic svg { width: 16px; height: 16px; }
+    #subpanel-container {
+      width: 170px; flex-shrink: 0; background: var(--canvas);
+      border-right: 1px solid var(--hairline); padding: 14px 12px;
     }
-    .tab:hover:not(.active) { color: var(--text); }
+    #subpanel-container.hidden { display: none; }
+    .subpanel-label {
+      font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; margin-bottom: 8px;
+    }
+    .sub-item {
+      display: block; width: 100%; text-align: left; padding: 6px 8px; margin-bottom: 1px;
+      border-radius: 6px; font-size: 13px; color: var(--body-c);
+      cursor: pointer; border: none; background: none; font: inherit;
+    }
+    .sub-item:hover { background: var(--surface-soft); }
+    .sub-item.active { background: var(--surface-strong); color: var(--ink); font-weight: 600; }
     main { flex: 1; overflow-y: auto; padding: 20px 16px; }
     .view { max-width: 780px; margin: 0 auto; }
     /* Notes tab spans the full window width (no centered 780px cap) */
@@ -172,13 +194,13 @@
       font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
       font-size: 14px;
       font-weight: 600;
-      color: #fff;
+      color: var(--ink);
     }
     .resolution-badge {
       font-size: 11px;
-      background: rgba(74,158,255,.15);
+      background: var(--accent-soft);
       color: var(--accent);
-      border: 1px solid rgba(74,158,255,.3);
+      border: 1px solid var(--accent-soft);
       border-radius: 3px;
       padding: 1px 7px;
     }
@@ -215,11 +237,11 @@
       letter-spacing: 0.05em;
       font-weight: 600;
     }
-    .badge-lead { background: rgba(59,130,246,.2); color: var(--lead); }
-    .badge-customer { background: rgba(34,197,94,.2); color: var(--customer); }
-    .badge-partner { background: rgba(245,158,11,.2); color: var(--partner); }
-    .badge-internal { background: rgba(107,114,128,.2); color: var(--internal); }
-    .badge-unknown { background: rgba(239,68,68,.2); color: var(--unknown); }
+    .badge-lead { background: var(--b-lead-bg); color: var(--b-lead-fg); }
+    .badge-customer { background: var(--b-customer-bg); color: var(--b-customer-fg); }
+    .badge-partner { background: var(--b-partner-bg); color: var(--b-partner-fg); }
+    .badge-internal { background: var(--b-internal-bg); color: var(--b-internal-fg); }
+    .badge-unknown { background: var(--b-unknown-bg); color: var(--b-unknown-fg); }
 
     /* ── Inline typeahead ── */
     .typeahead-wrap { position: relative; }
@@ -430,7 +452,7 @@
     .proj-name { flex: 1; font-size: 13px; }
     .proj-meta { font-size: 11px; color: var(--muted); }
     .badge-active { background: rgba(34,197,94,.2); color: var(--success); }
-    .badge-archived { background: rgba(107,114,128,.2); color: var(--internal); }
+    .badge-archived { background: var(--b-internal-bg); color: var(--b-internal-fg); }
     .proj-detail {
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -494,7 +516,7 @@
       border-radius: 4px;
       border: none;
     }
-    .btn-add-task:hover { background: #3a8eef; }
+    .btn-add-task:hover { background: #084e34; }
     .btn-add-task:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ── Work tab ── */
@@ -616,7 +638,7 @@
     .due-chip.upcoming { color: #f59e0b; background: rgba(245,158,11,.1); border: 1px solid rgba(245,158,11,.3); }
     .due-chip.overdue  { color: #ef4444; background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.3); }
     .horizon-chip { background:#ede9fe; color:#6d28d9; border-radius:10px; padding:1px 8px; font-size:11px; cursor:pointer; white-space:nowrap; }
-    .horizon-ghost { color:#bbb; font-size:11px; cursor:pointer; }
+    .horizon-ghost { color:var(--muted); font-size:11px; cursor:pointer; }
     .routines-section { margin-top: 24px; }
     .routine-row { border-bottom: 1px solid var(--border, #333); padding: 6px 0; }
     .routine-row-main { display: flex; align-items: center; gap: 8px; }
@@ -795,7 +817,7 @@
       font-size: 11px; padding: 2px 8px; border-radius: 12px;
       border: 1px solid var(--border); color: var(--muted); cursor: pointer; background: transparent;
     }
-    .notes-filter-chip.active { background: rgba(255,255,255,.08); color: var(--text); }
+    .notes-filter-chip.active { background: var(--surface-strong); color: var(--text); }
     .notes-manage-tags-btn, .notes-sort-btn, .notes-group-btn, .notes-compact-btn {
       font-size: 11px; color: var(--muted); background: transparent;
       border: 1px solid var(--border); padding: 3px 10px; border-radius: 3px; cursor: pointer;
@@ -899,7 +921,7 @@
       font-size: 11px; padding: 2px 8px; border-radius: 3px; cursor: pointer;
       border: 1px solid var(--border); background: transparent; color: var(--muted);
     }
-    .note-tag-chip-toggle.selected { background: rgba(255,255,255,.08); color: var(--text); }
+    .note-tag-chip-toggle.selected { background: var(--surface-strong); color: var(--text); }
     .note-new-tag-form {
       display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 2px;
     }
@@ -1038,15 +1060,15 @@
 
   <!-- App -->
   <div id="app" class="hidden">
-    <nav class="tabs">
-      <button class="tab active" data-view="today">Today</button>
-      <button class="tab" data-view="pending">Pending <span id="pending-count"></span></button>
-      <button class="tab" data-view="registry">People</button>
-      <button class="tab" data-view="observations">Observations</button>
-      <button class="tab" data-view="work">Work</button>
-      <button class="tab" data-view="notes">Notes</button>
-      <button class="tab" data-view="meetings">Meetings</button>
+    <nav class="rail">
+      <button class="rail-item active" data-view="today"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l2.8 2.8"/></svg></span>Today</button>
+      <button class="rail-item" data-view="pending"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h4.2l1.3 2.4h2.9L12.7 9H17"/><path d="M3 9V5.6C3 5 3.5 4.5 4.1 4.5h11.8c.6 0 1.1.5 1.1 1.1V9"/><path d="M3 9v5.4c0 .6.5 1.1 1.1 1.1h11.8c.6 0 1.1-.5 1.1-1.1V9"/></svg></span>Pending <span id="pending-count"></span></button>
+      <button class="rail-item" data-view="registry"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5"/></svg></span>People</button>
+      <button class="rail-item" data-view="work"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="12" height="10.5" rx="1.3"/><path d="M7.5 5.5V4.3c0-.6.5-1.1 1.1-1.1h2.8c.6 0 1.1.5 1.1 1.1v1.2"/><path d="M4 9.5h12"/></svg></span>Work</button>
+      <button class="rail-item" data-view="notes"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h7.5L16 7v9.5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z"/><path d="M12.2 3.5V7H16"/><path d="M6.6 10.5h6.3M6.6 13.2h6.3"/></svg></span>Notes</button>
+      <button class="rail-item" data-view="meetings"><span class="ic"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="13" height="11.5" rx="1.3"/><path d="M3.5 8h13"/><path d="M7 3v3M13 3v3"/></svg></span>Meetings</button>
     </nav>
+    <div id="subpanel-container" class="hidden"></div>
     <main>
       <div id="view-today" class="view"></div>
       <div id="view-pending" class="view hidden"></div>
@@ -1766,10 +1788,41 @@ function openDetailEdit(person, detail) {
   });
 }
 
+// ── People sub-panel ─────────────────────────────────────────────────────────
+const registryNavState = { typeFilter: 'all' };
+
+const REGISTRY_TYPE_FILTERS = [
+  { value: 'all',      label: 'All People' },
+  { value: 'lead',     label: 'Leads' },
+  { value: 'customer', label: 'Customers' },
+  { value: 'partner',  label: 'Partners' },
+  { value: 'internal', label: 'Internal' },
+  { value: 'unknown',  label: 'Unknown' },
+];
+
+function renderPeopleSubpanel(container) {
+  container.innerHTML = `
+    <div class="subpanel-label">People</div>
+    ${REGISTRY_TYPE_FILTERS.map(f => `
+      <button class="sub-item${f.value === registryNavState.typeFilter ? ' active' : ''}" data-filter="${f.value}">${esc(f.label)}</button>
+    `).join('')}`;
+  container.querySelectorAll('.sub-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      registryNavState.typeFilter = btn.dataset.filter;
+      renderPeopleSubpanel(container);
+      const currentSearch = el('registry-search')?.value ?? '';
+      renderRegistryView(currentSearch);
+    });
+  });
+}
+
 // ── View: Registry Browser ──────────────────────────────────────────────────
 function renderRegistryView(filter = '') {
   const view = el('view-registry');
-  const people = state.registry?.people ?? [];
+  const byType = state.registry?.people ?? [];
+  const people = registryNavState.typeFilter === 'all'
+    ? byType
+    : byType.filter(p => p.type === registryNavState.typeFilter);
   const q = filter.toLowerCase();
   const filtered = q
     ? people.filter(p =>
@@ -1898,12 +1951,27 @@ function renderObservationsView(filter = '') {
 
 // ── Tab navigation ──────────────────────────────────────────────────────────
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t =>
+  document.querySelectorAll('.rail-item').forEach(t =>
     t.classList.toggle('active', t.dataset.view === name)
   );
   ['today','pending','registry','observations','work','notes','meetings'].forEach(v => {
     el(`view-${v}`).classList.toggle('hidden', v !== name);
   });
+  renderSubpanel(name);
+}
+
+function renderSubpanel(name) {
+  const container = el('subpanel-container');
+  if (name === 'registry' && typeof renderPeopleSubpanel === 'function') {
+    container.classList.remove('hidden');
+    renderPeopleSubpanel(container);
+  } else if (name === 'work' && typeof renderWorkSubpanel === 'function') {
+    container.classList.remove('hidden');
+    renderWorkSubpanel(container);
+  } else {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+  }
 }
 
 // ── View: Work ──────────────────────────────────────────────────────────────
@@ -2045,7 +2113,7 @@ async function fetchJSON(url, opts = {}) {
 }
 
 // ── Work tab state ───────────────────────────────────────────────────────────
-const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set(), routineEditing: new Set() };
+const workState = { expanded: new Set(), editing: new Set(), laterExpanded: false, horizonShown: new Set(), routineEditing: new Set(), subFilter: 'all' };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function formatDate(iso) {
@@ -2739,6 +2807,29 @@ function wireRoutinesSection(view, onChanged) {
   });
 }
 
+// ── Work sub-panel ───────────────────────────────────────────────────────────
+const WORK_SUBPANEL_FILTERS = [
+  { value: 'all',        label: 'All Work' },
+  { value: 'projects',   label: 'Projects' },
+  { value: 'standalone', label: 'Standalone' },
+  { value: 'routines',   label: 'Routines' },
+];
+
+function renderWorkSubpanel(container) {
+  container.innerHTML = `
+    <div class="subpanel-label">Work</div>
+    ${WORK_SUBPANEL_FILTERS.map(f => `
+      <button class="sub-item${f.value === workState.subFilter ? ' active' : ''}" data-filter="${f.value}">${esc(f.label)}</button>
+    `).join('')}`;
+  container.querySelectorAll('.sub-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      workState.subFilter = btn.dataset.filter;
+      renderWorkSubpanel(container);
+      renderWorkView();
+    });
+  });
+}
+
 // ── renderWorkView ───────────────────────────────────────────────────────────
 async function renderWorkView() {
   const view = el('view-work');
@@ -2771,6 +2862,10 @@ async function renderWorkView() {
   const standaloneAll = sortTasks((allTasks || []).filter(t => !t.project_id));
   const standaloneTasks = standaloneAll.filter(t => !isBehindHorizon(t));
   const laterTasks = standaloneAll.filter(isBehindHorizon).sort((a, b) => (a.horizon < b.horizon ? -1 : 1));
+
+  const showProjects = workState.subFilter === 'all' || workState.subFilter === 'projects';
+  const showStandalone = workState.subFilter === 'all' || workState.subFilter === 'standalone';
+  const showRoutines = workState.subFilter === 'all' || workState.subFilter === 'routines';
 
   // ── Projects section ────────────────────────────────────────────────────
   const projGroupsHtml = activeProjects.length
@@ -2860,7 +2955,7 @@ async function renderWorkView() {
   const newRoutineHtml = workState.routineEditing.has('__new__')
     ? `<div class="routine-edit-panel" id="routine-new-panel">${routineFormHtml('rf-new', null)}</div>` : '';
 
-  view.innerHTML = `
+  const projectsSectionHtml = showProjects ? `
     <div class="work-section-header">
       <span class="work-section-label">Projects</span>
       <button class="btn-new-proj" id="new-proj-toggle">+ New Project</button>
@@ -2870,7 +2965,9 @@ async function renderWorkView() {
       <button class="btn-add-task" id="new-proj-submit">Create</button>
       <span class="new-proj-status" id="new-proj-status"></span>
     </div>
-    <div id="work-proj-list">${projGroupsHtml}</div>
+    <div id="work-proj-list">${projGroupsHtml}</div>` : '';
+
+  const standaloneSectionHtml = showStandalone ? `
     <div class="standalone-section">
       <div class="work-section-header">
         <span class="work-section-label">Standalone</span>
@@ -2878,7 +2975,9 @@ async function renderWorkView() {
       <div id="standalone-tasks">${standaloneHtml}</div>
       ${renderAddTaskForm(null, people)}
       ${laterHtml}
-    </div>
+    </div>` : '';
+
+  const routinesSectionHtml = showRoutines ? `
     <div class="routines-section">
       <div class="work-section-header">
         <span class="work-section-label">Routines</span>
@@ -2886,31 +2985,35 @@ async function renderWorkView() {
       </div>
       ${newRoutineHtml}
       <div id="routines-list">${routineRowsHtml}</div>
-    </div>`;
+    </div>` : '';
+
+  view.innerHTML = projectsSectionHtml + standaloneSectionHtml + routinesSectionHtml;
 
   // ── Wire new project form ───────────────────────────────────────────────
-  el('new-proj-toggle').addEventListener('click', () => {
-    el('new-proj-inline').classList.toggle('hidden');
-    el('new-proj-name').focus();
-  });
-  const submitNewProject = async () => {
-    const name = el('new-proj-name').value.trim();
-    if (!name) { el('new-proj-name').focus(); return; }
-    el('new-proj-submit').disabled = true;
-    el('new-proj-status').textContent = 'Creating…';
-    try {
-      await fetchJSON(`${API}/api/projects`, {
-        method: 'POST',
-        body: JSON.stringify({ canonical_name: name, members: [] }),
-      });
-      await renderWorkView();
-    } catch (err) {
-      el('new-proj-status').textContent = 'Error: ' + err.message;
-      el('new-proj-submit').disabled = false;
-    }
-  };
-  el('new-proj-submit').addEventListener('click', submitNewProject);
-  el('new-proj-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitNewProject(); });
+  if (showProjects) {
+    el('new-proj-toggle').addEventListener('click', () => {
+      el('new-proj-inline').classList.toggle('hidden');
+      el('new-proj-name').focus();
+    });
+    const submitNewProject = async () => {
+      const name = el('new-proj-name').value.trim();
+      if (!name) { el('new-proj-name').focus(); return; }
+      el('new-proj-submit').disabled = true;
+      el('new-proj-status').textContent = 'Creating…';
+      try {
+        await fetchJSON(`${API}/api/projects`, {
+          method: 'POST',
+          body: JSON.stringify({ canonical_name: name, members: [] }),
+        });
+        await renderWorkView();
+      } catch (err) {
+        el('new-proj-status').textContent = 'Error: ' + err.message;
+        el('new-proj-submit').disabled = false;
+      }
+    };
+    el('new-proj-submit').addEventListener('click', submitNewProject);
+    el('new-proj-name').addEventListener('keydown', e => { if (e.key === 'Enter') submitNewProject(); });
+  }
 
   // ── Wire project group expand/collapse and edit ─────────────────────────
   view.querySelectorAll('.proj-group-header').forEach(header => {
@@ -3120,7 +3223,7 @@ async function init() {
 }
 
 function setupTabs() {
-  document.querySelectorAll('.tab').forEach(tab => {
+  document.querySelectorAll('.rail-item').forEach(tab => {
     tab.addEventListener('click', () => {
       const view = tab.dataset.view;
       switchTab(view);
