@@ -1788,10 +1788,41 @@ function openDetailEdit(person, detail) {
   });
 }
 
+// ── People sub-panel ─────────────────────────────────────────────────────────
+const registryNavState = { typeFilter: 'all' };
+
+const REGISTRY_TYPE_FILTERS = [
+  { value: 'all',      label: 'All People' },
+  { value: 'lead',     label: 'Leads' },
+  { value: 'customer', label: 'Customers' },
+  { value: 'partner',  label: 'Partners' },
+  { value: 'internal', label: 'Internal' },
+  { value: 'unknown',  label: 'Unknown' },
+];
+
+function renderPeopleSubpanel(container) {
+  container.innerHTML = `
+    <div class="subpanel-label">People</div>
+    ${REGISTRY_TYPE_FILTERS.map(f => `
+      <button class="sub-item${f.value === registryNavState.typeFilter ? ' active' : ''}" data-filter="${f.value}">${esc(f.label)}</button>
+    `).join('')}`;
+  container.querySelectorAll('.sub-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      registryNavState.typeFilter = btn.dataset.filter;
+      renderPeopleSubpanel(container);
+      const currentSearch = el('registry-search')?.value ?? '';
+      renderRegistryView(currentSearch);
+    });
+  });
+}
+
 // ── View: Registry Browser ──────────────────────────────────────────────────
 function renderRegistryView(filter = '') {
   const view = el('view-registry');
-  const people = state.registry?.people ?? [];
+  const byType = state.registry?.people ?? [];
+  const people = registryNavState.typeFilter === 'all'
+    ? byType
+    : byType.filter(p => p.type === registryNavState.typeFilter);
   const q = filter.toLowerCase();
   const filtered = q
     ? people.filter(p =>
