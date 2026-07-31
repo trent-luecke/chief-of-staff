@@ -1,51 +1,41 @@
 {
-  "date": "2026-07-30",
-  "generated_at": "2026-07-30T13:27:35.868699+00:00",
+  "date": "2026-07-31",
+  "generated_at": "2026-07-31T12:09:36.217788+00:00",
   "meetings": [
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20260730T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-07-30T12:00:00-05:00",
-      "end": "2026-07-30T12:30:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260731T133000Z",
+      "title": "Focus Work",
+      "start": "2026-07-31T08:30:00-05:00",
+      "end": "2026-07-31T10:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "6judhmptlohe2rklibhomisvvr",
-      "title": "Razer / TeamBuildr",
-      "start": "2026-07-30T13:00:00-05:00",
-      "end": "2026-07-30T14:00:00-05:00",
+      "id": "5vv17sn171m1v197ihmhhf0h9t",
+      "title": "Kyle Henley @ Henley Elite Athlete Training - TeamBuildr OS Reconnect on Member Management",
+      "start": "2026-07-31T12:30:00-05:00",
+      "end": "2026-07-31T13:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "teofe@teambuildr.com",
+          "email": "antonio@teambuildr.com",
           "name": ""
         },
         {
-          "email": "razer@fspbr.com",
+          "email": "info@ibringtheheat.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "m6f1g5odvs85gt2a5etbobumk8",
-      "title": "Kersten, Craig and Trent Luecke",
-      "start": "2026-07-30T14:30:00-05:00",
-      "end": "2026-07-30T15:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "craig@optimumfitnessomaha.com",
-          "name": ""
-        }
-      ],
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260731T193000Z",
+      "title": "Out of office",
+      "start": "2026-07-31T14:30:00-05:00",
+      "end": "2026-07-31T17:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
@@ -56,20 +46,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-2fad19",
-      "title": "rework slide deck based on new findings and feedback",
-      "reason": "overdue",
-      "due_date": "2026-07-08",
-      "project_id": "claude-builder"
-    },
-    {
-      "id": "t-356ccf",
-      "title": "determine who needs to be informed about project to determine next steps",
-      "reason": "overdue",
-      "due_date": "2026-07-08",
-      "project_id": "claude-builder"
     }
   ],
   "what_moved": []
