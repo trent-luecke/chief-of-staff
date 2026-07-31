@@ -439,6 +439,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-07-30"
+    },
+    {
+      "entity": "Andrew Levine",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "andrewlevine",
+      "candidate_score": 96.0,
+      "added": "2026-07-31"
     }
   ],
   "previously_notified": [

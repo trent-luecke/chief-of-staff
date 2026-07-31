@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-07-30T00:00:00",
+  "resolved_at": "2026-07-31T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -7822,6 +7822,101 @@
         "chris-reynolds"
       ],
       "confidence": "embedded"
+    },
+    "1708": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1709": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1710": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1711": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1712": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1713": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1714": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1715": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1716": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1717": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1720": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1721": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1722": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1723": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1724": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1725": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1726": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1727": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1728": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -7987,7 +8082,10 @@
     1641,
     1666,
     1667,
-    1668
+    1668,
+    1707,
+    1718,
+    1719
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -8044,6 +8142,8 @@
     "thread:Re: Recording",
     "thread:Re: Intermountain Agreement call",
     "thread:Re: Transition with Stripe",
-    "thread:Re: TeamBuildr Demo Recap + Next Steps"
+    "thread:Re: TeamBuildr Demo Recap + Next Steps",
+    "thread:Re: TeamBuildr Content Partner Reach Out (Youth Peak Performance)",
+    "thread:Re: TeamBuildr Social Media Partner Interest (PWR Dundalk)"
   ]
 }
