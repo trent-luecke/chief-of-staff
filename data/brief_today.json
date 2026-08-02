@@ -1,12 +1,12 @@
 {
-  "date": "2026-08-01",
-  "generated_at": "2026-08-01T12:53:46.292487+00:00",
+  "date": "2026-08-02",
+  "generated_at": "2026-08-02T12:05:29.631408+00:00",
   "meetings": [
     {
-      "id": "6rro7upqc65ug3umn770e1rq09_20260801T130000Z",
-      "title": "OS Weekend Support (Trent)",
-      "start": "2026-08-01T08:00:00-05:00",
-      "end": "2026-08-01T08:15:00-05:00",
+      "id": "50cfatr093orc55d4r8alqucbl_20260802T130000Z",
+      "title": "invoice for Ubuntu",
+      "start": "2026-08-02T08:00:00-05:00",
+      "end": "2026-08-02T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
