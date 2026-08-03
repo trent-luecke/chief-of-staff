@@ -1,12 +1,21 @@
 {
   "date": "2026-08-03",
-  "generated_at": "2026-08-03T12:03:23.146804+00:00",
+  "generated_at": "2026-08-03T14:10:47.438017+00:00",
   "meetings": [
     {
       "id": "e2t3dtfrdt487oft1kfroci02b_20260803T130000Z",
       "title": "Calendly/Numbies for GS",
       "start": "2026-08-03T08:00:00-05:00",
       "end": "2026-08-03T08:15:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "a6de9h8qno2ovusdqfjvei8ug4",
+      "title": "Truman speech",
+      "start": "2026-08-03T09:00:00-05:00",
+      "end": "2026-08-03T10:00:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -82,6 +91,20 @@
       "prep": null
     },
     {
+      "id": "11eei0mlni7ghv16b7u4dihf13",
+      "title": "Trent / Heather",
+      "start": "2026-08-03T11:50:00-05:00",
+      "end": "2026-08-03T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "heather@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
       "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260803T173000Z",
       "title": "OS Dev sync-Rev table",
       "start": "2026-08-03T12:30:00-05:00",
@@ -133,6 +156,13 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-93bc43",
+      "title": "submit ticket for Artemio",
+      "reason": "due",
+      "due_date": "2026-08-03",
+      "project_id": null
     }
   ],
   "what_moved": []
