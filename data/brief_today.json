@@ -1,14 +1,128 @@
 {
-  "date": "2026-08-02",
-  "generated_at": "2026-08-02T12:54:00.717624+00:00",
+  "date": "2026-08-03",
+  "generated_at": "2026-08-03T12:03:23.146804+00:00",
   "meetings": [
     {
-      "id": "50cfatr093orc55d4r8alqucbl_20260802T130000Z",
-      "title": "invoice for Ubuntu",
-      "start": "2026-08-02T08:00:00-05:00",
-      "end": "2026-08-02T08:15:00-05:00",
+      "id": "e2t3dtfrdt487oft1kfroci02b_20260803T130000Z",
+      "title": "Calendly/Numbies for GS",
+      "start": "2026-08-03T08:00:00-05:00",
+      "end": "2026-08-03T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260803T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-08-03T10:00:00-05:00",
+      "end": "2026-08-03T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g74o42e218h0jeci564q48h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6kp3gd1o6p1kae9n8d1jag9k6l0jgdpn8l342h218gpjae9o8grg",
+      "title": "TeamBuildr Open Enrollment Meeting (Final Meeting)",
+      "start": "2026-08-03T10:00:00-05:00",
+      "end": "2026-08-03T11:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "emily@teambuildr.com",
+          "name": "Emily Nickerson"
+        },
+        {
+          "email": "kjordan@peopleopspartners.co",
+          "name": ""
+        },
+        {
+          "email": "tmcnerney@peopleopspartners.co",
+          "name": ""
+        },
+        {
+          "email": "etorbit@wearebeneficent.com",
+          "name": "Evelyn Torbit"
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260803T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-08-03T11:00:00-05:00",
+      "end": "2026-08-03T11:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260803T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-08-03T12:30:00-05:00",
+      "end": "2026-08-03T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4anrrjtkj2vv3m0ufjkmsrej9e_20260803T180000Z",
+      "title": "Member Booked Appts",
+      "start": "2026-08-03T13:00:00-05:00",
+      "end": "2026-08-03T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
       "prep": null
     }
   ],
