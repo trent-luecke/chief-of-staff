@@ -55,6 +55,7 @@ def _run_inner(config: dict, storage, dry_run: bool = False, no_email: bool = Fa
                 registry_storage(config),
                 today=date.today().isoformat(),
                 generated_at=datetime.now(timezone.utc).isoformat(),
+                api_key=api_key,
             )
             print("   ✅ brief_today.json generated")
         except Exception as e:

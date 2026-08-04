@@ -1,3 +1,5 @@
+import json
+
 from collectors.calendar import CalendarEvent
 from processors import today_brief as tb
 
@@ -79,3 +81,92 @@ def test_rank_needs_horizon_bucket_orders_by_horizon_date():
     out = tb.rank_needs(tasks, today="2026-07-29", cap=5)
     assert [x["id"] for x in out] == ["h_old", "h_new"]  # oldest horizon first
     assert all(x["reason"] == "horizon" for x in out)
+
+
+def _internal_ev(eid, title="Luke / Trent"):
+    return _ev(eid, title, [{"email": "luke@teambuildr.com", "name": "Luke Green"}])
+
+
+def _write_index(tmp_path, recipe):
+    idx = tmp_path / "meeting_index.json"
+    idx.write_text(json.dumps({"meetings": [{
+        "calendar_pattern": "luke / trent",
+        "memory_file": "data/meeting_memory/luke_1on1.md",
+        "nudge_subject": "1:1?", "nudge_minutes_after": 5, "name": "Luke 1:1",
+        "prep_recipe": recipe,
+    }]}))
+    return str(idx)
+
+
+def test_internal_meeting_with_recipe_gets_prep(monkeypatch, tmp_path):
+    from lib.storage import LocalStorage
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("people_registry.json", {"version": 1, "people": []})
+    recipe = {"blocks": ["open_threads"], "instruction": "x"}
+    idx_path = _write_index(tmp_path, recipe)
+
+    calls = {"n": 0}
+    monkeypatch.setattr(tb.meeting_prep_recipe, "build_prep",
+                        lambda event, cfg, config, storage_, api_key: (calls.__setitem__("n", calls["n"] + 1) or "PREP TEXT"))
+
+    config = {"meeting_index_file": idx_path, "demo_scan": {"internal_domains": ["teambuildr.com"]}}
+    brief = tb.generate_and_write(config, [_internal_ev("m1")], storage,
+                                  today="2026-08-04", generated_at="2026-08-04T12:00:00Z", api_key="key")
+    m = next(x for x in brief["meetings"] if x["id"] == "m1")
+    assert m["prep"] == "PREP TEXT"
+    assert m["prep_hash"] == tb.meeting_prep_recipe.prep_hash(recipe)
+    assert calls["n"] == 1
+
+
+def test_prep_reused_from_prior_brief_when_hash_matches(monkeypatch, tmp_path):
+    from lib.storage import LocalStorage
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("people_registry.json", {"version": 1, "people": []})
+    recipe = {"blocks": ["open_threads"], "instruction": "x"}
+    idx_path = _write_index(tmp_path, recipe)
+    phash = tb.meeting_prep_recipe.prep_hash(recipe)
+    # prior brief for the SAME day with a matching hash → cache hit
+    storage.write_json("brief_today.json", {"date": "2026-08-04",
+        "meetings": [{"id": "m1", "prep": "CACHED", "prep_hash": phash}]})
+
+    def boom(*a, **k):
+        raise AssertionError("build_prep should not be called on cache hit")
+    monkeypatch.setattr(tb.meeting_prep_recipe, "build_prep", boom)
+
+    config = {"meeting_index_file": idx_path, "demo_scan": {"internal_domains": ["teambuildr.com"]}}
+    brief = tb.generate_and_write(config, [_internal_ev("m1")], storage,
+                                  today="2026-08-04", generated_at="2026-08-04T12:00:00Z", api_key="key")
+    m = next(x for x in brief["meetings"] if x["id"] == "m1")
+    assert m["prep"] == "CACHED"
+
+
+def test_prep_regenerates_when_hash_differs(monkeypatch, tmp_path):
+    from lib.storage import LocalStorage
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("people_registry.json", {"version": 1, "people": []})
+    recipe = {"blocks": ["open_threads"], "instruction": "NEW"}
+    idx_path = _write_index(tmp_path, recipe)
+    # prior brief carries a STALE hash → must re-run build_prep
+    storage.write_json("brief_today.json", {"date": "2026-08-04",
+        "meetings": [{"id": "m1", "prep": "OLD", "prep_hash": "staleeeeeeee"}]})
+    monkeypatch.setattr(tb.meeting_prep_recipe, "build_prep",
+                        lambda *a, **k: "FRESH")
+    config = {"meeting_index_file": idx_path, "demo_scan": {"internal_domains": ["teambuildr.com"]}}
+    brief = tb.generate_and_write(config, [_internal_ev("m1")], storage,
+                                  today="2026-08-04", generated_at="2026-08-04T12:00:00Z", api_key="key")
+    m = next(x for x in brief["meetings"] if x["id"] == "m1")
+    assert m["prep"] == "FRESH"
+
+
+def test_external_meeting_prep_stays_none(monkeypatch, tmp_path):
+    from lib.storage import LocalStorage
+    storage = LocalStorage(base_dir=str(tmp_path))
+    storage.write_json("people_registry.json", {"version": 1, "people": []})
+    idx_path = _write_index(tmp_path, {"blocks": ["open_threads"]})
+    monkeypatch.setattr(tb.meeting_prep_recipe, "build_prep",
+                        lambda *a, **k: (_ for _ in ()).throw(AssertionError("no prep for external")))
+    config = {"meeting_index_file": idx_path, "demo_scan": {"internal_domains": ["teambuildr.com"]}}
+    ev = _ev("x1", "Prospect sync", [{"email": "buyer@acme.com", "name": "Buyer"}])
+    brief = tb.generate_and_write(config, [ev], storage,
+                                  today="2026-08-04", generated_at="2026-08-04T12:00:00Z", api_key="key")
+    assert brief["meetings"][0]["prep"] is None
