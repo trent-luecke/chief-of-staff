@@ -32,9 +32,14 @@
       "canonical_name": "Claude-Assisted Onboarding",
       "aliases": [],
       "status": "active",
-      "members": [],
+      "members": [
+        {
+          "id": "luke-green",
+          "role": "contact"
+        }
+      ],
       "created": "2026-06-06",
-      "last_seen": "2026-06-06"
+      "last_seen": "2026-08-04"
     },
     {
       "id": "storybuildr",
