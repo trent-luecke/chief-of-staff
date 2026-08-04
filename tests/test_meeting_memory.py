@@ -1,6 +1,7 @@
 # tests/test_meeting_memory.py
 from datetime import datetime
 from unittest.mock import patch, MagicMock
+import json
 import pytest
 from lib.storage import LocalStorage
 from processors.meeting_memory import (
@@ -131,3 +132,33 @@ def test_rewrite_meeting_memory_drops_old_sessions(mock_cls, tmp_path):
     rewrite_meeting_memory(storage, "meeting_memory/marketing_sync.md", "2026-04-21", "New notes.", api_key="test")
     content = storage.read("meeting_memory/marketing_sync.md")
     assert "2026-03-01" not in content
+
+
+def test_load_meeting_index_parses_prep_recipe(tmp_path):
+    from processors.meeting_memory import load_meeting_index
+    p = tmp_path / "meeting_index.json"
+    p.write_text(json.dumps({"meetings": [{
+        "calendar_pattern": "luke / trent",
+        "memory_file": "data/meeting_memory/luke_1on1.md",
+        "nudge_subject": "1:1 notes?",
+        "nudge_minutes_after": 5,
+        "name": "Luke 1:1",
+        "prep_recipe": {"blocks": ["open_threads"], "instruction": "Keep it short."},
+    }]}))
+    configs = load_meeting_index(str(p))
+    assert len(configs) == 1
+    assert configs[0].prep_recipe == {"blocks": ["open_threads"], "instruction": "Keep it short."}
+
+
+def test_load_meeting_index_recipe_defaults_none(tmp_path):
+    from processors.meeting_memory import load_meeting_index
+    p = tmp_path / "meeting_index.json"
+    p.write_text(json.dumps({"meetings": [{
+        "calendar_pattern": "dev sync",
+        "memory_file": "data/meeting_memory/dev_triage.md",
+        "nudge_subject": "notes?",
+        "nudge_minutes_after": 5,
+        "name": "Dev Sync",
+    }]}))
+    configs = load_meeting_index(str(p))
+    assert configs[0].prep_recipe is None
