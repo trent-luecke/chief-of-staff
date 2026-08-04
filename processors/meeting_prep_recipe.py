@@ -12,6 +12,7 @@ from typing import Optional
 
 from lib import identity, meetings as meetings_lib, tasks as tasks_lib
 from processors.meeting_memory import load_last_session_summary
+from processors.meeting_prep import _format_demos_line
 
 log = logging.getLogger(__name__)
 
@@ -111,4 +112,24 @@ def gather_project_next_actions(ctx: PrepContext, params: dict) -> Optional[str]
             when = t.get("due_date") or t.get("horizon")
             suffix = f" (due {when})" if when else ""
             lines.append(f"- {t.get('title', '')}{suffix}")
+    return "\n".join(lines)
+
+
+def gather_pipeline_sales(ctx: PrepContext, params: dict) -> Optional[str]:
+    cache_path = ctx.config.get("pipeline", {}).get("cache_path", "data/pipeline_cache.json")
+    # storage-relative key: drop a leading data/ if present
+    key = cache_path[len("data/"):] if cache_path.startswith("data/") else cache_path
+    cache = ctx.storage.read_json(key, default={})
+    leads = cache.get("leads", [])
+    if not leads:
+        return None
+    by_status: dict = {}
+    for lead in leads:
+        by_status.setdefault(lead.get("status") or "Unknown", []).append(lead)
+    lines = [f"## Pipeline ({len(leads)} total)"]
+    for status, group in sorted(by_status.items()):
+        stale = sum(1 for l in group if l.get("stale"))
+        tail = f" [{stale} stale]" if stale else ""
+        lines.append(f"- {status} ({len(group)}){tail}")
+    lines.append(_format_demos_line())
     return "\n".join(lines)

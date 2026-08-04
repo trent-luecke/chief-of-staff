@@ -155,3 +155,30 @@ def test_select_project_tasks_caps_and_sorts_by_nearest_when_over_threshold():
     ]
     sel = m._select_project_tasks(tasks, "p", expand_threshold=5, max_per_project=3)
     assert [t["title"] for t in sel] == ["nearest", "near", "horizon-only"]
+
+
+def test_pipeline_sales_renders_stage_breakdown(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setattr(m, "_format_demos_line", lambda: "• Demos MTD: 12")
+    storage = FakeStorage(json_files={
+        "pipeline_cache.json": {"leads": [
+            {"name": "Acme", "status": "Demo Scheduled", "stale": False},
+            {"name": "Beta", "status": "Demo Scheduled", "stale": True},
+            {"name": "Gamma", "status": "Proposal", "stale": False},
+        ]},
+    })
+    ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(),
+                        config={"pipeline": {"cache_path": "pipeline_cache.json"}}, storage=storage)
+    out = mpr.gather_pipeline_sales(ctx, {})
+    assert "Pipeline" in out
+    assert "Demo Scheduled (2)" in out
+    assert "Demos MTD: 12" in out
+
+
+def test_pipeline_sales_none_when_empty(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setattr(m, "_format_demos_line", lambda: "• Demos MTD: (unavailable)")
+    storage = FakeStorage(json_files={"pipeline_cache.json": {"leads": []}})
+    ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(),
+                        config={"pipeline": {"cache_path": "pipeline_cache.json"}}, storage=storage)
+    assert mpr.gather_pipeline_sales(ctx, {}) is None
