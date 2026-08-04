@@ -14,6 +14,7 @@ class MeetingConfig:
     nudge_minutes_after: int
     name: str = ""
     people_ids: list = field(default_factory=list)
+    prep_recipe: Optional[dict] = None
 
     @property
     def meeting_id(self) -> str:
