@@ -6,9 +6,13 @@ processors/meeting_prep.py (emailed brief) is intentionally not reused.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 from dataclasses import dataclass
 from typing import Optional
+
+import anthropic
 
 from lib import identity, meetings as meetings_lib, tasks as tasks_lib
 from processors.meeting_memory import load_last_session_summary
@@ -133,3 +137,82 @@ def gather_pipeline_sales(ctx: PrepContext, params: dict) -> Optional[str]:
         lines.append(f"- {status} ({len(group)}){tail}")
     lines.append(_format_demos_line())
     return "\n".join(lines)
+
+
+_BLOCKS = {
+    "open_threads": gather_open_threads,
+    "last_session": gather_last_session,
+    "project_next_actions": gather_project_next_actions,
+    "pipeline_sales": gather_pipeline_sales,
+}
+
+_SYSTEM = (
+    "You are Trent Luecke's AI Chief of Staff preparing him for a recurring internal meeting. "
+    "Using only the gathered context below, produce a short, skimmable prep in markdown bullets. "
+    "Do not invent facts not present in the context. No preamble."
+)
+
+
+def _normalize_block(entry) -> tuple:
+    if isinstance(entry, str):
+        return entry, {}
+    params = {k: v for k, v in entry.items() if k != "block"}
+    return entry.get("block"), params
+
+
+def gather_blocks(recipe: dict, ctx: PrepContext) -> str:
+    chunks = []
+    for entry in recipe.get("blocks", []):
+        name, params = _normalize_block(entry)
+        fn = _BLOCKS.get(name)
+        if fn is None:
+            log.warning("unknown prep block %r (meeting %s)", name, getattr(ctx.meeting_cfg, "name", "?"))
+            continue
+        try:
+            out = fn(ctx, params)
+        except Exception:
+            log.exception("prep block %r failed (meeting %s)", name, getattr(ctx.meeting_cfg, "name", "?"))
+            continue
+        if out and out.strip():
+            chunks.append(out.strip())
+    return "\n\n".join(chunks)
+
+
+def prep_hash(recipe: dict) -> str:
+    canonical = json.dumps(recipe, sort_keys=True, ensure_ascii=True)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()[:12]
+
+
+def _synthesize(context: str, instruction: str, event_summary: str, config: dict, api_key: str) -> str:
+    model = config.get("ai_model", "claude-sonnet-4-6")
+    steer = f"\n\nExtra instruction for this meeting: {instruction}" if instruction else ""
+    user = f"Meeting: {event_summary}{steer}\n\nGathered context:\n{context}"
+    client = anthropic.Anthropic(api_key=api_key)
+    resp = client.messages.create(
+        model=model, max_tokens=600, system=_SYSTEM,
+        messages=[{"role": "user", "content": user}],
+    )
+    try:
+        from lib.llm_logger import log_usage
+        log_usage("meeting_prep_recipe", resp.usage, model)
+    except Exception:
+        pass
+    if not resp.content:
+        raise ValueError("empty synthesis response")
+    return resp.content[0].text.strip()
+
+
+def build_prep(event, meeting_cfg, config: dict, storage, api_key: str) -> Optional[str]:
+    recipe = getattr(meeting_cfg, "prep_recipe", None)
+    if not recipe:
+        return None
+    ctx = PrepContext(event=event, meeting_cfg=meeting_cfg, config=config, storage=storage)
+    try:
+        context = gather_blocks(recipe, ctx)
+        if not context.strip():
+            return None
+        return _synthesize(context, recipe.get("instruction", ""),
+                           getattr(event, "summary", ""), config, api_key)
+    except Exception:
+        log.exception("build_prep failed (meeting %s)", getattr(meeting_cfg, "name", "?"))
+        return None

@@ -182,3 +182,80 @@ def test_pipeline_sales_none_when_empty(monkeypatch):
     ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(),
                         config={"pipeline": {"cache_path": "pipeline_cache.json"}}, storage=storage)
     assert mpr.gather_pipeline_sales(ctx, {}) is None
+
+
+def test_normalize_block_string_and_object():
+    import processors.meeting_prep_recipe as m
+    assert m._normalize_block("open_threads") == ("open_threads", {})
+    assert m._normalize_block({"block": "project_next_actions", "max_per_project": 2}) == (
+        "project_next_actions", {"max_per_project": 2})
+
+
+def test_gather_blocks_drops_empty_and_unknown(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setitem(m._BLOCKS, "a", lambda ctx, params: "## A\nalpha")
+    monkeypatch.setitem(m._BLOCKS, "b", lambda ctx, params: None)
+    ctx = m.PrepContext(event=_event(), meeting_cfg=_cfg(), config={}, storage=FakeStorage())
+    out = m.gather_blocks({"blocks": ["a", "b", "unknown"]}, ctx)
+    assert "alpha" in out
+    assert out.count("##") == 1  # only block a contributed
+
+
+def test_gather_blocks_isolates_block_exception(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    def boom(ctx, params):
+        raise RuntimeError("nope")
+    monkeypatch.setitem(m._BLOCKS, "boom", boom)
+    monkeypatch.setitem(m._BLOCKS, "ok", lambda ctx, params: "## OK\nfine")
+    ctx = m.PrepContext(event=_event(), meeting_cfg=_cfg(), config={}, storage=FakeStorage())
+    out = m.gather_blocks({"blocks": ["boom", "ok"]}, ctx)
+    assert "fine" in out
+
+
+def test_prep_hash_stable_and_sensitive():
+    import processors.meeting_prep_recipe as m
+    r1 = {"blocks": ["open_threads"], "instruction": "x"}
+    r2 = {"instruction": "x", "blocks": ["open_threads"]}  # key order differs
+    assert m.prep_hash(r1) == m.prep_hash(r2)
+    assert m.prep_hash(r1) != m.prep_hash({"blocks": ["open_threads"], "instruction": "y"})
+
+
+def test_build_prep_none_when_no_recipe():
+    import processors.meeting_prep_recipe as m
+    assert m.build_prep(_event(), _cfg(prep_recipe=None), {}, FakeStorage(), "key") is None
+
+
+def test_build_prep_none_when_no_blocks_produce(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setitem(m._BLOCKS, "empty", lambda ctx, params: None)
+    called = {"n": 0}
+    monkeypatch.setattr(m, "_synthesize", lambda *a, **k: (called.__setitem__("n", called["n"] + 1) or "SHOULD NOT"))
+    out = m.build_prep(_event(), _cfg(prep_recipe={"blocks": ["empty"]}), {}, FakeStorage(), "key")
+    assert out is None
+    assert called["n"] == 0  # no LLM call when nothing gathered
+
+
+def test_build_prep_synthesizes_when_blocks_present(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setitem(m._BLOCKS, "a", lambda ctx, params: "## A\nalpha")
+    captured = {}
+    def fake_synth(context, instruction, event_summary, config, api_key):
+        captured["context"] = context
+        captured["instruction"] = instruction
+        return "PREP OUTPUT"
+    monkeypatch.setattr(m, "_synthesize", fake_synth)
+    recipe = {"blocks": ["a"], "instruction": "focus X"}
+    out = m.build_prep(_event(), _cfg(prep_recipe=recipe), {}, FakeStorage(), "key")
+    assert out == "PREP OUTPUT"
+    assert "alpha" in captured["context"]
+    assert captured["instruction"] == "focus X"
+
+
+def test_build_prep_returns_none_on_synth_error(monkeypatch):
+    import processors.meeting_prep_recipe as m
+    monkeypatch.setitem(m._BLOCKS, "a", lambda ctx, params: "## A\nalpha")
+    def boom(*a, **k):
+        raise RuntimeError("api down")
+    monkeypatch.setattr(m, "_synthesize", boom)
+    out = m.build_prep(_event(), _cfg(prep_recipe={"blocks": ["a"]}), {}, FakeStorage(), "key")
+    assert out is None
