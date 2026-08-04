@@ -36,7 +36,16 @@
       "nudge_subject": "1:1 notes?",
       "nudge_minutes_after": 5,
       "name": "Luke 1:1",
-      "people_ids": []
+      "people_ids": [],
+      "prep_recipe": {
+        "blocks": [
+          "open_threads",
+          "last_session",
+          {"block": "project_next_actions", "expand_threshold": 5, "max_per_project": 3},
+          "pipeline_sales"
+        ],
+        "instruction": "Walk through each project below in turn — these are the ones I keep Luke informed on. For each, give a one-line high-level status backed by its open tasks (the tasks are the signal of what I'm working on next), and call out any blocker. This is my update to Luke, project by project."
+      }
     },
     {
       "calendar_pattern": "department heads",

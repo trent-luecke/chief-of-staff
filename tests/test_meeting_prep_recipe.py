@@ -259,3 +259,15 @@ def test_build_prep_returns_none_on_synth_error(monkeypatch):
     monkeypatch.setattr(m, "_synthesize", boom)
     out = m.build_prep(_event(), _cfg(prep_recipe={"blocks": ["a"]}), {}, FakeStorage(), "key")
     assert out is None
+
+
+def test_seeded_luke_recipe_parses_and_matches_calendar_event():
+    from processors.meeting_memory import load_meeting_index, find_meeting_for_event
+    configs = load_meeting_index("data/meeting_index.json")
+    ev = _event(summary="Luke / Trent")
+    cfg = find_meeting_for_event(ev, configs)
+    assert cfg is not None
+    assert cfg.name == "Luke 1:1"
+    assert cfg.prep_recipe is not None
+    names = [b if isinstance(b, str) else b["block"] for b in cfg.prep_recipe["blocks"]]
+    assert names == ["open_threads", "last_session", "project_next_actions", "pipeline_sales"]
