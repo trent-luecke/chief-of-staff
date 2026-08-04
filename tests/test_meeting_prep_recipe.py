@@ -68,17 +68,28 @@ def test_gather_open_threads_none_when_no_meeting(monkeypatch):
     assert mpr.gather_open_threads(ctx, {}) is None
 
 
-def test_gather_last_session_reads_md_summary():
-    storage = FakeStorage(files={
-        "meeting_memory/luke_1on1.md": "# Luke 1:1\n\n## Session Log\n\n### 2026-07-28\nTalked roadmap.\n"
-    })
-    ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(), config={}, storage=storage)
+def test_gather_last_session_reads_live_session(monkeypatch):
+    meeting_state = {"luke_1on1": {
+        "id": "luke_1on1",
+        "threads": [],
+        "sessions": [{"date": "2026-07-28", "body": "Talked roadmap."}],
+    }}
+    monkeypatch.setattr(mpr.meetings_lib, "replay_local", lambda data_dir: meeting_state)
+    ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(), config={"data_dir": "data"}, storage=FakeStorage())
     out = mpr.gather_last_session(ctx, {})
     assert "Last Session" in out
     assert "Talked roadmap." in out
 
 
-def test_gather_last_session_none_when_absent():
+def test_gather_last_session_none_when_no_sessions(monkeypatch):
+    meeting_state = {"luke_1on1": {"id": "luke_1on1", "threads": [], "sessions": []}}
+    monkeypatch.setattr(mpr.meetings_lib, "replay_local", lambda data_dir: meeting_state)
+    ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(), config={"data_dir": "data"}, storage=FakeStorage())
+    assert mpr.gather_last_session(ctx, {}) is None
+
+
+def test_gather_last_session_none_when_no_meeting(monkeypatch):
+    monkeypatch.setattr(mpr.meetings_lib, "replay_local", lambda data_dir: {})
     ctx = mpr.PrepContext(event=_event(), meeting_cfg=_cfg(), config={}, storage=FakeStorage())
     assert mpr.gather_last_session(ctx, {}) is None
 

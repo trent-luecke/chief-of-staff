@@ -15,7 +15,6 @@ from typing import Optional
 import anthropic
 
 from lib import identity, meetings as meetings_lib, tasks as tasks_lib
-from processors.meeting_memory import load_last_session_summary
 from processors.meeting_prep import _format_demos_line
 
 log = logging.getLogger(__name__)
@@ -46,13 +45,15 @@ def gather_open_threads(ctx: PrepContext, params: dict) -> Optional[str]:
 
 
 def gather_last_session(ctx: PrepContext, params: dict) -> Optional[str]:
-    key = ctx.meeting_cfg.memory_file
-    if key.startswith("data/"):
-        key = key[len("data/"):]
-    summary = load_last_session_summary(ctx.storage, key)
-    if not summary or not summary.strip():
+    data_dir = ctx.config.get("data_dir", "data")
+    state = meetings_lib.replay_local(data_dir)
+    mtg = state.get(ctx.meeting_cfg.meeting_id)
+    if not mtg:
         return None
-    return "## Last Session\n" + summary.strip()
+    body = meetings_lib.last_session(mtg)
+    if not body or not body.strip():
+        return None
+    return "## Last Session\n" + body.strip()
 
 
 _FAR_FUTURE = "9999-12-31"

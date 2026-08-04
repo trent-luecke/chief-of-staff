@@ -84,7 +84,7 @@ def build_today_brief(events, needs_items, internal_domains, today: str, generat
     config = config or {}
     active = [ev for ev in events if not getattr(ev, "declined", False)]
 
-    meeting_configs = load_meeting_index(config.get("meeting_index_file", "data/meeting_index.json"))
+    meeting_configs = load_meeting_index(config.get("meeting_index_file") or "data/meeting_index.json")
     prior = storage.read_json("brief_today.json", default={}) if storage is not None else {}
     prior_by_id = {m.get("id"): m for m in prior.get("meetings", [])} if prior.get("date") == today else {}
 
