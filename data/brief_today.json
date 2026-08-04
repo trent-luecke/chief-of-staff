@@ -1,6 +1,6 @@
 {
   "date": "2026-08-04",
-  "generated_at": "2026-08-04T12:06:34.120318+00:00",
+  "generated_at": "2026-08-04T13:35:02.850838+00:00",
   "meetings": [
     {
       "id": "a1ib2b1t8gla2cacudo1hi2sub_20260804T140000Z",
@@ -45,6 +45,20 @@
       "attendees": [
         {
           "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "rsb5akrkmdk8cbbbbdmkm82s78",
+      "title": "Ba'nele Nake and Trent Luecke",
+      "start": "2026-08-04T10:30:00-05:00",
+      "end": "2026-08-04T11:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "nakebanele126@gmail.com",
           "name": ""
         }
       ],
