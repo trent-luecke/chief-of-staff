@@ -235,3 +235,4 @@
 {"event": "create", "task_id": "t-93bc43", "title": "submit ticket for Artemio", "source": "ui", "created_at": "2026-08-03", "due_date": "2026-08-03", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "complete", "task_id": "t-93bc43", "completed_at": "2026-08-04"}
 {"event": "create", "task_id": "t-5cd3b8", "title": "ask Tex about new course", "source": "ui", "created_at": "2026-08-04", "due_date": "2026-08-04", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "complete", "task_id": "t-fcd512", "completed_at": "2026-08-04"}
