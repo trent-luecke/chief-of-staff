@@ -49,10 +49,10 @@ Each meeting entry gains an optional `prep_recipe`:
     "blocks": [
       "open_threads",
       "last_session",
-      {"block": "project_next_actions", "scope": "all_active", "expand_threshold": 5, "max_per_project": 3},
+      {"block": "project_next_actions", "expand_threshold": 5, "max_per_project": 3},
       "pipeline_sales"
     ],
-    "instruction": "Walk through each active project in turn. For each, give a one-line high-level status backed by its open tasks (the tasks are the signal of what I'm working on next), and call out any blocker. This is my update to Luke, project by project."
+    "instruction": "Walk through each project below in turn — these are the ones I keep Luke informed on. For each, give a one-line high-level status backed by its open tasks (the tasks are the signal of what I'm working on next), and call out any blocker. This is my update to Luke, project by project."
   }
 }
 ```
@@ -71,28 +71,27 @@ Each block is a function `gather(ctx) -> str | None` returning a titled markdown
 |---|---|---|
 | `open_threads` | Meetings registry: `replay_local(data_dir)[meeting_id]` → `render_for_prep`'s open-threads portion | Matched via `find_meeting_for_event`; `meeting_id` = memory-file basename. Empty threads → dropped. |
 | `last_session` | `data/meeting_memory/<file>.md` via `load_last_session_summary` | Verbatim most-recent `### date` entry. No file / no entries → dropped. |
-| `project_next_actions` | Projects selected per `scope` param (see below) | Per project, surface open tasks (the "what's next" signal). Task selection: ≤`expand_threshold` open tasks → show all; >`expand_threshold` → show `max_per_project` with nearest due_date/horizon. No projects → dropped. |
+| `project_next_actions` | Active projects where a resolved attendee is a `member` (see below) | Per project, surface open tasks (the "what's next" signal). Task selection: ≤`expand_threshold` open tasks → show all; >`expand_threshold` → show `max_per_project` with nearest due_date/horizon. No projects → dropped. |
 | `pipeline_sales` | `data/pipeline_cache.json` (stage breakdown) + metrics engine (`_format_demos_line`, sales MTD) | Current state, not deltas. Engine unreachable → sales line shows "(unavailable)", pipeline still renders. Both absent → dropped. |
 
-### `project_next_actions` — parameters & project selection
+### `project_next_actions` — project selection & task capping
 
-The block is parameterized so each recipe controls which projects it walks and how many tasks it shows:
+**Project selection — attendee-scoped, role-agnostic.** The block pulls the active projects that the meeting's attendees are attached to, so the update set is curated by *who you tag on which projects* rather than by any per-meeting config. Self-maintaining — no `people_ids` upkeep (that field is empty on 4 of 7 configs):
+
+1. From `event.attendee_details`, take internal attendees (`identity.is_internal(email, internal_domains)`).
+2. Resolve each to a `person_id` via `identity.build_lookup(load_people(storage))` → `find_by_email` (fall back to `resolve` on name).
+3. Select `projects_registry.json` projects with `status == "active"` where any resolved `person_id` ∈ `project.members[].id`. **Any member role counts** (`owner` / `contact` / `collaborator`) — no role filter. The projects↔people link already exists via `project.members`.
+
+So for the Luke 1:1, the prep walks exactly the projects Luke is a member of. Trent curates that set by adding Luke as a member (the `contact` role — "keep informed" — is the natural label, but selection doesn't depend on which role) on the projects he reports to Luke on. Until Luke is a member of at least one active project, this block produces nothing and is silently dropped (non-fatal).
+
+**Task capping params:**
 
 | Param | Default | Meaning |
 |---|---|---|
-| `scope` | `"attendees"` | `"attendees"` = infer projects from live invite attendees (below). `"all_active"` = every active project, regardless of who's on the invite. |
 | `expand_threshold` | `5` | If a project has this many or fewer open tasks, show all of them. |
 | `max_per_project` | `3` | When a project exceeds `expand_threshold`, show this many tasks, chosen by nearest due_date/horizon. |
 
 **Task selection per project:** collect the project's open tasks from `tasks.jsonl` (`lib.tasks`). If `count <= expand_threshold`, surface all. If `count > expand_threshold`, sort by nearest scheduling date — `due_date` if present, else `horizon`, tasks with neither last — and take the first `max_per_project`. (So a project with 5 open tasks shows 5; a project with 6 shows the 3 most time-sensitive.) Projects are ordered by their most imminent task's date, so the work nearest at hand leads.
-
-**`scope: "attendees"` (default)** — self-maintaining project inference, no per-meeting `people_ids` upkeep (that field is empty on 4 of 7 configs):
-
-1. From `event.attendee_details`, take internal attendees (`identity.is_internal(email, internal_domains)`).
-2. Resolve each to a `person_id` via `identity.build_lookup(load_people(storage))` → `find_by_email` (fall back to `resolve` on name).
-3. Select `projects_registry.json` projects with `status == "active"` where any resolved `person_id` ∈ `project.members[].id`. The projects↔people link already exists via `project.members`.
-
-**`scope: "all_active"`** — select every `projects_registry.json` project with `status == "active"`; skip attendee resolution entirely. This is the Luke 1:1 case: Trent gives Luke a high-level, project-by-project update across everything he's working on, so the block walks all active projects rather than only Luke-linked ones.
 
 ## Synthesis + wiring
 
@@ -132,7 +131,7 @@ The Today brief is pull-based and may regenerate several times a day; we must no
 ## Testing
 
 - **Per-block gather** (deterministic, no API): fixture Meetings state, a fixture `meeting_memory` md, a fixture `projects_registry` + `tasks.jsonl`, and a fixture `pipeline_cache`. Assert each block's output and its empty-source drop.
-- **`project_next_actions` scope:** `scope: "attendees"` with mixed internal/external attendees → correct person_id resolution → correct project selection; attendee resolving to nobody → block dropped. `scope: "all_active"` → every active project selected, attendee resolution skipped.
+- **`project_next_actions` selection:** mixed internal/external attendees → correct person_id resolution → projects where a resolved attendee is a member (any role); attendee resolving to nobody, or resolving to a person on no active project → block dropped.
 - **Task selection:** project with ≤`expand_threshold` open tasks → all shown; project with >`expand_threshold` → exactly `max_per_project`, chosen by nearest `due_date`/`horizon` (tasks with neither sort last); project ordering by most-imminent task.
 - **Recipe resolution:** meeting with recipe vs without; string-form vs object-form block entries both parse; unknown block name in a recipe is ignored with a log line.
 - **Non-fatal paths:** a block that raises is dropped; an LLM error yields `prep: null`; a meeting with zero producing blocks yields `prep: null` and makes no LLM call.
@@ -141,7 +140,11 @@ The Today brief is pull-based and may regenerate several times a day; we must no
 
 ## Seeded recipe (this pass)
 
-Only **Luke 1:1** gets a `prep_recipe`, exactly as shown in the schema example: all four blocks, with `project_next_actions` set to `scope: "all_active"` (walk every active project) and a project-by-project walkthrough instruction. Verify it populates in `brief_today.json` and renders in the Today tab. The remaining six meetings stay recipe-less.
+Only **Luke 1:1** gets a `prep_recipe`, exactly as shown in the schema example: all four blocks, `project_next_actions` with `expand_threshold: 5` / `max_per_project: 3` (attendee-scoped, so it walks the projects Luke is a member of), and a project-by-project walkthrough instruction.
+
+**Data setup precondition:** the `project_next_actions` block only produces content once Luke is a member of at least one active project. Luke is currently not a member of any project in `projects_registry.json`, so as part of validating this pass, Trent tags Luke (`contact` role) on the projects he reports to Luke on — via the Registry UI. Until then the block is silently dropped and the prep is built from the other three blocks.
+
+Verify the recipe populates in `brief_today.json` and renders in the Today tab. The remaining six meetings stay recipe-less.
 
 ## Follow-ups (out of scope here)
 
