@@ -64,7 +64,12 @@
       "canonical_name": "Social Media Content Assistant for Sales Team",
       "aliases": [],
       "status": "active",
-      "members": [],
+      "members": [
+        {
+          "id": "luke-green",
+          "role": "contact"
+        }
+      ],
       "created": "2026-07-28",
       "last_seen": "2026-08-04"
     }
