@@ -29,7 +29,7 @@ Populate `prep` on internal meeting cards in the Today tab using **per-meeting r
 Add `processors/meeting_prep_recipe.py`. `today_brief._meeting_dict` calls it for internal meetings that resolve to a recipe. The legacy `processors/meeting_prep.py` (dept-heads / external branching for the emailed brief) is **not** reused or modified — this keeps the Today-tab path free of that coupling. Proven low-level helpers are reused directly:
 
 - `lib.meetings.replay_local` / `render_for_prep` / `open_threads` / `last_session` — Meetings registry.
-- `processors.meeting_memory.find_meeting_for_event` / `load_meeting_index` / `load_last_session_summary` — config matching + memory-file session log.
+- `processors.meeting_memory.find_meeting_for_event` / `load_meeting_index` — recipe config matching (`memory_file` basename gives the `meeting_id` slug).
 - `lib.identity` (`load_people`, `build_lookup`, `find_by_email`, `resolve`) — attendee → person_id resolution (Plan 1).
 
 Rejected alternatives:
@@ -70,7 +70,7 @@ Each block is a function `gather(ctx) -> str | None` returning a titled markdown
 | Block | Source | Gather behavior |
 |---|---|---|
 | `open_threads` | Meetings registry: `replay_local(data_dir)[meeting_id]` → `render_for_prep`'s open-threads portion | Matched via `find_meeting_for_event`; `meeting_id` = memory-file basename. Empty threads → dropped. |
-| `last_session` | `data/meeting_memory/<file>.md` via `load_last_session_summary` | Verbatim most-recent `### date` entry. No file / no entries → dropped. |
+| `last_session` | Meetings registry: `replay_local(data_dir)[meeting_id]` → `meetings_lib.last_session(mtg)` | Most-recent session body from the live `meetings.jsonl` log (same state `open_threads` loads). No meeting / no sessions → dropped. |
 | `project_next_actions` | Active projects where a resolved attendee is a `member` (see below) | Per project, surface open tasks (the "what's next" signal). Task selection: ≤`expand_threshold` open tasks → show all; >`expand_threshold` → show `max_per_project` with nearest due_date/horizon. No projects → dropped. |
 | `pipeline_sales` | `data/pipeline_cache.json` (stage breakdown) + metrics engine (`_format_demos_line`, sales MTD) | Current state, not deltas. Engine unreachable → sales line shows "(unavailable)", pipeline still renders. Both absent → dropped. |
 
@@ -130,7 +130,7 @@ The Today brief is pull-based and may regenerate several times a day; we must no
 
 ## Testing
 
-- **Per-block gather** (deterministic, no API): fixture Meetings state, a fixture `meeting_memory` md, a fixture `projects_registry` + `tasks.jsonl`, and a fixture `pipeline_cache`. Assert each block's output and its empty-source drop.
+- **Per-block gather** (deterministic, no API): fixture Meetings registry state (threads + sessions), a fixture `projects_registry` + `tasks.jsonl`, and a fixture `pipeline_cache`. Assert each block's output and its empty-source drop.
 - **`project_next_actions` selection:** mixed internal/external attendees → correct person_id resolution → projects where a resolved attendee is a member (any role); attendee resolving to nobody, or resolving to a person on no active project → block dropped.
 - **Task selection:** project with ≤`expand_threshold` open tasks → all shown; project with >`expand_threshold` → exactly `max_per_project`, chosen by nearest `due_date`/`horizon` (tasks with neither sort last); project ordering by most-imminent task.
 - **Recipe resolution:** meeting with recipe vs without; string-form vs object-form block entries both parse; unknown block name in a recipe is ignored with a log line.
