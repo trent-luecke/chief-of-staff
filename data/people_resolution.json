@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-08-04T00:00:00",
+  "resolved_at": "2026-08-05T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -8242,6 +8242,81 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "1809": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1810": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1811": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1812": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1813": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1814": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1815": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1816": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1821": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1822": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1823": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1824": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1825": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1826": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "1827": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -8421,7 +8496,15 @@
     1756,
     1757,
     1766,
-    1767
+    1767,
+    1805,
+    1806,
+    1807,
+    1808,
+    1817,
+    1818,
+    1819,
+    1820
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -8483,6 +8566,9 @@
     "thread:Re: TeamBuildr Social Media Partner Interest (PWR Dundalk)",
     "thread:Re: Payment",
     "thread:Re: Memberships",
-    "thread:Re: Marketing Plan"
+    "thread:Re: Marketing Plan",
+    "thread:Re: Adding a discount or negative discount to a membership- does it stay monthly?",
+    "thread:Quick one before I stop following up",
+    "thread:Re: Billing info"
   ]
 }
