@@ -1,248 +1,35 @@
 {
-  "date": "2026-08-04",
-  "generated_at": "2026-08-04T13:35:02.850838+00:00",
+  "date": "2026-08-05",
+  "generated_at": "2026-08-05T12:08:41.917385+00:00",
   "meetings": [
     {
-      "id": "a1ib2b1t8gla2cacudo1hi2sub_20260804T140000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-08-04T09:00:00-05:00",
-      "end": "2026-08-04T09:30:00-05:00",
+      "id": "05qo705ca6f27ai8m3usq7fp05_20260806T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-08-05T11:30:00-05:00",
+      "end": "2026-08-05T12:00:00-05:00",
       "kind": "internal",
       "attendees": [
-        {
-          "email": "kyle@teambuildr.com",
-          "name": ""
-        },
         {
           "email": "luke@teambuildr.com",
           "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
         }
       ],
-      "prep": null
+      "prep": "## Luke / Trent \u2014 Meeting Prep\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In testing phase \u2014 next up is building a fake onboarding script to feed into Claude for QA.\n- **Open task:** Create fake onboarding script \u2192 feed to Claude onboarding to test behavior\n- **Blocker:** None noted\n\n---\n\n### StoryBuildr\n**Status:** In design review \u2014 auditing stage-by-stage layout before moving forward.\n- **Open task:** Audit individual stage design and layout\n- **Blocker:** None noted\n\n---\n\n### AI Access for Sales Team\n**Status:** Decision landed \u2014 no rep seats; Trent is the centralized builder, access gated behind a real use case.\n- **Open tasks:** None \u2014 this is a standing operating agreement, not an active build\n- **Blocker:** None; decision is made\n\n---\n\n### Competitive Content (Vibe-Coded Platforms)\n**Status:** Idea promoted to task \u2014 content piece on risks of vibe-coded gym-management platforms, tied to LaunchOS positioning.\n- **Open task:** Create content highlighting vibe-coded platform risks \u2192 tie to \"one place to do everything\"\n- **Blocker:** None noted; awaiting execution\n\n---\n\n### Sales Pipeline / July Numbers\n**Status:** July was strong; August dip expected and accepted. Luke's stated floor is ~5/month, aspiration is more double-digit months next year.\n- **Context signal:** Pipeline sits at 38 \u2014 15 In-Trial/Post Demo, 9 Out of Demo/Need Update worth watching; only 1 demo MTD\n- **Blocker:** Low August demo activity worth flagging if it persists",
+      "prep_hash": "6b98bec78d02"
     },
     {
-      "id": "dd8v77935eol6k905bg547n1j5_20260804T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-08-04T10:00:00-05:00",
-      "end": "2026-08-04T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "rsb5akrkmdk8cbbbbdmkm82s78",
-      "title": "Ba'nele Nake and Trent Luecke",
-      "start": "2026-08-04T10:30:00-05:00",
-      "end": "2026-08-04T11:00:00-05:00",
+      "id": "3m0mfsg7pf2t1foqg12dsb1m6m",
+      "title": "Mark Fisher Content Filming",
+      "start": "2026-08-05T12:30:00-05:00",
+      "end": "2026-08-05T14:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "nakebanele126@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8or30h9l8cr4ah238p1k8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8l14cg9m84r3ge9g8p144g9k8oskachi60r34d25651jic1m8kpg_20260804T163000Z",
-      "title": "BAH/TeamBuildr Sync",
-      "start": "2026-08-04T11:30:00-05:00",
-      "end": "2026-08-04T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "stern_zachary@bah.com",
-          "name": "Stern, Zack [USA]"
-        },
-        {
-          "email": "butz_melodie@bah.com",
-          "name": "Butz, Melodie [USA]"
-        },
-        {
-          "email": "dean_jonathan@bah.com",
-          "name": "Dean, Jonathan [USA]"
-        },
-        {
-          "email": "gould_bryan@bah.com",
-          "name": "Gould, Bryan [USA]"
-        },
-        {
-          "email": "hashmi_hassan@bah.com",
-          "name": "Hashmi, Hassan [USA]"
-        },
-        {
-          "email": "hayden_jon@bah.com",
-          "name": "Hayden, Jon [USA]"
-        },
-        {
-          "email": "johnson_irik@bah.com",
-          "name": "Johnson, Irik [USA]"
-        },
-        {
-          "email": "khamisi_samer@bah.com",
-          "name": "Khamisi, Samer [USA]"
-        },
-        {
-          "email": "khimani_rameez@bah.com",
-          "name": "Khimani, Rameez [USA]"
-        },
-        {
-          "email": "melgar_keny@bah.com",
-          "name": "Melgar, Keny [USA]"
-        },
-        {
-          "email": "myers_rachel@bah.com",
-          "name": "Myers, Rachel [USA]"
-        },
-        {
-          "email": "socorro_aris@bah.com",
-          "name": "Socorro, Aris [USA]"
-        },
-        {
-          "email": "swift_paul@bah.com",
-          "name": "Swift, Paul [USA]"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1n1ipkrudnijothhoj5fluct5r_20260804T180000Z",
-      "title": "Rev Team Meeting",
-      "start": "2026-08-04T13:00:00-05:00",
-      "end": "2026-08-04T13:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "evan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "grace@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "clayton@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elodder@teambuildr.com",
+          "email": "mark@businessforunicorns.com",
           "name": ""
         },
         {
           "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "amanda@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "kylah@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "csnyder@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "irene@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "heather@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jpaw@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "cora@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "andrea@teambuildr.com",
           "name": ""
         }
       ],
@@ -256,13 +43,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-93bc43",
-      "title": "submit ticket for Artemio",
-      "reason": "overdue",
-      "due_date": "2026-08-03",
-      "project_id": null
     }
   ],
   "what_moved": []
