@@ -971,7 +971,14 @@
     .today-mtg-time { font-variant-numeric: tabular-nums; opacity: .8; }
     .today-mtg-title { font-weight: 600; flex: 1; }
     .today-mtg-kind { font-size: 11px; text-transform: uppercase; opacity: .6; }
-    .today-mtg-prep { padding: 0 12px 10px; }
+    .today-mtg-prep { padding: 0 12px 10px; line-height: 1.5; }
+    .today-mtg-prep .prep-h { margin: 12px 0 4px; }
+    .today-mtg-prep h3.prep-h { font-size: 15px; }
+    .today-mtg-prep h4.prep-h { font-size: 13px; text-transform: uppercase; letter-spacing: .03em; opacity: .85; }
+    .today-mtg-prep .prep-p { margin: 4px 0; }
+    .today-mtg-prep .prep-ul { margin: 4px 0; padding-left: 18px; }
+    .today-mtg-prep .prep-ul li { margin: 2px 0; }
+    .today-mtg-prep .prep-hr { border: 0; border-top: 1px solid var(--border); margin: 10px 0; }
     .today-header { display: flex; align-items: center; gap: 8px; }
     .today-needs { list-style: none; padding-left: 0; }
     .today-need-reason { display: inline-block; min-width: 62px; font-size: 11px; text-transform: uppercase; opacity: .7; }
@@ -1088,6 +1095,28 @@
 
 // ── Escape helpers ──────────────────────────────────────────────────────────
 const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// Minimal, escape-first markdown renderer for meeting prep blocks.
+// Handles the vocabulary the prep recipe emits: ## / ### headings, --- rules,
+// - bullet lists, **bold** inline. Escapes before transforming so it is XSS-safe;
+// deliberately self-contained (no external markdown lib) to keep the UI offline-tolerant.
+const renderPrepMd = md => {
+  const inline = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  const out = [];
+  let inList = false;
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  for (const raw of String(md ?? '').split('\n')) {
+    const line = raw.trimEnd();
+    if (/^\s*---\s*$/.test(line))      { closeList(); out.push('<hr class="prep-hr">'); }
+    else if (/^###\s+/.test(line))     { closeList(); out.push(`<h4 class="prep-h">${inline(line.replace(/^###\s+/, ''))}</h4>`); }
+    else if (/^##\s+/.test(line))      { closeList(); out.push(`<h3 class="prep-h">${inline(line.replace(/^##\s+/, ''))}</h3>`); }
+    else if (/^\s*-\s+/.test(line))    { if (!inList) { out.push('<ul class="prep-ul">'); inList = true; } out.push(`<li>${inline(line.replace(/^\s*-\s+/, ''))}</li>`); }
+    else if (line.trim() === '')       { closeList(); }
+    else                               { closeList(); out.push(`<p class="prep-p">${inline(line)}</p>`); }
+  }
+  closeList();
+  return out.join('');
+};
 const el = id => document.getElementById(id);
 
 // ── File System Access ──────────────────────────────────────────────────────
@@ -3896,7 +3925,7 @@ async function renderTodayView() {
         <span class="today-mtg-kind">${esc(m.kind)}</span>
       </div>
       <div class="today-mtg-prep hidden">
-        ${m.prep ? esc(JSON.stringify(m.prep)) : '<span class="muted">No prep yet.</span>'}
+        ${m.prep ? renderPrepMd(m.prep) : '<span class="muted">No prep yet.</span>'}
         ${who ? `<div class="muted" style="margin-top:6px">${who}</div>` : ''}
       </div>
     </div>`;
