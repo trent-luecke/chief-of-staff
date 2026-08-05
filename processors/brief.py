@@ -233,6 +233,16 @@ def generate_brief(
         what_moved_context=what_moved_context,
         routine_suggestions_context=routine_suggestions_context,
     )
+    # Debug: dump the fully-assembled context so a wrong brief can be traced to
+    # its inputs. Non-fatal, gitignored (logs/), one file per day.
+    if storage is not None:
+        try:
+            storage.write(
+                f"logs/brief_prompt_{date.today().isoformat()}.txt",
+                f"model: {model}\n\n=== SYSTEM ===\n{SYSTEM_PROMPT}\n\n=== USER ===\n{prompt}\n",
+            )
+        except Exception:
+            pass
     response = client.messages.create(
         model=model,
         max_tokens=2000,
