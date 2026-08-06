@@ -447,6 +447,14 @@
       "candidate_id": "andrewlevine",
       "candidate_score": 96.0,
       "added": "2026-07-31"
+    },
+    {
+      "entity": "Seth Brunner",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-06"
     }
   ],
   "previously_notified": [
