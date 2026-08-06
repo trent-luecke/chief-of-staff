@@ -67,6 +67,18 @@ This is the single most important artifact. It is stored as `scout/os_grounding.
 - **Loses to** "sophisticated" operators: multi-location businesses, highly structured marketing funnels needing native CRM/marketing integration, or buyers who simply want lots of bells & whistles.
 - **Guardrail (from positioning memory):** OS + Strength are two subscriptions / two invoices sharing one member app. Never attack a competitor for being "two products / two invoices / an integration between them" — that's a glass house.
 
+### OS Jobs-To-Be-Done (confirmed by Trent 2026-08-06)
+
+The agent must NOT regenerate this weekly — it is curated here and looked up, exactly like strengths/gaps. (Synthesized from platform-level signal in the Workflow Builder JTBD interviews — 410 Fitness, FSP, Orca — where consolidation-not-automation and login-aversion were directly evidenced.)
+
+- **Buyer:** the S&C / sport-performance facility owner-coach.
+- **Functional job:** *"When I'm running my facility across a pile of disconnected tools — programming in one place, scheduling/billing/members in another — I want one platform that runs the operation AND delivers real, periodized S&C programming through a single member app, so I can run a legit, professional facility without stitching together a stack or becoming a software company."*
+- **Emotional job:** feel in control and credible — not duct-taping tools or apologizing for a clunky member experience.
+- **Social job:** look as buttoned-up to my athletes/members (and youth-SP parents) as a big franchise does.
+- **The wedge OS uniquely gets hired for:** *consolidation + programming depth* — "be the hub, and be the one platform that actually does the training, not just the front desk."
+- **Hired over:** front-desk tool + separate Trainerize · spreadsheets + calendars + booking tool · a CrossFit-native tool with shallow programming.
+- **NOT hired for:** a marketing/lead-gen engine, a multi-location HQ command center, or a maximal-feature Swiss-army platform. (These are the "sophisticated operator" losses above.)
+
 ### Reaction taxonomy
 Every notable competitor feature gets exactly one tag:
 
@@ -84,6 +96,18 @@ Every notable competitor feature gets exactly one tag:
 - **AI is in progress.** Competitor AI features → `🎯` tagged "in progress," never framed as a blind spot.
 
 This profile is expected to drift; it is version-controlled and hand-edited as OS ships (e.g. when member-booked appointments launches, move it from gap to strength).
+
+### JTBD verdicts
+
+Each teardown includes a JTBD analysis: the agent reads the **platform's** JTBD from its own marketing copy (fair — it's their stated positioning), then compares it to the **confirmed OS JTBD** above and lands exactly one verdict:
+
+| Verdict | Meaning | Output |
+|---------|---------|--------|
+| 📣 **Positioning gap** | Platform loudly sells a job OS *already does* but doesn't market | Copy/messaging opportunity — agent quotes the platform's exact line so Trent reacts to real language. **This is the primary payload of the JTBD section.** |
+| 🎯 **Real job gap** | A job OS genuinely can't do | Cross-references the feature taxonomy (🎯/🚫) |
+| ➖ **Different job** | Not OS's ICP/job | Note briefly and move on |
+
+Same grounding rule as the feature taxonomy: the platform's JTBD is derived from their copy, but the OS-comparison verdict is a **lookup against the confirmed OS JTBD**, never invented product/marketing strategy. Unclear cases → flag for Trent's judgment rather than guess.
 
 ---
 
@@ -180,10 +204,11 @@ For each selected candidate:
    - Traction claims (flagged as self-reported)
    - Maturity signal (polished-funded vs. vibe-coded solo)
    - **OS-tagged takeaways** — the notable features, each with a taxonomy tag drawn ONLY from the grounding profile
+   - **JTBD analysis** — the platform's JTBD (read from its copy) + the OS-comparison verdict (📣/🎯/➖ per the JTBD verdicts table), with the platform's exact positioning line quoted when it's a 📣 positioning gap
 4. Log tokens/cost to `run_log.jsonl`.
 
 ### Email (`emailer.py`)
-- One email, two teardowns. Standout wedge leads each; OS-tagged takeaways as a clearly delimited section per platform.
+- One email, two teardowns. Standout wedge leads each; OS-tagged takeaways and the JTBD analysis as clearly delimited sections per platform.
 - Archive the rendered brief to `data/briefs/` (like `market-intel/briefs/`).
 - Send via the CoS email sender.
 
