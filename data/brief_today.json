@@ -1,35 +1,108 @@
 {
-  "date": "2026-08-05",
-  "generated_at": "2026-08-05T12:08:41.917385+00:00",
+  "date": "2026-08-06",
+  "generated_at": "2026-08-06T12:09:41.218172+00:00",
   "meetings": [
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20260806T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-08-05T11:30:00-05:00",
-      "end": "2026-08-05T12:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent \u2014 Meeting Prep\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In testing phase \u2014 next up is building a fake onboarding script to feed into Claude for QA.\n- **Open task:** Create fake onboarding script \u2192 feed to Claude onboarding to test behavior\n- **Blocker:** None noted\n\n---\n\n### StoryBuildr\n**Status:** In design review \u2014 auditing stage-by-stage layout before moving forward.\n- **Open task:** Audit individual stage design and layout\n- **Blocker:** None noted\n\n---\n\n### AI Access for Sales Team\n**Status:** Decision landed \u2014 no rep seats; Trent is the centralized builder, access gated behind a real use case.\n- **Open tasks:** None \u2014 this is a standing operating agreement, not an active build\n- **Blocker:** None; decision is made\n\n---\n\n### Competitive Content (Vibe-Coded Platforms)\n**Status:** Idea promoted to task \u2014 content piece on risks of vibe-coded gym-management platforms, tied to LaunchOS positioning.\n- **Open task:** Create content highlighting vibe-coded platform risks \u2192 tie to \"one place to do everything\"\n- **Blocker:** None noted; awaiting execution\n\n---\n\n### Sales Pipeline / July Numbers\n**Status:** July was strong; August dip expected and accepted. Luke's stated floor is ~5/month, aspiration is more double-digit months next year.\n- **Context signal:** Pipeline sits at 38 \u2014 15 In-Trial/Post Demo, 9 Out of Demo/Need Update worth watching; only 1 demo MTD\n- **Blocker:** Low August demo activity worth flagging if it persists",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "3m0mfsg7pf2t1foqg12dsb1m6m",
-      "title": "Mark Fisher Content Filming",
-      "start": "2026-08-05T12:30:00-05:00",
-      "end": "2026-08-05T14:00:00-05:00",
+      "id": "09plgi5js577ooi10ppisl4cco",
+      "title": "George Strangos and Trent Luecke",
+      "start": "2026-08-06T08:30:00-05:00",
+      "end": "2026-08-06T09:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "mark@businessforunicorns.com",
+          "email": "gstrangos@gmail.com",
           "name": ""
         },
         {
+          "email": "cyrilbernius@bemorebf.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "mfrsr5eu8ata7bvtpc8r9rh2bk",
+      "title": "Forrest B Holt and Trent Luecke",
+      "start": "2026-08-06T09:00:00-05:00",
+      "end": "2026-08-06T09:15:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "forrest.holt@ecschools.net",
+          "name": ""
+        },
+        {
+          "email": "leanne.click@ecschools.net",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "427va7uog7950apj45agnlp33o_20260806T143000Z",
+      "title": "OS | Marketing 2.0",
+      "start": "2026-08-06T09:30:00-05:00",
+      "end": "2026-08-06T10:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
           "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "37p6e9p1pavh2mk72tffjo2m2r",
+      "title": "Lunch & Learn - Home Buying & Refinancing",
+      "start": "2026-08-06T11:00:00-05:00",
+      "end": "2026-08-06T12:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "eduardo@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "emily@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "team@teambuildr.com",
+          "name": "Team"
+        },
+        {
+          "email": "ejwagner519@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "eric.wagner@amerisbank.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2ef0s505ep4oh7u4ppd67jrvg1",
+      "title": "Thomas Howes / Trent Luecke: OS Reconnect",
+      "start": "2026-08-06T14:30:00-05:00",
+      "end": "2026-08-06T15:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "thomasohowes@gmail.com",
           "name": ""
         }
       ],
@@ -43,6 +116,13 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-46ec75",
+      "title": "email copy for timezone update",
+      "reason": "due",
+      "due_date": "2026-08-06",
+      "project_id": null
     }
   ],
   "what_moved": []
