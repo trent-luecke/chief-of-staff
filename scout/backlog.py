@@ -17,6 +17,7 @@ def new_candidate(domain, name, url, bucket, source, discovered_at, seed=False) 
         "covered_at": None,
         "content_hash": None,
         "seed": seed,
+        "platform_ok": None,
     }
 
 
