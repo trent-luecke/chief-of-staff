@@ -1,0 +1,24 @@
+{
+  "recipient": "trent@teambuildr.com",
+  "teardowns_per_week": 2,
+  "search_limit": 8,
+  "search_queries": [
+    "new gym management software 2025 2026",
+    "best alternative to Trainerize for online coaches 2025",
+    "AI personal trainer coaching platform startup",
+    "indie gym management software built by a gym owner",
+    "boutique studio management software new",
+    "site:producthunt.com gym OR coaching OR fitness software",
+    "site:reddit.com gym management software recommendation"
+  ],
+  "meta_ad_library_queries": [
+    "gym management software",
+    "online coaching platform for personal trainers"
+  ],
+  "exclude_domains": [
+    "mindbody", "pushpress", "zenplanner", "trainerize", "truecoach",
+    "teambuildr", "glofox", "wodify", "marianatek", "abcfitness",
+    "everfit", "ptdistinction", "mypthub", "exercise.com", "kilo",
+    "gymlaunch", "virtuagym", "hevy", "zenoti"
+  ]
+}

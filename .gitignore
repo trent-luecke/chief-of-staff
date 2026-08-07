@@ -47,6 +47,9 @@ data/memory/*
 market-intel/data/
 market-intel/config/seen_urls.json
 
+# Fitness Scout — logs are noise; scout/data/ IS tracked for state persistence
+scout/*.log
+
 # Archived planning docs — completed work, not needed for operation
 docs/archive/
 
