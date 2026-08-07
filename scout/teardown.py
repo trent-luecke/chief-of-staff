@@ -24,6 +24,13 @@ the grounding. Bells-and-whistles OS deliberately skipped → "🚫 Out of scope
 - For JTBD: read the platform's own JTBD from its copy, then pick exactly one verdict \
 (📣 Positioning gap / 🎯 Real job gap / ➖ Different job). If 📣, quote the platform's exact \
 positioning line.
+- Also set is_platform: true if the scraped pages are an actual fitness-business / gym-management \
+/ online-coaching SOFTWARE PRODUCT's OWN site (its homepage, product, or pricing pages — a \
+company that sells or offers the software); false if the pages are a review article, "best-of"/ \
+"top-N" listicle, news story, market-research report, app directory/marketplace, blog post, or \
+forum thread. Judge ONLY from the page content in front of you — NOT from whether you recognize \
+the brand. Many real products here are small, new, and unknown, so an unfamiliar name is NOT \
+evidence against being a platform.
 
 Call the `emit_teardown` tool with your analysis. Do not write any prose outside the tool call."""
 
@@ -48,8 +55,9 @@ TEARDOWN_TOOL = {
                 "platform_jtbd": {"type": "string"}, "verdict": {"type": "string"},
                 "note": {"type": "string"}, "quoted_line": {"type": "string"}},
                 "required": ["platform_jtbd", "verdict", "note"]},
+            "is_platform": {"type": "boolean"},
         },
-        "required": ["description", "segment", "standout", "features", "pricing", "traction", "maturity", "os_takeaways", "jtbd"],
+        "required": ["description", "segment", "standout", "features", "pricing", "traction", "maturity", "os_takeaways", "jtbd", "is_platform"],
     },
 }
 

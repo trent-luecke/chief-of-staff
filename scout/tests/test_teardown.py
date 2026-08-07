@@ -31,6 +31,7 @@ _TEARDOWN_JSON = {
              "verdict": "📣 Positioning gap",
              "note": "OS also consolidates but doesn't say so",
              "quoted_line": "a client's whole week from one screen"},
+    "is_platform": True,
 }
 
 
@@ -98,3 +99,21 @@ def test_analyze_returns_none_when_no_tool_use():
     client = _fake_client_returning_text("sorry, I can't help with that")
     result = teardown.analyze(cand, fc, client, "G")
     assert result is None
+
+
+def test_analyze_flags_non_platform():
+    cand = backlog.new_candidate("listicle.com", "Listicle", "https://listicle.com/", "A", "seed", "2026-08-06")
+    fc = _FakeFC({"listicle.com": "# Best Gym Apps 2026\na roundup of platforms"})
+    non_platform_json = dict(_TEARDOWN_JSON, is_platform=False)
+
+    class _Resp:
+        content = [_ToolUseBlock(non_platform_json)]
+    class _Msgs:
+        def create(self, **k):
+            return _Resp()
+    class _Client:
+        messages = _Msgs()
+
+    result = teardown.analyze(cand, fc, _Client(), "G")
+    assert result is not None
+    assert result["is_platform"] is False

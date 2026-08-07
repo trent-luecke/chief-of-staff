@@ -25,13 +25,13 @@ def test_run_weekly_selects_analyzes_marks_and_sends(tmp_path, monkeypatch):
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "rebuild_backlog",
-                        lambda recs, client, exclude=None: (len(recs), 0))
+                        lambda recs, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def fake_analyze(cand, fc, client, grounding):
         return {"name": cand["name"], "url": cand["url"], "bucket": "A",
                 "content_hash": "h_" + cand["domain"], "standout": "x",
-                "features": [], "os_takeaways": [], "jtbd": {}}
+                "features": [], "os_takeaways": [], "jtbd": {}, "is_platform": True}
     monkeypatch.setattr(scout.teardown, "analyze", fake_analyze)
 
     sent = {}
@@ -58,11 +58,12 @@ def test_run_weekly_dry_run_does_not_send(tmp_path, monkeypatch):
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "rebuild_backlog",
-                        lambda recs, client, exclude=None: (len(recs), 0))
+                        lambda recs, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
     monkeypatch.setattr(scout.teardown, "analyze",
                         lambda c, *a: {"name": c["name"], "url": c["url"], "bucket": "A",
-                                       "content_hash": "h", "features": [], "os_takeaways": [], "jtbd": {}})
+                                       "content_hash": "h", "features": [], "os_takeaways": [], "jtbd": {},
+                                       "is_platform": True})
     called = {"sent": False}
     monkeypatch.setattr(scout.emailer, "send_email",
                         lambda *a, **k: called.update(sent=True) or True)
@@ -86,7 +87,7 @@ def test_run_weekly_survives_a_raising_analyze(tmp_path, monkeypatch):
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "rebuild_backlog",
-                        lambda recs, client, exclude=None: (len(recs), 0))
+                        lambda recs, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def flaky_analyze(cand, fc, client, grounding):
@@ -94,7 +95,7 @@ def test_run_weekly_survives_a_raising_analyze(tmp_path, monkeypatch):
             raise ValueError("Claude returned non-dict JSON")
         return {"name": cand["name"], "url": cand["url"], "bucket": "A",
                 "content_hash": "h_" + cand["domain"], "standout": "x",
-                "features": [], "os_takeaways": [], "jtbd": {}}
+                "features": [], "os_takeaways": [], "jtbd": {}, "is_platform": True}
     monkeypatch.setattr(scout.teardown, "analyze", flaky_analyze)
 
     sent = {}
@@ -140,13 +141,13 @@ def test_run_weekly_survives_discovery_exception(tmp_path, monkeypatch):
     monkeypatch.setattr(scout.discovery, "run_discovery", raising_discovery)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "rebuild_backlog",
-                        lambda recs, client, exclude=None: (len(recs), 0))
+                        lambda recs, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def fake_analyze(cand, fc, client, grounding):
         return {"name": cand["name"], "url": cand["url"], "bucket": "A",
                 "content_hash": "h_" + cand["domain"], "standout": "x",
-                "features": [], "os_takeaways": [], "jtbd": {}}
+                "features": [], "os_takeaways": [], "jtbd": {}, "is_platform": True}
     monkeypatch.setattr(scout.teardown, "analyze", fake_analyze)
 
     sent = {}
@@ -160,3 +161,44 @@ def test_run_weekly_survives_discovery_exception(tmp_path, monkeypatch):
 
     covered = [r for r in backlog.load(tmp_path / "c.jsonl") if r["covered"]]
     assert len(covered) == 1
+
+
+def test_run_weekly_skips_non_platform_and_pulls_next(tmp_path, monkeypatch):
+    monkeypatch.setattr(scout.config, "CANDIDATES_FILE", tmp_path / "c.jsonl")
+    monkeypatch.setattr(scout.config, "COVERED_FILE", tmp_path / "cov.jsonl")
+    monkeypatch.setattr(scout.config, "BRIEFS_DIR", tmp_path / "briefs")
+
+    # pre-stock backlog with three uncovered candidates; p0 will be rejected as
+    # a non-platform, p1 and p2 are valid platforms.
+    recs = [backlog.new_candidate(f"p{i}.com", f"P{i}", f"https://p{i}.com/", "A", "seed", "2026-08-01")
+            for i in range(3)]
+    backlog.save(recs, tmp_path / "c.jsonl")
+
+    monkeypatch.setattr(scout, "_firecrawl", lambda: object())
+    monkeypatch.setattr(scout, "_anthropic", lambda: object())
+    monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "rebuild_backlog",
+                        lambda recs, exclude=None: (len(recs), 0))
+    monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
+
+    def fake_analyze(cand, fc, client, grounding):
+        is_platform = cand["domain"] != "p0.com"
+        return {"name": cand["name"], "url": cand["url"], "bucket": "A",
+                "content_hash": "h_" + cand["domain"], "standout": "x",
+                "features": [], "os_takeaways": [], "jtbd": {}, "is_platform": is_platform}
+    monkeypatch.setattr(scout.teardown, "analyze", fake_analyze)
+
+    sent = {}
+    monkeypatch.setattr(scout.emailer, "send_email",
+                        lambda subj, body, recip=None: sent.update(subj=subj) or True)
+
+    result = scout.run_weekly(dry_run=False, today="2026-08-07")
+    assert result["teardowns"] == 2
+    assert result["sent"] is True
+
+    recs_after = backlog.load(tmp_path / "c.jsonl")
+    by_domain = {r["domain"]: r for r in recs_after}
+    assert "p0.com" not in by_domain              # rejected non-platform dropped entirely
+    assert by_domain["p1.com"]["covered"] is True
+    assert by_domain["p2.com"]["covered"] is True
