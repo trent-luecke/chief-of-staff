@@ -24,6 +24,8 @@ def test_run_weekly_selects_analyzes_marks_and_sends(tmp_path, monkeypatch):
     monkeypatch.setattr(scout, "_anthropic", lambda: object())
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "rebuild_backlog",
+                        lambda recs, client, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def fake_analyze(cand, fc, client, grounding):
@@ -55,6 +57,8 @@ def test_run_weekly_dry_run_does_not_send(tmp_path, monkeypatch):
     monkeypatch.setattr(scout, "_anthropic", lambda: object())
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "rebuild_backlog",
+                        lambda recs, client, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
     monkeypatch.setattr(scout.teardown, "analyze",
                         lambda c, *a: {"name": c["name"], "url": c["url"], "bucket": "A",
@@ -81,6 +85,8 @@ def test_run_weekly_survives_a_raising_analyze(tmp_path, monkeypatch):
     monkeypatch.setattr(scout, "_anthropic", lambda: object())
     monkeypatch.setattr(scout.discovery, "run_discovery", lambda *a, **k: 0)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "rebuild_backlog",
+                        lambda recs, client, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def flaky_analyze(cand, fc, client, grounding):
@@ -133,6 +139,8 @@ def test_run_weekly_survives_discovery_exception(tmp_path, monkeypatch):
         raise RuntimeError("discovery API down")
     monkeypatch.setattr(scout.discovery, "run_discovery", raising_discovery)
     monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.discovery, "rebuild_backlog",
+                        lambda recs, client, exclude=None: (len(recs), 0))
     monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
 
     def fake_analyze(cand, fc, client, grounding):

@@ -39,7 +39,8 @@ def seed(url: str, today=None) -> bool:
     if not domain:
         log.error(f"could not parse domain from {url}")
         return False
-    cand = backlog.new_candidate(domain, domain.split(".")[0], url, "A", "seed", _today(today), seed=True)
+    cand = backlog.new_candidate(domain, domain.split(".")[0], f"https://{domain}/", "A", "seed",
+                                 _today(today), seed=True)
     added = backlog.add(recs, cand)
     backlog.save(recs, config.CANDIDATES_FILE)
     log.info(f"seed {'added' if added else 'already present'}: {domain}")
@@ -63,9 +64,9 @@ def run_weekly(dry_run: bool = False, discover_only: bool = False, today=None) -
     client = _anthropic()
 
     recs = backlog.load(config.CANDIDATES_FILE)
-    pruned = discovery.prune_articles(recs)
-    if pruned:
-        log.info(f"pruned {pruned} article-like candidate(s) from backlog")
+    kept, dropped = discovery.rebuild_backlog(recs, client, cfg.get("exclude_domains", []))
+    if dropped:
+        log.info(f"backlog rebuild: kept {kept}, dropped {dropped}")
 
     # 1. Discovery (never blocks delivery)
     try:

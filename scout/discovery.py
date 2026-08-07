@@ -51,9 +51,20 @@ SCORE_SYSTEM = (
 )
 
 
+_MULTI_TLDS = {"co", "com", "org", "net", "gov", "ac", "edu"}
+
+
 def extract_domain(url: str) -> str:
     host = urlparse(url if "//" in url else "https://" + url).netloc.lower()
-    return host[4:] if host.startswith("www.") else host
+    host = host.split(":")[0]
+    if host.startswith("www."):
+        host = host[4:]
+    parts = [p for p in host.split(".") if p]
+    if len(parts) <= 2:
+        return host
+    if parts[-2] in _MULTI_TLDS:
+        return ".".join(parts[-3:])   # e.g. foo.co.uk
+    return ".".join(parts[-2:])       # collapse subdomains -> registrable domain
 
 
 def is_excluded(domain: str, exclude: list) -> bool:
@@ -114,10 +125,11 @@ def run_discovery(cfg, records, fc, client, grounding_text, today) -> int:
                 log.info(f"skipped non-platform: {domain}")
                 continue
             cand = backlog.new_candidate(
-                domain, name, r["url"], _guess_bucket(r.get("markdown", "")),
+                domain, name, f"https://{domain}/", _guess_bucket(r.get("markdown", "")),
                 "websearch", today,
             )
             cand["novelty_score"], cand["icp_relevance"] = score["novelty"], score["icp"]
+            cand["platform_ok"] = True
             if backlog.add(records, cand):
                 added += 1
                 log.info(f"discovered: {domain} (nov={score['novelty']}, icp={score['icp']})")
@@ -142,7 +154,7 @@ def meta_ad_library_boost(cfg, records, fc, today) -> int:
                         and not is_excluded(domain, cfg.get("exclude_domains", []))
                         and not backlog.has_domain(records, domain)
                         and not looks_like_article(m, "")):
-                    cand = backlog.new_candidate(domain, domain.split(".")[0], m, "A",
+                    cand = backlog.new_candidate(domain, domain.split(".")[0], f"https://{domain}/", "A",
                                                  "meta_ad_library", today)
                     if backlog.add(records, cand):
                         added += 1
@@ -150,6 +162,69 @@ def meta_ad_library_boost(cfg, records, fc, today) -> int:
         log.warning(f"meta_ad_library_boost skipped: {e}")
         return added
     return added
+
+
+PLATFORM_JUDGE_MODEL = "claude-haiku-4-5-20251001"
+_PLATFORM_JUDGE_SYSTEM = (
+    "Answer with only YES or NO. Is the given website the OWN site of an actual "
+    "fitness-business / gym-management / online-coaching SOFTWARE PRODUCT (a company "
+    "that sells or offers the software)? Answer NO for: news sites, magazines, market-"
+    "research or analyst sites, app marketplaces/directories, review or 'best-of'/"
+    "'top-N' listicle sites, consulting/coaching-education/blog sites, forums, and "
+    "general retailers."
+)
+
+
+def is_real_platform(client, domain: str, name: str) -> bool:
+    try:
+        resp = client.messages.create(
+            model=PLATFORM_JUDGE_MODEL,
+            max_tokens=16,
+            system=_PLATFORM_JUDGE_SYSTEM,
+            messages=[{"role": "user", "content": f"Domain: {domain}\nName: {name}"}],
+        )
+        text = (resp.content[0].text or "").strip().upper()
+        return not text.startswith("NO")
+    except Exception as e:
+        log.warning(f"is_real_platform failed for {domain}: {e}")
+        return True  # fail-safe: keep on error
+
+
+def rebuild_backlog(records: list, client, exclude=None) -> tuple:
+    """One-pass cleanup of the UNCOVERED backlog (covered history untouched):
+    collapse subdomains, drop aggregators/excluded, normalize url to the domain
+    homepage, dedup by domain, and drop entries is_real_platform rejects (cached
+    on 'platform_ok' so we judge each domain at most once). Idempotent.
+    Returns (kept_count, dropped_count)."""
+    exclude = exclude or []
+    seen = set()
+    kept = []
+    dropped = 0
+    # Reserve covered domains first; covered entries pass through untouched.
+    for r in records:
+        if r.get("covered"):
+            seen.add(r.get("domain"))
+    for r in records:
+        if r.get("covered"):
+            kept.append(r)
+            continue
+        dom = extract_domain(r.get("url") or f"https://{r.get('domain', '')}/")
+        if not dom or dom in AGGREGATOR_HOSTS or is_excluded(dom, exclude) or dom in seen:
+            log.info(f"rebuild dropped: {r.get('domain')} -> {dom or '(none)'}")
+            dropped += 1
+            continue
+        r["domain"] = dom
+        r["url"] = f"https://{dom}/"
+        if r.get("platform_ok") is None:
+            r["platform_ok"] = is_real_platform(client, dom, r.get("name", ""))
+        if not r["platform_ok"]:
+            log.info(f"rebuild dropped non-platform: {dom}")
+            dropped += 1
+            continue
+        seen.add(dom)
+        kept.append(r)
+    records[:] = kept
+    return len(kept), dropped
 
 
 def prune_articles(records: list) -> int:
