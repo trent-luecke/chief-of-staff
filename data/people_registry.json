@@ -151,28 +151,28 @@
     },
     {
       "id": "patrick-labat-tgmc",
-      "canonical_name": "Patrick Labat — TGMC",
+      "canonical_name": "Patrick Labat \u2014 TGMC",
       "aliases": [
-        "Patrick Labat — TGMC",
+        "Patrick Labat \u2014 TGMC",
         "patrick.labat@tgmc.com"
       ],
       "email": "patrick.labat@tgmc.com",
       "type": "lead",
-      "pipeline_record": "Patrick Labat — TGMC",
+      "pipeline_record": "Patrick Labat \u2014 TGMC",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-08-06"
     },
     {
       "id": "mike-woodby-apex-holland",
-      "canonical_name": "Mike Woodby — Apex Holland",
+      "canonical_name": "Mike Woodby \u2014 Apex Holland",
       "aliases": [
-        "Mike Woodby — Apex Holland",
+        "Mike Woodby \u2014 Apex Holland",
         "mike@apexholland.co"
       ],
       "email": "mike@apexholland.co",
       "type": "lead",
-      "pipeline_record": "Mike Woodby — Apex Holland",
+      "pipeline_record": "Mike Woodby \u2014 Apex Holland",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-05-21"
@@ -263,14 +263,14 @@
     },
     {
       "id": "emma-hicks-for-fitness-athletics",
-      "canonical_name": "Emma Hicks — For Fitness & Athletics",
+      "canonical_name": "Emma Hicks \u2014 For Fitness & Athletics",
       "aliases": [
-        "Emma Hicks — For Fitness & Athletics",
+        "Emma Hicks \u2014 For Fitness & Athletics",
         "emmahicks@forfitnessandathletics.com"
       ],
       "email": "emmahicks@forfitnessandathletics.com",
       "type": "lead",
-      "pipeline_record": "Emma Hicks — For Fitness & Athletics",
+      "pipeline_record": "Emma Hicks \u2014 For Fitness & Athletics",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-08-06"
@@ -919,14 +919,14 @@
     },
     {
       "id": "mark-olson-athletic-mentors",
-      "canonical_name": "Mark Olson — Athletic Mentors",
+      "canonical_name": "Mark Olson \u2014 Athletic Mentors",
       "aliases": [
-        "Mark Olson — Athletic Mentors",
+        "Mark Olson \u2014 Athletic Mentors",
         "mark@athleticmentors.com"
       ],
       "email": "mark@athleticmentors.com",
       "type": "lead",
-      "pipeline_record": "Mark Olson — Athletic Mentors",
+      "pipeline_record": "Mark Olson \u2014 Athletic Mentors",
       "people_file": null,
       "created": "2026-06-16",
       "last_seen": "2026-08-06"
@@ -1299,39 +1299,39 @@
     },
     {
       "id": "warren-clinkscales-youth-athlete-training-os",
-      "canonical_name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "canonical_name": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
       "aliases": [
-        "Warren Clinkscales – Youth Athlete Training (OS)"
+        "Warren Clinkscales \u2013 Youth Athlete Training (OS)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "pipeline_record": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
       "people_file": null,
       "created": "2026-07-11",
       "last_seen": "2026-08-06"
     },
     {
       "id": "jennifer-foust-kent-denver-os-lite",
-      "canonical_name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "canonical_name": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
       "aliases": [
-        "Jennifer Foust – Kent Denver (OS Lite)"
+        "Jennifer Foust \u2013 Kent Denver (OS Lite)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Jennifer Foust – Kent Denver (OS Lite)",
+      "pipeline_record": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
       "people_file": null,
       "created": "2026-07-11",
       "last_seen": "2026-08-06"
     },
     {
       "id": "jasmin-bray-rise-sports-performance-os",
-      "canonical_name": "Jasmin Bray – Rise Sports Performance (OS)",
+      "canonical_name": "Jasmin Bray \u2013 Rise Sports Performance (OS)",
       "aliases": [
-        "Jasmin Bray – Rise Sports Performance (OS)"
+        "Jasmin Bray \u2013 Rise Sports Performance (OS)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Jasmin Bray – Rise Sports Performance (OS)",
+      "pipeline_record": "Jasmin Bray \u2013 Rise Sports Performance (OS)",
       "people_file": null,
       "created": "2026-07-11",
       "last_seen": "2026-08-06"
@@ -1880,6 +1880,34 @@
       "created": "2026-08-06",
       "last_seen": "2026-08-06",
       "provenance": "auto:calendar 2026-08-06 meeting:Thomas Howes / Trent Luecke: OS Reconnect"
+    },
+    {
+      "id": "antonio",
+      "canonical_name": "Antonio",
+      "aliases": [
+        "antonio@weinbergventures.com"
+      ],
+      "email": "antonio@weinbergventures.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-08-07",
+      "last_seen": "2026-08-07",
+      "provenance": "auto:calendar 2026-08-07 meeting:Luke & Tony Sync"
+    },
+    {
+      "id": "davidquirkecoaching",
+      "canonical_name": "Davidquirkecoaching",
+      "aliases": [
+        "davidquirkecoaching@gmail.com"
+      ],
+      "email": "davidquirkecoaching@gmail.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-08-07",
+      "last_seen": "2026-08-07",
+      "provenance": "auto:calendar 2026-08-07 meeting:David Quirke and Trent Luecke"
     }
   ]
 }

@@ -1,52 +1,16 @@
 {
-  "date": "2026-08-06",
-  "generated_at": "2026-08-06T13:34:45.952062+00:00",
+  "date": "2026-08-07",
+  "generated_at": "2026-08-07T12:11:41.364921+00:00",
   "meetings": [
     {
-      "id": "09plgi5js577ooi10ppisl4cco",
-      "title": "George Strangos and Trent Luecke",
-      "start": "2026-08-06T08:30:00-05:00",
-      "end": "2026-08-06T09:00:00-05:00",
+      "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20260806T123000Z",
+      "title": "Luke & Tony Sync",
+      "start": "2026-08-07T07:30:00-05:00",
+      "end": "2026-08-07T08:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "gstrangos@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "cyrilbernius@bemorebf.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "mfrsr5eu8ata7bvtpc8r9rh2bk",
-      "title": "Forrest B Holt and Trent Luecke",
-      "start": "2026-08-06T09:00:00-05:00",
-      "end": "2026-08-06T09:15:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "forrest.holt@ecschools.net",
-          "name": ""
-        },
-        {
-          "email": "leanne.click@ecschools.net",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "427va7uog7950apj45agnlp33o_20260806T143000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-08-06T09:30:00-05:00",
-      "end": "2026-08-06T10:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
+          "email": "antonio@weinbergventures.com",
           "name": ""
         },
         {
@@ -54,58 +18,65 @@
           "name": ""
         },
         {
-          "email": "rachel@teambuildr.com",
+          "email": "ryan@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "37p6e9p1pavh2mk72tffjo2m2r",
-      "title": "Lunch & Learn - Home Buying & Refinancing",
-      "start": "2026-08-06T11:00:00-05:00",
-      "end": "2026-08-06T12:00:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260807T133000Z",
+      "title": "Focus Work",
+      "start": "2026-08-07T08:30:00-05:00",
+      "end": "2026-08-07T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "vomkaim7v1o8o0nhg5la95h1vs",
+      "title": "Carter Meet the Teacher",
+      "start": "2026-08-07T10:30:00-05:00",
+      "end": "2026-08-07T12:15:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "5h6kbhn546d8cp25934serh98f",
+      "title": "Santiago Diaz / Trent Luecke: TeamBuildr Reconnect",
+      "start": "2026-08-07T12:30:00-05:00",
+      "end": "2026-08-07T13:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "eduardo@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "team@teambuildr.com",
-          "name": "Team"
-        },
-        {
-          "email": "ejwagner519@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "eric.wagner@amerisbank.com",
+          "email": "fisiodiazlax@gmail.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "2ef0s505ep4oh7u4ppd67jrvg1",
-      "title": "Thomas Howes / Trent Luecke: OS Reconnect",
-      "start": "2026-08-06T14:30:00-05:00",
-      "end": "2026-08-06T15:00:00-05:00",
+      "id": "1587en7hi84h6cd6tss1hl7mk0",
+      "title": "David Quirke and Trent Luecke",
+      "start": "2026-08-07T14:00:00-05:00",
+      "end": "2026-08-07T14:30:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "thomasohowes@gmail.com",
+          "email": "davidquirkecoaching@gmail.com",
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260807T193000Z",
+      "title": "Out of office",
+      "start": "2026-08-07T14:30:00-05:00",
+      "end": "2026-08-07T17:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
@@ -120,7 +91,7 @@
     {
       "id": "t-46ec75",
       "title": "email copy for timezone update",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-08-06",
       "project_id": null
     }
