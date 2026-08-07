@@ -41,4 +41,16 @@ jobs:
         run: python -m scout.scout --commit
 
       - name: Push data files
-        run: git push origin main
+        # origin/main is a live shared datastore (Registry UI + other jobs commit
+        # to it during our run), so a bare push races and loses. Rebase our
+        # scout/data commit onto fresh origin/main and retry. scout/data is only
+        # written by this workflow, so the rebase never conflicts.
+        run: |
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main && git push origin main && exit 0
+            echo "push attempt $attempt failed (origin/main moved); retrying..."
+            git rebase --abort 2>/dev/null || true
+            sleep 5
+          done
+          echo "::error::scout/data could not be pushed after 5 attempts"
+          exit 1
