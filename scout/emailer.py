@@ -69,11 +69,11 @@ def send_email(subject: str, html_body: str, recipient: str = GMAIL_USER) -> boo
     if not app_password:
         log.warning("GMAIL_APP_PASSWORD not set — skipping email")
         return False
-    msg = MIMEText(html_body, "html")
-    msg["Subject"] = subject
-    msg["From"] = GMAIL_USER
-    msg["To"] = recipient
     try:
+        msg = MIMEText(html_body, "html")
+        msg["Subject"] = subject
+        msg["From"] = GMAIL_USER
+        msg["To"] = recipient
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(GMAIL_USER, app_password)
             server.sendmail(GMAIL_USER, [recipient], msg.as_string())
