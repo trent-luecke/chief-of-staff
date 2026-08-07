@@ -63,6 +63,9 @@ def run_weekly(dry_run: bool = False, discover_only: bool = False, today=None) -
     client = _anthropic()
 
     recs = backlog.load(config.CANDIDATES_FILE)
+    pruned = discovery.prune_articles(recs)
+    if pruned:
+        log.info(f"pruned {pruned} article-like candidate(s) from backlog")
 
     # 1. Discovery (never blocks delivery)
     try:
