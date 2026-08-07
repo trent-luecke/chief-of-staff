@@ -243,3 +243,4 @@
 {"event": "complete", "task_id": "t-2feee5", "completed_at": "2026-08-05"}
 {"event": "create", "task_id": "t-46ec75", "title": "email copy for timezone update", "source": "ui", "created_at": "2026-08-05", "due_date": "2026-08-06", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-06"}
 {"event": "create", "task_id": "t-24cc50", "title": "tony list from course sign ups in 2026", "source": "ui", "created_at": "2026-08-07", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-24"}
+{"event": "complete", "task_id": "t-46ec75", "completed_at": "2026-08-07"}
