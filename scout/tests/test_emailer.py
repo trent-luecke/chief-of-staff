@@ -32,3 +32,17 @@ def test_format_email_empty_is_honest_not_blank():
 def test_send_email_skips_without_password(monkeypatch):
     monkeypatch.delenv("GMAIL_APP_PASSWORD", raising=False)
     assert emailer.send_email("s", "<p>b</p>", "trent@teambuildr.com") is False
+
+
+def test_format_email_survives_null_fields():
+    td = {
+        "name": "Nullify", "url": "https://nullify.io/", "bucket": "A",
+        "description": "desc", "segment": "seg", "standout": "wedge",
+        "pricing": None, "traction": None, "maturity": "early",
+        "features": None,
+        "os_takeaways": None,
+        "jtbd": None,
+    }
+    subject, body = emailer.format_email([td], "2026-08-07")
+    assert subject
+    assert body

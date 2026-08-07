@@ -76,6 +76,10 @@ def analyze(candidate: dict, fc, client, grounding_text: str) -> dict | None:
         log.error(f"analysis failed for {candidate['domain']}: {e}")
         return None
 
+    if not isinstance(data, dict):
+        log.error(f"analysis returned non-dict for {candidate['domain']}")
+        return None
+
     data["name"] = candidate["name"]
     data["url"] = candidate["url"]
     data["bucket"] = candidate.get("bucket", "A")

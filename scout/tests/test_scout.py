@@ -103,3 +103,40 @@ def test_run_weekly_survives_a_raising_analyze(tmp_path, monkeypatch):
     by_domain = {r["domain"]: r for r in recs}
     assert by_domain["p0.com"]["covered"] is False
     assert by_domain["p1.com"]["covered"] is True
+
+
+def test_run_weekly_survives_discovery_exception(tmp_path, monkeypatch):
+    monkeypatch.setattr(scout.config, "CANDIDATES_FILE", tmp_path / "c.jsonl")
+    monkeypatch.setattr(scout.config, "COVERED_FILE", tmp_path / "cov.jsonl")
+    monkeypatch.setattr(scout.config, "BRIEFS_DIR", tmp_path / "briefs")
+
+    # pre-stock backlog with one uncovered candidate
+    recs = [backlog.new_candidate("p0.com", "P0", "https://p0.com/", "A", "seed", "2026-08-01")]
+    backlog.save(recs, tmp_path / "c.jsonl")
+
+    monkeypatch.setattr(scout, "_firecrawl", lambda: object())
+    monkeypatch.setattr(scout, "_anthropic", lambda: object())
+
+    def raising_discovery(*a, **k):
+        raise RuntimeError("discovery API down")
+    monkeypatch.setattr(scout.discovery, "run_discovery", raising_discovery)
+    monkeypatch.setattr(scout.discovery, "meta_ad_library_boost", lambda *a, **k: 0)
+    monkeypatch.setattr(scout.config, "load_grounding", lambda: "G")
+
+    def fake_analyze(cand, fc, client, grounding):
+        return {"name": cand["name"], "url": cand["url"], "bucket": "A",
+                "content_hash": "h_" + cand["domain"], "standout": "x",
+                "features": [], "os_takeaways": [], "jtbd": {}}
+    monkeypatch.setattr(scout.teardown, "analyze", fake_analyze)
+
+    sent = {}
+    monkeypatch.setattr(scout.emailer, "send_email",
+                        lambda subj, body, recip=None: sent.update(subj=subj) or True)
+
+    result = scout.run_weekly(dry_run=False, today="2026-08-07")
+    assert result["discovered"] == 0
+    assert result["teardowns"] == 1
+    assert result["sent"] is True
+
+    covered = [r for r in backlog.load(tmp_path / "c.jsonl") if r["covered"]]
+    assert len(covered) == 1

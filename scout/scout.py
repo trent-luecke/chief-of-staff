@@ -65,8 +65,12 @@ def run_weekly(dry_run: bool = False, discover_only: bool = False, today=None) -
     recs = backlog.load(config.CANDIDATES_FILE)
 
     # 1. Discovery (never blocks delivery)
-    n_disc = discovery.run_discovery(cfg, recs, fc, client, grounding, today)
-    n_disc += discovery.meta_ad_library_boost(cfg, recs, fc, today)
+    try:
+        n_disc = discovery.run_discovery(cfg, recs, fc, client, grounding, today)
+        n_disc += discovery.meta_ad_library_boost(cfg, recs, fc, today)
+    except Exception as e:
+        log.warning(f"discovery failed, continuing on existing backlog: {e}")
+        n_disc = 0
     backlog.save(recs, config.CANDIDATES_FILE)
     log.info(f"discovery added {n_disc} candidate(s)")
 

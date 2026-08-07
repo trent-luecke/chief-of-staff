@@ -66,3 +66,24 @@ def test_analyze_returns_none_when_scrape_fails():
     fc = _FakeFC({})  # scrape returns None for everything
     result = teardown.analyze(cand, fc, _fake_client([]), "G")
     assert result is None
+
+
+def _fake_client_returning(text, captured=None):
+    captured = captured if captured is not None else []
+    class _Resp:
+        content = [type("C", (), {"text": text})()]
+    class _Msgs:
+        def create(self, **k):
+            captured.append(k)
+            return _Resp()
+    class _Client:
+        messages = _Msgs()
+    return _Client()
+
+
+def test_analyze_returns_none_on_non_dict_json():
+    cand = backlog.new_candidate("array.io", "Array", "https://array.io/", "A", "seed", "2026-08-06")
+    fc = _FakeFC({"array.io": "# Array\nsome real markdown"})
+    client = _fake_client_returning("[1, 2, 3]")
+    result = teardown.analyze(cand, fc, client, "G")
+    assert result is None

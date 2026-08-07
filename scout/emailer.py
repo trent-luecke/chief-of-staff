@@ -10,38 +10,43 @@ log = logging.getLogger(__name__)
 GMAIL_USER = "trent@teambuildr.com"
 
 
+def _e(v) -> str:
+    """Null-safe HTML-escape: teardown fields can be JSON null when present-but-empty."""
+    return escape("" if v is None else str(v))
+
+
 def _teardown_html(td: dict) -> str:
-    feats = "".join(f"<li>{escape(str(f))}</li>" for f in td.get("features", []))
+    feats = "".join(f"<li>{_e(f)}</li>" for f in (td.get("features") or []))
     takeaways = "".join(
-        f"<li><strong>{escape(t.get('tag',''))}</strong> — "
-        f"{escape(t.get('feature',''))}: {escape(t.get('note',''))}</li>"
-        for t in td.get("os_takeaways", [])
+        f"<li><strong>{_e(t.get('tag',''))}</strong> — "
+        f"{_e(t.get('feature',''))}: {_e(t.get('note',''))}</li>"
+        for t in (td.get("os_takeaways") or [])
     )
     jt = td.get("jtbd", {}) or {}
     quoted = jt.get("quoted_line")
-    quoted_html = f'<p style="margin:4px 0"><em>&ldquo;{escape(quoted)}&rdquo;</em></p>' if quoted else ""
+    quoted_html = f'<p style="margin:4px 0"><em>&ldquo;{_e(quoted)}&rdquo;</em></p>' if quoted else ""
     bucket = "Online coaching" if td.get("bucket") == "B" else "Brick-and-mortar"
     return f"""
     <div style="margin:0 0 32px 0;padding:0 0 24px 0;border-bottom:1px solid #ddd">
-      <h2 style="margin:0 0 2px 0">{escape(td.get('name',''))}
+      <h2 style="margin:0 0 2px 0">{_e(td.get('name',''))}
         <span style="font-weight:normal;font-size:13px;color:#888"> · {bucket} ·
-        <a href="{escape(td.get('url',''))}">{escape(td.get('url',''))}</a></span></h2>
-      <p style="color:#555;margin:2px 0 12px 0">{escape(td.get('description',''))}</p>
+        <a href="{_e(td.get('url',''))}">{_e(td.get('url',''))}</a></span></h2>
+      <p style="color:#555;margin:2px 0 12px 0">{_e(td.get('description',''))}</p>
       <p style="background:#fff8e1;padding:10px 12px;border-left:3px solid #f0b400;margin:0 0 14px 0">
-        <strong>⚡ Standout wedge:</strong> {escape(td.get('standout',''))}</p>
-      <p style="margin:2px 0"><strong>Segment:</strong> {escape(td.get('segment',''))}</p>
-      <p style="margin:2px 0"><strong>Pricing:</strong> {escape(td.get('pricing',''))}</p>
-      <p style="margin:2px 0"><strong>Traction:</strong> {escape(td.get('traction',''))}</p>
-      <p style="margin:2px 0"><strong>Maturity:</strong> {escape(td.get('maturity',''))}</p>
+        <strong>⚡ Standout wedge:</strong> {_e(td.get('standout',''))}</p>
+      <p style="margin:2px 0"><strong>Segment:</strong> {_e(td.get('segment',''))}</p>
+      <p style="margin:2px 0"><strong>Pricing:</strong> {_e(td.get('pricing',''))}</p>
+      <p style="margin:2px 0"><strong>Traction:</strong> {_e(td.get('traction',''))}</p>
+      <p style="margin:2px 0"><strong>Maturity:</strong> {_e(td.get('maturity',''))}</p>
       <p style="margin:12px 0 2px 0"><strong>Feature set:</strong></p>
       <ul style="margin:2px 0">{feats}</ul>
       <p style="margin:12px 0 2px 0"><strong>OS-tagged takeaways:</strong></p>
       <ul style="margin:2px 0">{takeaways}</ul>
       <div style="background:#f0f4ff;padding:10px 12px;border-left:3px solid #4361ee;margin:12px 0 0 0">
-        <p style="margin:0 0 4px 0"><strong>JTBD:</strong> {escape(jt.get('platform_jtbd',''))}</p>
+        <p style="margin:0 0 4px 0"><strong>JTBD:</strong> {_e(jt.get('platform_jtbd',''))}</p>
         {quoted_html}
-        <p style="margin:4px 0 0 0"><strong>Verdict:</strong> {escape(jt.get('verdict',''))} —
-          {escape(jt.get('note',''))}</p>
+        <p style="margin:4px 0 0 0"><strong>Verdict:</strong> {_e(jt.get('verdict',''))} —
+          {_e(jt.get('note',''))}</p>
       </div>
     </div>"""
 
