@@ -8,6 +8,13 @@ from . import backlog
 
 log = logging.getLogger(__name__)
 
+AGGREGATOR_HOSTS = {
+    "producthunt.com", "reddit.com", "facebook.com", "fb.com", "google.com",
+    "youtube.com", "twitter.com", "x.com", "linkedin.com", "medium.com",
+    "github.com", "wikipedia.org", "apps.apple.com", "play.google.com",
+    "g2.com", "capterra.com", "trustpilot.com", "getapp.com", "quora.com",
+}
+
 SCORE_MODEL = "claude-haiku-4-5-20251001"
 
 SCORE_SYSTEM = (
@@ -63,7 +70,8 @@ def run_discovery(cfg, records, fc, client, grounding_text, today) -> int:
     for query in cfg.get("search_queries", []):
         for r in fc.search(query, limit=limit):
             domain = extract_domain(r["url"])
-            if not domain or is_excluded(domain, exclude) or backlog.has_domain(records, domain):
+            if (not domain or domain in AGGREGATOR_HOSTS
+                    or is_excluded(domain, exclude) or backlog.has_domain(records, domain)):
                 continue
             name = (r.get("title") or domain).split("|")[0].split("-")[0].strip()
             nov, icp = score_candidate(client, name, r["url"], r.get("markdown", ""), grounding_text)
@@ -92,6 +100,7 @@ def meta_ad_library_boost(cfg, records, fc, today) -> int:
             for m in re.findall(r"https?://[^\s)\]]+", md):
                 domain = extract_domain(m)
                 if (domain and "facebook" not in domain and "fbcdn" not in domain
+                        and domain not in AGGREGATOR_HOSTS
                         and not is_excluded(domain, cfg.get("exclude_domains", []))
                         and not backlog.has_domain(records, domain)):
                     cand = backlog.new_candidate(domain, domain.split(".")[0], m, "A",

@@ -66,6 +66,19 @@ def test_score_candidate_handles_bad_json():
     assert discovery.score_candidate(_Client(), "n", "u", "s", "G") == (0.0, 0.0)
 
 
+def test_run_discovery_drops_aggregator_hosts(monkeypatch):
+    fc = _FakeFC([
+        {"url": "https://producthunt.com/posts/coachway", "title": "Coachway on PH", "markdown": "launch post"},
+        {"url": "https://coachway.io/", "title": "Coachway", "markdown": "online coaching"},
+    ])
+    client = _fake_client_scoring(0.8, 0.7)
+    cfg = {"search_queries": ["q"], "search_limit": 8, "exclude_domains": []}
+    records = []
+    added = discovery.run_discovery(cfg, records, fc, client, "GROUNDING", "2026-08-06")
+    assert added == 1
+    assert records[0]["domain"] == "coachway.io"
+
+
 def test_meta_boost_never_raises(monkeypatch):
     class _BoomFC:
         def scrape(self, url): raise RuntimeError("blocked")

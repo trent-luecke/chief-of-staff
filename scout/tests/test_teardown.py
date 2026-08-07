@@ -34,9 +34,16 @@ _TEARDOWN_JSON = {
 }
 
 
+class _ToolUseBlock:
+    type = "tool_use"
+    name = "emit_teardown"
+    def __init__(self, data):
+        self.input = data
+
+
 def _fake_client(captured):
     class _Resp:
-        content = [type("C", (), {"text": json.dumps(_TEARDOWN_JSON)})()]
+        content = [_ToolUseBlock(_TEARDOWN_JSON)]
     class _Msgs:
         def create(self, **k):
             captured.append(k)
@@ -68,10 +75,14 @@ def test_analyze_returns_none_when_scrape_fails():
     assert result is None
 
 
-def _fake_client_returning(text, captured=None):
+def _fake_client_returning_text(text, captured=None):
     captured = captured if captured is not None else []
+    class _TextBlock:
+        type = "text"
+        def __init__(self, t):
+            self.text = t
     class _Resp:
-        content = [type("C", (), {"text": text})()]
+        content = [_TextBlock(text)]
     class _Msgs:
         def create(self, **k):
             captured.append(k)
@@ -81,9 +92,9 @@ def _fake_client_returning(text, captured=None):
     return _Client()
 
 
-def test_analyze_returns_none_on_non_dict_json():
+def test_analyze_returns_none_when_no_tool_use():
     cand = backlog.new_candidate("array.io", "Array", "https://array.io/", "A", "seed", "2026-08-06")
     fc = _FakeFC({"array.io": "# Array\nsome real markdown"})
-    client = _fake_client_returning("[1, 2, 3]")
+    client = _fake_client_returning_text("sorry, I can't help with that")
     result = teardown.analyze(cand, fc, client, "G")
     assert result is None
