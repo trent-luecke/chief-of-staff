@@ -144,46 +144,7 @@ def test_run_discovery_drops_non_platform(monkeypatch):
     assert records == []
 
 
-def _fake_judge_client(text=None, raises=False):
-    class _Resp:
-        content = [type("C", (), {"text": text})()]
-    class _Msgs:
-        def create(self, **k):
-            if raises:
-                raise RuntimeError("api down")
-            return _Resp()
-    class _Client:
-        messages = _Msgs()
-    return _Client()
-
-
-def test_is_real_platform_yes_no():
-    assert discovery.is_real_platform(_fake_judge_client("YES"), "coachway.io", "Coachway") is True
-    assert discovery.is_real_platform(_fake_judge_client("NO"), "reddit.com", "Reddit") is False
-    assert discovery.is_real_platform(_fake_judge_client(raises=True), "x.com", "X") is True
-
-
-class _CountingJudgeClient:
-    """Fake client for rebuild_backlog: verdict driven by domain, tracks call count."""
-    def __init__(self, no_domains):
-        self.no_domains = set(no_domains)
-        self.calls = []
-        self.messages = self._Messages(self)
-
-    class _Messages:
-        def __init__(self, outer):
-            self._outer = outer
-
-        def create(self, model=None, max_tokens=None, system=None, messages=None):
-            domain = messages[0]["content"].split("Domain: ")[1].split("\n")[0]
-            self._outer.calls.append(domain)
-            text = "NO" if domain in self._outer.no_domains else "YES"
-            return type("Resp", (), {"content": [type("C", (), {"text": text})()]})()
-
-
 def test_rebuild_backlog():
-    client = _CountingJudgeClient(no_domains=["junk.com"])
-
     records = [
         backlog.new_candidate("reddit.com", "Reddit", "https://reddit.com/r/fitness",
                               "A", "websearch", "2026-08-01"),
@@ -191,12 +152,11 @@ def test_rebuild_backlog():
                               "A", "websearch", "2026-08-01"),
         backlog.new_candidate("coachway.io", "Coachway", "https://coachway.io/blog/x",
                               "A", "websearch", "2026-08-01"),
-        backlog.new_candidate("junk.com", "Junk", "https://junk.com/",
+        backlog.new_candidate("obscure-newco.io", "Obscure Newco", "https://obscure-newco.io/",
                               "A", "websearch", "2026-08-01"),
         backlog.new_candidate("done.com", "Done", "https://done.com/",
                               "A", "websearch", "2026-07-01"),
     ]
-    records[2]["platform_ok"] = None
     records[4]["covered"] = True
     records[4]["url"] = "https://blog.done.com/should-not-change"
 
@@ -204,39 +164,23 @@ def test_rebuild_backlog():
     records.append(backlog.new_candidate("coachway.io", "Coachway dup", "https://www.coachway.io/pricing",
                                           "A", "websearch", "2026-08-02"))
 
-    kept, dropped = discovery.rebuild_backlog(records, client, exclude=[])
+    kept, dropped = discovery.rebuild_backlog(records, exclude=["reddit"])
 
     by_domain = {r["domain"]: r for r in records}
     assert "reddit.com" not in by_domain
     assert by_domain["gymcatch.com"]["url"] == "https://gymcatch.com/"
     assert by_domain["gymcatch.com"]["domain"] == "gymcatch.com"
     assert "coachway.io" in by_domain
-    assert "junk.com" not in by_domain
+    # obscure/unrecognized-brand domains are KEPT — no name-judging happens here anymore
+    assert "obscure-newco.io" in by_domain
     assert by_domain["done.com"]["covered"] is True
     assert by_domain["done.com"]["url"] == "https://blog.done.com/should-not-change"  # covered untouched
 
     # dedup: only one coachway.io survives
     assert sum(1 for r in records if r["domain"] == "coachway.io") == 1
 
-    assert dropped == 3  # reddit, junk, dup coachway
+    assert dropped == 2  # reddit (excluded), dup coachway
     assert kept == len(records)
-
-    # each surviving domain is judged at most once
-    assert client.calls.count("gymcatch.com") <= 1
-    assert client.calls.count("coachway.io") <= 1
-
-
-def test_rebuild_backlog_skips_already_judged():
-    client = _CountingJudgeClient(no_domains=[])
-
-    r = backlog.new_candidate("prejudged.com", "Prejudged", "https://prejudged.com/",
-                              "A", "websearch", "2026-08-01")
-    r["platform_ok"] = True
-    records = [r]
-    kept, dropped = discovery.rebuild_backlog(records, client, exclude=[])
-    assert kept == 1
-    assert dropped == 0
-    assert client.calls == []  # never called — cached verdict trusted
 
 
 def test_prune_articles():

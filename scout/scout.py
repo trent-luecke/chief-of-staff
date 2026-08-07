@@ -64,7 +64,7 @@ def run_weekly(dry_run: bool = False, discover_only: bool = False, today=None) -
     client = _anthropic()
 
     recs = backlog.load(config.CANDIDATES_FILE)
-    kept, dropped = discovery.rebuild_backlog(recs, client, cfg.get("exclude_domains", []))
+    kept, dropped = discovery.rebuild_backlog(recs, cfg.get("exclude_domains", []))
     if dropped:
         log.info(f"backlog rebuild: kept {kept}, dropped {dropped}")
 
@@ -81,19 +81,34 @@ def run_weekly(dry_run: bool = False, discover_only: bool = False, today=None) -
     if discover_only:
         return {"discovered": n_disc, "teardowns": 0, "sent": False}
 
-    # 2. Select + analyze
-    picks = backlog.select_uncovered(recs, cfg.get("teardowns_per_week", 2))
+    # 2. Select + analyze (iterative: skip non-platforms, pull the next)
+    target = cfg.get("teardowns_per_week", 2)
+    max_attempts = target + 6
+    candidates = backlog.select_uncovered(recs, len(recs))  # all uncovered, priority order
     teardowns = []
-    for cand in picks:
+    rejected = []
+    attempts = 0
+    for cand in candidates:
+        if len(teardowns) >= target or attempts >= max_attempts:
+            break
+        attempts += 1
         try:
             td = teardown.analyze(cand, fc, client, grounding)
         except Exception as e:
             log.warning(f"teardown failed for {cand['domain']}: {e}")
             continue
         if td is None:
+            continue  # scrape/analysis failure — leave uncovered, retry a future run
+        if not td.get("is_platform", True):
+            log.info(f"teardown rejected non-platform: {cand['domain']}")
+            rejected.append(cand["domain"])
             continue
         teardowns.append(td)
         backlog.mark_covered(recs, cand["domain"], td["content_hash"], today)
+    # Drop confirmed non-platforms so they're never re-selected (scrape failures stay).
+    if rejected:
+        recs[:] = [r for r in recs if r["domain"] not in rejected]
+        log.info(f"dropped {len(rejected)} non-platform candidate(s) at teardown")
 
     # 3. Format
     subject, body = emailer.format_email(teardowns, today)
