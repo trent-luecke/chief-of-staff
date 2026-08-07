@@ -138,9 +138,16 @@ def main(argv=None):
 
     result = run_weekly(dry_run=args.dry_run, discover_only=args.discover_only)
     log.info(f"run complete: {result}")
+
+    send_failed = (not args.dry_run and not args.discover_only
+                   and result["sent"] is False)
+    if send_failed:
+        log.error("scout run did not send an email — marking this run as failed")
+
     if args.commit and not args.dry_run:
         _git_commit(_today())
-    return 0
+
+    return 1 if send_failed else 0
 
 
 if __name__ == "__main__":

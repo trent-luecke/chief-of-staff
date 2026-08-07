@@ -47,3 +47,21 @@ def test_scrape_returns_none_on_error(monkeypatch):
                         lambda *a, **k: _FakeResp(500, {}))
     fc = FirecrawlClient("key")
     assert fc.scrape("https://a.com") is None
+
+
+def test_search_retries_on_429(monkeypatch):
+    calls = []
+    payload = {"data": [{"url": "https://a.com", "title": "A", "markdown": "# A"}]}
+
+    def fake_post(*a, **k):
+        calls.append(1)
+        if len(calls) == 1:
+            return _FakeResp(429, {})
+        return _FakeResp(200, payload)
+
+    monkeypatch.setattr("scout.firecrawl_client.requests.post", fake_post)
+    monkeypatch.setattr("scout.firecrawl_client.time.sleep", lambda s: None)
+    fc = FirecrawlClient("key")
+    results = fc.search("gym software")
+    assert len(calls) == 2
+    assert [r["url"] for r in results] == ["https://a.com"]

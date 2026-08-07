@@ -105,6 +105,18 @@ def test_run_weekly_survives_a_raising_analyze(tmp_path, monkeypatch):
     assert by_domain["p1.com"]["covered"] is True
 
 
+def test_main_returns_1_when_send_fails(monkeypatch):
+    monkeypatch.setattr(scout, "run_weekly",
+                        lambda *a, **k: {"discovered": 0, "teardowns": 1, "sent": False})
+    assert scout.main([]) == 1
+
+
+def test_main_returns_0_when_sent(monkeypatch):
+    monkeypatch.setattr(scout, "run_weekly",
+                        lambda *a, **k: {"discovered": 0, "teardowns": 1, "sent": True})
+    assert scout.main([]) == 0
+
+
 def test_run_weekly_survives_discovery_exception(tmp_path, monkeypatch):
     monkeypatch.setattr(scout.config, "CANDIDATES_FILE", tmp_path / "c.jsonl")
     monkeypatch.setattr(scout.config, "COVERED_FILE", tmp_path / "cov.jsonl")

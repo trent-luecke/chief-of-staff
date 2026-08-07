@@ -1,6 +1,5 @@
 """Per-platform teardown: scrape + grounded Claude analysis."""
 import hashlib
-import json
 import logging
 import re
 
@@ -26,9 +25,33 @@ the grounding. Bells-and-whistles OS deliberately skipped → "🚫 Out of scope
 (📣 Positioning gap / 🎯 Real job gap / ➖ Different job). If 📣, quote the platform's exact \
 positioning line.
 
-Return ONLY a JSON object with keys: description, segment, standout, features (array of \
-strings), pricing, traction, maturity, os_takeaways (array of {feature, tag, note}), \
-jtbd ({platform_jtbd, verdict, note, quoted_line}). No prose outside the JSON."""
+Call the `emit_teardown` tool with your analysis. Do not write any prose outside the tool call."""
+
+TEARDOWN_TOOL = {
+    "name": "emit_teardown",
+    "description": "Return the structured competitor teardown.",
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "description": {"type": "string"},
+            "segment": {"type": "string"},
+            "standout": {"type": "string"},
+            "features": {"type": "array", "items": {"type": "string"}},
+            "pricing": {"type": "string"},
+            "traction": {"type": "string"},
+            "maturity": {"type": "string"},
+            "os_takeaways": {"type": "array", "items": {
+                "type": "object",
+                "properties": {"feature": {"type": "string"}, "tag": {"type": "string"}, "note": {"type": "string"}},
+                "required": ["feature", "tag", "note"]}},
+            "jtbd": {"type": "object", "properties": {
+                "platform_jtbd": {"type": "string"}, "verdict": {"type": "string"},
+                "note": {"type": "string"}, "quoted_line": {"type": "string"}},
+                "required": ["platform_jtbd", "verdict", "note"]},
+        },
+        "required": ["description", "segment", "standout", "features", "pricing", "traction", "maturity", "os_takeaways", "jtbd"],
+    },
+}
 
 _PAGE_PATHS = ["", "pricing", "features", "product", "about"]
 
@@ -65,19 +88,22 @@ def analyze(candidate: dict, fc, client, grounding_text: str) -> dict | None:
     try:
         resp = client.messages.create(
             model=ANALYSIS_MODEL,
-            max_tokens=2000,
+            max_tokens=4096,
             system=ANALYSIS_SYSTEM,
+            tools=[TEARDOWN_TOOL],
+            tool_choice={"type": "tool", "name": "emit_teardown"},
             messages=[{"role": "user", "content": user}],
         )
-        raw = resp.content[0].text
-        match = re.search(r"\{.*\}", raw, re.DOTALL)
-        data = json.loads(match.group(0) if match else raw)
+        data = None
+        for block in resp.content:
+            if getattr(block, "type", None) == "tool_use" and getattr(block, "name", None) == "emit_teardown":
+                data = block.input
+                break
     except Exception as e:
         log.error(f"analysis failed for {candidate['domain']}: {e}")
         return None
-
     if not isinstance(data, dict):
-        log.error(f"analysis returned non-dict for {candidate['domain']}")
+        log.error(f"analysis returned no tool_use for {candidate['domain']}")
         return None
 
     data["name"] = candidate["name"]

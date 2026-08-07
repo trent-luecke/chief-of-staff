@@ -1,5 +1,6 @@
 """Thin Firecrawl v1 REST wrapper (search + scrape). Actions-safe, requests-only."""
 import logging
+import time
 
 import requests
 
@@ -7,6 +8,7 @@ log = logging.getLogger(__name__)
 
 BASE_URL = "https://api.firecrawl.dev/v1"
 TIMEOUT = 60
+MAX_ATTEMPTS = 3
 
 
 class FirecrawlClient:
@@ -23,13 +25,19 @@ class FirecrawlClient:
             log.warning("FIRECRAWL_API_KEY not set — search skipped")
             return []
         try:
-            resp = requests.post(
-                f"{BASE_URL}/search",
-                headers=self.headers,
-                json={"query": query, "limit": limit,
-                      "scrapeOptions": {"formats": ["markdown"]}},
-                timeout=TIMEOUT,
-            )
+            for attempt in range(1, MAX_ATTEMPTS + 1):
+                resp = requests.post(
+                    f"{BASE_URL}/search",
+                    headers=self.headers,
+                    json={"query": query, "limit": limit,
+                          "scrapeOptions": {"formats": ["markdown"]}},
+                    timeout=TIMEOUT,
+                )
+                if resp.status_code == 429 and attempt < MAX_ATTEMPTS:
+                    log.warning(f"Firecrawl search 429 for '{query}', retrying (attempt {attempt})")
+                    time.sleep(5 * attempt)
+                    continue
+                break
             resp.raise_for_status()
             data = resp.json().get("data", []) or []
             return [
@@ -48,12 +56,18 @@ class FirecrawlClient:
             log.warning("FIRECRAWL_API_KEY not set — scrape skipped")
             return None
         try:
-            resp = requests.post(
-                f"{BASE_URL}/scrape",
-                headers=self.headers,
-                json={"url": url, "formats": ["markdown"]},
-                timeout=TIMEOUT,
-            )
+            for attempt in range(1, MAX_ATTEMPTS + 1):
+                resp = requests.post(
+                    f"{BASE_URL}/scrape",
+                    headers=self.headers,
+                    json={"url": url, "formats": ["markdown"]},
+                    timeout=TIMEOUT,
+                )
+                if resp.status_code == 429 and attempt < MAX_ATTEMPTS:
+                    log.warning(f"Firecrawl scrape 429 for '{url}', retrying (attempt {attempt})")
+                    time.sleep(5 * attempt)
+                    continue
+                break
             resp.raise_for_status()
             return (resp.json().get("data", {}) or {}).get("markdown")
         except Exception as e:
