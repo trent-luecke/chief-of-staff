@@ -8,6 +8,25 @@ from . import backlog
 
 log = logging.getLogger(__name__)
 
+_ARTICLE_URL_RE = re.compile(
+    r"/(blog|blogs|article|articles|news|guide|guides|resources|review|reviews|"
+    r"compare|comparison|vs|best-|top-|how-to)(/|-|$)|/20[12]\d(/|$)", re.I)
+_ARTICLE_TITLE_RE = re.compile(
+    r"\b(best|top \d|top-\d|review|reviews|vs\.?|versus|alternatives?|roundup|"
+    r"guide to|how to|20[12]\d)\b", re.I)
+
+
+def looks_like_article(url: str, title: str = "") -> bool:
+    """Heuristic: does this URL/title read as an article/roundup/review rather
+    than a product's own site? Conservative — real platform homepages rarely
+    have /blog, a year, or 'best/top/review/vs' in the URL or title."""
+    if _ARTICLE_URL_RE.search(url or ""):
+        return True
+    if _ARTICLE_TITLE_RE.search(title or ""):
+        return True
+    return False
+
+
 AGGREGATOR_HOSTS = {
     "producthunt.com", "reddit.com", "facebook.com", "fb.com", "google.com",
     "youtube.com", "twitter.com", "x.com", "linkedin.com", "medium.com",
@@ -20,9 +39,15 @@ SCORE_MODEL = "claude-haiku-4-5-20251001"
 SCORE_SYSTEM = (
     "You score a fitness-business software platform as a candidate for a weekly "
     "competitor teardown aimed at an S&C / gym-management product (TeamBuildr OS). "
-    "Return ONLY a JSON object: {\"novelty\": <0-1>, \"icp\": <0-1>}. "
     "novelty = how unusual/distinctive its approach is vs. the boilerplate CRM category. "
-    "icp = relevance to gym/studio management or online fitness coaching (1=core, 0=unrelated)."
+    "icp = relevance to gym/studio management or online fitness coaching (1=core, 0=unrelated). "
+    "Return ONLY a JSON object: "
+    "{\"novelty\": <0-1>, \"icp\": <0-1>, \"is_platform\": <true|false>}. "
+    "is_platform = true only if the URL is an actual fitness-business software "
+    "product's OWN site (homepage, product, or pricing page for a company that "
+    "SELLS the software); false if it is a review article, blog post, \"best of\" "
+    "roundup, listicle, news story, directory, or any page merely writing ABOUT "
+    "such platforms."
 )
 
 
@@ -41,7 +66,7 @@ def _guess_bucket(text: str) -> str:
     return "B" if online else "A"
 
 
-def score_candidate(client, name, url, snippet, grounding_text) -> tuple:
+def score_candidate(client, name, url, snippet, grounding_text) -> dict:
     user = (
         f"Platform: {name}\nURL: {url}\n"
         f"Snippet: {(snippet or '')[:1500]}\n\n"
@@ -57,10 +82,17 @@ def score_candidate(client, name, url, snippet, grounding_text) -> tuple:
         raw = resp.content[0].text
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         data = json.loads(match.group(0) if match else raw)
-        return float(data.get("novelty", 0.0)), float(data.get("icp", 0.0))
+        return {
+            "novelty": float(data.get("novelty", 0.0)),
+            "icp": float(data.get("icp", 0.0)),
+            "is_platform": bool(data.get("is_platform", True)),
+        }
     except Exception as e:
         log.warning(f"score_candidate failed for {name}: {e}")
-        return (0.0, 0.0)
+        # default is_platform True so a transient scoring error never silently
+        # drops a real platform — it just banks with a low score that won't
+        # get selected.
+        return {"novelty": 0.0, "icp": 0.0, "is_platform": True}
 
 
 def run_discovery(cfg, records, fc, client, grounding_text, today) -> int:
@@ -73,16 +105,22 @@ def run_discovery(cfg, records, fc, client, grounding_text, today) -> int:
             if (not domain or domain in AGGREGATOR_HOSTS
                     or is_excluded(domain, exclude) or backlog.has_domain(records, domain)):
                 continue
+            if looks_like_article(r["url"], r.get("title", "")):
+                log.info(f"skipped article: {r['url']}")
+                continue
             name = (r.get("title") or domain).split("|")[0].split("-")[0].strip()
-            nov, icp = score_candidate(client, name, r["url"], r.get("markdown", ""), grounding_text)
+            score = score_candidate(client, name, r["url"], r.get("markdown", ""), grounding_text)
+            if not score.get("is_platform", True):
+                log.info(f"skipped non-platform: {domain}")
+                continue
             cand = backlog.new_candidate(
                 domain, name, r["url"], _guess_bucket(r.get("markdown", "")),
                 "websearch", today,
             )
-            cand["novelty_score"], cand["icp_relevance"] = nov, icp
+            cand["novelty_score"], cand["icp_relevance"] = score["novelty"], score["icp"]
             if backlog.add(records, cand):
                 added += 1
-                log.info(f"discovered: {domain} (nov={nov}, icp={icp})")
+                log.info(f"discovered: {domain} (nov={score['novelty']}, icp={score['icp']})")
     return added
 
 
@@ -102,7 +140,8 @@ def meta_ad_library_boost(cfg, records, fc, today) -> int:
                 if (domain and "facebook" not in domain and "fbcdn" not in domain
                         and domain not in AGGREGATOR_HOSTS
                         and not is_excluded(domain, cfg.get("exclude_domains", []))
-                        and not backlog.has_domain(records, domain)):
+                        and not backlog.has_domain(records, domain)
+                        and not looks_like_article(m, "")):
                     cand = backlog.new_candidate(domain, domain.split(".")[0], m, "A",
                                                  "meta_ad_library", today)
                     if backlog.add(records, cand):
@@ -111,3 +150,18 @@ def meta_ad_library_boost(cfg, records, fc, today) -> int:
         log.warning(f"meta_ad_library_boost skipped: {e}")
         return added
     return added
+
+
+def prune_articles(records: list) -> int:
+    """Drop UNCOVERED article-like candidates already in the backlog (cheap,
+    no API). Idempotent — safe to run every time. Leaves covered history alone."""
+    removed = 0
+    keep = []
+    for r in records:
+        if not r.get("covered") and looks_like_article(r.get("url", ""), r.get("name", "")):
+            log.info(f"pruned article-like candidate: {r.get('domain')}")
+            removed += 1
+            continue
+        keep.append(r)
+    records[:] = keep
+    return removed

@@ -21,9 +21,12 @@ class _FakeFC:
         return None
 
 
-def _fake_client_scoring(novelty, icp):
+def _fake_client_scoring(novelty, icp, is_platform=True):
     class _Resp:
-        content = [type("C", (), {"text": f'{{"novelty": {novelty}, "icp": {icp}}}'})()]
+        content = [type("C", (), {"text": (
+            f'{{"novelty": {novelty}, "icp": {icp}, '
+            f'"is_platform": {"true" if is_platform else "false"}}}'
+        )})()]
     class _Msgs:
         def create(self, **k): return _Resp()
     class _Client:
@@ -63,7 +66,17 @@ def test_score_candidate_handles_bad_json():
         def create(self, **k): return _Resp()
     class _Client:
         messages = _Msgs()
-    assert discovery.score_candidate(_Client(), "n", "u", "s", "G") == (0.0, 0.0)
+    assert discovery.score_candidate(_Client(), "n", "u", "s", "G") == {
+        "novelty": 0.0, "icp": 0.0, "is_platform": True,
+    }
+
+
+def test_score_candidate_returns_dict_with_is_platform():
+    client = _fake_client_scoring(0.8, 0.7, is_platform=True)
+    score = discovery.score_candidate(client, "n", "u", "s", "G")
+    assert score["novelty"] == 0.8
+    assert score["icp"] == 0.7
+    assert score["is_platform"] is True
 
 
 def test_run_discovery_drops_aggregator_hosts(monkeypatch):
@@ -86,3 +99,55 @@ def test_meta_boost_never_raises(monkeypatch):
     cfg = {"meta_ad_library_queries": ["gym software"]}
     # must swallow and return 0, never propagate
     assert discovery.meta_ad_library_boost(cfg, [], _BoomFC(), "2026-08-06") == 0
+
+
+def test_looks_like_article():
+    assert discovery.looks_like_article("https://x.com/blog/best-gym-software-2022") is True
+    assert discovery.looks_like_article(
+        "https://x.com/", "The Best Gym Management Software: Our 2022 Review"
+    ) is True
+    assert discovery.looks_like_article("https://x.com/reviews/foo") is True
+    assert discovery.looks_like_article("https://coachway.io/") is False
+    assert discovery.looks_like_article("https://gymdesk.com/pricing") is False
+
+
+def test_run_discovery_skips_articles(monkeypatch):
+    fc = _FakeFC([
+        {"url": "https://blog.example.com/best-gym-apps-2023",
+         "title": "Best Gym Apps 2023", "markdown": "roundup"},
+        {"url": "https://coachway.io/", "title": "Coachway", "markdown": "online coaching"},
+    ])
+    client = _fake_client_scoring(0.8, 0.7, is_platform=True)
+    cfg = {"search_queries": ["q"], "search_limit": 8, "exclude_domains": []}
+    records = []
+    added = discovery.run_discovery(cfg, records, fc, client, "GROUNDING", "2026-08-06")
+    assert added == 1
+    assert records[0]["domain"] == "coachway.io"
+
+
+def test_run_discovery_drops_non_platform(monkeypatch):
+    fc = _FakeFC([
+        {"url": "https://somesite.com/", "title": "Some Site", "markdown": "a normal looking url"},
+    ])
+    client = _fake_client_scoring(0.8, 0.7, is_platform=False)
+    cfg = {"search_queries": ["q"], "search_limit": 8, "exclude_domains": []}
+    records = []
+    added = discovery.run_discovery(cfg, records, fc, client, "GROUNDING", "2026-08-06")
+    assert added == 0
+    assert records == []
+
+
+def test_prune_articles():
+    records = [
+        backlog.new_candidate("blogsite.com", "Best Gym Software Review 2022", "https://blogsite.com/",
+                              "A", "websearch", "2026-08-01"),
+        backlog.new_candidate("coachway.io", "Coachway", "https://coachway.io/",
+                              "A", "websearch", "2026-08-01"),
+        backlog.new_candidate("oldarticle.com", "Best Gym Software Review 2022", "https://oldarticle.com/",
+                              "A", "websearch", "2026-07-01"),
+    ]
+    records[2]["covered"] = True
+    removed = discovery.prune_articles(records)
+    assert removed == 1
+    domains = {r["domain"] for r in records}
+    assert domains == {"coachway.io", "oldarticle.com"}
