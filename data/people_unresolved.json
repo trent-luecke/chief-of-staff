@@ -455,6 +455,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-08-06"
+    },
+    {
+      "entity": "Cyril Bernius",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-07"
+    },
+    {
+      "entity": "George Strangos",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-07"
     }
   ],
   "previously_notified": [
