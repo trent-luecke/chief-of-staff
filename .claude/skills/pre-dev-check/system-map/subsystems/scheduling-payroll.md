@@ -39,14 +39,18 @@ POST /schedules  or  POST /bookings/appointment   [STAFF ROLES ONLY]
   → bulkWriteCreateScheduleItems()                       # pick(scheduleBulkFields) → each item
       → ScheduleItem.bulkCreate([{ ..., payRateId }])    # rate stamped per occurrence
   → (appointment path) Booking.bookAppointment() per item
-Later: payroll reporting reads ScheduleItem.payRateId → PayRate.totalAmount(bookings)
+Later: payroll reporting reads ScheduleItem.payRateId with a fallback chain
+  (payrollGetPayouts.ts:154-163: item.payRateId → teacher.payRate → studio defaultPayRate → $0)
+  → PayRate.totalAmount(bookings)
   (exports: backend/app/modules/exports/routes/exportPayrollTeacherDetails.ts,
             exportPayrollPayouts.ts)
 ```
 
 ## Why it breaks under a member-booking feature
 
-Every creation entry point above is staff-gated and carries the staff-driven rate-selection step. A member-initiated / self-serve booking is a **new actor + new entry point** that creates the `Schedule`/`ScheduleItem` without ever running that step. Because `payRateId` is nullable and nothing back-fills it, the occurrence is persisted with `payRateId = null`, and the teacher's payroll for that appointment silently computes to nothing. This is the documented production miss anchoring the seed.
+Every creation entry point above is staff-gated and carries the staff-driven rate-selection step. A member-initiated / self-serve booking is a **new actor + new entry point** that creates the `Schedule`/`ScheduleItem` without ever running that step. Because `payRateId` is nullable and nothing back-fills it at creation, the occurrence is persisted with `payRateId = null`.
+
+Crucially, the failure is **silent, not a hard error**. At payroll-compute time `backend/app/modules/reports/helpers/payroll/payrollGetPayouts.ts:154-163` resolves the rate with a fallback chain: `let payRate = defaultPayRate` (studio-level default) → `if (item.payRateId)` use the item's rate → `else if (teacher.payRate)` use the teacher's default. So a member-booked occurrence with `payRateId = null` doesn't throw — it silently pays the teacher's default rate, else the studio default, else `$0`. None of those is a rate anyone deliberately assigned to that appointment type, and the discrepancy only surfaces in payroll, well downstream of the booking. That silent-wrong-pay behavior is what makes this the documented production miss anchoring the seed.
 
 ## Key symbols
 
@@ -59,4 +63,5 @@ Every creation entry point above is staff-gated and carries the staff-driven rat
 | `backend/app/modules/bookings/routes/createOneAppointmentBooking.ts` | `action` | staff-only appointment booking (`FRONT-DESK/ADMIN/OWNER/TEACHER`) |
 | `backend/app/modules/schedules/helpers/validateSchedule.ts` | `validateSchedule` | `payRateId` optional, no server default |
 | `backend/app/modules/payroll/mysqlModel.ts` | `PayRate`, `PayRate.totalAmount` | rate definition + earnings computation |
+| `backend/app/modules/reports/helpers/payroll/payrollGetPayouts.ts` | payout rate resolution (L154-163) | compute-time fallback `item.payRateId → teacher.payRate → studio defaultPayRate → $0` (why a null rate fails silently, not loudly) |
 | `admin-frontend/app/containers/SchedulePage/ScheduleAppointmentForm.tsx` | (submit handler, ~L389-396) | staff UI where the rate is chosen/defaulted |

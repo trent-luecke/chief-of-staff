@@ -2,7 +2,9 @@
 
 Coupling-relevant architecture only — NOT full code documentation. No secrets.
 
-- **Version:** v1 (bump on each meaningful seed/expansion; report cites `map v<n>`)
+- **Version:** v2 (bump on each meaningful seed/expansion; report cites `map v<n>`)
+  - v1 (2026-08-10): seed scan — scheduling/payroll anchor.
+  - v2 (2026-08-10): refined the payroll coupling with the compute-time silent-fallback chain (`payrollGetPayouts.ts:154-163`), discovered during the acceptance backtest.
 - **entities-and-actors.md** — OS entities, the actors, and each actor's capabilities.
 - **couplings.md** — the running catalog of known couplings. Grows every analysis.
 - **subsystems/** — per-subsystem deep-dives, seeded from the mirror.
