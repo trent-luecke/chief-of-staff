@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-08-08T00:00:00",
+  "resolved_at": "2026-08-09T00:00:00",
   "resolutions": {
     "6": {
       "primary_person_id": null,
@@ -9104,6 +9104,261 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "1998": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "1999": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2000": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2001": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2002": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2003": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2004": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2005": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2006": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2007": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2008": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2009": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2010": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2011": {
+      "primary_person_id": "jasmin-bray-rise-sports-performance-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2012": {
+      "primary_person_id": "scottsilveus",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2013": {
+      "primary_person_id": "thomas-howes",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2014": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2015": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2016": {
+      "primary_person_id": "jamie-crone",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2017": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2018": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2019": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2020": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2021": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2022": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2023": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2025": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2026": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2027": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2028": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2029": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2030": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2031": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2032": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2033": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2034": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2035": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2036": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2037": {
+      "primary_person_id": "asher-wojciechowski",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2038": {
+      "primary_person_id": "jasmin-bray-rise-sports-performance-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2039": {
+      "primary_person_id": "scottsilveus",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2040": {
+      "primary_person_id": "thomas-howes",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2041": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2042": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2043": {
+      "primary_person_id": "jamie-crone",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2044": {
+      "primary_person_id": "meredith-ingbretson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2045": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2046": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2047": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2048": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2049": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -9303,7 +9558,9 @@
     1873,
     1874,
     1909,
-    1910
+    1910,
+    1997,
+    2024
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -9370,6 +9627,7 @@
     "thread:Quick one before I stop following up",
     "thread:Re: Billing info",
     "thread:Re: BFU retreat tickets",
-    "thread:Automatic reply: A free course on the part of coaching your program can't teach"
+    "thread:Automatic reply: A free course on the part of coaching your program can't teach",
+    "thread:Re: Your receipt from TeamBuildr LLC #2975-4398"
   ]
 }
