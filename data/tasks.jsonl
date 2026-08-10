@@ -245,3 +245,4 @@
 {"event": "create", "task_id": "t-24cc50", "title": "tony list from course sign ups in 2026", "source": "ui", "created_at": "2026-08-07", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-24"}
 {"event": "complete", "task_id": "t-46ec75", "completed_at": "2026-08-07"}
 {"event": "create", "task_id": "t-b037e4", "title": "follow up with andrea about kiosk idea from slack", "source": "ui", "created_at": "2026-08-07", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-10"}
+{"event": "complete", "task_id": "t-b037e4", "completed_at": "2026-08-10"}
