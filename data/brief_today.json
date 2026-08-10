@@ -1,7 +1,161 @@
 {
-  "date": "2026-08-09",
-  "generated_at": "2026-08-09T12:22:45.516021+00:00",
-  "meetings": [],
+  "date": "2026-08-10",
+  "generated_at": "2026-08-10T12:03:05.189889+00:00",
+  "meetings": [
+    {
+      "id": "l0v73p4pkarcjbm3g3i4m6cs5g",
+      "title": "David Quirke and Trent Luecke",
+      "start": "2026-08-10T08:30:00-05:00",
+      "end": "2026-08-10T09:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "davidquirkecoaching@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "3vn3bhvbklv265s15fekc0oocf_20260810T140000Z",
+      "title": "Rev: Department Heads",
+      "start": "2026-08-10T09:00:00-05:00",
+      "end": "2026-08-10T09:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "grace@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260810T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-08-10T10:00:00-05:00",
+      "end": "2026-08-10T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260810T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-08-10T11:00:00-05:00",
+      "end": "2026-08-10T11:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260810T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-08-10T12:30:00-05:00",
+      "end": "2026-08-10T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4anrrjtkj2vv3m0ufjkmsrej9e_20260810T180000Z",
+      "title": "Member Booked Appts",
+      "start": "2026-08-10T13:00:00-05:00",
+      "end": "2026-08-10T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nick@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4i2vv8jpbbj8nkivvrvu7ejqjk",
+      "title": "Carter pick up",
+      "start": "2026-08-10T14:15:00-05:00",
+      "end": "2026-08-10T15:45:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
@@ -9,6 +163,13 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-b037e4",
+      "title": "follow up with andrea about kiosk idea from slack",
+      "reason": "horizon",
+      "due_date": null,
+      "project_id": null
     }
   ],
   "what_moved": []
