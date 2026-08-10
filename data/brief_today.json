@@ -1,6 +1,6 @@
 {
   "date": "2026-08-10",
-  "generated_at": "2026-08-10T12:03:05.189889+00:00",
+  "generated_at": "2026-08-10T12:39:10.652487+00:00",
   "meetings": [
     {
       "id": "l0v73p4pkarcjbm3g3i4m6cs5g",
@@ -144,15 +144,6 @@
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "4i2vv8jpbbj8nkivvrvu7ejqjk",
-      "title": "Carter pick up",
-      "start": "2026-08-10T14:15:00-05:00",
-      "end": "2026-08-10T15:45:00-05:00",
-      "kind": "internal",
-      "attendees": [],
       "prep": null
     }
   ],
