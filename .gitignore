@@ -53,8 +53,11 @@ scout/*.log
 # Archived planning docs — completed work, not needed for operation
 docs/archive/
 
-# Local Claude Code worktrees & settings
+# Local Claude Code worktrees & settings (except skill reference docs)
 .claude/
+!.claude/
+!.claude/skills/
+!.claude/skills/**
 
 # SDD controller scratch (briefs, reports, review diffs)
 .superpowers/sdd/
