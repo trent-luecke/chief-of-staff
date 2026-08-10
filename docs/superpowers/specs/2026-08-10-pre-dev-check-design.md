@@ -80,16 +80,16 @@ Kept deliberately light — a handful of pointed bullets, not a second full anal
 A curated, version-controlled description of OS's architecture *as it pertains to coupling* — not a full code map, only what's needed to reason about blast radius.
 
 - **Contents:** entities (schedule item, appointment type, member, staff, payroll record…), actors and their capabilities, the cross-cutting concerns and where each one hooks in, and a running catalog of **known couplings** (each: system A depends on assumption X held by system B; where in code; how discovered).
-- **Seeded once** by a deep scan of `GymStudio/backend`, starting with the scheduling/payroll subsystem (the known anchor), expanding outward as capacity allows.
+- **Seeded once** by a deep scan of `GymStudio/backend` and `GymStudio/admin-frontend`, starting with the scheduling/payroll subsystem (the known anchor), expanding outward as capacity allows. `admin-frontend` is prioritized because it holds the staff-facing config (e.g. pay-rate assignment on schedule items in the studio view) whose assumptions member-facing features tend to invalidate, and it churns more than the other surfaces.
 - **Grows every run:** any coupling discovered during an analysis — or any real miss that reaches production — is appended. This is the compounding asset that makes the tool progressively better at catching OS-specific misses.
-- **Location:** inside the chief-of-staff repo alongside the skill (version-controlled, travels with the skill). Architectural knowledge only — no secrets, no credentials.
+- **Location:** `.claude/skills/pre-dev-check/system-map/`, inside the chief-of-staff repo alongside the skill (version-controlled, travels with the skill as one unit). Architectural knowledge only — no secrets, no credentials.
 
 ## Repo access — local mirror
 
 `GymStudio/*` is not cloned locally today. The skill relies on a **local mirror** of the key repos:
 
-- Clone target repos to a location **outside** the chief-of-staff working tree (so OS source is never committed into it) — proposed `~/dev/gymstudio/`.
-- Seed with `backend` (payroll/booking/scheduling live here); add `client-frontend` and `admin-frontend` as entry-point/actor tracing requires.
+- Clone target repos to a location **outside** the chief-of-staff working tree (so OS source is never committed into it) — `~/dev/gymstudio/`.
+- Seed with `backend` (payroll/booking/scheduling live here) and `admin-frontend` (staff-facing config surface, highest churn). Pull `client-frontend` on-demand when a feature's new entry point is member-facing.
 - The skill `git pull`s the mirror to refresh before a run and warns if the mirror is missing or stale.
 - Reads are **targeted**: only into the subsystems the detected changes touch — not a full re-scan every run (the map carries recurring knowledge).
 
@@ -160,8 +160,8 @@ Follows the `os-feature-shaping` / `parse-internal-meeting` pattern: a `SKILL.md
 - No full architectural documentation of OS — the map only holds coupling-relevant knowledge.
 - No CI/automated trigger — invoked manually per planning cycle.
 
-## Open questions for review
+## Resolved decisions
 
-1. Mirror location — is `~/dev/gymstudio/` fine, or is there an existing clone path you'd rather use?
-2. Map location — `.claude/skills/pre-dev-check/system-map/` (with the skill) vs. `data/` — any preference?
-3. For the seed scan, is `backend` alone enough to start, or do you want `client-frontend` mirrored from day one (the member booking flow lives there)?
+1. **Mirror location** — `~/dev/gymstudio/` (outside the chief-of-staff working tree).
+2. **Map location** — `.claude/skills/pre-dev-check/system-map/`, with the skill.
+3. **Seed scope** — `backend` + `admin-frontend` mirrored from day one; `client-frontend` pulled on-demand for member-facing entry points.
