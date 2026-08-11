@@ -471,6 +471,30 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-08-07"
+    },
+    {
+      "entity": "Warren Clinkscales - Youth Athlete Training (OS)",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "warren-clinkscales-youth-athlete-training-os",
+      "candidate_score": 95.83333333333334,
+      "added": "2026-08-10"
+    },
+    {
+      "entity": "Jasmin Bray - Rise Sports Performance (OS)",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "jasmin-bray-rise-sports-performance-os",
+      "candidate_score": 95.23809523809523,
+      "added": "2026-08-10"
+    },
+    {
+      "entity": "Jennifer Foust - Kent Denver (OS Lite)",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "jennifer-foust-kent-denver-os-lite",
+      "candidate_score": 94.73684210526316,
+      "added": "2026-08-10"
     }
   ],
   "previously_notified": [
