@@ -1,186 +1,14 @@
 {
-  "date": "2026-08-11",
-  "generated_at": "2026-08-11T12:38:17.129013+00:00",
+  "date": "2026-08-12",
+  "generated_at": "2026-08-12T12:04:33.168185+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20260811T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-08-11T08:30:00-05:00",
-      "end": "2026-08-11T09:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "kyle@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20260811T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-08-11T10:00:00-05:00",
-      "end": "2026-08-11T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20260811T160000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-08-11T11:00:00-05:00",
-      "end": "2026-08-11T11:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "_68o34dhg70o36l1i64pjad1m6crj8dhi74mj2c1g6kq40rb1epimsbj3dtmg",
-      "title": "\u26a1\ufe0f Maven LIVE: Self Driving Products: Product Signals to Pull Requests",
-      "start": "2026-08-11T11:00:00-05:00",
-      "end": "2026-08-11T12:00:00-05:00",
+      "id": "_68o34dhg70o36l1i6cojic9p6ksj2cpg68mj2c1g6ksk0rb1epimsbj3dtmg",
+      "title": "\u26a1\ufe0f Maven LIVE: How Cursor Turned AI Agents Into Better Engineers",
+      "start": "2026-08-12T11:00:00-05:00",
+      "end": "2026-08-12T12:00:00-05:00",
       "kind": "internal",
       "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8or30h9l8cr4ah238p1k8gpg64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8l14cg9m84r3ge9g8p144g9k8oskachi60r34d25651jic1m8kpg_20260811T163000Z",
-      "title": "BAH/TeamBuildr Sync",
-      "start": "2026-08-11T11:30:00-05:00",
-      "end": "2026-08-11T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "stern_zachary@bah.com",
-          "name": "Stern, Zack [USA]"
-        },
-        {
-          "email": "butz_melodie@bah.com",
-          "name": "Butz, Melodie [USA]"
-        },
-        {
-          "email": "dean_jonathan@bah.com",
-          "name": "Dean, Jonathan [USA]"
-        },
-        {
-          "email": "gould_bryan@bah.com",
-          "name": "Gould, Bryan [USA]"
-        },
-        {
-          "email": "hashmi_hassan@bah.com",
-          "name": "Hashmi, Hassan [USA]"
-        },
-        {
-          "email": "hayden_jon@bah.com",
-          "name": "Hayden, Jon [USA]"
-        },
-        {
-          "email": "johnson_irik@bah.com",
-          "name": "Johnson, Irik [USA]"
-        },
-        {
-          "email": "khamisi_samer@bah.com",
-          "name": "Khamisi, Samer [USA]"
-        },
-        {
-          "email": "khimani_rameez@bah.com",
-          "name": "Khimani, Rameez [USA]"
-        },
-        {
-          "email": "melgar_keny@bah.com",
-          "name": "Melgar, Keny [USA]"
-        },
-        {
-          "email": "myers_rachel@bah.com",
-          "name": "Myers, Rachel [USA]"
-        },
-        {
-          "email": "socorro_aris@bah.com",
-          "name": "Socorro, Aris [USA]"
-        },
-        {
-          "email": "swift_paul@bah.com",
-          "name": "Swift, Paul [USA]"
-        }
-      ],
       "prep": null
     }
   ],
@@ -191,13 +19,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-7937ae",
-      "title": "follow up David Quirke",
-      "reason": "horizon",
-      "due_date": null,
-      "project_id": null
     }
   ],
   "what_moved": []
