@@ -14,7 +14,7 @@ def _config(tmp_dir: str) -> dict:
         "issues_file": os.path.join(tmp_dir, "issues.json"),
         "pipeline": {"cache_path": os.path.join(tmp_dir, "pipeline_cache.json")},
         "email": "trent@teambuildr.com",
-        "notion_queue_path": os.path.join(tmp_dir, "notion_updates_queue.json"),
+        "notion_queue_path": os.path.join(tmp_dir, "notion_updates_queue.jsonl"),
         "brief_prefs_path": os.path.join(tmp_dir, "brief_prefs.md"),
     }
 

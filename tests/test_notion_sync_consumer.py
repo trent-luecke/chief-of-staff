@@ -35,6 +35,13 @@ def test_build_summary_silent_when_nothing_synced():
     assert c.build_summary({"applied": [], "flagged": [], "pending": []}, "2026-08-13") == ""
 
 
+def test_build_summary_surfaces_all_error_run():
+    payload = {"applied": [], "flagged": ["ERROR applying Acme Corp"], "pending": []}
+    text = c.build_summary(payload, "2026-08-13")
+    assert text != ""                       # must NOT be silently suppressed
+    assert "ERROR applying Acme Corp" in text
+
+
 def test_build_summary_lists_flagged_and_pending():
     payload = {
         "applied": ["Acme Corp", "Beta LLC"],

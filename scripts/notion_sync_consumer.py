@@ -76,8 +76,8 @@ def build_summary(payload: dict, today: str) -> str:
     applied = payload.get("applied", [])
     flagged = payload.get("flagged", [])
     pending = payload.get("pending", [])
-    if not applied and not pending:
-        return ""  # silent no-op
+    if not applied and not pending and not flagged:
+        return ""  # silent no-op only when truly nothing happened
     lines = [f"📥 Notion Sync — {today}"]
     if flagged:
         lines.append("\n*⚠️ Review these:*")
