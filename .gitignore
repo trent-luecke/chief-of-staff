@@ -37,6 +37,10 @@ data/*
 !data/project_observation_links.jsonl
 !data/state/
 !data/state/avoma_sync_seen.json
+# Consumer state is laptop-local — must never reach origin/main (the whole
+# data/state/ dir is un-ignored above, so these need explicit ignores).
+data/state/notion_updates_seen.json
+data/state/onboarding_pending_confirm.jsonl
 !data/memory/
 data/memory/*
 !data/memory/decisions.md
