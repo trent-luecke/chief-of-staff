@@ -4,7 +4,7 @@
 import json
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 _ROOT = Path(__file__).parent.parent
@@ -187,6 +187,52 @@ def build_slack_message(
     return "\n".join(parts)
 
 
+def build_queue_entries(
+    pipeline_updates: list[dict],
+    onboarding_updates: list[dict],
+    now: str | None = None,
+) -> list[dict]:
+    """Map avoma update dicts to normalized Notion-queue entries (source=avoma)."""
+    if now is None:
+        now = datetime.now(timezone.utc).isoformat()
+    entries: list[dict] = []
+    for u in pipeline_updates:
+        uid = u.get("call_uuid")
+        name, cd = u["lead_name"], u["call_date"]
+        entries.append({
+            "id": f"avoma:{uid}" if uid else f"avoma:{name}:{cd}",
+            "timestamp": now,
+            "source": "avoma",
+            "target": "pipeline",
+            "name": name,
+            "call_date": cd,
+            "action": "update",
+            "inferred_status": u.get("inferred_status"),
+            "is_new_lead": u.get("is_new_lead", False),
+            "account_owner": u.get("account_owner"),
+            "buying_signals": u.get("buying_signals", []),
+            "objections": u.get("objections", []),
+            "summary": u.get("summary", ""),
+        })
+    for u in onboarding_updates:
+        uid = u.get("call_uuid")
+        name, cd = u["customer_name"], u["call_date"]
+        entries.append({
+            "id": f"avoma:{uid}" if uid else f"avoma:{name}:{cd}",
+            "timestamp": now,
+            "source": "avoma",
+            "target": "onboarding",
+            "name": name,
+            "call_date": cd,
+            "action": "update",
+            "onboarding_completed": u.get("onboarding_completed", []),
+            "onboarding_next_steps": u.get("onboarding_next_steps", []),
+            "status_update": u.get("status_update", ""),
+            "summary": u.get("summary", ""),
+        })
+    return entries
+
+
 def main() -> None:
     from dotenv import load_dotenv
     load_dotenv(_ROOT / ".env")
@@ -278,6 +324,7 @@ def main() -> None:
                 "lead_name": lead_name,
                 "call_type": t.call_type,
                 "call_date": call_date,
+                "call_uuid": getattr(t, "uuid", None),
                 "inferred_status": _infer_pipeline_status(t),
                 "summary": t.summary,
                 "is_new_lead": is_new,
@@ -303,6 +350,7 @@ def main() -> None:
             onboarding_updates.append({
                 "customer_name": lead_name,
                 "call_date": call_date,
+                "call_uuid": getattr(t, "uuid", None),
                 "onboarding_completed": completed,
                 "onboarding_next_steps": next_steps,
                 "status_update": status_update,
@@ -316,6 +364,17 @@ def main() -> None:
             print(f"   Pipeline cache patched: {patched} lead(s) updated.")
         else:
             print("   Pipeline cache: no name matches found — no patch applied.")
+
+    # ── Enqueue structured updates for the local Cowork → Notion routine ──
+    try:
+        from lib.notion_queue import append_entries, prune_file, DEFAULT_QUEUE_PATH
+        queue_path = str(_ROOT / config.get("notion_queue_path", DEFAULT_QUEUE_PATH))
+        entries = build_queue_entries(pipeline_updates, onboarding_updates)
+        appended = append_entries(queue_path, entries)
+        prune_file(queue_path, max_age_days=30)
+        print(f"   Notion queue: appended {appended} entr{'y' if appended == 1 else 'ies'}.")
+    except Exception as e:
+        print(f"⚠️  Notion queue write error (non-fatal): {e}", file=sys.stderr)
 
     # Build and send Slack DM
     slack_text = build_slack_message(pipeline_updates, onboarding_updates, today)

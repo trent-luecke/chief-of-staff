@@ -10,6 +10,7 @@
   "unread_email_max": 15,
   "starred_email_max": 10,
   "ai_model": "claude-sonnet-4-6",
+  "notion_queue_path": "data/notion_updates_queue.jsonl",
   "state_dir": "data/state",
   "projects_file": "data/projects.md",
   "recurring_file": "data/recurring.json",

@@ -14,7 +14,7 @@ def _config(tmp_dir: str) -> dict:
         "issues_file": os.path.join(tmp_dir, "issues.json"),
         "pipeline": {"cache_path": os.path.join(tmp_dir, "pipeline_cache.json")},
         "email": "trent@teambuildr.com",
-        "notion_queue_path": os.path.join(tmp_dir, "notion_updates_queue.json"),
+        "notion_queue_path": os.path.join(tmp_dir, "notion_updates_queue.jsonl"),
         "brief_prefs_path": os.path.join(tmp_dir, "brief_prefs.md"),
     }
 
@@ -41,14 +41,16 @@ def test_queue_notion_update_add_note():
         )
         assert "Jake Torres" in result
         assert "cowork" in result.lower() or "next scheduled" in result.lower()
-        with open(config["notion_queue_path"]) as f:
-            queue = json.load(f)
+        from lib.notion_queue import read_queue
+        queue = read_queue(config["notion_queue_path"])
         assert len(queue) == 1
-        assert queue[0]["person"] == "Jake Torres"
+        assert queue[0]["name"] == "Jake Torres"
         assert queue[0]["action"] == "add_note"
         assert queue[0]["note"] == "Pricing concern raised"
         assert "id" in queue[0]
         assert "timestamp" in queue[0]
+        assert queue[0]["source"] == "manual"
+        assert queue[0]["target"] == "pipeline"
 
 
 def test_queue_notion_update_delete_requires_reason():
@@ -91,10 +93,10 @@ def test_queue_notion_update_appends_multiple():
         storage = LocalStorage(tmp)
         execute_tool("queue_notion_update", {"person": "Alice", "action": "add_note", "note": "First"}, config, storage=storage)
         execute_tool("queue_notion_update", {"person": "Bob", "action": "update_stage", "stage": "Trial"}, config, storage=storage)
-        with open(config["notion_queue_path"]) as f:
-            queue = json.load(f)
+        from lib.notion_queue import read_queue
+        queue = read_queue(config["notion_queue_path"])
         assert len(queue) == 2
-        assert queue[1]["person"] == "Bob"
+        assert queue[1]["name"] == "Bob"
 
 
 # ── Task 3: set_brief_preference ─────────────────────────────────────────────
