@@ -13,7 +13,7 @@
 - **Registry/queue stores are git-anchored, never R2.** The queue file `data/notion_updates_queue.jsonl` lives on `origin/main`; the consumer reads it via `git show origin/main:…` (`lib/git_sync.show_main`), never the working tree.
 - **Producer writes are non-fatal.** A queue-write failure must never fail the nightly `avoma_sync` job (wrap like the existing demo-push try/except).
 - **Only the in-app Cowork run can write Notion.** The managed updater skills require the app's claude.ai connector; no Python code writes Notion directly, and the Telegram/cloud bot only *enqueues*.
-- **Queue is append-only JSONL with `merge=union`.** Never read-modify-write the whole array. Concurrent appends from the producer and the `queue_notion_update` tool must not clobber each other.
+- **Queue is append-only JSONL with `merge=union` for the concurrent writers** (the nightly producer's append and the `queue_notion_update` tool's append) — these must never read-modify-write the whole file, so they can't clobber each other. The single nightly producer additionally performs one sanctioned maintenance rewrite to prune >30-day lines (`prune_file`); no other writer rewrites the file, and the consumer never writes it at all.
 - **Consumer is read-only toward git.** It pulls the queue and tracks applied ids in a laptop-local, gitignored seen-set (`data/state/notion_updates_seen.json`); it never commits.
 - **Control model:** apply-all-then-report for every update **except** creating a brand-new onboarding record (unmatched onboarding customers are held for the Phase 2 confirm loop; in Phase 1 they are listed for manual add).
 - **Cron:** `31 8 * * 1-5` (8:31am CT, local).
