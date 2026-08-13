@@ -1,3 +1,4 @@
 data/tasks.jsonl merge=union
 data/notes.jsonl merge=union
 data/meetings.jsonl merge=union
+data/notion_updates_queue.jsonl merge=union
