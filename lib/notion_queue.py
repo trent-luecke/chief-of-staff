@@ -55,6 +55,8 @@ def prune_text(text: str, max_age_days: int, now: datetime) -> str:
             dt = datetime.fromisoformat(ts.replace("Z", "+00:00")) if ts else None
         except (ValueError, AttributeError):
             dt = None
+        if dt is not None and dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
         if dt is not None and (now - dt).days > max_age_days:
             continue
         kept.append(e)

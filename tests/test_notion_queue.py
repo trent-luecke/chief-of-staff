@@ -54,6 +54,18 @@ def test_prune_text_drops_old_keeps_recent_and_undated():
     assert "recent" in kept and "undated" in kept
 
 
+def test_prune_text_naive_timestamp_treated_as_utc_not_crash():
+    now = datetime(2026, 8, 13, tzinfo=timezone.utc)
+    old_naive = "2026-06-01T00:00:00"      # 40+ days old, NO tz offset
+    recent_naive = (now - timedelta(days=3)).replace(tzinfo=None).isoformat()  # naive, recent
+    text = (
+        json.dumps({"id": "old", "timestamp": old_naive}) + "\n"
+        + json.dumps({"id": "recent", "timestamp": recent_naive}) + "\n"
+    )
+    kept = [e["id"] for e in parse_jsonl(prune_text(text, 30, now))]   # must not raise
+    assert "old" not in kept and "recent" in kept
+
+
 def test_prune_file_rewrites_and_returns_removed(tmp_path):
     now = datetime(2026, 8, 13, tzinfo=timezone.utc)
     old = (now - timedelta(days=40)).isoformat()
