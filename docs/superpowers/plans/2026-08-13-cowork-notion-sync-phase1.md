@@ -439,6 +439,7 @@ Replace the read-array→mutate→write-whole-array logic (a lost-write/conflict
 **Files:**
 - Modify: `processors/query_tools.py` (`_tool_queue_notion_update`)
 - Modify: `config.json` (add `notion_queue_path`)
+- Modify: `.github/workflows/ask.yml` (commit-back `git add` — the Telegram bot writes the queue on the Actions runner)
 - Create: `tests/test_query_tools_queue.py`
 
 **Interfaces:**
@@ -565,10 +566,24 @@ Verify JSON is still valid:
 Run: `python -c "import json; json.load(open('config.json')); print('ok')"`
 Expected: `ok`
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Fix the Telegram bot's commit-back path**
+
+The Telegram bot (`ask.py`, run by `ask.yml`) calls `queue_notion_update`, writing the queue on the Actions runner; its commit-back must reference the new `.jsonl` file or entries are silently lost. In `.github/workflows/ask.yml`, on the `git add` line of the "sync bot data" step, replace `data/notion_updates_queue.json` with `data/notion_updates_queue.jsonl`:
+
+```diff
+-          git add data/notion_updates_queue.json data/brief_prefs.md data/pending_change.json data/people/ data/projects.md data/tasks.jsonl data/meetings.jsonl 2>/dev/null || true
++          git add data/notion_updates_queue.jsonl data/brief_prefs.md data/pending_change.json data/people/ data/projects.md data/tasks.jsonl data/meetings.jsonl 2>/dev/null || true
+```
+
+Verify no other workflow still references the old `.json` path:
+
+Run: `grep -rn "notion_updates_queue.json\b" .github/workflows/`
+Expected: no matches (all references now `.jsonl`).
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add processors/query_tools.py tests/test_query_tools_queue.py config.json
+git add processors/query_tools.py tests/test_query_tools_queue.py config.json .github/workflows/ask.yml
 git commit -m "feat(query-tools): queue_notion_update appends JSONL (fixes lost-write on concurrent queue writes)"
 ```
 
