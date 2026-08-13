@@ -316,6 +316,7 @@ def _tool_queue_notion_update(
 ) -> str:
     import uuid
     from datetime import datetime, timezone
+    from lib.notion_queue import append_entries, DEFAULT_QUEUE_PATH
 
     valid_actions = {"add_note", "update_stage", "set_follow_up", "delete_record"}
     if action not in valid_actions:
@@ -323,17 +324,13 @@ def _tool_queue_notion_update(
     if action == "delete_record" and not reason:
         return "reason is required for delete_record actions."
 
-    queue_path = config.get("notion_queue_path", "data/notion_updates_queue.json")
-    try:
-        with open(queue_path) as f:
-            queue = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        queue = []
-
+    queue_path = config.get("notion_queue_path", DEFAULT_QUEUE_PATH)
     entry: dict[str, Any] = {
         "id": str(uuid.uuid4()),
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "person": person,
+        "source": "manual",
+        "target": "pipeline",
+        "name": person,
         "action": action,
     }
     if note:
@@ -345,10 +342,7 @@ def _tool_queue_notion_update(
     if reason:
         entry["reason"] = reason
 
-    queue.append(entry)
-    os.makedirs(os.path.dirname(queue_path) or ".", exist_ok=True)
-    with open(queue_path, "w") as f:
-        json.dump(queue, f, indent=2)
+    append_entries(queue_path, [entry])
 
     action_desc = {
         "add_note": f"note queued for {person}",
