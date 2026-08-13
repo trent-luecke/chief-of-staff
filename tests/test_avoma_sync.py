@@ -117,3 +117,49 @@ def test_delivery_does_not_exit_on_success():
 
     # Should not raise
     run_delivery(MagicMock(return_value="ts.001"))
+
+
+# ── build_queue_entries ────────────────────────────────────────────────────────
+
+def test_build_queue_entries_pipeline_shape():
+    from scripts.avoma_sync import build_queue_entries
+    pu = [{
+        "lead_name": "Acme Corp", "call_type": "demo", "call_date": "2026-06-06",
+        "inferred_status": "In-Trial / Post Demo", "summary": "Strong interest.",
+        "is_new_lead": True, "account_owner": "Chris",
+        "buying_signals": ["timeline"], "objections": [], "call_uuid": "u-123",
+    }]
+    entries = build_queue_entries(pu, [], now="2026-06-06T12:00:00Z")
+    assert len(entries) == 1
+    e = entries[0]
+    assert e["id"] == "avoma:u-123"
+    assert e["source"] == "avoma" and e["target"] == "pipeline"
+    assert e["name"] == "Acme Corp" and e["action"] == "update"
+    assert e["inferred_status"] == "In-Trial / Post Demo"
+    assert e["is_new_lead"] is True and e["account_owner"] == "Chris"
+    assert e["timestamp"] == "2026-06-06T12:00:00Z"
+
+
+def test_build_queue_entries_onboarding_shape():
+    from scripts.avoma_sync import build_queue_entries
+    ou = [{
+        "customer_name": "Alina Bushma", "call_date": "2026-08-12",
+        "onboarding_completed": ["Scheduling walkthrough"],
+        "onboarding_next_steps": ["Explore independently"],
+        "status_update": "In progress", "summary": "Engaged.", "call_uuid": "u-9",
+    }]
+    entries = build_queue_entries([], ou, now="2026-08-12T12:00:00Z")
+    e = entries[0]
+    assert e["id"] == "avoma:u-9" and e["target"] == "onboarding"
+    assert e["name"] == "Alina Bushma"
+    assert e["onboarding_completed"] == ["Scheduling walkthrough"]
+    assert e["status_update"] == "In progress"
+
+
+def test_build_queue_entries_id_fallback_without_uuid():
+    from scripts.avoma_sync import build_queue_entries
+    pu = [{"lead_name": "No UUID Co", "call_date": "2026-06-06", "call_type": "demo",
+           "inferred_status": "Post Demo", "summary": "", "is_new_lead": False,
+           "account_owner": None, "buying_signals": [], "objections": []}]
+    entries = build_queue_entries(pu, [], now="2026-06-06T12:00:00Z")
+    assert entries[0]["id"] == "avoma:No UUID Co:2026-06-06"
