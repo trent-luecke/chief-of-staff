@@ -1,12 +1,12 @@
 {
-  "synced_at": "2026-08-13T07:17:45Z",
+  "synced_at": "2026-08-14T07:35:09Z",
   "records": [
     {
       "page_id": "30d24bca-36d7-8194-937d-f0ec76c18b3a",
       "customer_name": "Strength House",
       "customer_email": null,
       "status": "Live",
-      "current_phase": "Phase 1 — Initial Setup",
+      "current_phase": "Phase 7 — Final Steps",
       "sales_rep": "Trent",
       "start_date": null,
       "target_go_live_date": null
@@ -65,8 +65,8 @@
       "page_id": "39524bca-36d7-8190-b4bb-e0e6b9333eba",
       "customer_name": "PWR Dundalk",
       "customer_email": null,
-      "status": "In Progress",
-      "current_phase": "Phase 1 — Initial Setup",
+      "status": "Live",
+      "current_phase": "Phase 7 — Final Steps",
       "sales_rep": "Trent",
       "start_date": null,
       "target_go_live_date": "2026-08-01"
