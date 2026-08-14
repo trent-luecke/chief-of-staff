@@ -15,7 +15,8 @@ Automated morning task: apply the queued Avoma call updates to the Notion tracke
 4. Mark everything processed so it is never reapplied:
    `python scripts/notion_sync_consumer.py mark-seen <space-separated processed_ids>`
 
-5. Post the summary (build the payload JSON from your lists):
-   `python scripts/notion_sync_consumer.py summary --today <YYYY-MM-DD today> --json '{"applied": [...], "flagged": [...], "pending": [...]}'`
+5. Generate the summary text (do NOT let the subcommand post it — `slack_sdk` is not available in this sandbox, so only `--dry-run` is safe; it prints the text and returns before any Slack SDK import):
+   `python scripts/notion_sync_consumer.py summary --today <YYYY-MM-DD today> --dry-run --json '{"applied": [...], "flagged": [...], "pending": [...]}'`
+   If the printed output begins with "📥 Notion Sync", post that exact text as a Slack DM to user U04ECG6KEA3 using the Slack connector. Otherwise (it prints the "nothing synced" line, or is empty), post nothing.
 
 Rules: only READ/WRITE the specific Notion records named in the entries. Never touch other records. If a single entry errors, skip it (do NOT mark it seen) and continue; note it in flagged as "ERROR applying <name>".
