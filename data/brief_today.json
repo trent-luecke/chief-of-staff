@@ -1,12 +1,21 @@
 {
-  "date": "2026-08-13",
-  "generated_at": "2026-08-13T12:43:34.365810+00:00",
+  "date": "2026-08-14",
+  "generated_at": "2026-08-14T12:08:29.366849+00:00",
   "meetings": [
     {
-      "id": "2lc03kedb99jd5k5i36aspbcns",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260814T133000Z",
+      "title": "Focus Work",
+      "start": "2026-08-14T08:30:00-05:00",
+      "end": "2026-08-14T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "02iqosd5b0dj62l1rfgag6872l",
       "title": "Trent / Teofe",
-      "start": "2026-08-13T08:30:00-05:00",
-      "end": "2026-08-13T10:00:00-05:00",
+      "start": "2026-08-14T09:15:00-05:00",
+      "end": "2026-08-14T10:15:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -17,32 +26,26 @@
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20260813T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-08-13T12:00:00-05:00",
-      "end": "2026-08-13T12:30:00-05:00",
+      "id": "7s3kqrui4tb3duv1su960fskjs",
+      "title": "Kiosk Chat",
+      "start": "2026-08-14T11:30:00-05:00",
+      "end": "2026-08-14T12:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "luke@teambuildr.com",
+          "email": "andrea@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### AI for Sales Team\n**Status:** Decision made \u2014 Trent is the centralized AI builder; reps don't get open seats.\n- Next: Gate access behind a rep making a concrete case; Trent builds to spec\n- **No open tasks / no blocker** \u2014 decision landed last session, no follow-up action outstanding\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In active development \u2014 testing phase is next.\n- Next: Create a fake onboarding script and feed it to Claude onboarding for testing\n- **No blocker** \u2014 clear next action queued\n\n---\n\n### StoryBuildr\n**Status:** In progress \u2014 UI/UX review underway.\n- Next: Audit individual stage design and layout\n- **No blocker** \u2014 clear next action queued\n\n---\n\n### Competitive Content (Vibe-Coded Platforms)\n**Status:** Idea promoted to task \u2014 content not yet started.\n- Next: Create content highlighting risks of vibe-coded gym-management platforms, tied to LaunchOS \"one place to do everything\" positioning\n- **No blocker** \u2014 open task, hasn't been picked up yet\n\n---\n\n### Sales / Pipeline\n**Status:** July was a strong month; August dip expected and accepted.\n- Pipeline: 23 total \u2014 13 In-Trial/Post Demo, 7 No Trial/Post Demo, 2 On-Hold, 1 needs update\n- Demos MTD: 2\n- Luke's framing: ~5/month is now the floor; more double-digit months is the aspiration for next year\n- **No blocker** \u2014 August softness is anticipated, not a concern",
-      "prep_hash": "6b98bec78d02"
+      "prep": null
     },
     {
-      "id": "45s8rv377e8v0kfre6946k2cn8",
-      "title": "Will Johnson & Trent Luecke: OS Reconnect",
-      "start": "2026-08-13T14:00:00-05:00",
-      "end": "2026-08-13T14:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "will.aj10@gmail.com",
-          "name": ""
-        }
-      ],
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260814T193000Z",
+      "title": "Out of office",
+      "start": "2026-08-14T14:30:00-05:00",
+      "end": "2026-08-14T17:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
