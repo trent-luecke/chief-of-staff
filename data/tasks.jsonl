@@ -248,3 +248,4 @@
 {"event": "complete", "task_id": "t-b037e4", "completed_at": "2026-08-10"}
 {"event": "create", "task_id": "t-653f3a", "title": "whats the best way for me to pass of ideas/tasks that are more suited to a FastTwitch cycle?", "source": "meeting-teofe", "created_at": "2026-08-13", "due_date": null, "metadata": {"meeting_id": "teofe", "thread_id": "th-986f61"}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-674d0b", "title": "create loom overview of At-Risk report for pre-dev-check", "source": "ui", "created_at": "2026-08-14", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-17"}
+{"event": "create", "task_id": "t-45224b", "title": "create project spec for Kiosk changes", "source": "ui", "created_at": "2026-08-14", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-08-17"}
