@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-14T00:00:00Z",
+  "fetched_at": "2026-08-15T23:03:38.000Z",
   "leads": [
     {
       "name": "Kim Johnston",
@@ -90,17 +90,6 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
-      "estimated_value": null,
-      "source": "Inbound Email",
-      "stale": false
-    },
-    {
       "name": "Baxter Pattison",
       "contact": "",
       "email": "",
@@ -112,14 +101,14 @@
       "stale": false
     },
     {
-      "name": "Wave Wellness",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-17",
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
       "estimated_value": null,
-      "source": "",
+      "source": "Inbound Email",
       "stale": false
     },
     {
@@ -129,6 +118,17 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-07-28",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Wave Wellness",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-17",
       "estimated_value": null,
       "source": "",
       "stale": false
