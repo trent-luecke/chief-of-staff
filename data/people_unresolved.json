@@ -511,6 +511,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-08-13"
+    },
+    {
+      "entity": "Will Johnson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-14"
     }
   ],
   "previously_notified": [
