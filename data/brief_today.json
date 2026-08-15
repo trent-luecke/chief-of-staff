@@ -1,49 +1,12 @@
 {
-  "date": "2026-08-14",
-  "generated_at": "2026-08-14T12:41:11.728937+00:00",
+  "date": "2026-08-15",
+  "generated_at": "2026-08-15T12:08:28.113244+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20260814T133000Z",
-      "title": "Focus Work",
-      "start": "2026-08-14T08:30:00-05:00",
-      "end": "2026-08-14T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "02iqosd5b0dj62l1rfgag6872l",
-      "title": "Trent / Teofe",
-      "start": "2026-08-14T09:15:00-05:00",
-      "end": "2026-08-14T10:15:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "7s3kqrui4tb3duv1su960fskjs",
-      "title": "Kiosk Chat",
-      "start": "2026-08-14T11:30:00-05:00",
-      "end": "2026-08-14T12:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20260814T193000Z",
-      "title": "Out of office",
-      "start": "2026-08-14T14:30:00-05:00",
-      "end": "2026-08-14T17:30:00-05:00",
+      "id": "6rro7upqc65ug3umn770e1rq09_20260815T130000Z",
+      "title": "OS Weekend Support (Trent)",
+      "start": "2026-08-15T08:00:00-05:00",
+      "end": "2026-08-15T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
