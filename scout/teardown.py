@@ -2,8 +2,20 @@
 import hashlib
 import logging
 import re
+from urllib.parse import urlparse
+
+from . import discovery
 
 log = logging.getLogger(__name__)
+
+# Path keywords ranked by teardown value; a sub-page's score is the highest
+# tier whose keyword appears in its URL path. Score 0 → not scraped.
+_PATH_KEYWORDS = {
+    "pricing": 3, "plan": 3, "cost": 3,
+    "feature": 2, "product": 2, "tour": 2, "how-it-works": 2,
+    "platform": 2, "solution": 2, "demo": 2,
+    "about": 1,
+}
 
 ANALYSIS_MODEL = "claude-opus-4-8"
 
@@ -61,7 +73,40 @@ TEARDOWN_TOOL = {
     },
 }
 
-_PAGE_PATHS = ["", "pricing", "features", "product", "about"]
+# Legacy blind-guess paths, used only as a fallback when the homepage
+# exposes no usable links to guide selection.
+_FALLBACK_PATHS = ["pricing", "features"]
+
+
+def _path_score(url: str) -> int:
+    path = urlparse(url).path.lower()
+    scores = [w for kw, w in _PATH_KEYWORDS.items() if kw in path]
+    return max(scores) if scores else 0
+
+
+def select_subpages(base_url: str, links: list, limit: int = 3) -> list:
+    """Pick the most teardown-relevant same-domain sub-pages from a link list.
+
+    Ranks by keyword tier (pricing/plans > features/product/tour > about),
+    drops the homepage, off-domain links, and irrelevant paths, dedups on the
+    normalized (no trailing slash) URL, and returns at most `limit` URLs.
+    """
+    base_domain = discovery.extract_domain(base_url)
+    home = base_url.rstrip("/")
+    seen = set()
+    scored = []
+    for link in links:
+        if discovery.extract_domain(link) != base_domain:
+            continue
+        norm = link.rstrip("/")
+        if norm == home or norm in seen:
+            continue
+        seen.add(norm)
+        score = _path_score(norm)
+        if score > 0:
+            scored.append((score, norm))
+    scored.sort(key=lambda t: (-t[0], t[1]))  # tier desc, then URL for determinism
+    return [u for _, u in scored[:limit]]
 
 
 def content_hash(text: str) -> str:
@@ -69,16 +114,20 @@ def content_hash(text: str) -> str:
     return hashlib.sha256(norm.encode("utf-8")).hexdigest()
 
 
-def scrape_platform(fc, url: str) -> str | None:
+def scrape_platform(fc, url: str, max_subpages: int = 3) -> str | None:
     base = url.rstrip("/")
-    home = fc.scrape(base + "/")
+    home, links = fc.scrape_with_links(base + "/")
     if not home:
         return None
     parts = [home]
-    for path in _PAGE_PATHS[1:]:
-        md = fc.scrape(f"{base}/{path}")
+    subpages = select_subpages(base + "/", links, limit=max_subpages)
+    if not subpages:  # homepage exposed no usable links → legacy blind guesses
+        subpages = [f"{base}/{p}" for p in _FALLBACK_PATHS]
+    for sub in subpages:
+        md = fc.scrape(sub)
         if md:
-            parts.append(f"\n\n--- /{path} ---\n{md}")
+            label = sub[len(base):].strip("/") or "home"
+            parts.append(f"\n\n--- /{label} ---\n{md}")
     return "\n".join(parts)
 
 
