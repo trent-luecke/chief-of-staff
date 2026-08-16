@@ -31,3 +31,51 @@
 - **Code:** `backend/app/modules/bookings/routes/createOneAppointmentBooking.ts:29-34,63-71` and the `ignoreConflict` arg to `Booking.bookAppointment` in the booking loop
 - **Severity:** high
 - **Discovered:** 2026-08-12 · analysis:member-booked-appointments
+
+### Reports have NO point-in-time snapshots — stock metrics are not historically reconstructable
+- **Depends on:** any weekly/monthly *review* assumes it can read "active members at end of last month," month-end client count, MRR/ARM as-of-a-date, and month-over-month stock deltas
+- **Held by:** the reporting subsystem is entirely live queries over event tables filtered by a date range (`reports/helpers/dateRange.ts` = `field BETWEEN gte AND lte`). Flow metrics (New Members `Account.createdAt`, Revenue `Sale.invoiceDate`, Sign-Ins `Booking.startDate`) reconstruct for any past window because the event timestamp is immutable, and `prevDateRange.ts` already yields a prior-period delta. But **stock/point-in-time metrics are computed from CURRENT state only** — active-member counts come from live list filters (`accounts/readMany.ts` `isActive=1`), ARM from currently-active contracts (`contracts/readMany.ts` `endDate>now`). Grep confirms **zero** snapshot/`asOf`/month-end tables in the codebase.
+- **Invalidated when:** state/lifecycle change — a review that quotes month-end stock or MoM stock deltas. There is no way to answer "active members on July 31" after the fact. Mission Control must either start writing its own periodic snapshots going forward (net-new state + lifecycle; no back-fill for history before it starts) or restrict point-in-time rows to event-timestamped flow metrics.
+- **Code:** `backend/app/modules/reports/helpers/dateRange.ts`, `prevDateRange.ts`; stock sources `accounts/routes/readMany.ts:273-320`, `contracts/routes/readMany.ts:220-259`
+- **Severity:** high
+- **Discovered:** 2026-08-12 · analysis:mission-control
+
+### "Active member" has no single canonical definition; the overview report has none at all
+- **Depends on:** a single scorecard assumes one authoritative "active members" number
+- **Held by:** OS has ≥3 divergent definitions and none live in `reports/`: `ACTIVE_MEMBERS` = `account.isActive=1`; `ACTIVE_MEMBERSHIPS` = `isActive=1` + a required active contract (`accounts/routes/readMany.ts:273-320`); `contracts/routes/readMany.ts` "active" = contract with `!endDate || endDate>param`. `reports/helpers/members/membersGetSummary.ts` returns only NEW-account counts, not an active count.
+- **Invalidated when:** data coupling — composing one "active members" row forces a canonical choice that will disagree with numbers owners already see on other OS screens. Definition-ownership must be assigned before build.
+- **Code:** `accounts/routes/readMany.ts:273-320`, `contracts/routes/readMany.ts:220-259`, `accounts/abstractions/MembershipStatusOptions.ts`
+- **Severity:** high
+- **Discovered:** 2026-08-12 · analysis:mission-control
+
+### Derived business metrics (LTV, attrition, people/session, collected-revenue ARM) do not exist in code
+- **Depends on:** "compose metrics OS already computes" assumes LTV / attrition / ARM / people-per-session are computed today
+- **Held by:** grep finds **zero** churn/attrition/retention/LTV code in the backend. "# Sessions" (classes/appointments run) is counted nowhere in `reports/`. The only ARM-like calc (`contracts/readMany.ts:230-250` `averageValue`) is over *contracted MRR* with a hardcoded `WEEKS_IN_A_MONTH = 4.3` fudge (not collected revenue), and its own code comment concedes owners complain the number is off.
+- **Invalidated when:** data coupling — "compose existing data" silently becomes "build + own the definition of 4 net-new metrics," moving both the effort estimate and the definition-ownership question.
+- **Code:** absent by design; nearest artifact `contracts/routes/readMany.ts:230-250`
+- **Severity:** high
+- **Discovered:** 2026-08-12 · analysis:mission-control
+
+### Gross Revenue is a filtered internal-ledger sum (matchSucceededSale + isBlossom), not raw Stripe
+- **Depends on:** a revenue row assumes a clean, processor-agnostic gross number
+- **Held by:** revenue = `SUM(Sale.total)` where `origin ∈ {contract,retail,invoice}` AND `transactionStatus ∈ {succeeded,refund,paid}` AND `isBlossom:false` (`reports/constants.ts:matchSucceededSale`, `salesGetData.ts`). `Sale` is OS's internal ledger with a `paymentProvider` field (Stripe is one of several) populated by contract-billing crons / retail / upgrades — so revenue needs OS to have *recorded* the sale, not Stripe specifically. Refund-status rows are included in the SUM.
+- **Invalidated when:** data coupling — (a) Mission Control must replicate this exact filter or its revenue won't tie to the Sales report owners already see; (b) refund inclusion makes gross-vs-net ambiguous (depends on sign of refund `total`); (c) gyms billing entirely outside OS have no `Sale` rows → revenue/ARM/LTV render empty, not $0.
+- **Code:** `backend/app/modules/reports/constants.ts` (`matchSucceededSale`), `reports/helpers/sales/salesGetData.ts`, `sales/mysqlModel.ts` (`paymentProvider`, `isBlossom`), `crons/routes/contractCrons.ts:184`
+- **Severity:** med
+- **Discovered:** 2026-08-12 · analysis:mission-control
+
+### Terminations & freezes are mutable current-state, not an immutable event log
+- **Depends on:** "terminations this month" / "freezes this month" assume a stable, timestamped event to count
+- **Held by:** termination lives on `Contract.endDate` + `isCanceled`/`hasEnded` flags — **no `canceledAt` timestamp, no churn/termination event table**. Freezes live on `pauses.pauseStartDate/pauseEndDate` (and `contractsPauses`), editable/deletable. Both are queryable by their date fields but scheduled cancels are future-dated and cancels/pauses are reversible.
+- **Invalidated when:** state/lifecycle — a historical review figure recomputed later can change (a cancel entered after the fact, or reversed). Fine for a live glance, shaky as an audit-grade monthly number.
+- **Code:** `backend/app/modules/contracts/mysqlModel.ts` (`endDate,isCanceled,hasEnded,cancelReason`), `pauses/mysqlModel.ts`, `contractsPauses/mysqlModel.ts`
+- **Severity:** med
+- **Discovered:** 2026-08-12 · analysis:mission-control
+
+### Report endpoints are single-studio; no cross-customer aggregate exists
+- **Depends on:** a per-gym-per-week review across the whole customer base assumes a batch/aggregate read path
+- **Held by:** every report route is scoped by the `blsm-studio-id` header via `Studio.assertFindByReq` and gated `[OWNER, ADMIN]` (overview/graphs). There is no all-studios endpoint. The one system-integration precedent is `reports/routes/teambuildr/quickStats.ts` (`apiKeyAuth:true` + `assertFindByReq(req, [])`).
+- **Invalidated when:** scale/cardinality + actor — Mission Control's batch runs as a TeamBuildr system/superadmin actor calling the studio-scoped endpoints N times (per-call queries are cheap single COUNT/SUM, DB-side; cost is N × (queries + one Claude call)). Confirm the system actor is authorized to read owner-gated data and that per-gym member-level "who to call" detail surfaced in an AI summary (and any email/Slack push) doesn't cross the PII boundary the owner-gated report UI currently holds.
+- **Code:** `reports/routes/getOverview.ts:27-30`, `reports/routes/teambuildr/quickStats.ts:14,47-48`
+- **Severity:** med
+- **Discovered:** 2026-08-12 · analysis:mission-control
