@@ -73,3 +73,29 @@ class FirecrawlClient:
         except Exception as e:
             log.error(f"Firecrawl scrape failed for '{url}': {e}")
             return None
+
+    def scrape_with_links(self, url: str) -> tuple[str | None, list]:
+        """Scrape a URL, returning (markdown, on-page links). One credit — the
+        `links` format piggybacks on the same scrape. (None, []) on failure."""
+        if not self.api_key:
+            log.warning("FIRECRAWL_API_KEY not set — scrape skipped")
+            return None, []
+        try:
+            for attempt in range(1, MAX_ATTEMPTS + 1):
+                resp = requests.post(
+                    f"{BASE_URL}/scrape",
+                    headers=self.headers,
+                    json={"url": url, "formats": ["markdown", "links"]},
+                    timeout=TIMEOUT,
+                )
+                if resp.status_code == 429 and attempt < MAX_ATTEMPTS:
+                    log.warning(f"Firecrawl scrape 429 for '{url}', retrying (attempt {attempt})")
+                    time.sleep(5 * attempt)
+                    continue
+                break
+            resp.raise_for_status()
+            data = resp.json().get("data", {}) or {}
+            return data.get("markdown"), (data.get("links") or [])
+        except Exception as e:
+            log.error(f"Firecrawl scrape failed for '{url}': {e}")
+            return None, []

@@ -49,6 +49,48 @@ def test_scrape_returns_none_on_error(monkeypatch):
     assert fc.scrape("https://a.com") is None
 
 
+def test_scrape_with_links_parses_markdown_and_links(monkeypatch):
+    payload = {"data": {"markdown": "# Home",
+                        "links": ["https://a.com/pricing", "https://a.com/about"]}}
+    monkeypatch.setattr("scout.firecrawl_client.requests.post",
+                        lambda *a, **k: _FakeResp(200, payload))
+    fc = FirecrawlClient("key")
+    md, links = fc.scrape_with_links("https://a.com/")
+    assert md == "# Home"
+    assert links == ["https://a.com/pricing", "https://a.com/about"]
+
+
+def test_scrape_with_links_requests_links_format(monkeypatch):
+    captured = {}
+
+    def fake_post(*a, **k):
+        captured.update(k.get("json", {}))
+        return _FakeResp(200, {"data": {"markdown": "x", "links": []}})
+
+    monkeypatch.setattr("scout.firecrawl_client.requests.post", fake_post)
+    FirecrawlClient("key").scrape_with_links("https://a.com/")
+    assert "markdown" in captured["formats"]
+    assert "links" in captured["formats"]
+
+
+def test_scrape_with_links_returns_empty_on_error(monkeypatch):
+    monkeypatch.setattr("scout.firecrawl_client.requests.post",
+                        lambda *a, **k: _FakeResp(500, {}))
+    fc = FirecrawlClient("key")
+    md, links = fc.scrape_with_links("https://a.com/")
+    assert md is None
+    assert links == []
+
+
+def test_scrape_with_links_tolerates_missing_links_key(monkeypatch):
+    monkeypatch.setattr("scout.firecrawl_client.requests.post",
+                        lambda *a, **k: _FakeResp(200, {"data": {"markdown": "# H"}}))
+    fc = FirecrawlClient("key")
+    md, links = fc.scrape_with_links("https://a.com/")
+    assert md == "# H"
+    assert links == []
+
+
 def test_search_retries_on_429(monkeypatch):
     calls = []
     payload = {"data": [{"url": "https://a.com", "title": "A", "markdown": "# A"}]}

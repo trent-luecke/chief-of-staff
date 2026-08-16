@@ -9,13 +9,46 @@ def test_content_hash_stable_and_normalized():
 
 
 class _FakeFC:
-    def __init__(self, pages):  # pages: dict[url_substr] -> markdown
+    def __init__(self, pages, links=None):  # pages: dict[url_substr] -> markdown
         self.pages = pages
+        self.links = links or []
+        self.scraped = []  # records sub-page scrape() calls
+    def scrape_with_links(self, url):
+        for key, md in self.pages.items():
+            if key in url:
+                return md, self.links
+        return None, []
     def scrape(self, url):
+        self.scraped.append(url)
         for key, md in self.pages.items():
             if key in url:
                 return md
         return None
+
+
+def test_scrape_platform_uses_link_guided_subpages():
+    fc = _FakeFC(
+        {"coachway.io": "# Coachway home"},
+        links=["https://coachway.io/pricing", "https://coachway.io/blog/x",
+               "https://coachway.io/about"],
+    )
+    content = teardown.scrape_platform(fc, "https://coachway.io/")
+    assert content is not None
+    assert any("coachway.io/pricing" in u for u in fc.scraped)  # relevant → scraped
+    assert not any("/blog/" in u for u in fc.scraped)           # irrelevant → skipped
+
+
+def test_scrape_platform_falls_back_when_no_links():
+    fc = _FakeFC({"coachway.io": "# Coachway home"}, links=[])
+    content = teardown.scrape_platform(fc, "https://coachway.io/")
+    assert content is not None
+    assert any(u.endswith("/pricing") for u in fc.scraped)
+    assert any(u.endswith("/features") for u in fc.scraped)
+
+
+def test_scrape_platform_returns_none_when_homepage_fails():
+    fc = _FakeFC({}, links=[])  # scrape_with_links -> (None, [])
+    assert teardown.scrape_platform(fc, "https://dead.com/") is None
 
 
 _TEARDOWN_JSON = {
