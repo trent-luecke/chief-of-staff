@@ -1,7 +1,127 @@
 {
-  "date": "2026-08-16",
-  "generated_at": "2026-08-16T12:19:19.883923+00:00",
-  "meetings": [],
+  "date": "2026-08-17",
+  "generated_at": "2026-08-17T12:05:45.555711+00:00",
+  "meetings": [
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260817T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-08-17T10:00:00-05:00",
+      "end": "2026-08-17T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260817T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-08-17T10:30:00-05:00",
+      "end": "2026-08-17T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4gijet7babjo7a3gnrq1kl89iv",
+      "title": "TBOS Cycle 4 project",
+      "start": "2026-08-17T11:00:00-05:00",
+      "end": "2026-08-17T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "nick@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260817T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-08-17T12:30:00-05:00",
+      "end": "2026-08-17T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4anrrjtkj2vv3m0ufjkmsrej9e_20260817T180000Z",
+      "title": "Member Booked Appts",
+      "start": "2026-08-17T13:00:00-05:00",
+      "end": "2026-08-17T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nick@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "cvql8694hm4r2goe8feiif3mlc",
+      "title": "School pick up",
+      "start": "2026-08-17T14:15:00-05:00",
+      "end": "2026-08-17T15:45:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
@@ -9,6 +129,20 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-674d0b",
+      "title": "create loom overview of At-Risk report for pre-dev-check",
+      "reason": "horizon",
+      "due_date": null,
+      "project_id": null
+    },
+    {
+      "id": "t-45224b",
+      "title": "create project spec for Kiosk changes",
+      "reason": "horizon",
+      "due_date": null,
+      "project_id": null
     }
   ],
   "what_moved": []
