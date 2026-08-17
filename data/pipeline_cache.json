@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-16T23:03:33.000Z",
+  "fetched_at": "2026-08-17T00:00:00.000Z",
   "leads": [
     {
       "name": "Kim Johnston",
@@ -13,7 +13,7 @@
       "stale": false
     },
     {
-      "name": "High Ground Performance (Taino Fears-Perez)",
+      "name": "David Arcemant",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -24,7 +24,7 @@
       "stale": false
     },
     {
-      "name": "David Arcemant",
+      "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -79,14 +79,14 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
       "estimated_value": null,
-      "source": "",
+      "source": "Inbound Email",
       "stale": false
     },
     {
@@ -101,14 +101,14 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
+      "priority": "",
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
-      "source": "Inbound Email",
+      "source": "",
       "stale": false
     },
     {
