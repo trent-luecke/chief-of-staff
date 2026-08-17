@@ -253,3 +253,4 @@
 {"event": "create", "task_id": "t-e208ef", "title": "email ExcessaFit about being late to call because of back to school night on Thursday", "source": "slack", "created_at": "2026-08-16", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": "trent-luecke", "horizon": null}
 {"event": "complete", "task_id": "t-7937ae", "completed_at": "2026-08-17"}
 {"event": "complete", "task_id": "t-674d0b", "completed_at": "2026-08-17"}
+{"event": "complete", "task_id": "t-2e6ae1", "completed_at": "2026-08-17"}
