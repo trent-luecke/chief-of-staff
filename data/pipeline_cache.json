@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-17T00:00:00.000Z",
+  "fetched_at": "2026-08-18T00:00:00Z",
   "leads": [
     {
       "name": "Kim Johnston",
@@ -79,28 +79,6 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
-      "estimated_value": null,
-      "source": "Inbound Email",
-      "stale": false
-    },
-    {
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-01",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Sam Tardif",
       "contact": "",
       "email": "",
@@ -112,12 +90,34 @@
       "stale": false
     },
     {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
+      "stale": false
+    },
+    {
       "name": "Jamie Tellier",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-07-28",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Baxter Pattison",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": "",
       "stale": false
