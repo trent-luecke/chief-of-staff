@@ -20,7 +20,7 @@ def test_refresh_builds_events_cache_and_pushes(tmp_path):
                                  fetched_at="2026-08-18T00:00:00Z",
                                  base_url="https://engine", password="pw")
     assert out == {"deals": 1, "appended": 1, "pushed": True}
-    cache = s.read_json("pipeline_cache.json")
+    cache = s.read_json("deal_pipeline_cache.json")
     assert cache["leads"][0]["email"] == "jane@acme.com"
     assert cache["leads"][0]["status"] == "demoed"
     assert mp.call_count == 1

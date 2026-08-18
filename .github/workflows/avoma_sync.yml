@@ -46,6 +46,7 @@ jobs:
           git add data/notion_updates_queue.jsonl 2>/dev/null || true
           git add data/deal_events.jsonl 2>/dev/null || true
           git add data/deal_crosswalk.json 2>/dev/null || true
+          git add data/deal_pipeline_cache.json 2>/dev/null || true
           git diff --staged --quiet || git commit -m "chore: avoma sync data [skip ci]"
           git pull --rebase origin main || true
           git push origin main || true

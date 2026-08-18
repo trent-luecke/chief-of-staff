@@ -35,6 +35,7 @@ data/*
 !data/routines.json
 !data/deal_events.jsonl
 !data/deal_crosswalk.json
+!data/deal_pipeline_cache.json
 !data/meetings.jsonl
 !data/project_observation_links.jsonl
 !data/state/
