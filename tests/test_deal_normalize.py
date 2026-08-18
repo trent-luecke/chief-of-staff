@@ -48,3 +48,30 @@ def test_non_demo_and_non_os_skipped():
         _demo("u5", [{"name": "X", "email": "x@acme.com"}], ct="follow_up"),
         _demo("u6", [{"name": "Y", "email": "y@acme.com"}], os=False),
     ]) == []
+
+
+def test_automated_sender_only_becomes_unresolved():
+    # A meeting whose only external email is an automated sender (no-reply@zoom.us)
+    # must NOT become a phantom deal — it drops to unresolved/no_email for review.
+    ev = normalize_demo_events([_demo("u7", [{"name": "Zoom", "email": "no-reply@zoom.us"}])])[0]
+    assert ev.email == "unresolved:u7"
+    assert ev.payload["ambiguous_reason"] == "no_email"
+    assert "no-reply@zoom.us" not in ev.payload["contact_emails"]
+
+
+def test_automated_sender_dropped_real_prospect_kept():
+    ev = normalize_demo_events([_demo("u8", [
+        {"name": "Zoom", "email": "no-reply@zoom.us"},
+        {"name": "Jane", "email": "jane@acme.com"},
+    ])])[0]
+    assert ev.email == "jane@acme.com"
+    assert ev.payload["contact_emails"] == ["jane@acme.com"]
+    assert ev.payload["ambiguous_reason"] is None
+
+
+def test_free_email_prospect_is_flagged():
+    # A gmail prospect is still a valid key, but the account isn't derivable —
+    # flag free_email so a human names the account.
+    ev = normalize_demo_events([_demo("u9", [{"name": "Davin", "email": "davinroach@gmail.com"}])])[0]
+    assert ev.email == "davinroach@gmail.com"
+    assert ev.payload["ambiguous_reason"] == "free_email"

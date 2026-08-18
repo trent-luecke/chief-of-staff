@@ -133,9 +133,14 @@ Two review queues over the fold's `review` flags, one surface (Today tab, in a
 written back as a DealEvent, so the fold stays the single source of truth.
 
 **Queue A — Identity review** (`kind=ambiguous`). Fold reason codes: `multi_domain`
-(external attendees span >1 domain in one demo), `no_email` (name-only attendee),
-`generic_inbox` (only `info@`/`sales@`/`office@`), `account_conflict` (new demo
-email matches an existing deal with a different account). Each card shows CoS's
+(external attendees span >1 domain in one demo), `no_email` (name-only attendee,
+or the only external addresses were automated senders — see below),
+`generic_inbox` (only `info@`/`sales@`/`office@`), `free_email` (prospect is on a
+personal domain like gmail.com — a valid key but no derivable account name),
+`account_conflict` (new demo email matches an existing deal with a different
+account). **Automated / non-prospect senders** (`no-reply@…`, and meeting-platform
+domains like `zoom.us`, `calendly.com`) are dropped before keying, so they never
+become phantom deals. Each card shows CoS's
 best-guess primary (email + account + rep), the reason in plain language, and the
 full attendee evidence. Actions → a `manual` DealEvent: **confirm guess** ·
 **choose primary** · **split into N deals** · **merge into existing** ·
