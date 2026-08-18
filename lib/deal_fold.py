@@ -41,6 +41,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
 
     deals: dict[str, Deal] = {}
     for email, evs in by_email.items():
+        evs = sorted(evs, key=lambda e: (e.timestamp or "", e.event_id))
         d = Deal(email=email)
         contacts: list[str] = []
         ambiguous_reason = None
@@ -69,7 +70,8 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
         elif d.cycle_start and _days_since(d.cycle_start, today) >= stale_days:
-            d.review = {"needs": True, "kind": "stale_check", "reason": "aged_%dd" % stale_days}
+            d.review = {"needs": True, "kind": "stale_check", "reason": "aged_%dd" % stale_days,
+                        "proposed": None}
         else:
             d.review = {"needs": False}
 

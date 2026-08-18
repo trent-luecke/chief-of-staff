@@ -57,3 +57,16 @@ def test_unresolved_key_has_blank_account():
     d = build_deals([_demo("u1", "unresolved:u1", "2026-08-15T00:00:00Z", [], reason="no_email")], {}, TODAY)["unresolved:u1"]
     assert d.account_name == ""
     assert d.review["kind"] == "ambiguous"
+
+
+def test_rep_and_reason_are_order_independent():
+    e1 = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"],
+               reason="multi_domain", rep="Luke Martin")
+    e2 = _demo("b", "x@acme.com", "2026-08-12T00:00:00Z", ["x@acme.com"],
+               reason="no_email", rep="Trent Luecke")
+
+    forward = build_deals([e1, e2], {}, TODAY)["x@acme.com"]
+    backward = build_deals([e2, e1], {}, TODAY)["x@acme.com"]
+
+    assert forward.rep == backward.rep
+    assert forward.review == backward.review
