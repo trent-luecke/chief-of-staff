@@ -51,6 +51,19 @@
       ],
       "created": "2026-07-28",
       "last_seen": "2026-08-04"
+    },
+    {
+      "id": "gtm-producer-deal-data-foundation",
+      "canonical_name": "GTM Producer \u2014 Deal Data Foundation",
+      "aliases": [
+        "gtm-producer",
+        "deal-spine",
+        "pipeline-tracker"
+      ],
+      "status": "active",
+      "members": [],
+      "created": "2026-08-18",
+      "last_seen": "2026-08-18"
     }
   ]
 }
