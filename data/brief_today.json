@@ -1,76 +1,22 @@
 {
-  "date": "2026-08-17",
-  "generated_at": "2026-08-17T12:20:55.641983+00:00",
+  "date": "2026-08-18",
+  "generated_at": "2026-08-18T12:05:29.931767+00:00",
   "meetings": [
     {
-      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260817T150000Z",
-      "title": "Stand Up - Sales",
-      "start": "2026-08-17T10:00:00-05:00",
-      "end": "2026-08-17T10:15:00-05:00",
+      "id": "olt4eh3488fftej670gj40dnro_20260818T133000Z",
+      "title": "TeamBuildr OS Weekly Dev Sync",
+      "start": "2026-08-18T08:30:00-05:00",
+      "end": "2026-08-18T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "jeff@teambuildr.com",
+          "email": "kyle@teambuildr.com",
           "name": ""
         },
         {
-          "email": "ryan@teambuildr.com",
+          "email": "luke@teambuildr.com",
           "name": ""
         },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260817T153000Z",
-      "title": "OS \"Sit Down\"",
-      "start": "2026-08-17T10:30:00-05:00",
-      "end": "2026-08-17T11:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "4gijet7babjo7a3gnrq1kl89iv",
-      "title": "TBOS Cycle 4 project",
-      "start": "2026-08-17T11:00:00-05:00",
-      "end": "2026-08-17T12:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nick@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260817T173000Z",
-      "title": "OS Dev sync-Rev table",
-      "start": "2026-08-17T12:30:00-05:00",
-      "end": "2026-08-17T12:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
         {
           "email": "quinn@teambuildr.com",
           "name": ""
@@ -78,27 +24,105 @@
         {
           "email": "brian@teambuildr.com",
           "name": ""
+        },
+        {
+          "email": "elvis@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
         }
       ],
       "prep": null
     },
     {
-      "id": "4anrrjtkj2vv3m0ufjkmsrej9e_20260817T180000Z",
-      "title": "Member Booked Appts",
-      "start": "2026-08-17T13:00:00-05:00",
-      "end": "2026-08-17T14:00:00-05:00",
+      "id": "dd8v77935eol6k905bg547n1j5_20260818T150000Z",
+      "title": "1:1 Weekly OS Meeting",
+      "start": "2026-08-18T10:00:00-05:00",
+      "end": "2026-08-18T10:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "polina@teambuildr.com",
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6c5ogspj1no7ek0l08bsp8rlns",
+      "title": "Trent / Teofe",
+      "start": "2026-08-18T10:30:00-05:00",
+      "end": "2026-08-18T11:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5n2d24j4ceanbkbpq39v9n3ncg",
+      "title": "OS ATN & CJ Audit",
+      "start": "2026-08-18T12:00:00-05:00",
+      "end": "2026-08-18T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
           "name": ""
         },
         {
-          "email": "jasmine@teambuildr.com",
+          "email": "nicole@teambuildr.com",
           "name": ""
         },
         {
-          "email": "josh@teambuildr.com",
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "1n1ipkrudnijothhoj5fluct5r_20260818T180000Z",
+      "title": "Rev Team Meeting",
+      "start": "2026-08-18T13:00:00-05:00",
+      "end": "2026-08-18T13:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "emily@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "evan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "grace@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
           "name": ""
         },
         {
@@ -106,19 +130,70 @@
           "name": ""
         },
         {
-          "email": "nick@teambuildr.com",
+          "email": "clayton@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "elodder@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "kylah@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "csnyder@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "irene@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "heather@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jpaw@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "cora@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "cvql8694hm4r2goe8feiif3mlc",
-      "title": "School pick up",
-      "start": "2026-08-17T14:15:00-05:00",
-      "end": "2026-08-17T15:45:00-05:00",
-      "kind": "internal",
-      "attendees": [],
       "prep": null
     }
   ],
@@ -129,20 +204,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-674d0b",
-      "title": "create loom overview of At-Risk report for pre-dev-check",
-      "reason": "horizon",
-      "due_date": null,
-      "project_id": null
-    },
-    {
-      "id": "t-45224b",
-      "title": "create project spec for Kiosk changes",
-      "reason": "horizon",
-      "due_date": null,
-      "project_id": null
     }
   ],
   "what_moved": []
