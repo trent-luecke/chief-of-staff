@@ -101,8 +101,15 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
   Field mapping: `page_id` = synthetic `deal:{email}`, `name` = account_name,
   `email` = key, `status` = derived stage, `estimated_value` = deal_value,
   `last_contacted` = latest event timestamp, `stale` = deal is in the 45-day
-  review (`review.kind == "stale_check"`). This is the **projection seam** —
-  every existing consumer stays untouched.
+  review (`review.kind == "stale_check"`). This is the **projection seam**.
+  **Phase 1a writes this to a SEPARATE `deal_pipeline_cache.json`, NOT the live
+  `pipeline_cache.json`.** The live cache is Notion-populated (a superset of the
+  demo-only deal store until backfill lands), so overwriting it in 1a would
+  delete real pipeline data that the brief and meeting-prep read. The side file
+  is inspectable for validation and exercises the projection path in production;
+  the live-cache seam-swap — pointing every consumer at the deal store — happens
+  in the backfill phase (t-0867b7), once the deal store is a true superset. Only
+  then are "existing consumers stay untouched" guarantees real.
 
 ### 3.7 `lib/metrics_client.push_deals()` — OMS transport
 - `push_deals(base_url, password, deals)` → `POST /api/deals/ingest`. Non-fatal,
@@ -168,15 +175,20 @@ CoS makes a best-effort automatic call, and **anything uncertain routes to the
 review loop (§3.10) rather than being guessed silently.** The heuristics:
 
 - **Multi-email demo policy.** Real demos carry several prospect emails (e.g.
-  Estacada ×5, same domain = one account). Auto path: within a single demo,
-  **collapse same-domain attendees to one deal** keyed by a deterministic primary
-  email (organizer/booker if identifiable, else first external), retaining the
-  rest as `contact_emails`; **cross-demo merge on any shared contact email.**
-  Anything the auto path can't do confidently — mixed domains, name-only
-  attendees, generic inboxes, account conflicts — is flagged for **Identity
-  review** (Queue A). This is the highest-risk heuristic; validate the auto path
-  against a sample of real demos, and treat the review queue as the safety net
-  while it's tuned.
+  Estacada ×5, same domain = one account). **Phase 1a auto path (within a single
+  demo only):** collapse same-domain attendees to one deal keyed by a
+  deterministic primary email (organizer/booker if identifiable, else first
+  external), retaining the rest as `contact_emails`. **Cross-demo merge (two
+  separate demos that share a contact email → one deal) is deferred to Phase 1b**,
+  where it pairs naturally with the Identity-review queue's merge action (Queue A
+  handles `account_conflict`). Until then the fold groups strictly by primary
+  email, so two demos for one account under different primaries produce two deals
+  — acceptable in 1a because nothing live consumes the counts yet (OMS push is
+  inert until its endpoint exists; the projection writes a side file). Anything
+  the within-demo auto path can't do confidently — mixed domains, name-only
+  attendees, generic inboxes — is flagged for **Identity review** (Queue A). This
+  is the highest-risk heuristic; validate the auto path against a sample of real
+  demos, and treat the review queue as the safety net while it's tuned.
 - **45-day stale rule — human-confirmed, never automatic.** `outcome=open` +
   `cycle_start + 45d` reached → the deal enters the **45-day review** (Queue B),
   which asks Trent to mark it **Lost**, **On hold** (with a check-back date), or
@@ -207,15 +219,18 @@ review loop (§3.10) rather than being guessed silently.** The heuristics:
 
 ## 8. Scope & phasing
 **Phase 1a — the demo spine:** event store, `normalize_email`, demo normalizer
-(incl. the multi-email auto path), `build_deals` (incl. `review` flag
-computation), crosswalk (derived + override), projection to pipeline_cache,
-`push_deals`, orchestration. Proves the spine end-to-end with the one fully
-accessible feed.
+(within-demo multi-email collapse), `build_deals` (incl. `review` flag
+computation), crosswalk (derived + override), projection to a **side file**
+(`deal_pipeline_cache.json`, not the live cache — see §3.6), `push_deals`,
+orchestration. Proves the spine end-to-end with the one fully accessible feed,
+without touching live consumer data.
 
-**Phase 1b — the review loop (§3.10):** the `deals_to_review` block in the Today
-tab, the identity + 45-day queues, and the `/api/deals/<id>/review` and `/status`
-endpoints. Identity review is useful the moment demos flow; the 45-day queue
-activates as deals age (or immediately after backfill).
+**Phase 1b — the review loop (§3.10) + cross-demo merge:** the `deals_to_review`
+block in the Today tab, the identity + 45-day queues, the
+`/api/deals/<id>/review` and `/status` endpoints, and **cross-demo account merge
+on shared contact emails** (pairs with Queue A's merge action). Identity review
+is useful the moment demos flow; the 45-day queue activates as deals age (or
+immediately after backfill).
 
 **Follow-on (tracked tasks, later phases):** trial normalizer (Gmail proxy →
 HubSpot), sale normalizer (needs sheet email column, t-3be14a), Registry UI
