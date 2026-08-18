@@ -87,3 +87,19 @@ def push_demos(base_url: str, password: str, demos: list[dict], timeout: int = 6
     except Exception as e:
         print(f"⚠️  Demo push failed (non-fatal): {e}", file=sys.stderr)
         return {"status": "error", "error": str(e)[:200]}
+
+
+def push_deals(base_url: str, password: str, deals: list[dict], timeout: int = 60) -> dict:
+    """POST resolved deals to the engine /api/deals/ingest. Never raises."""
+    try:
+        resp = requests.post(
+            f"{base_url.rstrip('/')}/api/deals/ingest",
+            auth=("", password),
+            json={"deals": deals},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except Exception as e:
+        print(f"⚠️  Deal push failed (non-fatal): {e}", file=sys.stderr)
+        return {"status": "error", "error": str(e)[:200]}

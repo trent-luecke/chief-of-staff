@@ -55,6 +55,22 @@ def _name_matches_roster(name: str, roster: dict[str, list[str]]) -> str | None:
     return None
 
 
+def _extract_attendees(raw_attendees) -> list[dict]:
+    """Preserve each attendee's name AND email as structured data.
+
+    The raw Avoma ``/v1/meetings`` payload carries both fields; keep them intact
+    (lossless) so downstream can key deals on the prospect email. Internal/rep
+    filtering is a downstream concern, not done here. Skips fully empty entries.
+    """
+    out: list[dict] = []
+    for a in raw_attendees or []:
+        name = (a.get("name") or "").strip()
+        email = (a.get("email") or "").strip()
+        if name or email:
+            out.append({"name": name, "email": email})
+    return out
+
+
 def resolve_demo_rep(speakers, attendees, roster) -> str | None:
     """Resolve the owning rep by fuzzy name. is_rep speaker first, attendee fallback."""
     for s in speakers or []:
@@ -185,6 +201,7 @@ class AvomaTranscript:
     title: str
     start_at: str  # ISO 8601 UTC
     participants: list[str] = field(default_factory=list)
+    attendees: list[dict] = field(default_factory=list)  # [{name, email}] — lossless
     call_type: str = ""  # demo | onboarding | follow_up | other
     os_interested: bool = False
     summary: str = ""
@@ -382,6 +399,7 @@ def fetch_recent_meetings(
                 title=title,
                 start_at=m.get("start_at", ""),
                 participants=participants,
+                attendees=_extract_attendees(attendees),
                 call_type=result.get("call_type", "other"),
                 os_interested=os_interested,
                 summary=result.get("summary", ""),
@@ -444,6 +462,7 @@ def fetch_meeting_by_uuid(
         title=title,
         start_at=m.get("start_at", ""),
         participants=participants,
+        attendees=_extract_attendees(attendees),
         call_type=result.get("call_type", "other"),
         os_interested=bool(result.get("os_interested")),
         summary=result.get("summary", ""),

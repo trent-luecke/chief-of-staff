@@ -1,7 +1,11 @@
 # Avoma-Based OS Demo Detection — Design
 
 **Date:** 2026-06-17
-**Status:** Approved (design); pending implementation plan
+**Status:** ✅ Implemented and LIVE in production (as of 2026-08). Nightly
+`avoma_sync.yml` (cron `0 3 * * *`) runs `detect_demos` → `metrics_client.push_demos`
+→ OMS `POST /api/demos/ingest`. (2026-08-18: Phase 0 of the GTM producer outline
+fixed the prospect-email drop so pushed `invitee_emails` is now populated —
+see `2026-08-17-gtm-producer-side-outline.md`.)
 **Spans two repos:** `chief-of-staff` (detector) and `OS-Metric-Sync` (store + UI)
 **Builds on:** `2026-06-16-metric-sync-overseer-design.md` (engine = metric store; chief-of-staff = overseer)
 
