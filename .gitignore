@@ -33,6 +33,8 @@ data/*
 !data/projects_registry.json
 !data/notes.jsonl
 !data/routines.json
+!data/deal_events.jsonl
+!data/deal_crosswalk.json
 !data/meetings.jsonl
 !data/project_observation_links.jsonl
 !data/state/

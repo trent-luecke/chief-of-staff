@@ -306,6 +306,23 @@ def main() -> None:
     except Exception as e:
         print(f"⚠️  Demo detection/push error (non-fatal): {e}", file=sys.stderr)
 
+    # ── Refresh the email-keyed deal store (projection seam + OMS push) ──
+    try:
+        from lib.storage import registry_storage
+        from lib.deal_sync import refresh_deal_store
+        from datetime import datetime
+
+        dstore = registry_storage(config)
+        stale_days = config.get("deals", {}).get("stale_days", 45)
+        summary = refresh_deal_store(
+            transcripts, dstore, today=today,
+            fetched_at=datetime.utcnow().isoformat() + "Z",
+            stale_days=stale_days, base_url=base_url, password=password,
+        )
+        print(f"   Deal store: {summary}")
+    except Exception as e:
+        print(f"⚠️  Deal store refresh error (non-fatal): {e}", file=sys.stderr)
+
     # Filter transcripts to only unseen ones for Slack dedup
     seen = _load_seen()
     new_transcripts = [t for t in transcripts if getattr(t, "uuid", None) not in seen]
