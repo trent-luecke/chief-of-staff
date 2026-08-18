@@ -81,10 +81,13 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
     `cycle_start` = `min(trial_start_date, demo_date)`.
   - `close_date`/`outcome` from sale events; `outcome ∈ {open, won, lost}`.
   - `account_name`/`rep` = most recent non-empty; crosswalk overrides account.
-  - `stage` (derived, human) = `demoed → in_trial → won | lost`; `stale=true`
-    when `outcome=open` and aged past threshold (§5).
+  - `stage` (derived, human) = `demoed → in_trial → won | lost`.
   - `contact_emails` = all prospect emails seen for this deal.
   - `provenance` = per-field source flags (e.g. `trial_start:gmail-proxy`).
+  - `review` = `{needs, kind, reason, proposed, check_back}` — set when the deal
+    is ambiguous (identity) or hits the 45-day mark unresolved. Drives the
+    review surface (§3.10, §5). Human decisions are themselves events, so a
+    resolved deal clears its flag on the next fold and never re-prompts.
 - Depends on: nothing (pure over its inputs).
 
 ### 3.5 `lib/deal_crosswalk.py` — email↔account_name
@@ -97,8 +100,9 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
   last_contacted, days_since_contact, estimated_value, source, stale}]}`).
   Field mapping: `page_id` = synthetic `deal:{email}`, `name` = account_name,
   `email` = key, `status` = derived stage, `estimated_value` = deal_value,
-  `last_contacted` = latest event timestamp, `stale` = derived. This is the
-  **projection seam** — every existing consumer stays untouched.
+  `last_contacted` = latest event timestamp, `stale` = deal is in the 45-day
+  review (`review.kind == "stale_check"`). This is the **projection seam** —
+  every existing consumer stays untouched.
 
 ### 3.7 `lib/metrics_client.push_deals()` — OMS transport
 - `push_deals(base_url, password, deals)` → `POST /api/deals/ingest`. Non-fatal,
@@ -112,9 +116,42 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
   the existing cron footprint (after Avoma fetch).
 
 ### 3.9 Registry UI pipeline view — task t-a43140
-- A read view over `build_deals()` output: deals by stage/rep, counts, stale
+- A read view over `build_deals()` output: deals by stage/rep, counts, review
   flags — Trent's reporting surface replacing the Notion pipeline DB. Design
   detailed in its own task; this spec only guarantees the data is available.
+
+### 3.10 Deal review layer — the human-in-the-loop (Phase 1b)
+Two review queues over the fold's `review` flags, one surface (Today tab, in a
+`deals_to_review` block rendered directly under `meetings`). Every decision is
+written back as a DealEvent, so the fold stays the single source of truth.
+
+**Queue A — Identity review** (`kind=ambiguous`). Fold reason codes: `multi_domain`
+(external attendees span >1 domain in one demo), `no_email` (name-only attendee),
+`generic_inbox` (only `info@`/`sales@`/`office@`), `account_conflict` (new demo
+email matches an existing deal with a different account). Each card shows CoS's
+best-guess primary (email + account + rep), the reason in plain language, and the
+full attendee evidence. Actions → a `manual` DealEvent: **confirm guess** ·
+**choose primary** · **split into N deals** · **merge into existing** ·
+**not a deal**.
+
+**Queue B — 45-day review** (`kind=stale_check`). Fold flags a deal when
+`outcome=open` AND `cycle_start + 45d` reached AND not currently snoozed
+(`check_back` unset or ≤ today). **Never auto-Lost.** Actions → a `status`
+DealEvent:
+- **Lost** (+ optional one-tap reason) → `outcome=lost`.
+- **On hold** → prompts for a **check-back date**; sets `review.check_back` to it,
+  dropping the deal off review until that date, then it re-surfaces. Stays
+  `outcome=open` (still in the pipeline for conversion cohorts).
+- **Still active** → deal is progressing; resets the 45-day clock (re-review in
+  another ~45 days). Distinct from On hold: "moving" vs "paused."
+
+**Mechanics.** New endpoints `POST /api/deals/<deal_id>/review` (identity
+resolution) and `POST /api/deals/<deal_id>/status` (lost / on-hold / active) →
+`_write_main` appends the DealEvent to `deal_events.jsonl` on `origin/main`, same
+pattern as `/api/tasks`. `registry_ui.html` renders the block + quick actions and
+the on-hold date picker. If the email brief still sends, it shows a **read-only
+summary + link** ("N deals need review → open Today") — email can't carry working
+actions. Idempotent: a resolved flag clears on the next fold.
 
 ## 4. Data flow (demo spine, end to end)
 
@@ -125,20 +162,29 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
 5. Projection writes `pipeline_cache.json`; `push_deals` sends to OMS.
 6. Brief / meeting-prep / Registry UI read as before; OMS reports funnel metrics.
 
-## 5. Decisions that need validation against real data
+## 5. Heuristics and the review loop that backstops them
+
+CoS makes a best-effort automatic call, and **anything uncertain routes to the
+review loop (§3.10) rather than being guessed silently.** The heuristics:
 
 - **Multi-email demo policy.** Real demos carry several prospect emails (e.g.
-  Estacada ×5, same domain = one account). Proposed: within a single demo,
+  Estacada ×5, same domain = one account). Auto path: within a single demo,
   **collapse same-domain attendees to one deal** keyed by a deterministic primary
   email (organizer/booker if identifiable, else first external), retaining the
-  rest as `contact_emails`; **cross-demo merge on any shared contact email**;
-  flag ambiguous cases (mixed domains, generic inboxes) for review rather than
-  guessing. This is the highest-risk heuristic — validate against a sample of
-  real demos before trusting the conversion counts.
-- **Stale/lost thresholds.** Proposed: `outcome=open` + `cycle_start` aged
-  > N days → `stale=true`; trial-expired or aged > M days with no close →
-  `outcome=lost`. N/M to be set from observed cycle length (~45-day cycle per
-  OMS foundation doc). Document the rule; never let "open forever" pollute cohorts.
+  rest as `contact_emails`; **cross-demo merge on any shared contact email.**
+  Anything the auto path can't do confidently — mixed domains, name-only
+  attendees, generic inboxes, account conflicts — is flagged for **Identity
+  review** (Queue A). This is the highest-risk heuristic; validate the auto path
+  against a sample of real demos, and treat the review queue as the safety net
+  while it's tuned.
+- **45-day stale rule — human-confirmed, never automatic.** `outcome=open` +
+  `cycle_start + 45d` reached → the deal enters the **45-day review** (Queue B),
+  which asks Trent to mark it **Lost**, **On hold** (with a check-back date), or
+  **Still active**. A deal only becomes `lost` when Trent says so — the system
+  never silently kills a deal, and "open forever" is prevented by the deal always
+  being either progressing, snoozed to a date, or explicitly lost. The 45-day
+  figure comes from the ~45-day observed cycle (OMS foundation doc) and is
+  configurable.
 
 ## 6. Error handling
 - Every stage non-fatal/self-healing: feed failure → skipped (existing behavior);
@@ -159,18 +205,31 @@ which a mutable store loses. It matches the existing `tasks.jsonl` pattern.
 - `push_deals` — happy path + engine-down non-fatal.
 - One shared fixture for the record shape CoS sends vs what OMS ingest expects.
 
-## 8. Scope
-**In (Phase 1a implementation):** event store, `normalize_email`, demo
-normalizer, `build_deals`, crosswalk (derived + override), projection to
-pipeline_cache, `push_deals`, orchestration for the **demo spine**.
+## 8. Scope & phasing
+**Phase 1a — the demo spine:** event store, `normalize_email`, demo normalizer
+(incl. the multi-email auto path), `build_deals` (incl. `review` flag
+computation), crosswalk (derived + override), projection to pipeline_cache,
+`push_deals`, orchestration. Proves the spine end-to-end with the one fully
+accessible feed.
 
-**Follow-on (tracked tasks, not this build):** trial normalizer (Gmail proxy →
-HubSpot), sale normalizer (needs sheet email column), Registry UI pipeline view,
-data-health/reconciliation layer, backfill of the 111 Notion records, migrating
-consumers off `pipeline_cache.json` (the deferred seam-removal, t-d0d636).
+**Phase 1b — the review loop (§3.10):** the `deals_to_review` block in the Today
+tab, the identity + 45-day queues, and the `/api/deals/<id>/review` and `/status`
+endpoints. Identity review is useful the moment demos flow; the 45-day queue
+activates as deals age (or immediately after backfill).
+
+**Follow-on (tracked tasks, later phases):** trial normalizer (Gmail proxy →
+HubSpot), sale normalizer (needs sheet email column, t-3be14a), Registry UI
+pipeline view (t-a43140), data-health/reconciliation layer, backfill of the 111
+Notion records (t-0867b7), migrating consumers off `pipeline_cache.json` (the
+deferred seam-removal, t-d0d636).
 
 ## 9. Open questions
-- Multi-email policy and stale/lost thresholds (§5) — validate before trusting metrics.
+- Multi-email auto-path accuracy (§5) — validate against real demos before
+  trusting conversion counts; the review queue (§3.10) is the backstop meanwhile.
 - Exact `/api/deals/ingest` request/response shape — co-design with OMS (t-78bb8e).
 - Does `deal_sync` run as its own job or fold into `avoma_sync.py`? (Ordering vs
   separation-of-concerns; lean toward a separate job for a clean failure boundary.)
+- New registry files (`deal_events.jsonl`, `deal_crosswalk.json`) must be added to
+  the `.gitignore` un-ignore allow-list and the sync job's commit-back `git add`
+  (per CLAUDE.md Data Persistence); `deal_events.jsonl` should get the
+  `merge=union` driver like `tasks.jsonl`.
