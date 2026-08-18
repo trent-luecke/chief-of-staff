@@ -1,14 +1,27 @@
 """Turn analyzed Avoma demo transcripts into email-keyed DealEvents."""
 from __future__ import annotations
 
+from lib.deal_crosswalk import FREE_EMAIL_DOMAINS
 from lib.deal_events import DealEvent, make_event_id
 from lib.email_norm import normalize_email
 
 _GENERIC_LOCALS = {"info", "sales", "office", "admin", "contact", "hello", "team", "support"}
 
+# Automated / non-prospect senders that ride on meeting invites — never a deal.
+_NOREPLY_MARKERS = ("no-reply", "noreply", "no_reply", "donotreply", "do-not-reply", "donot-reply")
+_VENDOR_DOMAINS = {"zoom.us", "zoom.com", "calendar.google.com", "google.com", "calendly.com"}
+
 
 def _domain(email: str) -> str:
     return email.split("@", 1)[1] if "@" in email else ""
+
+
+def _is_automated(email: str) -> bool:
+    """True for no-reply / meeting-platform addresses that are never prospects."""
+    local, _, domain = email.partition("@")
+    if any(m in local for m in _NOREPLY_MARKERS):
+        return True
+    return domain in _VENDOR_DOMAINS
 
 
 def normalize_demo_events(transcripts: list) -> list[DealEvent]:
@@ -20,7 +33,7 @@ def normalize_demo_events(transcripts: list) -> list[DealEvent]:
         prospects: list[str] = []
         for a in getattr(t, "attendees", []) or []:
             ne = normalize_email(a.get("email"))
-            if ne and ne not in prospects:
+            if ne and not _is_automated(ne) and ne not in prospects:
                 prospects.append(ne)
 
         reason = None
@@ -32,6 +45,8 @@ def normalize_demo_events(transcripts: list) -> list[DealEvent]:
                 reason = "multi_domain"
             elif all(e.split("@", 1)[0] in _GENERIC_LOCALS for e in prospects):
                 reason = "generic_inbox"
+            elif all(_domain(e) in FREE_EMAIL_DOMAINS for e in prospects):
+                reason = "free_email"
             primary = prospects[0]
 
         events.append(DealEvent(
