@@ -12,5 +12,5 @@ def domain_to_name(email: str) -> str:
     return core.replace("-", " ").replace("_", " ").title()
 
 
-def load_crosswalk(storage, key: str = _KEY) -> dict:
+def load_crosswalk(storage, key: str = _KEY) -> dict[str, str]:
     return storage.read_json(key, default={}) or {}
