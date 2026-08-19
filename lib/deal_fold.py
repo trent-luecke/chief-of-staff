@@ -132,10 +132,14 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         d.account_name = "" if email.startswith("unresolved:") else (crosswalk.get(email) or domain_to_name(email))
 
         # Cross-demo merge spanning >1 derived account → account_conflict.
+        # Only fires on a REAL cross-demo merge (>1 demo event in the
+        # component), and never clobbers an existing per-demo reason (e.g.
+        # a single demo's own multi_domain label).
         real = [c for c in contacts if c and "@" in c and not c.startswith("unresolved:")]
         accounts = {(crosswalk.get(c) or domain_to_name(c)) for c in real}
         accounts.discard("")
-        if len(accounts) > 1:
+        demo_count = sum(1 for e in evs if e.kind == "demo")
+        if not ambiguous_reason and demo_count > 1 and len(accounts) > 1:
             ambiguous_reason = "account_conflict"
 
         if ambiguous_reason:

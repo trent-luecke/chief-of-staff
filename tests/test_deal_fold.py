@@ -136,6 +136,31 @@ def test_group_components_tolerates_null_or_empty_email():
     assert set(deals) == {"x@acme.com"}
 
 
+def test_single_multi_domain_demo_keeps_multi_domain_reason():
+    # ONE demo whose own attendees span >1 domain is already labeled
+    # multi_domain by deal_normalize. No cross-demo merge happened here, so
+    # account_conflict must NOT clobber that reason.
+    e = _demo("a", "jane@acme.com", "2026-08-10T00:00:00Z",
+              ["jane@acme.com", "bob@beta.com"], reason="multi_domain")
+    d = build_deals([e], {}, TODAY)["jane@acme.com"]
+    assert d.review["reason"] == "multi_domain"
+    assert d.review["kind"] == "ambiguous"
+
+
+def test_free_email_bridge_does_not_trigger_account_conflict():
+    # Two same-domain demos bridged by a shared FREE-EMAIL contact. Both
+    # accounts resolve to the same domain-derived name, and the free-email
+    # bridging contact itself resolves to "" (discarded), so no conflict.
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z",
+               ["jane@acme.com", "shared@gmail.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z",
+               ["bob@acme.com", "shared@gmail.com"])
+    deals = build_deals([e1, e2], {}, TODAY)
+    assert len(deals) == 1
+    d = list(deals.values())[0]
+    assert d.review.get("reason") != "account_conflict"
+
+
 def test_rep_and_reason_are_order_independent():
     e1 = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"],
                reason="multi_domain", rep="Luke Martin")
