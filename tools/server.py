@@ -52,6 +52,7 @@ class _Snapshot:
         self.meeting_index = []   # list of config dicts from meeting_index.json
         self.brief = {}
         self.deals_review = {"identity": [], "stale": [], "counts": {"identity": 0, "stale": 0, "total": 0}}
+        self.deals = []
 
 
 SNAPSHOT = _Snapshot()
@@ -70,6 +71,32 @@ def _compute_deals_review(store) -> dict:
     deals = build_deals(load_events(store), load_crosswalk(store), today,
                         stale_days=_DEAL_STALE_DAYS)
     return build_deals_to_review(deals)
+
+
+_DEAL_STAGES = ["demoed", "in_trial", "won", "lost"]
+
+
+def _compute_deals_board(store) -> list:
+    today = datetime.now(timezone.utc).date().isoformat()
+    deals = build_deals(load_events(store), load_crosswalk(store), today,
+                        stale_days=_DEAL_STALE_DAYS)
+    rows = []
+    for key in sorted(deals):
+        d = deals[key]
+        rows.append({
+            "deal_key": d.email,
+            "account_name": d.account_name,
+            "rep": d.rep,
+            "stage": d.stage or "demoed",
+            "outcome": d.outcome,
+            "demo_date": d.demo_date,
+            "last_event_at": d.last_event_at,
+            "deal_value": d.deal_value,
+            "contact_emails": list(d.contact_emails),
+            "needs_review": bool(d.review.get("needs")),
+            "review_kind": d.review.get("kind", ""),
+        })
+    return rows
 
 
 def rebuild_snapshot(known_online=None) -> None:
@@ -96,6 +123,12 @@ def rebuild_snapshot(known_online=None) -> None:
         print(f"[server] deals review computation failed, degrading to empty: {exc!r}",
               file=sys.stderr)
         SNAPSHOT.deals_review = {"identity": [], "stale": [], "counts": {"identity": 0, "stale": 0, "total": 0}}
+    try:
+        SNAPSHOT.deals = _compute_deals_board(store)
+    except Exception as exc:  # noqa: BLE001 - deals board must never sink the whole snapshot
+        print(f"[server] deals board computation failed, degrading to empty: {exc!r}",
+              file=sys.stderr)
+        SNAPSHOT.deals = []
     SNAPSHOT.online = online
     SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
 
@@ -176,6 +209,7 @@ def bootstrap():
         "tags": SNAPSHOT.tags,
         "meetings": _meetings_list(),
         "deals_review": SNAPSHOT.deals_review,
+        "deals": SNAPSHOT.deals,
     })
 
 
@@ -424,6 +458,11 @@ def get_brief_today():
 @app.route("/api/deals/review", methods=["GET"])
 def get_deals_review():
     return jsonify(SNAPSHOT.deals_review)
+
+
+@app.route("/api/deals", methods=["GET"])
+def get_deals():
+    return jsonify({"deals": SNAPSHOT.deals, "stages": _DEAL_STAGES})
 
 
 def _append_deal_event(store, kind: str, deal_key: str, payload: dict):

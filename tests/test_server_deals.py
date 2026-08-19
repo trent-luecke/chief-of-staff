@@ -233,3 +233,32 @@ def test_post_review_5xx_returns_error_no_phantom_success(monkeypatch):
     assert r.status_code == 502
     body = r.get_json()
     assert "error" in body and "push" in body
+
+
+def test_get_deals_returns_board_rows(monkeypatch):
+    ev = {"event_id": "e1", "email": "jane@acme.com", "email_raw": "", "kind": "demo",
+          "timestamp": "2026-08-17T00:00:00Z", "account_name": "", "rep": "Luke Martin",
+          "source": "avoma",
+          "payload": {"avoma_uuid": "u1", "contact_emails": ["jane@acme.com"],
+                      "ambiguous_reason": None}}
+    srv, c = _client(monkeypatch, json.dumps(ev) + "\n")
+    r = c.get("/api/deals")
+    assert r.status_code == 200
+    body = r.get_json()
+    assert body["stages"] == ["demoed", "in_trial", "won", "lost"]
+    row = body["deals"][0]
+    assert row["deal_key"] == "jane@acme.com"
+    assert row["stage"] == "demoed"
+    assert row["rep"] == "Luke Martin"
+    assert row["needs_review"] is False
+
+
+def test_get_deals_marks_review_and_lost(monkeypatch):
+    demo = {"event_id": "e1", "email": "x@acme.com", "email_raw": "", "kind": "demo",
+            "timestamp": "2026-06-01T00:00:00Z", "account_name": "", "rep": "Luke",
+            "source": "avoma",
+            "payload": {"avoma_uuid": "u1", "contact_emails": ["x@acme.com"], "ambiguous_reason": None}}
+    srv, c = _client(monkeypatch, json.dumps(demo) + "\n")  # aged → stale_check
+    row = c.get("/api/deals").get_json()["deals"][0]
+    assert row["needs_review"] is True
+    assert row["review_kind"] == "stale_check"
