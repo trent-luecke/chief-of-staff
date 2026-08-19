@@ -1,5 +1,5 @@
 from lib.deal_events import DealEvent
-from lib.deal_fold import build_deals
+from lib.deal_fold import build_deals, build_deals_to_review
 from lib.deal_fold import _group_components, _canonical_key
 
 TODAY = "2026-08-18"
@@ -341,3 +341,25 @@ def test_overlapping_splits_are_order_independent():
     assert set(forward) == {"jane@acme.com"}
     d = forward["jane@acme.com"]
     assert set(d.contact_emails) >= {"jane@acme.com", "bob@acme.com"}
+
+
+def test_build_deals_to_review_splits_two_queues():
+    ambiguous = _demo("d1", "x@acme.com", "2026-08-15T00:00:00Z", ["x@acme.com"], reason="free_email")
+    stale = _demo("d2", "y@beta.com", "2026-06-01T00:00:00Z", ["y@beta.com"])
+    clean = _demo("d3", "z@gamma.com", "2026-08-17T00:00:00Z", ["z@gamma.com"])
+    deals = build_deals([ambiguous, stale, clean], {}, TODAY)
+    review = build_deals_to_review(deals)
+    assert review["counts"] == {"identity": 1, "stale": 1, "total": 2}
+    assert review["identity"][0]["deal_key"] == "x@acme.com"
+    assert review["identity"][0]["reason"] == "free_email"
+    assert review["stale"][0]["deal_key"] == "y@beta.com"
+    # clean deal appears in neither queue
+    keys = {r["deal_key"] for r in review["identity"] + review["stale"]}
+    assert "z@gamma.com" not in keys
+
+
+def test_build_deals_to_review_is_deterministically_ordered():
+    a = _demo("d1", "b@x.com", "2026-08-15T00:00:00Z", ["b@x.com"], reason="free_email")
+    b = _demo("d2", "a@x.com", "2026-08-15T00:00:00Z", ["a@x.com"], reason="free_email")
+    review = build_deals_to_review(build_deals([a, b], {}, TODAY))
+    assert [r["deal_key"] for r in review["identity"]] == ["a@x.com", "b@x.com"]

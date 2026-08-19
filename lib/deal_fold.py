@@ -250,3 +250,39 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
             continue
         deals[email] = d
     return deals
+
+
+def build_deals_to_review(deals: dict) -> dict:
+    """Shape folded deals into the identity + 45-day review queues. Pure —
+    never mutates `deals`, never raises. Deterministically ordered by deal
+    key (sorted iteration) so the UI/brief render stably."""
+    identity, stale = [], []
+    for key in sorted(deals):
+        d = deals[key]
+        if not d.review.get("needs"):
+            continue
+        if d.review.get("kind") == "ambiguous":
+            identity.append({
+                "deal_key": d.email,
+                "account_name": d.account_name,
+                "rep": d.rep,
+                "reason": d.review.get("reason", ""),
+                "proposed": d.review.get("proposed"),
+                "contact_emails": list(d.contact_emails),
+                "demo_date": d.demo_date,
+            })
+        elif d.review.get("kind") == "stale_check":
+            stale.append({
+                "deal_key": d.email,
+                "account_name": d.account_name,
+                "rep": d.rep,
+                "cycle_start": d.cycle_start,
+                "last_event_at": d.last_event_at,
+                "check_back": d.review.get("check_back", ""),
+            })
+    return {
+        "identity": identity,
+        "stale": stale,
+        "counts": {"identity": len(identity), "stale": len(stale),
+                   "total": len(identity) + len(stale)},
+    }
