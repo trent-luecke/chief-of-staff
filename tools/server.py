@@ -26,6 +26,9 @@ from lib.main_storage import MainStorage
 from lib.notes import replay_notes_content
 import lib.meetings as meetings_lib
 import lib.decisions as decisions_lib
+from lib.deal_events import load_events, append_events, DealEvent, make_event_id
+from lib.deal_fold import build_deals, build_deals_to_review
+from lib.deal_crosswalk import load_crosswalk
 
 UI_PATH = Path(__file__).parent / "registry_ui.html"
 
@@ -47,6 +50,7 @@ class _Snapshot:
         self.meetings = {}        # slug -> replayed doc state
         self.meeting_index = []   # list of config dicts from meeting_index.json
         self.brief = {}
+        self.deals_review = {"identity": [], "stale": [], "counts": {"identity": 0, "stale": 0, "total": 0}}
 
 
 SNAPSHOT = _Snapshot()
@@ -55,6 +59,16 @@ SNAPSHOT = _Snapshot()
 def _read_store() -> MainStorage:
     """A MainStorage that reads from origin/main (current local ref)."""
     return MainStorage(read_blob=git_sync.show_main)
+
+
+_DEAL_STALE_DAYS = 45  # matches config.json → deals.stale_days
+
+
+def _compute_deals_review(store) -> dict:
+    today = datetime.now(timezone.utc).date().isoformat()
+    deals = build_deals(load_events(store), load_crosswalk(store), today,
+                        stale_days=_DEAL_STALE_DAYS)
+    return build_deals_to_review(deals)
 
 
 def rebuild_snapshot(known_online=None) -> None:
@@ -75,6 +89,7 @@ def rebuild_snapshot(known_online=None) -> None:
     SNAPSHOT.meetings = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
     SNAPSHOT.meeting_index = store.read_json("meeting_index.json", default={"meetings": []}).get("meetings", [])
     SNAPSHOT.brief = store.read_json("brief_today.json", default={})
+    SNAPSHOT.deals_review = _compute_deals_review(store)
     SNAPSHOT.online = online
     SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
 
@@ -154,6 +169,7 @@ def bootstrap():
         "notes": SNAPSHOT.notes,
         "tags": SNAPSHOT.tags,
         "meetings": _meetings_list(),
+        "deals_review": SNAPSHOT.deals_review,
     })
 
 
@@ -397,6 +413,11 @@ def get_registry():
 @app.route("/api/brief_today", methods=["GET"])
 def get_brief_today():
     return jsonify(SNAPSHOT.brief)
+
+
+@app.route("/api/deals/review", methods=["GET"])
+def get_deals_review():
+    return jsonify(SNAPSHOT.deals_review)
 
 
 # Fields the Registry UI edit form is allowed to write back. Anything else in
