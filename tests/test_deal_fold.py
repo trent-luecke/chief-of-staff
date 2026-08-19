@@ -161,6 +161,26 @@ def test_free_email_bridge_does_not_trigger_account_conflict():
     assert d.review.get("reason") != "account_conflict"
 
 
+def _status(uuid, email, ts, status, lost_reason="", check_back=""):
+    payload = {"status": status}
+    if lost_reason:
+        payload["lost_reason"] = lost_reason
+    if check_back:
+        payload["check_back"] = check_back
+    return DealEvent(event_id=uuid, email=email, email_raw="", kind="status", timestamp=ts,
+                     rep="", source="ui", payload=payload)
+
+
+def test_status_lost_sets_outcome_and_clears_review():
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])  # aged → would be stale
+    lost = _status("s1", "x@acme.com", "2026-08-18T00:00:00Z", "lost", lost_reason="went with competitor")
+    d = build_deals([demo, lost], {}, TODAY)["x@acme.com"]
+    assert d.outcome == "lost"
+    assert d.stage == "lost"
+    assert d.lost_reason == "went with competitor"
+    assert d.review["needs"] is False
+
+
 def test_rep_and_reason_are_order_independent():
     e1 = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"],
                reason="multi_domain", rep="Luke Martin")

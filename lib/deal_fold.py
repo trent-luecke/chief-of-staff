@@ -110,6 +110,8 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         d = Deal(email=email)
         contacts: list[str] = []
         ambiguous_reason = None
+        lost_reason = ""
+        latest_status = None
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -122,13 +124,23 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                     d.rep = e.rep
                 if e.payload.get("ambiguous_reason"):
                     ambiguous_reason = e.payload["ambiguous_reason"]
+            if e.kind == "status":
+                st = e.payload.get("status")
+                if st == "lost":
+                    d.outcome = "lost"
+                    lost_reason = e.payload.get("lost_reason", "") or lost_reason
+                latest_status = st
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
 
         d.contact_emails = contacts
         d.cycle_start = d.demo_date  # min(trial, demo) == demo in Phase 1a
-        d.outcome = "open"
-        d.stage = "demoed"
+        if d.outcome == "lost":
+            d.stage = "lost"
+            d.lost_reason = lost_reason
+        else:
+            d.outcome = "open"
+            d.stage = "demoed"
         d.account_name = "" if email.startswith("unresolved:") else (crosswalk.get(email) or domain_to_name(email))
 
         # Cross-demo merge spanning >1 derived account → account_conflict.
@@ -142,7 +154,9 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         if not ambiguous_reason and demo_count > 1 and len(accounts) > 1:
             ambiguous_reason = "account_conflict"
 
-        if ambiguous_reason:
+        if d.outcome == "lost":
+            d.review = {"needs": False}
+        elif ambiguous_reason:
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
         elif d.cycle_start and _days_since(d.cycle_start, today) >= stale_days:
