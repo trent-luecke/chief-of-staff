@@ -38,6 +38,15 @@ def _norm(email: str | None) -> str | None:
     return email or None
 
 
+def _payload(e) -> dict:
+    """Defensive payload accessor. load_events() coerces a non-dict payload
+    to {} on the normal ingest path, but the fold must stay total even if an
+    event object is constructed directly (tests, other callers) with a bad
+    payload — never let a None/non-dict payload raise deep inside the fold."""
+    p = e.payload
+    return p if isinstance(p, dict) else {}
+
+
 def _group_components(events: list) -> list[list]:
     """Union-find over emails. Cross-demo merges happen ONLY via a shared
     contact email — a demo's primary email is unioned with each of its
@@ -77,7 +86,7 @@ def _group_components(events: list) -> list[list]:
     for e in events:
         if e.kind != "demo" or not e.email or e.email.startswith("unresolved:"):
             continue
-        for c in e.payload.get("contact_emails", []) or []:
+        for c in _payload(e).get("contact_emails", []) or []:
             if c and not str(c).startswith("unresolved:"):
                 union(e.email, c)
 
@@ -85,9 +94,9 @@ def _group_components(events: list) -> list[list]:
     # deals with no shared contact. Guard against unresolved singletons and
     # missing/blank merge_with so a malformed event is a no-op, never a raise.
     for e in events:
-        if e.kind != "manual" or e.payload.get("action") != "merge":
+        if e.kind != "manual" or _payload(e).get("action") != "merge":
             continue
-        other = e.payload.get("merge_with")
+        other = _payload(e).get("merge_with")
         if not isinstance(e.email, str) or not e.email:
             continue
         if not isinstance(other, str) or not other:
@@ -117,11 +126,11 @@ def _group_components(events: list) -> list[list]:
     # not by input position.
     split_assign: dict[str, str] = {}
     split_events = sorted(
-        (e for e in events if e.kind == "manual" and e.payload.get("action") == "split"),
+        (e for e in events if e.kind == "manual" and _payload(e).get("action") == "split"),
         key=lambda e: (e.timestamp or "", e.event_id),
     )
     for e in split_events:
-        groups = e.payload.get("groups")
+        groups = _payload(e).get("groups")
         if not isinstance(groups, list):
             continue
         for grp in groups:
@@ -162,6 +171,8 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
     for comp in _group_components(events):
         evs = sorted(comp, key=lambda e: (e.timestamp or "", e.event_id))
         email = _canonical_key(comp)
+        original_key = email  # pre-re-key identity; used as a fallback if a
+        # later choose_primary re-key collides with another component's key.
         d = Deal(email=email)
         contacts: list[str] = []
         ambiguous_reason = None
@@ -176,30 +187,30 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 ts = e.timestamp or None
                 if ts and (d.demo_date is None or ts < d.demo_date):
                     d.demo_date = ts
-                for c in e.payload.get("contact_emails", []) or []:
+                for c in _payload(e).get("contact_emails", []) or []:
                     if c not in contacts:
                         contacts.append(c)
                 if e.rep:
                     d.rep = e.rep
-                if e.payload.get("ambiguous_reason"):
-                    ambiguous_reason = e.payload["ambiguous_reason"]
+                if _payload(e).get("ambiguous_reason"):
+                    ambiguous_reason = _payload(e)["ambiguous_reason"]
             if e.kind == "status":
-                st = e.payload.get("status")
+                st = _payload(e).get("status")
                 if st == "lost":
                     d.outcome = "lost"
-                    lost_reason = e.payload.get("lost_reason", "") or lost_reason
+                    lost_reason = _payload(e).get("lost_reason", "") or lost_reason
                 elif st == "hold":
-                    check_back = e.payload.get("check_back", "") or ""
+                    check_back = _payload(e).get("check_back", "") or ""
                     last_active_at = None  # a fresh hold clears a prior active reset
                 elif st == "active":
                     last_active_at = e.timestamp
                     check_back = ""        # moving again clears any snooze
             if e.kind == "manual":
-                act = e.payload.get("action")
+                act = _payload(e).get("action")
                 if act in ("confirm", "choose_primary", "merge", "split"):
                     manual_resolved = True
                 if act == "choose_primary":
-                    chosen_primary = e.payload.get("primary_email", "") or chosen_primary
+                    chosen_primary = _payload(e).get("primary_email", "") or chosen_primary
                 if act == "not_a_deal":
                     dropped = True
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
@@ -248,7 +259,33 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
 
         if dropped:
             continue
-        deals[email] = d
+
+        if email in deals:
+            # Re-key collision: a choose_primary event pointed this component
+            # at a key another (independent) component already occupies —
+            # either that component's natural key or its own chosen primary.
+            # Never overwrite/lose either deal: the already-stored deal keeps
+            # the contested key, and this one falls back to its own
+            # pre-re-key identity, flagged for human review. Component
+            # processing order is deterministic (sorted by root key — see
+            # _group_components) and independent of the input events list
+            # order, so which deal "wins" the contested key is stable.
+            fallback_key = original_key
+            if fallback_key == email or fallback_key in deals:
+                # Extremely rare secondary collision (the fallback key is
+                # itself already taken) — still must never lose data.
+                suffix = 2
+                candidate = f"{fallback_key}#conflict{suffix}"
+                while candidate in deals:
+                    suffix += 1
+                    candidate = f"{fallback_key}#conflict{suffix}"
+                fallback_key = candidate
+            d.email = fallback_key
+            d.review = {"needs": True, "kind": "ambiguous", "reason": "account_conflict",
+                        "proposed": {"email": fallback_key, "account_name": d.account_name, "rep": d.rep}}
+            deals[fallback_key] = d
+        else:
+            deals[email] = d
     return deals
 
 

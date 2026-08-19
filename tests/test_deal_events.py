@@ -22,3 +22,18 @@ def test_append_is_idempotent_by_event_id(tmp_path):
     loaded = load_events(s)
     assert len(loaded) == 1 and loaded[0].email == "x@acme.com"
     assert loaded[0].kind == "demo"
+
+
+def test_load_events_coerces_null_payload_to_empty_dict(tmp_path):
+    # A hand-edited or malformed JSONL row can carry `"payload": null`.
+    # json.loads(...) succeeds and DealEvent(**...) happily sets
+    # payload=None (no TypeError), so it must NOT slip past the loader as
+    # None — every downstream consumer (deal_fold) calls e.payload.get(...)
+    # and a bare None there would crash the ENTIRE fold, not just this row.
+    s = _store(tmp_path)
+    s.write("deal_events.jsonl", '{"event_id": "e1", "email": "x@acme.com", '
+            '"email_raw": "X@acme.com", "kind": "demo", '
+            '"timestamp": "2026-08-01T10:00:00Z", "payload": null}\n')
+    loaded = load_events(s)  # must not raise
+    assert len(loaded) == 1
+    assert loaded[0].payload == {}

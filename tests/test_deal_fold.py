@@ -358,6 +358,51 @@ def test_build_deals_to_review_splits_two_queues():
     assert "z@gamma.com" not in keys
 
 
+def test_non_dict_payload_does_not_crash_the_whole_fold():
+    # A malformed event with payload=None (e.g. a hand-edited JSONL row that
+    # slipped past the loader before the load_events fix) must not crash the
+    # ENTIRE fold — it's total. Constructed directly here to force
+    # payload=None, since load_events now coerces non-dict payloads to {}
+    # on the normal path.
+    bad = DealEvent(event_id="bad1", email="broken@acme.com", email_raw="",
+                    kind="demo", timestamp="2026-08-05T00:00:00Z",
+                    rep="Luke Martin", source="avoma", payload=None)
+    good = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"])
+    deals = build_deals([bad, good], {}, TODAY)  # must not raise
+    assert "x@acme.com" in deals
+    assert deals["x@acme.com"].demo_date == "2026-08-10T00:00:00Z"
+
+
+def test_choose_primary_collision_keeps_both_deals_and_flags_conflict():
+    # Two INDEPENDENT components (different domains, no shared contact, so
+    # union-find keeps them separate) each choose_primary to the SAME
+    # primary_email. The re-key must never silently clobber one of them.
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
+    e2 = _demo("d2", "bob@beta.com", "2026-08-12T00:00:00Z", ["bob@beta.com"])
+    pick1 = _manual("m1", "jane@acme.com", "2026-08-13T00:00:00Z",
+                     "choose_primary", primary_email="shared@x.com")
+    pick2 = _manual("m2", "bob@beta.com", "2026-08-14T00:00:00Z",
+                     "choose_primary", primary_email="shared@x.com")
+    events = [e1, e2, pick1, pick2]
+
+    forward = build_deals(events, {}, TODAY)
+    backward = build_deals(list(reversed(events)), {}, TODAY)
+
+    assert len(forward) == 2 and len(backward) == 2   # neither deal lost
+    assert "shared@x.com" in forward
+    displaced = [d for k, d in forward.items() if k != "shared@x.com"][0]
+    assert displaced.review["needs"] is True
+    assert displaced.review["kind"] == "ambiguous"
+
+    # Order-independence: same keys and same conflict outcome regardless of
+    # input event order.
+    assert set(forward) == set(backward)
+    fwd_other_key = [k for k in forward if k != "shared@x.com"][0]
+    bwd_other_key = [k for k in backward if k != "shared@x.com"][0]
+    assert fwd_other_key == bwd_other_key
+    assert forward[fwd_other_key].review == backward[bwd_other_key].review
+
+
 def test_build_deals_to_review_is_deterministically_ordered():
     a = _demo("d1", "b@x.com", "2026-08-15T00:00:00Z", ["b@x.com"], reason="free_email")
     b = _demo("d2", "a@x.com", "2026-08-15T00:00:00Z", ["a@x.com"], reason="free_email")

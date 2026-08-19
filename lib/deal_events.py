@@ -34,9 +34,12 @@ def load_events(storage, key: str = _KEY) -> list[DealEvent]:
         if not line:
             continue
         try:
-            events.append(DealEvent(**json.loads(line)))
+            ev = DealEvent(**json.loads(line))
         except (json.JSONDecodeError, TypeError):
             continue
+        if not isinstance(ev.payload, dict):
+            ev.payload = {}
+        events.append(ev)
     return events
 
 
