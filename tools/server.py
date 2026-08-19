@@ -7,6 +7,7 @@ backed by lib/tasks.py (JSONL) and lib/projects.py.
 Usage:
     python tools/server.py          # start server at http://localhost:8787
 """
+import dataclasses
 import json
 import re
 import secrets
@@ -423,6 +424,44 @@ def get_brief_today():
 @app.route("/api/deals/review", methods=["GET"])
 def get_deals_review():
     return jsonify(SNAPSHOT.deals_review)
+
+
+def _append_deal_event(store, kind: str, deal_key: str, payload: dict):
+    ts = datetime.now(timezone.utc).isoformat()
+    ev = DealEvent(
+        event_id=make_event_id(kind, f"{deal_key}|{ts}", deal_key),
+        email=deal_key, email_raw="", kind=kind, timestamp=ts,
+        account_name="", rep="", source="ui", payload=payload,
+    )
+    append_events(store, [ev])
+    return ev
+
+
+@app.route("/api/deals/status", methods=["POST"])
+def post_deal_status():
+    body = request.get_json(force=True) or {}
+    deal_key = body.get("deal_key")
+    status = body.get("status")
+    if not isinstance(deal_key, str) or not deal_key:
+        return jsonify({"error": "deal_key must be a non-empty string"}), 400
+    if status not in ("lost", "hold", "active"):
+        return jsonify({"error": "status must be one of lost, hold, active"}), 400
+    payload = {"status": status}
+    if status == "lost":
+        if body.get("lost_reason"):
+            payload["lost_reason"] = body["lost_reason"]
+    elif status == "hold":
+        if not body.get("check_back"):
+            return jsonify({"error": "hold requires check_back (YYYY-MM-DD)"}), 400
+        payload["check_back"] = body["check_back"]
+
+    def mutate(store):
+        return _append_deal_event(store, "status", deal_key, payload)
+
+    ev, push, http = _write_main(mutate, lambda e: f"data: deal status {status} {deal_key}")
+    if http >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), http
+    return jsonify({"event": dataclasses.asdict(ev), "push": push}), 201
 
 
 # Fields the Registry UI edit form is allowed to write back. Anything else in

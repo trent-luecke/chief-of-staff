@@ -81,3 +81,47 @@ def test_snapshot_guard_degrades_to_empty_when_compute_raises(monkeypatch):
         "identity": [], "stale": [], "counts": {"identity": 0, "stale": 0, "total": 0},
     }
     assert srv.SNAPSHOT.tasks == []  # rest of snapshot still rebuilt
+
+
+def test_post_status_lost_appends_status_event(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    captured = {}
+
+    def fake_write_main(mutate, msg_fn):
+        store = srv._read_store()
+        result = mutate(store)
+        captured["dirty"] = store.dirty()
+        return result, {"status": "ok"}, 200
+
+    monkeypatch.setattr(srv, "_write_main", fake_write_main)
+    r = c.post("/api/deals/status", json={"deal_key": "x@acme.com", "status": "lost",
+                                          "lost_reason": "budget"})
+    assert r.status_code == 201
+    line = captured["dirty"]["data/deal_events.jsonl"].strip().splitlines()[-1]
+    ev = json.loads(line)
+    assert ev["kind"] == "status" and ev["email"] == "x@acme.com"
+    assert ev["payload"] == {"status": "lost", "lost_reason": "budget"}
+
+
+def test_post_status_hold_requires_check_back(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/status", json={"deal_key": "x@acme.com", "status": "hold"})
+    assert r.status_code == 400
+
+
+def test_post_status_rejects_unknown_status(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/status", json={"deal_key": "x@acme.com", "status": "won"})
+    assert r.status_code == 400
+
+
+def test_post_status_rejects_non_string_deal_key(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/status", json={"deal_key": 12345, "status": "lost"})
+    assert r.status_code == 400
+
+
+def test_post_status_rejects_empty_deal_key(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/status", json={"deal_key": "", "status": "lost"})
+    assert r.status_code == 400
