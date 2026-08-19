@@ -1,5 +1,6 @@
 from lib.deal_events import DealEvent
 from lib.deal_fold import build_deals
+from lib.deal_fold import _group_components, _canonical_key
 
 TODAY = "2026-08-18"
 
@@ -8,6 +9,23 @@ def _demo(uuid, email, ts, contacts, reason=None, rep="Luke Martin"):
     return DealEvent(event_id=uuid, email=email, email_raw="", kind="demo", timestamp=ts,
                      rep=rep, source="avoma",
                      payload={"avoma_uuid": uuid, "contact_emails": contacts, "ambiguous_reason": reason})
+
+
+def test_group_components_one_per_email_without_edges():
+    e1 = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"])
+    e2 = _demo("b", "y@beta.com", "2026-08-11T00:00:00Z", ["y@beta.com"])
+    comps = _group_components([e1, e2])
+    keys = sorted(_canonical_key(c) for c in comps)
+    assert keys == ["x@acme.com", "y@beta.com"]
+
+
+def test_canonical_key_is_earliest_demo_primary():
+    # two demos, same component (shared contact), different primaries
+    e_late = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com", "shared@acme.com"])
+    e_early = _demo("b", "z@acme.com", "2026-08-02T00:00:00Z", ["z@acme.com", "shared@acme.com"])
+    comps = _group_components([e_late, e_early])
+    assert len(comps) == 1
+    assert _canonical_key(comps[0]) == "z@acme.com"  # earliest demo's primary
 
 
 def test_dedup_by_email_takes_earliest_demo_date():

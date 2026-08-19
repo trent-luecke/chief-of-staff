@@ -34,14 +34,73 @@ def _days_since(iso: str, today: str) -> int:
         return 0
 
 
-def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45) -> dict:
-    by_email: dict[str, list] = {}
-    for e in events:
-        by_email.setdefault(e.email, []).append(e)
+def _norm(email: str | None) -> str | None:
+    return email or None
 
+
+def _group_components(events: list) -> list[list]:
+    """Union-find over emails; same-domain and shared-contact emails merge into
+    one component. `unresolved:<uuid>` keys stay singleton. Returns a list of
+    event-lists, one per component. Deterministic and order-independent."""
+    parent: dict[str, str] = {}
+
+    def find(x: str) -> str:
+        parent.setdefault(x, x)
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    def union(a: str, b: str) -> None:
+        ra, rb = find(a), find(b)
+        if ra == rb:
+            return
+        lo, hi = sorted((ra, rb))  # smaller string wins → deterministic root
+        parent[hi] = lo
+
+    # Register every email that appears as a key.
+    for e in events:
+        if not e.email:
+            continue
+        find(e.email)
+
+    # Cross-demo merge edges: a demo's primary email links to each of its
+    # (real) contact emails. unresolved keys never take edges.
+    for e in events:
+        if e.kind != "demo" or e.email.startswith("unresolved:"):
+            continue
+        for c in e.payload.get("contact_emails", []) or []:
+            if c and not str(c).startswith("unresolved:"):
+                union(e.email, c)
+
+    # Bucket events by the root of their key.
+    buckets: dict[str, list] = {}
+    for e in events:
+        if not e.email:
+            continue
+        buckets.setdefault(find(e.email), []).append(e)
+    # Deterministic ordering of components by root key.
+    return [buckets[root] for root in sorted(buckets)]
+
+
+def _canonical_key(component_events: list) -> str:
+    """Primary email of the earliest demo in the component; falls back to the
+    lexicographically smallest key seen."""
+    demos = [e for e in component_events if e.kind == "demo" and e.email]
+    if demos:
+        demos = sorted(demos, key=lambda e: (e.timestamp or "", e.event_id))
+        return demos[0].email
+    keys = sorted({e.email for e in component_events if e.email})
+    return keys[0] if keys else ""
+
+
+def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45) -> dict:
     deals: dict[str, Deal] = {}
-    for email, evs in by_email.items():
-        evs = sorted(evs, key=lambda e: (e.timestamp or "", e.event_id))
+    for comp in _group_components(events):
+        evs = sorted(comp, key=lambda e: (e.timestamp or "", e.event_id))
+        email = _canonical_key(comp)
         d = Deal(email=email)
         contacts: list[str] = []
         ambiguous_reason = None
