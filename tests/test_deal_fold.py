@@ -274,3 +274,30 @@ def test_manual_not_a_deal_drops_it():
     drop = _manual("m1", "noreply@vendor.com", "2026-08-16T00:00:00Z", "not_a_deal")
     deals = build_deals([demo, drop], {}, TODAY)
     assert deals == {}
+
+
+def test_manual_merge_joins_two_unlinked_deals():
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
+    e2 = _demo("d2", "bob@beta.com", "2026-08-12T00:00:00Z", ["bob@beta.com"])
+    merge = _manual("m1", "bob@beta.com", "2026-08-13T00:00:00Z", "merge", merge_with="jane@acme.com")
+    deals = build_deals([e1, e2, merge], {}, TODAY)
+    assert len(deals) == 1
+    d = list(deals.values())[0]
+    assert set(d.contact_emails) >= {"jane@acme.com", "bob@beta.com"}
+
+
+def test_manual_split_separates_a_merged_component():
+    # shared contact would union these; split forces two deals
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com", "shared@acme.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z", ["bob@acme.com", "shared@acme.com"])
+    split = _manual("m1", "jane@acme.com", "2026-08-13T00:00:00Z", "split",
+                    groups=[["jane@acme.com"], ["bob@acme.com"]])
+    deals = build_deals([e1, e2, split], {}, TODAY)
+    assert set(deals) == {"jane@acme.com", "bob@acme.com"}
+
+
+def test_merge_and_split_are_order_independent():
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
+    e2 = _demo("d2", "bob@beta.com", "2026-08-12T00:00:00Z", ["bob@beta.com"])
+    merge = _manual("m1", "bob@beta.com", "2026-08-13T00:00:00Z", "merge", merge_with="jane@acme.com")
+    assert list(build_deals([e1, e2, merge], {}, TODAY)) == list(build_deals([merge, e2, e1], {}, TODAY))

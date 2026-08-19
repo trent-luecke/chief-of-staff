@@ -81,12 +81,55 @@ def _group_components(events: list) -> list[list]:
             if c and not str(c).startswith("unresolved:"):
                 union(e.email, c)
 
+    # Manual merge edges (force-join two keys) — human override that joins
+    # deals with no shared contact. Guard against unresolved singletons and
+    # missing/blank merge_with so a malformed event is a no-op, never a raise.
+    for e in events:
+        if e.kind != "manual" or e.payload.get("action") != "merge":
+            continue
+        other = e.payload.get("merge_with")
+        if not e.email or not other:
+            continue
+        if e.email.startswith("unresolved:") or str(other).startswith("unresolved:"):
+            continue
+        find(e.email)
+        find(other)
+        union(e.email, other)
+
     # Bucket events by the root of their key.
     buckets: dict[str, list] = {}
     for e in events:
         if not e.email:
             continue
         buckets.setdefault(find(e.email), []).append(e)
+
+    # Manual split (post-pass): union-find can't "un-union", so instead we
+    # re-partition each already-bucketed component by any split directive
+    # affecting its members. Build affected_email -> canonical split-subkey
+    # (sorted group's first element, so the result is deterministic and
+    # order-independent regardless of which component the group lands in).
+    split_assign: dict[str, str] = {}
+    for e in events:
+        if e.kind != "manual" or e.payload.get("action") != "split":
+            continue
+        for grp in (e.payload.get("groups") or []):
+            if not grp:
+                continue
+            grp_norm = sorted(str(x) for x in grp if x)
+            if not grp_norm:
+                continue
+            subkey = grp_norm[0]
+            for x in grp_norm:
+                split_assign[x] = subkey
+
+    if split_assign:
+        rebucketed: dict[str, list] = {}
+        for root, evs in buckets.items():
+            for ev in evs:
+                key = split_assign.get(ev.email, root)
+                rebucketed.setdefault(key, []).append(ev)
+        buckets = rebucketed
+
     # Deterministic ordering of components by root key.
     return [buckets[root] for root in sorted(buckets)]
 
