@@ -111,7 +111,8 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         contacts: list[str] = []
         ambiguous_reason = None
         lost_reason = ""
-        latest_status = None
+        check_back = ""
+        last_active_at = None
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -129,7 +130,12 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 if st == "lost":
                     d.outcome = "lost"
                     lost_reason = e.payload.get("lost_reason", "") or lost_reason
-                latest_status = st
+                elif st == "hold":
+                    check_back = e.payload.get("check_back", "") or ""
+                    last_active_at = None  # a fresh hold clears a prior active reset
+                elif st == "active":
+                    last_active_at = e.timestamp
+                    check_back = ""        # moving again clears any snooze
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
 
@@ -154,12 +160,17 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         if not ambiguous_reason and demo_count > 1 and len(accounts) > 1:
             ambiguous_reason = "account_conflict"
 
+        snoozed = bool(check_back) and check_back > today[:10]
+        effective_start = max([s for s in (d.cycle_start, last_active_at) if s], default=None)
+
         if d.outcome == "lost":
             d.review = {"needs": False}
         elif ambiguous_reason:
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
-        elif d.cycle_start and _days_since(d.cycle_start, today) >= stale_days:
+        elif snoozed:
+            d.review = {"needs": False, "check_back": check_back}
+        elif effective_start and _days_since(effective_start, today) >= stale_days:
             d.review = {"needs": True, "kind": "stale_check", "reason": "aged_%dd" % stale_days,
                         "proposed": None}
         else:

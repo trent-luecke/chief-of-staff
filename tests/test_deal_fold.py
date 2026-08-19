@@ -192,3 +192,36 @@ def test_rep_and_reason_are_order_independent():
 
     assert forward.rep == backward.rep
     assert forward.review == backward.review
+
+
+def test_status_hold_suppresses_stale_until_check_back():
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])  # aged
+    hold = _status("s1", "x@acme.com", "2026-08-10T00:00:00Z", "hold", check_back="2026-09-30")
+    d = build_deals([demo, hold], {}, TODAY)["x@acme.com"]  # TODAY = 2026-08-18
+    assert d.outcome == "open"
+    assert d.review["needs"] is False
+    assert d.review.get("check_back") == "2026-09-30"
+
+
+def test_status_hold_resurfaces_after_check_back_date():
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])
+    hold = _status("s1", "x@acme.com", "2026-07-01T00:00:00Z", "hold", check_back="2026-08-01")
+    d = build_deals([demo, hold], {}, TODAY)["x@acme.com"]  # check_back is in the past
+    assert d.review["needs"] is True
+    assert d.review["kind"] == "stale_check"
+
+
+def test_status_active_resets_the_45_day_clock():
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])  # would be stale
+    active = _status("s1", "x@acme.com", "2026-08-15T00:00:00Z", "active")   # 3 days ago
+    d = build_deals([demo, active], {}, TODAY, stale_days=45)["x@acme.com"]
+    assert d.review["needs"] is False
+
+
+def test_status_events_are_order_independent():
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])
+    a = _status("s1", "x@acme.com", "2026-07-01T00:00:00Z", "active")
+    h = _status("s2", "x@acme.com", "2026-08-10T00:00:00Z", "hold", check_back="2026-09-30")
+    fwd = build_deals([demo, a, h], {}, TODAY)["x@acme.com"].review
+    bwd = build_deals([h, a, demo], {}, TODAY)["x@acme.com"].review
+    assert fwd == bwd
