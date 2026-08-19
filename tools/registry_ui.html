@@ -982,6 +982,14 @@
     .today-header { display: flex; align-items: center; gap: 8px; }
     .today-needs { list-style: none; padding-left: 0; }
     .today-need-reason { display: inline-block; min-width: 62px; font-size: 11px; text-transform: uppercase; opacity: .7; }
+    .deal-review-card { border:1px solid var(--border,#2a2a2a); border-radius:8px; padding:10px 12px; margin:8px 0; }
+    .deal-review-card .drc-head { display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+    .deal-review-card .drc-acct { font-weight:600; }
+    .deal-review-reason { font-size:12px; opacity:.7; }
+    .deal-review-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .deal-review-actions .btn { padding:3px 10px; font-size:12px; }
+    .deal-review-hold { display:none; gap:6px; margin-top:6px; align-items:center; }
+    .deal-review-hold.open { display:flex; }
     /* ── Meetings tab ── */
     .mtg-layout { display: flex; gap: 16px; padding: 12px 0; }
     .mtg-list {
@@ -3901,9 +3909,12 @@ const meetingsState = { selectedId: null, _people: [] };
 async function renderTodayView() {
   const view = el('view-today');
   view.innerHTML = '<div class="muted" style="padding:20px">Loading…</div>';
-  let brief;
+  let brief, review;
   try {
-    brief = await fetchJSON(`${API}/api/brief_today`);
+    [brief, review] = await Promise.all([
+      fetchJSON(`${API}/api/brief_today`),
+      fetchJSON(`${API}/api/deals/review`),
+    ]);
   } catch {
     view.innerHTML = `<div class="empty-state"><h3>Server Offline</h3><p>Run: python tools/server.py</p></div>`;
     return;
@@ -3935,6 +3946,49 @@ async function renderTodayView() {
     `<li><span class="today-need-reason">${esc(n.reason)}</span> ${esc(n.title)}</li>`
   ).join('') : '<li class="muted">Nothing due.</li>';
 
+  const reasonText = {
+    multi_domain: 'attendees span multiple companies',
+    no_email: 'no usable prospect email',
+    generic_inbox: 'only a generic inbox (info@/sales@)',
+    free_email: 'personal email — no company name',
+    account_conflict: 'matched an existing deal on a different account',
+  };
+  const idCards = (review?.identity || []).map(d => `
+    <div class="deal-review-card" data-key="${esc(d.deal_key)}">
+      <div class="drc-head">
+        <span class="drc-acct">${esc(d.account_name || d.deal_key)}</span>
+        <span class="deal-review-reason">${esc(reasonText[d.reason] || d.reason)}</span>
+      </div>
+      <div class="muted" style="font-size:12px">${esc((d.contact_emails||[]).join(', '))}</div>
+      <div class="deal-review-actions">
+        <button class="btn" data-act="confirm">Confirm</button>
+        <button class="btn" data-act="not_a_deal">Not a deal</button>
+      </div>
+    </div>`).join('');
+  const staleCards = (review?.stale || []).map(d => `
+    <div class="deal-review-card" data-key="${esc(d.deal_key)}">
+      <div class="drc-head">
+        <span class="drc-acct">${esc(d.account_name || d.deal_key)}</span>
+        <span class="deal-review-reason">no movement in 45 days${d.rep ? ' · ' + esc(d.rep) : ''}</span>
+      </div>
+      <div class="deal-review-actions">
+        <button class="btn" data-act="lost">Lost</button>
+        <button class="btn" data-act="active">Still active</button>
+        <button class="btn" data-act="hold-toggle">On hold…</button>
+      </div>
+      <div class="deal-review-hold">
+        <input type="date" class="drc-date">
+        <button class="btn" data-act="hold-save">Save</button>
+      </div>
+    </div>`).join('');
+  const reviewCount = (review?.counts?.total) || 0;
+  const reviewHtml = reviewCount
+    ? `<section><h3>Deals to review (${reviewCount})</h3>
+         ${idCards ? `<h4 class="muted">Identity (${review.counts.identity})</h4>${idCards}` : ''}
+         ${staleCards ? `<h4 class="muted">45-day check (${review.counts.stale})</h4>${staleCards}` : ''}
+       </section>`
+    : '';
+
   const gen = brief.generated_at ? new Date(brief.generated_at).toLocaleString() : '';
   view.innerHTML = `
     <div class="today-header">
@@ -3943,6 +3997,7 @@ async function renderTodayView() {
       <span class="muted" style="margin-left:8px">generated ${esc(gen)}</span>
     </div>
     <section><h3>Meetings</h3>${meetingsHtml}</section>
+    ${reviewHtml}
     <section><h3>Needs you today</h3><ul class="today-needs">${needsHtml}</ul></section>
   `;
   view.querySelectorAll('.today-mtg-head').forEach(head => {
@@ -3951,6 +4006,29 @@ async function renderTodayView() {
   el('today-refresh').addEventListener('click', async () => {
     await refreshFromMain();
     renderTodayView();
+  });
+
+  async function postDeal(url, payload, label) {
+    try {
+      await fetchJSON(`${API}${url}`, { method: 'POST', body: JSON.stringify(payload), label });
+      await renderTodayView();  // re-fold clears the resolved flag
+    } catch (e) { /* fetchJSON already toasted */ }
+  }
+  view.querySelectorAll('.deal-review-card').forEach(card => {
+    const key = card.dataset.key;
+    card.querySelectorAll('[data-act]').forEach(btn => btn.addEventListener('click', () => {
+      const act = btn.dataset.act;
+      if (act === 'confirm') return postDeal('/api/deals/review', { deal_key: key, action: 'confirm' }, 'Deal confirmed');
+      if (act === 'not_a_deal') return postDeal('/api/deals/review', { deal_key: key, action: 'not_a_deal' }, 'Marked not a deal');
+      if (act === 'lost') return postDeal('/api/deals/status', { deal_key: key, status: 'lost' }, 'Marked lost');
+      if (act === 'active') return postDeal('/api/deals/status', { deal_key: key, status: 'active' }, 'Marked active');
+      if (act === 'hold-toggle') return card.querySelector('.deal-review-hold').classList.toggle('open');
+      if (act === 'hold-save') {
+        const date = card.querySelector('.drc-date').value;
+        if (!date) return toast('Pick a check-back date', 'error');
+        return postDeal('/api/deals/status', { deal_key: key, status: 'hold', check_back: date }, 'On hold');
+      }
+    }));
   });
 }
 
