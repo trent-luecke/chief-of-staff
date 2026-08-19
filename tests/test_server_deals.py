@@ -13,6 +13,11 @@ def _client(monkeypatch, events_jsonl):
 
     monkeypatch.setattr(srv.git_sync, "show_main", fake_show_main)
     monkeypatch.setattr(srv.git_sync, "fetch_main", lambda: True)
+    # Defense-in-depth: never let a test reach the real commit/push to origin/main.
+    # A test that forgets to fake _write_main must still be incapable of writing
+    # to the live datastore (a leak here already pushed junk events to main once).
+    monkeypatch.setattr(srv.git_sync, "commit_files_to_main",
+                        lambda files, msg: {"status": "ok"})
     srv.rebuild_snapshot(known_online=True)
     srv.app.config["TESTING"] = True
     return srv, srv.app.test_client()
@@ -211,6 +216,8 @@ def test_post_review_not_a_deal_appends_event(monkeypatch):
 
 def test_post_review_split_carries_groups(monkeypatch):
     srv, c = _client(monkeypatch, "")
+    monkeypatch.setattr(srv, "_write_main",
+                        lambda mutate, msg_fn: (mutate(srv._read_store()), {"status": "ok"}, 200))
     groups = [["a@acme.com", "b@acme.com"], ["c@acme.com"]]
     r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "split",
                                           "groups": groups})
