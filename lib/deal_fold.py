@@ -160,7 +160,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         if not ambiguous_reason and demo_count > 1 and len(accounts) > 1:
             ambiguous_reason = "account_conflict"
 
-        snoozed = bool(check_back) and check_back > today[:10]
+        snoozed = isinstance(check_back, str) and bool(check_back) and check_back > today[:10]
         effective_start = max([s for s in (d.cycle_start, last_active_at) if s], default=None)
 
         if d.outcome == "lost":

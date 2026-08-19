@@ -225,3 +225,18 @@ def test_status_events_are_order_independent():
     fwd = build_deals([demo, a, h], {}, TODAY)["x@acme.com"].review
     bwd = build_deals([h, a, demo], {}, TODAY)["x@acme.com"].review
     assert fwd == bwd
+
+
+def test_status_hold_with_non_string_check_back_does_not_raise_and_is_not_snoozed():
+    # A malformed/hand-edited deal_events.jsonl line can carry a truthy
+    # non-string check_back (e.g. an int). The fold must stay total: it must
+    # not raise, and must not treat garbage as a valid snooze date — the
+    # deal should fall through to normal stale review instead.
+    demo = _demo("d1", "x@acme.com", "2026-06-01T00:00:00Z", ["x@acme.com"])  # aged
+    hold = _status("s1", "x@acme.com", "2026-08-10T00:00:00Z", "hold", check_back=20260930)
+    assert hold.payload.get("check_back") == 20260930  # confirm fixture passed the int through
+
+    deals = build_deals([demo, hold], {}, TODAY)  # must not raise TypeError
+    d = deals["x@acme.com"]
+    assert d.review["needs"] is True
+    assert d.review["kind"] == "stale_check"
