@@ -125,3 +125,104 @@ def test_post_status_rejects_empty_deal_key(monkeypatch):
     srv, c = _client(monkeypatch, "")
     r = c.post("/api/deals/status", json={"deal_key": "", "status": "lost"})
     assert r.status_code == 400
+
+
+def test_post_review_confirm_appends_manual_event(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    captured = {}
+
+    def fake_write_main(mutate, msg_fn):
+        store = srv._read_store()
+        result = mutate(store)
+        captured["dirty"] = store.dirty()
+        return result, {"status": "ok"}, 200
+
+    monkeypatch.setattr(srv, "_write_main", fake_write_main)
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "confirm"})
+    assert r.status_code == 201
+    ev = json.loads(captured["dirty"]["data/deal_events.jsonl"].strip().splitlines()[-1])
+    assert ev["kind"] == "manual" and ev["payload"]["action"] == "confirm"
+
+
+def test_post_review_choose_primary_requires_email(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": "info@acme.com", "action": "choose_primary"})
+    assert r.status_code == 400
+
+
+def test_post_review_merge_carries_merge_with(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    captured = {}
+    monkeypatch.setattr(srv, "_write_main",
+                        lambda mutate, msg_fn: (mutate(srv._read_store()), {"status": "ok"}, 200))
+    # capture via a second call path: re-run mutate to inspect
+    r = c.post("/api/deals/review", json={"deal_key": "b@beta.com", "action": "merge",
+                                          "merge_with": "a@acme.com"})
+    assert r.status_code == 201
+    assert r.get_json()["event"]["payload"]["merge_with"] == "a@acme.com"
+
+
+def test_post_review_rejects_unknown_action(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "frobnicate"})
+    assert r.status_code == 400
+
+
+def test_post_review_split_requires_groups(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "split"})
+    assert r.status_code == 400
+
+
+def test_post_review_split_rejects_empty_groups_list(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "split", "groups": []})
+    assert r.status_code == 400
+
+
+def test_post_review_rejects_non_string_deal_key(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": 12345, "action": "confirm"})
+    assert r.status_code == 400
+
+
+def test_post_review_rejects_empty_deal_key(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    r = c.post("/api/deals/review", json={"deal_key": "", "action": "confirm"})
+    assert r.status_code == 400
+
+
+def test_post_review_not_a_deal_appends_event(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    captured = {}
+
+    def fake_write_main(mutate, msg_fn):
+        store = srv._read_store()
+        result = mutate(store)
+        captured["dirty"] = store.dirty()
+        return result, {"status": "ok"}, 200
+
+    monkeypatch.setattr(srv, "_write_main", fake_write_main)
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "not_a_deal"})
+    assert r.status_code == 201
+    ev = json.loads(captured["dirty"]["data/deal_events.jsonl"].strip().splitlines()[-1])
+    assert ev["payload"] == {"action": "not_a_deal"}
+
+
+def test_post_review_split_carries_groups(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    groups = [["a@acme.com", "b@acme.com"], ["c@acme.com"]]
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "split",
+                                          "groups": groups})
+    assert r.status_code == 201
+    assert r.get_json()["event"]["payload"]["groups"] == groups
+
+
+def test_post_review_5xx_returns_error_no_phantom_success(monkeypatch):
+    srv, c = _client(monkeypatch, "")
+    monkeypatch.setattr(srv, "_write_main",
+                        lambda mutate, msg_fn: (None, {"status": "push_failed"}, 502))
+    r = c.post("/api/deals/review", json={"deal_key": "x@acme.com", "action": "confirm"})
+    assert r.status_code == 502
+    body = r.get_json()
+    assert "error" in body and "push" in body

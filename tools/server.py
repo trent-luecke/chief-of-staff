@@ -464,6 +464,39 @@ def post_deal_status():
     return jsonify({"event": dataclasses.asdict(ev), "push": push}), 201
 
 
+@app.route("/api/deals/review", methods=["POST"])
+def post_deal_review():
+    body = request.get_json(force=True) or {}
+    deal_key = body.get("deal_key")
+    action = body.get("action")
+    if not isinstance(deal_key, str) or not deal_key:
+        return jsonify({"error": "deal_key must be a non-empty string"}), 400
+    if action not in ("confirm", "choose_primary", "merge", "split", "not_a_deal"):
+        return jsonify({"error": "deal_key and a valid action required"}), 400
+    payload = {"action": action}
+    if action == "choose_primary":
+        if not body.get("primary_email"):
+            return jsonify({"error": "choose_primary requires primary_email"}), 400
+        payload["primary_email"] = body["primary_email"]
+    elif action == "merge":
+        if not body.get("merge_with"):
+            return jsonify({"error": "merge requires merge_with"}), 400
+        payload["merge_with"] = body["merge_with"]
+    elif action == "split":
+        groups = body.get("groups")
+        if not groups or not isinstance(groups, list):
+            return jsonify({"error": "split requires groups: [[email,...],...]"}), 400
+        payload["groups"] = groups
+
+    def mutate(store):
+        return _append_deal_event(store, "manual", deal_key, payload)
+
+    ev, push, http = _write_main(mutate, lambda e: f"data: deal review {action} {deal_key}")
+    if http >= 500:
+        return jsonify({"error": push.get("status", "write_failed"), "push": push}), http
+    return jsonify({"event": dataclasses.asdict(ev), "push": push}), 201
+
+
 # Fields the Registry UI edit form is allowed to write back. Anything else in
 # the request body (id, machine-managed metadata) is ignored.
 PERSON_EDITABLE_FIELDS = {
