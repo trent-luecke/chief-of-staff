@@ -88,9 +88,11 @@ def _group_components(events: list) -> list[list]:
         if e.kind != "manual" or e.payload.get("action") != "merge":
             continue
         other = e.payload.get("merge_with")
-        if not e.email or not other:
+        if not isinstance(e.email, str) or not e.email:
             continue
-        if e.email.startswith("unresolved:") or str(other).startswith("unresolved:"):
+        if not isinstance(other, str) or not other:
+            continue
+        if e.email.startswith("unresolved:") or other.startswith("unresolved:"):
             continue
         find(e.email)
         find(other)
@@ -108,12 +110,22 @@ def _group_components(events: list) -> list[list]:
     # affecting its members. Build affected_email -> canonical split-subkey
     # (sorted group's first element, so the result is deterministic and
     # order-independent regardless of which component the group lands in).
+    # Process split directives in deterministic (timestamp, event_id) order
+    # (same key used everywhere else) so overlapping split directives that
+    # assign the same email to different groups resolve the same way
+    # regardless of the input list's order — last-write-wins by timestamp,
+    # not by input position.
     split_assign: dict[str, str] = {}
-    for e in events:
-        if e.kind != "manual" or e.payload.get("action") != "split":
+    split_events = sorted(
+        (e for e in events if e.kind == "manual" and e.payload.get("action") == "split"),
+        key=lambda e: (e.timestamp or "", e.event_id),
+    )
+    for e in split_events:
+        groups = e.payload.get("groups")
+        if not isinstance(groups, list):
             continue
-        for grp in (e.payload.get("groups") or []):
-            if not grp:
+        for grp in groups:
+            if not grp or not isinstance(grp, list):
                 continue
             grp_norm = sorted(str(x) for x in grp if x)
             if not grp_norm:

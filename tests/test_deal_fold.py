@@ -296,8 +296,48 @@ def test_manual_split_separates_a_merged_component():
     assert set(deals) == {"jane@acme.com", "bob@acme.com"}
 
 
-def test_merge_and_split_are_order_independent():
+def test_merge_is_order_independent():
     e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
     e2 = _demo("d2", "bob@beta.com", "2026-08-12T00:00:00Z", ["bob@beta.com"])
     merge = _manual("m1", "bob@beta.com", "2026-08-13T00:00:00Z", "merge", merge_with="jane@acme.com")
     assert list(build_deals([e1, e2, merge], {}, TODAY)) == list(build_deals([merge, e2, e1], {}, TODAY))
+
+
+def test_malformed_split_groups_do_not_raise():
+    demo = _demo("d1", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"])
+    split_bad_outer = _manual("m1", "x@acme.com", "2026-08-13T00:00:00Z", "split", groups=5)
+    deals = build_deals([demo, split_bad_outer], {}, TODAY)
+    assert "x@acme.com" in deals
+
+    split_bad_elem = _manual("m2", "x@acme.com", "2026-08-13T00:00:00Z", "split", groups=[123])
+    deals2 = build_deals([demo, split_bad_elem], {}, TODAY)
+    assert "x@acme.com" in deals2
+
+
+def test_non_string_merge_with_does_not_raise():
+    demo = _demo("d1", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"])
+    merge = _manual("m1", "x@acme.com", "2026-08-13T00:00:00Z", "merge", merge_with=5)
+    deals = build_deals([demo, merge], {}, TODAY)
+    assert set(deals) == {"x@acme.com"}
+
+
+def test_overlapping_splits_are_order_independent():
+    # jane and bob share a contact, so union-find would merge them into one
+    # component even before any split is applied.
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com", "shared@acme.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z", ["bob@acme.com", "shared@acme.com"])
+    # Two overlapping split directives assigning jane/bob to different groups,
+    # at different timestamps. The later timestamp (split2) must win
+    # regardless of input list order.
+    split1 = _manual("m1", "jane@acme.com", "2026-08-13T00:00:00Z", "split",
+                      groups=[["jane@acme.com"], ["bob@acme.com", "shared@acme.com"]])
+    split2 = _manual("m2", "jane@acme.com", "2026-08-14T00:00:00Z", "split",
+                      groups=[["jane@acme.com", "bob@acme.com"], ["shared@acme.com"]])
+    events = [e1, e2, split1, split2]
+    forward = build_deals(events, {}, TODAY)
+    backward = build_deals(list(reversed(events)), {}, TODAY)
+    assert set(forward) == set(backward)
+    # later-timestamp split (split2) wins: jane & bob land in the same deal
+    assert set(forward) == {"jane@acme.com"}
+    d = forward["jane@acme.com"]
+    assert set(d.contact_emails) >= {"jane@acme.com", "bob@acme.com"}
