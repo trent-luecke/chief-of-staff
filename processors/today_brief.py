@@ -8,6 +8,9 @@ call per meeting that has a recipe. Written to the git-anchored registry.
 from __future__ import annotations
 
 from lib import identity, tasks as tasks_lib
+from lib.deal_crosswalk import load_crosswalk
+from lib.deal_events import load_events
+from lib.deal_fold import build_deals, build_deals_to_review
 from processors.attendee_provisioner import provision_from_events
 from processors import meeting_prep_recipe
 from processors.meeting_memory import load_meeting_index, find_meeting_for_event
@@ -79,6 +82,14 @@ def _prep_for_event(ev, internal_domains, meeting_configs, config, storage, api_
     return prep, phash
 
 
+def _deal_review_summary(storage, today: str, stale_days: int = 45) -> dict:
+    if storage is None:
+        return {"counts": {"identity": 0, "stale": 0, "total": 0}}
+    deals = build_deals(load_events(storage), load_crosswalk(storage), today, stale_days=stale_days)
+    review = build_deals_to_review(deals)
+    return {"counts": review["counts"]}  # email is read-only: counts + "open Today" link
+
+
 def build_today_brief(events, needs_items, internal_domains, today: str, generated_at: str,
                       config=None, storage=None, api_key="") -> dict:
     config = config or {}
@@ -99,6 +110,7 @@ def build_today_brief(events, needs_items, internal_domains, today: str, generat
         "generated_at": generated_at,
         "meetings": meetings,
         "needs_today": needs_items,
+        "deals_to_review": _deal_review_summary(storage, today),
         "what_moved": [],
     }
 

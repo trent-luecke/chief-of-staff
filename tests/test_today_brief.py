@@ -1,6 +1,7 @@
 import json
 
 from collectors.calendar import CalendarEvent
+from lib.storage import LocalStorage
 from processors import today_brief as tb
 
 
@@ -170,3 +171,16 @@ def test_external_meeting_prep_stays_none(monkeypatch, tmp_path):
     brief = tb.generate_and_write(config, [ev], storage,
                                   today="2026-08-04", generated_at="2026-08-04T12:00:00Z", api_key="key")
     assert brief["meetings"][0]["prep"] is None
+
+
+def test_brief_carries_deal_review_counts(tmp_path):
+    store = LocalStorage(str(tmp_path))
+    store.append_line("deal_events.jsonl",
+        '{"event_id":"e1","email":"x@acme.com","email_raw":"","kind":"demo",'
+        '"timestamp":"2026-06-01T00:00:00Z","account_name":"","rep":"Luke",'
+        '"source":"avoma","payload":{"avoma_uuid":"u1","contact_emails":["x@acme.com"],'
+        '"ambiguous_reason":null}}')  # aged → stale_check
+    brief = tb.build_today_brief([], [], ["teambuildr.com"], "2026-08-18",
+                              "2026-08-18T12:00:00Z", config={}, storage=store)
+    assert brief["deals_to_review"]["counts"]["stale"] == 1
+    assert brief["deals_to_review"]["counts"]["total"] == 1
