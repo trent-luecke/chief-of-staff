@@ -408,3 +408,16 @@ def test_build_deals_to_review_is_deterministically_ordered():
     b = _demo("d2", "a@x.com", "2026-08-15T00:00:00Z", ["a@x.com"], reason="free_email")
     review = build_deals_to_review(build_deals([a, b], {}, TODAY))
     assert [r["deal_key"] for r in review["identity"]] == ["a@x.com", "b@x.com"]
+
+
+def test_non_string_email_is_total_and_skipped():
+    # A malformed event with a non-string (int) email must not raise —
+    # `not e.email` is falsy-only, so a truthy non-string like 12345 used to
+    # reach `.startswith` and blow up with AttributeError. It should be
+    # treated like a missing email: skipped, no deal formed for it.
+    bad = DealEvent(event_id="bad", email=12345, email_raw="", kind="demo",
+                     timestamp="2026-08-10T00:00:00Z", rep="Luke Martin", source="avoma",
+                     payload={"avoma_uuid": "bad", "contact_emails": [12345]})
+    good = _demo("d1", "jane@acme.com", "2026-08-11T00:00:00Z", ["jane@acme.com"])
+    deals = build_deals([bad, good], {}, TODAY)  # must not raise
+    assert set(deals) == {"jane@acme.com"}

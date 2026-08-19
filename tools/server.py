@@ -89,7 +89,12 @@ def rebuild_snapshot(known_online=None) -> None:
     SNAPSHOT.meetings = meetings_lib.replay_meetings_content(store.read("meetings.jsonl") or "")
     SNAPSHOT.meeting_index = store.read_json("meeting_index.json", default={"meetings": []}).get("meetings", [])
     SNAPSHOT.brief = store.read_json("brief_today.json", default={})
-    SNAPSHOT.deals_review = _compute_deals_review(store)
+    try:
+        SNAPSHOT.deals_review = _compute_deals_review(store)
+    except Exception as exc:  # noqa: BLE001 - deals review must never sink the whole snapshot
+        print(f"[server] deals review computation failed, degrading to empty: {exc!r}",
+              file=sys.stderr)
+        SNAPSHOT.deals_review = {"identity": [], "stale": [], "counts": {"identity": 0, "stale": 0, "total": 0}}
     SNAPSHOT.online = online
     SNAPSHOT.fetched_at = datetime.now(timezone.utc).isoformat()
 

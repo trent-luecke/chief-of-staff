@@ -75,19 +75,21 @@ def _group_components(events: list) -> list[list]:
         lo, hi = sorted((ra, rb))  # smaller string wins → deterministic root
         parent[hi] = lo
 
-    # Register every email that appears as a key.
+    # Register every email that appears as a key. A non-string truthy email
+    # (e.g. an int from a malformed event) is treated as missing — the fold
+    # must stay total and never dereference a non-string as a string.
     for e in events:
-        if not e.email:
+        if not isinstance(e.email, str) or not e.email:
             continue
         find(e.email)
 
     # Cross-demo merge edges: a demo's primary email links to each of its
     # (real) contact emails. unresolved keys never take edges.
     for e in events:
-        if e.kind != "demo" or not e.email or e.email.startswith("unresolved:"):
+        if e.kind != "demo" or not isinstance(e.email, str) or not e.email or e.email.startswith("unresolved:"):
             continue
         for c in _payload(e).get("contact_emails", []) or []:
-            if c and not str(c).startswith("unresolved:"):
+            if c and isinstance(c, str) and not c.startswith("unresolved:"):
                 union(e.email, c)
 
     # Manual merge edges (force-join two keys) — human override that joins
@@ -107,10 +109,11 @@ def _group_components(events: list) -> list[list]:
         find(other)
         union(e.email, other)
 
-    # Bucket events by the root of their key.
+    # Bucket events by the root of their key. A non-string email never got
+    # registered above, so it's dropped here too — it forms no deal.
     buckets: dict[str, list] = {}
     for e in events:
-        if not e.email:
+        if not isinstance(e.email, str) or not e.email:
             continue
         buckets.setdefault(find(e.email), []).append(e)
 
@@ -188,7 +191,10 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 if ts and (d.demo_date is None or ts < d.demo_date):
                     d.demo_date = ts
                 for c in _payload(e).get("contact_emails", []) or []:
-                    if c not in contacts:
+                    # A non-string contact email (malformed event) is treated
+                    # like a missing one — never stored, so later string
+                    # derefs (e.g. "@" in c) can't raise on it.
+                    if isinstance(c, str) and c and c not in contacts:
                         contacts.append(c)
                 if e.rep:
                     d.rep = e.rep
@@ -210,7 +216,12 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 if act in ("confirm", "choose_primary", "merge", "split"):
                     manual_resolved = True
                 if act == "choose_primary":
-                    chosen_primary = _payload(e).get("primary_email", "") or chosen_primary
+                    proposed_primary = _payload(e).get("primary_email", "")
+                    # A non-string primary_email (malformed event) is a
+                    # no-op here, not a re-key — keeps `email` a string so
+                    # the later `.startswith` below can't raise.
+                    if isinstance(proposed_primary, str) and proposed_primary:
+                        chosen_primary = proposed_primary
                 if act == "not_a_deal":
                     dropped = True
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
