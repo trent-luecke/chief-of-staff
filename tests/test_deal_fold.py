@@ -240,3 +240,37 @@ def test_status_hold_with_non_string_check_back_does_not_raise_and_is_not_snooze
     d = deals["x@acme.com"]
     assert d.review["needs"] is True
     assert d.review["kind"] == "stale_check"
+
+
+def _manual(uuid, email, ts, action, primary_email="", merge_with="", groups=None):
+    payload = {"action": action}
+    if primary_email:
+        payload["primary_email"] = primary_email
+    if merge_with:
+        payload["merge_with"] = merge_with
+    if groups is not None:
+        payload["groups"] = groups
+    return DealEvent(event_id=uuid, email=email, email_raw="", kind="manual", timestamp=ts,
+                     rep="", source="ui", payload=payload)
+
+
+def test_manual_confirm_clears_ambiguous():
+    demo = _demo("d1", "x@acme.com", "2026-08-15T00:00:00Z", ["x@acme.com"], reason="free_email")
+    conf = _manual("m1", "x@acme.com", "2026-08-16T00:00:00Z", "confirm")
+    d = build_deals([demo, conf], {}, TODAY)["x@acme.com"]
+    assert d.review["needs"] is False
+
+
+def test_manual_choose_primary_rekeys_and_clears():
+    demo = _demo("d1", "info@acme.com", "2026-08-15T00:00:00Z", ["info@acme.com", "jane@acme.com"], reason="generic_inbox")
+    pick = _manual("m1", "info@acme.com", "2026-08-16T00:00:00Z", "choose_primary", primary_email="jane@acme.com")
+    deals = build_deals([demo, pick], {}, TODAY)
+    assert "jane@acme.com" in deals
+    assert deals["jane@acme.com"].review["needs"] is False
+
+
+def test_manual_not_a_deal_drops_it():
+    demo = _demo("d1", "noreply@vendor.com", "2026-08-15T00:00:00Z", ["noreply@vendor.com"], reason="no_email")
+    drop = _manual("m1", "noreply@vendor.com", "2026-08-16T00:00:00Z", "not_a_deal")
+    deals = build_deals([demo, drop], {}, TODAY)
+    assert deals == {}

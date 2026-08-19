@@ -113,6 +113,9 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         lost_reason = ""
         check_back = ""
         last_active_at = None
+        manual_resolved = False
+        chosen_primary = ""
+        dropped = False
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -136,8 +139,20 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 elif st == "active":
                     last_active_at = e.timestamp
                     check_back = ""        # moving again clears any snooze
+            if e.kind == "manual":
+                act = e.payload.get("action")
+                if act in ("confirm", "choose_primary", "merge", "split"):
+                    manual_resolved = True
+                if act == "choose_primary":
+                    chosen_primary = e.payload.get("primary_email", "") or chosen_primary
+                if act == "not_a_deal":
+                    dropped = True
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
+
+        if chosen_primary:
+            email = chosen_primary
+            d.email = email
 
         d.contact_emails = contacts
         d.cycle_start = d.demo_date  # min(trial, demo) == demo in Phase 1a
@@ -165,7 +180,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
 
         if d.outcome == "lost":
             d.review = {"needs": False}
-        elif ambiguous_reason:
+        elif ambiguous_reason and not manual_resolved:
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
         elif snoozed:
@@ -176,5 +191,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         else:
             d.review = {"needs": False}
 
+        if dropped:
+            continue
         deals[email] = d
     return deals
