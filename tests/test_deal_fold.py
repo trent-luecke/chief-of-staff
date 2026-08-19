@@ -77,6 +77,65 @@ def test_unresolved_key_has_blank_account():
     assert d.review["kind"] == "ambiguous"
 
 
+def test_cross_demo_same_domain_merges_to_one_deal():
+    # jane and bob, same domain, two separate demos → ONE deal
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z", ["bob@acme.com"])
+    # they merge only if a shared contact links them; simulate a shared attendee
+    e1.payload["contact_emails"] = ["jane@acme.com", "shared@acme.com"]
+    e2.payload["contact_emails"] = ["bob@acme.com", "shared@acme.com"]
+    deals = build_deals([e1, e2], {}, TODAY)
+    assert len(deals) == 1
+    d = list(deals.values())[0]
+    assert set(d.contact_emails) >= {"jane@acme.com", "bob@acme.com", "shared@acme.com"}
+    assert d.review.get("reason") != "account_conflict"  # one account, no conflict
+
+
+def test_account_conflict_flagged_when_merge_spans_accounts():
+    # a shared person bridges two different-domain demos → account_conflict
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com", "consultant@shared.com"])
+    e2 = _demo("d2", "bob@beta.com", "2026-08-12T00:00:00Z", ["bob@beta.com", "consultant@shared.com"])
+    deals = build_deals([e1, e2], {}, TODAY)
+    assert len(deals) == 1
+    d = list(deals.values())[0]
+    assert d.review["needs"] is True
+    assert d.review["kind"] == "ambiguous"
+    assert d.review["reason"] == "account_conflict"
+
+
+def test_cross_demo_merge_is_order_independent():
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com", "shared@acme.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z", ["bob@acme.com", "shared@acme.com"])
+    fwd = build_deals([e1, e2], {}, TODAY)
+    bwd = build_deals([e2, e1], {}, TODAY)
+    assert list(fwd) == list(bwd)
+    assert sorted(list(fwd.values())[0].contact_emails) == sorted(list(bwd.values())[0].contact_emails)
+
+
+def test_same_domain_no_shared_contact_stays_two_deals():
+    # No shared attendee between these same-domain demos → merge must NOT
+    # happen on domain alone. Two separate deals; Queue A's manual merge
+    # action is what would join them later.
+    e1 = _demo("d1", "jane@acme.com", "2026-08-10T00:00:00Z", ["jane@acme.com"])
+    e2 = _demo("d2", "bob@acme.com", "2026-08-12T00:00:00Z", ["bob@acme.com"])
+    deals = build_deals([e1, e2], {}, TODAY)
+    assert len(deals) == 2
+    assert set(deals) == {"jane@acme.com", "bob@acme.com"}
+
+
+def test_group_components_tolerates_null_or_empty_email():
+    # A malformed event (no email) must never raise — the fold is total.
+    bad_none = DealEvent(event_id="bad1", email=None, email_raw="", kind="demo",
+                          timestamp="2026-08-10T00:00:00Z", rep="Luke Martin", source="avoma",
+                          payload={"contact_emails": ["x@acme.com"]})
+    bad_empty = DealEvent(event_id="bad2", email="", email_raw="", kind="demo",
+                           timestamp="2026-08-11T00:00:00Z", rep="Luke Martin", source="avoma",
+                           payload={"contact_emails": ["x@acme.com"]})
+    good = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"])
+    deals = build_deals([bad_none, bad_empty, good], {}, TODAY)
+    assert set(deals) == {"x@acme.com"}
+
+
 def test_rep_and_reason_are_order_independent():
     e1 = _demo("a", "x@acme.com", "2026-08-10T00:00:00Z", ["x@acme.com"],
                reason="multi_domain", rep="Luke Martin")

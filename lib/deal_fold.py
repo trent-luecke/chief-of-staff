@@ -39,9 +39,15 @@ def _norm(email: str | None) -> str | None:
 
 
 def _group_components(events: list) -> list[list]:
-    """Union-find over emails; same-domain and shared-contact emails merge into
-    one component. `unresolved:<uuid>` keys stay singleton. Returns a list of
-    event-lists, one per component. Deterministic and order-independent."""
+    """Union-find over emails. Cross-demo merges happen ONLY via a shared
+    contact email — a demo's primary email is unioned with each of its
+    `contact_emails`, so two demos that share an attendee fold into one
+    component. Same-domain alone is NOT a merge signal: two demos on the same
+    domain with no shared attendee stay separate components (a later manual
+    merge action is what would join those). `unresolved:<uuid>` keys stay
+    singleton. Returns a list of event-lists, one per component. Deterministic
+    and order-independent. Total: malformed events (missing/blank `email`)
+    are skipped, never raise."""
     parent: dict[str, str] = {}
 
     def find(x: str) -> str:
@@ -69,7 +75,7 @@ def _group_components(events: list) -> list[list]:
     # Cross-demo merge edges: a demo's primary email links to each of its
     # (real) contact emails. unresolved keys never take edges.
     for e in events:
-        if e.kind != "demo" or e.email.startswith("unresolved:"):
+        if e.kind != "demo" or not e.email or e.email.startswith("unresolved:"):
             continue
         for c in e.payload.get("contact_emails", []) or []:
             if c and not str(c).startswith("unresolved:"):
@@ -124,6 +130,13 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         d.outcome = "open"
         d.stage = "demoed"
         d.account_name = "" if email.startswith("unresolved:") else (crosswalk.get(email) or domain_to_name(email))
+
+        # Cross-demo merge spanning >1 derived account → account_conflict.
+        real = [c for c in contacts if c and "@" in c and not c.startswith("unresolved:")]
+        accounts = {(crosswalk.get(c) or domain_to_name(c)) for c in real}
+        accounts.discard("")
+        if len(accounts) > 1:
+            ambiguous_reason = "account_conflict"
 
         if ambiguous_reason:
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
