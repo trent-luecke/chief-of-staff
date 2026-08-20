@@ -90,7 +90,10 @@ Per record: derive `month` from `start_at` (`"%B %Y"`); **upsert keyed on
 `avoma_uuid`**, but the conflict update runs **only when the existing row has
 `manually_edited = 0` AND `excluded = 0`** — so human corrections and exclusions
 are never clobbered or resurrected. Validate/skip malformed. Returns
-`{inserted, updated, skipped}`.
+`{status, received, created, updated, skipped}` (aligned 2026-08-20 with
+`/api/deals/ingest` §5 for observability parity; `received` = payload length,
+`created` = the former `inserted`). The producer only logs the 2xx body, so
+this is transport-compatible.
 
 **Editable demo endpoints** (basic auth), backing the dashboard UI:
 - `GET /api/demos` — list demo rows (id, date, rep, prospect, title, excluded,
