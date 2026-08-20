@@ -190,6 +190,8 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         seed_import_ts = None
         seed_value = None
         seed_account = ""
+        has_sale = False
+        sale_source = ""
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -241,6 +243,15 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                     seed_value = p["estimated_value"]
                 if e.account_name:
                     seed_account = e.account_name
+            if e.kind == "sale":
+                p = _payload(e)
+                if e.timestamp:
+                    d.close_date = e.timestamp        # evs sorted → later sale wins
+                if p.get("deal_value") is not None:
+                    d.deal_value = p["deal_value"]
+                if e.source:
+                    sale_source = e.source
+                has_sale = True
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
 
@@ -254,7 +265,12 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         if d.outcome == "lost":                 # explicit status=lost event — terminal
             d.stage = "lost"
             d.lost_reason = lost_reason
-        elif has_real:                          # real demo/trial/sale drives stage
+        elif has_sale:                          # a sale closes the deal — won
+            d.outcome = "won"
+            d.stage = "won"
+            if sale_source:
+                d.source = sale_source
+        elif has_real:                          # real demo/trial drives stage
             d.outcome = "open"
             d.stage = "demoed"
         elif seed_stage or seed_outcome:        # seed-only: imported state is ground truth
@@ -281,6 +297,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         # A seed-only OPEN deal anchors its 45-day clock to the import date
         # (clean slate: nothing stale on import day; ages in after import+45d).
         seed_anchor = seed_import_ts if (not has_real and (seed_stage or seed_outcome)) else None
+        sale_only = has_sale and not any(e.kind in ("demo", "trial", "seed") for e in evs)
         snoozed = isinstance(check_back, str) and bool(check_back) and check_back > today[:10]
         effective_start = max([s for s in (d.cycle_start, last_active_at, seed_anchor) if s], default=None)
 
@@ -288,6 +305,9 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
             d.review = {"needs": False}
         elif ambiguous_reason and not manual_resolved:
             d.review = {"needs": True, "kind": "ambiguous", "reason": ambiguous_reason,
+                        "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
+        elif sale_only:
+            d.review = {"needs": True, "kind": "unmatched_sale", "reason": "sale_no_demo",
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
         elif snoozed:
             d.review = {"needs": False, "check_back": check_back}

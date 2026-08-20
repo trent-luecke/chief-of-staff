@@ -474,3 +474,50 @@ def test_seed_fold_is_order_independent():
     fwd = build_deals([a, b], {}, TODAY)
     bwd = build_deals([b, a], {}, TODAY)
     assert {k: fwd[k].stage for k in fwd} == {k: bwd[k].stage for k in bwd}
+
+
+def _sale(email, ts, value=1200.0, source="os_only"):
+    return DealEvent(event_id=f"sale-{email}-{ts}-{value}", email=email, email_raw="",
+                     kind="sale", timestamp=ts, rep="Luke Martin", source=source,
+                     payload={"deal_value": value})
+
+
+def test_sale_matched_to_demo_folds_to_won():
+    events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
+              _sale("jane@acme.com", "2026-08-15")]
+    d = build_deals(events, {}, TODAY)["jane@acme.com"]
+    assert d.outcome == "won" and d.stage == "won"
+    assert d.close_date == "2026-08-15"
+    assert d.deal_value == 1200.0
+    assert d.source == "os_only"
+    assert d.review.get("needs") is False
+
+
+def test_unmatched_sale_is_won_and_flagged_for_review():
+    d = build_deals([_sale("ghost@nowhere.com", "2026-08-15")], {}, TODAY)["ghost@nowhere.com"]
+    assert d.outcome == "won" and d.stage == "won"
+    assert d.review.get("needs") is True
+    assert d.review.get("kind") == "unmatched_sale"
+
+
+def test_lost_beats_sale():
+    lost = DealEvent(event_id="s1", email="jane@acme.com", email_raw="", kind="status",
+                     timestamp="2026-08-20T00:00:00Z", payload={"status": "lost"})
+    events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
+              _sale("jane@acme.com", "2026-08-15"), lost]
+    d = build_deals(events, {}, TODAY)["jane@acme.com"]
+    assert d.outcome == "lost" and d.stage == "lost"
+
+
+def test_later_sale_wins_on_correction():
+    events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
+              _sale("jane@acme.com", "2026-08-15", value=1200.0),
+              _sale("jane@acme.com", "2026-08-16", value=1500.0)]
+    d = build_deals(events, {}, TODAY)["jane@acme.com"]
+    assert d.close_date == "2026-08-16"
+    assert d.deal_value == 1500.0
+
+
+def test_sale_only_deal_has_no_cycle_start():
+    d = build_deals([_sale("ghost@nowhere.com", "2026-08-15")], {}, TODAY)["ghost@nowhere.com"]
+    assert d.cycle_start is None  # excluded from cycle-velocity, still a won count
