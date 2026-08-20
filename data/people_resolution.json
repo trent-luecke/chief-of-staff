@@ -1,6 +1,11 @@
 {
-  "resolved_at": "2026-08-18T00:00:00",
+  "resolved_at": "2026-08-19T00:00:00",
   "resolutions": {
+    "1": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "6": {
       "primary_person_id": null,
       "related_person_ids": [],
@@ -11,6 +16,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "9": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "14": {
       "primary_person_id": null,
       "related_person_ids": [],
@@ -20,6 +30,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "17": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "22": {
       "primary_person_id": null,
@@ -36,6 +51,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "26": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "32": {
       "primary_person_id": null,
       "related_person_ids": [],
@@ -46,6 +66,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "37": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "43": {
       "primary_person_id": null,
       "related_person_ids": [],
@@ -55,6 +80,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "47": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "53": {
       "primary_person_id": null,
@@ -70,6 +100,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "57": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "63": {
       "primary_person_id": null,
@@ -141,6 +176,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "78": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "82": {
       "primary_person_id": "okonji",
       "related_person_ids": [],
@@ -156,6 +196,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "86": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "90": {
       "primary_person_id": "okonji",
       "related_person_ids": [],
@@ -165,6 +210,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "93": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "96": {
       "primary_person_id": "okonji",
@@ -374,6 +424,11 @@
       ],
       "confidence": "exact"
     },
+    "140": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "144": {
       "primary_person_id": "okonji",
       "related_person_ids": [],
@@ -418,6 +473,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "157": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "161": {
       "primary_person_id": "okonji",
@@ -464,6 +524,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "170": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "174": {
       "primary_person_id": "okonji",
       "related_person_ids": [],
@@ -504,6 +569,11 @@
       "related_person_ids": [],
       "confidence": "system"
     },
+    "182": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "186": {
       "primary_person_id": "tzach-feinsilver",
       "related_person_ids": [],
@@ -528,6 +598,11 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "192": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
     },
     "196": {
       "primary_person_id": "tzach-feinsilver",
@@ -569,6 +644,11 @@
       "related_person_ids": [
         "luke-martin"
       ],
+      "confidence": "exact"
+    },
+    "205": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
       "confidence": "exact"
     },
     "208": {
@@ -626,6 +706,11 @@
       ],
       "confidence": "exact"
     },
+    "223": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
+      "confidence": "exact"
+    },
     "226": {
       "primary_person_id": "tzach-feinsilver",
       "related_person_ids": [],
@@ -680,6 +765,11 @@
         "chris-reynolds",
         "luke-martin"
       ],
+      "confidence": "exact"
+    },
+    "241": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
       "confidence": "exact"
     },
     "243": {
@@ -771,6 +861,11 @@
       "related_person_ids": [
         "trent-luecke"
       ],
+      "confidence": "exact"
+    },
+    "263": {
+      "primary_person_id": "drew-devine",
+      "related_person_ids": [],
       "confidence": "exact"
     },
     "265": {
@@ -11779,29 +11874,265 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "2552": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2553": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2554": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2555": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2556": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2557": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2558": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2559": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2560": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2561": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2562": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2563": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2564": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2565": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2566": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2567": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2568": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2569": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2570": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2571": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2572": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2573": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2574": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2575": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2576": {
+      "primary_person_id": "luke-martin",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2577": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2578": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2579": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2580": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2581": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2582": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2583": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2584": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2585": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2586": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2587": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2588": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2589": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2590": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2591": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "2592": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2593": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2594": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2595": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2596": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2597": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2598": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "2599": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
     0,
-    1,
     2,
     3,
     4,
     5,
     8,
-    9,
     10,
     11,
     12,
     13,
     16,
-    17,
     18,
     19,
     20,
     21,
     25,
-    26,
     27,
     28,
     29,
@@ -11810,7 +12141,6 @@
     34,
     35,
     36,
-    37,
     38,
     39,
     40,
@@ -11818,38 +12148,32 @@
     42,
     45,
     46,
-    47,
     48,
     49,
     50,
     51,
     52,
     56,
-    57,
     58,
     59,
     60,
     61,
     62,
     77,
-    78,
     79,
     80,
     81,
     85,
-    86,
     87,
     88,
     89,
     92,
-    93,
     94,
     95,
     118,
     137,
     138,
     139,
-    140,
     141,
     142,
     143,
@@ -11857,25 +12181,20 @@
     154,
     155,
     156,
-    157,
     158,
     159,
     160,
-    170,
     171,
     172,
     173,
-    182,
     183,
     184,
     185,
     191,
-    192,
     193,
     194,
     195,
     204,
-    205,
     206,
     207,
     209,
@@ -11883,7 +12202,6 @@
     220,
     221,
     222,
-    223,
     224,
     225,
     227,
@@ -11891,12 +12209,10 @@
     238,
     239,
     240,
-    241,
     242,
     244,
     261,
     262,
-    263,
     264,
     266,
     284,
@@ -12002,7 +12318,6 @@
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
-    "drew-devine",
     "tyler-landeck-—-ala",
     "mike-ruth-—-dap",
     "greg-hetherington-—-youthlete-academy",
