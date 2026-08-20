@@ -185,6 +185,11 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         manual_resolved = False
         chosen_primary = ""
         dropped = False
+        seed_stage = ""
+        seed_outcome = ""
+        seed_import_ts = None
+        seed_value = None
+        seed_account = ""
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -224,6 +229,18 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                         chosen_primary = proposed_primary
                 if act == "not_a_deal":
                     dropped = True
+            if e.kind == "seed":
+                p = _payload(e)
+                if p.get("stage"):
+                    seed_stage = p["stage"]
+                if p.get("outcome"):
+                    seed_outcome = p["outcome"]
+                if p.get("import_ts"):
+                    seed_import_ts = p["import_ts"]
+                if p.get("estimated_value") is not None:
+                    seed_value = p["estimated_value"]
+                if e.account_name:
+                    seed_account = e.account_name
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
 
@@ -233,13 +250,22 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
 
         d.contact_emails = contacts
         d.cycle_start = d.demo_date  # min(trial, demo) == demo in Phase 1a
-        if d.outcome == "lost":
+        has_real = any(e.kind in ("demo", "trial", "sale") for e in evs)
+        if d.outcome == "lost":                 # explicit status=lost event — terminal
             d.stage = "lost"
             d.lost_reason = lost_reason
+        elif has_real:                          # real demo/trial/sale drives stage
+            d.outcome = "open"
+            d.stage = "demoed"
+        elif seed_stage or seed_outcome:        # seed-only: imported state is ground truth
+            d.outcome = seed_outcome or "open"
+            d.stage = seed_stage or "demoed"
         else:
             d.outcome = "open"
             d.stage = "demoed"
-        d.account_name = "" if email.startswith("unresolved:") else (crosswalk.get(email) or domain_to_name(email))
+        if d.deal_value is None and seed_value is not None:
+            d.deal_value = seed_value
+        d.account_name = "" if email.startswith("unresolved:") else (crosswalk.get(email) or seed_account or domain_to_name(email))
 
         # Cross-demo merge spanning >1 derived account → account_conflict.
         # Only fires on a REAL cross-demo merge (>1 demo event in the
@@ -252,8 +278,11 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         if not ambiguous_reason and demo_count > 1 and len(accounts) > 1:
             ambiguous_reason = "account_conflict"
 
+        # A seed-only OPEN deal anchors its 45-day clock to the import date
+        # (clean slate: nothing stale on import day; ages in after import+45d).
+        seed_anchor = seed_import_ts if (not has_real and (seed_stage or seed_outcome)) else None
         snoozed = isinstance(check_back, str) and bool(check_back) and check_back > today[:10]
-        effective_start = max([s for s in (d.cycle_start, last_active_at) if s], default=None)
+        effective_start = max([s for s in (d.cycle_start, last_active_at, seed_anchor) if s], default=None)
 
         if d.outcome == "lost":
             d.review = {"needs": False}
@@ -262,7 +291,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                         "proposed": {"email": email, "account_name": d.account_name, "rep": d.rep}}
         elif snoozed:
             d.review = {"needs": False, "check_back": check_back}
-        elif effective_start and _days_since(effective_start, today) >= stale_days:
+        elif d.outcome == "open" and effective_start and _days_since(effective_start, today) >= stale_days:
             d.review = {"needs": True, "kind": "stale_check", "reason": "aged_%dd" % stale_days,
                         "proposed": None}
         else:

@@ -421,3 +421,56 @@ def test_non_string_email_is_total_and_skipped():
     good = _demo("d1", "jane@acme.com", "2026-08-11T00:00:00Z", ["jane@acme.com"])
     deals = build_deals([bad, good], {}, TODAY)  # must not raise
     assert set(deals) == {"jane@acme.com"}
+
+
+def _seed(uuid, email, ts, stage, outcome, import_ts, account="", value=None):
+    from lib.deal_events import DealEvent
+    return DealEvent(event_id=uuid, email=email, email_raw="", kind="seed", timestamp=ts,
+                     account_name=account, source="notion-backfill",
+                     payload={"stage": stage, "outcome": outcome, "import_ts": import_ts,
+                              "estimated_value": value})
+
+
+def test_seed_only_deal_takes_seed_stage_and_outcome():
+    # import today so the clean-slate clock keeps it off the stale queue
+    d = build_deals([_seed("s1", "notion:p1", "2026-05-01", "in_trial", "open",
+                            TODAY, account="Kim Johnston")], {}, TODAY)["notion:p1"]
+    assert d.stage == "in_trial" and d.outcome == "open"
+    assert d.account_name == "Kim Johnston"          # seed_account for a notion: key
+    assert d.last_event_at == "2026-05-01"           # real last_contacted shown
+    assert d.review["needs"] is False                # clean slate: not stale at import
+
+
+def test_seed_won_and_lost_are_terminal_and_off_review():
+    won = build_deals([_seed("s1", "notion:p1", "2025-01-01", "won", "won", TODAY)], {}, TODAY)["notion:p1"]
+    lost = build_deals([_seed("s2", "notion:p2", "2025-01-01", "lost", "lost", TODAY)], {}, TODAY)["notion:p2"]
+    assert won.outcome == "won" and won.stage == "won" and won.review["needs"] is False
+    assert lost.outcome == "lost" and lost.stage == "lost" and lost.review["needs"] is False
+
+
+def test_seed_clean_slate_goes_stale_after_import_plus_45d():
+    # import_ts 60 days before today -> now stale (post-import inactivity)
+    d = build_deals([_seed("s1", "notion:p1", "2026-01-01", "demoed", "open",
+                            "2026-06-20")], {}, TODAY, stale_days=45)["notion:p1"]
+    assert d.review["needs"] is True and d.review["kind"] == "stale_check"
+
+
+def test_real_demo_supersedes_seed_stage_on_same_email():
+    seed = _seed("s1", "jane@acme.com", "2026-05-01", "won", "won", TODAY, account="Old Name")
+    demo = _demo("d1", "jane@acme.com", "2026-08-15T00:00:00Z", ["jane@acme.com"])
+    d = build_deals([seed, demo], {}, TODAY)["jane@acme.com"]
+    assert d.stage == "demoed" and d.outcome == "open"   # real demo wins
+    assert d.demo_date == "2026-08-15T00:00:00Z"
+
+
+def test_seed_value_fills_deal_value():
+    d = build_deals([_seed("s1", "notion:p1", "2026-08-01", "demoed", "open", TODAY, value=2000)], {}, TODAY)["notion:p1"]
+    assert d.deal_value == 2000
+
+
+def test_seed_fold_is_order_independent():
+    a = _seed("s1", "notion:p1", "2026-05-01", "in_trial", "open", TODAY)
+    b = _seed("s2", "notion:p2", "2025-01-01", "lost", "lost", TODAY)
+    fwd = build_deals([a, b], {}, TODAY)
+    bwd = build_deals([b, a], {}, TODAY)
+    assert {k: fwd[k].stage for k in fwd} == {k: bwd[k].stage for k in bwd}
