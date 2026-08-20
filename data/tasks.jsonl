@@ -270,3 +270,11 @@
 {"event": "complete", "task_id": "t-bc6717", "completed_at": "2026-08-20"}
 {"event": "complete", "task_id": "t-e208ef", "completed_at": "2026-08-20"}
 {"event": "create", "task_id": "t-7bcc03", "title": "outline what Andrea onboarding needs", "source": "ui", "created_at": "2026-08-20", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "edit", "task_id": "t-de886e", "patch": {"title": "Build the projection: deal_events.jsonl (folded) -> deal_pipeline_cache.json in today's exact pipeline_cache shape ({fetched_at, leads}). Built as a shadow cache file; the live seam-swap into pipeline_cache.json is deferred to the consumer-migration task (t-d0d636)."}}
+{"event": "edit", "task_id": "t-d0d636", "patch": {"title": "[DEFERRED / come back to this] Migrate CoS consumers off pipeline_cache.json onto the deal store (deal_events.jsonl folded via deal_fold, or the projected deal_pipeline_cache.json) and retire pipeline_cache.json (the projection seam is temporary)."}}
+{"event": "complete", "task_id": "t-87c719", "completed_at": "2026-08-20"}
+{"event": "complete", "task_id": "t-8fc043", "completed_at": "2026-08-20"}
+{"event": "complete", "task_id": "t-de886e", "completed_at": "2026-08-20"}
+{"event": "complete", "task_id": "t-78bb8e", "completed_at": "2026-08-20"}
+{"event": "complete", "task_id": "t-a43140", "completed_at": "2026-08-20"}
+{"event": "complete", "task_id": "t-0867b7", "completed_at": "2026-08-20"}
