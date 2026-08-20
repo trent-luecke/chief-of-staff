@@ -1,9 +1,5 @@
 {
-<<<<<<< Updated upstream
-  "fetched_at": "2026-08-20T00:00:00Z",
-=======
-  "synced_at": "2026-08-20T00:50:04.777584Z",
->>>>>>> Stashed changes
+  "synced_at": "2026-08-20T00:54:45.963754Z",
   "leads": [
     {
       "page_id": "22224bca-36d7-8000-a4e1-e308ccd157c7",
@@ -493,45 +489,6 @@
       "email": "jennifer.kimball@imail.org",
       "status": "In-Trial / Post Demo",
       "priority": null,
-<<<<<<< Updated upstream
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "David Arcemant",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Chris Stahl",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-16",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-=======
       "last_contacted": "2026-03-10",
       "days_since_contact": 162,
       "estimated_value": null,
@@ -693,7 +650,6 @@
       "estimated_value": null,
       "source": null,
       "stale": true
->>>>>>> Stashed changes
     },
     {
       "page_id": "29624bca-36d7-8150-9733-ca0d4fe4157e",
@@ -784,8 +740,6 @@
       "days_since_contact": 22,
       "estimated_value": null,
       "source": null,
-<<<<<<< Updated upstream
-=======
       "stale": true
     },
     {
@@ -1189,7 +1143,6 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": null,
->>>>>>> Stashed changes
       "stale": false
     },
     {
@@ -1281,40 +1234,11 @@
       "days_since_contact": 84,
       "estimated_value": null,
       "source": null,
-<<<<<<< Updated upstream
-      "stale": false
-    },
-    {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-06",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Mark Olson — Athletic Mentors",
-=======
       "stale": true
     },
     {
       "page_id": "37b24bca-36d7-8127-8ae6-cd4368edde79",
       "name": "Mark Olson \u2014 Athletic Mentors",
->>>>>>> Stashed changes
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
@@ -1326,28 +1250,6 @@
       "stale": true
     },
     {
-<<<<<<< Updated upstream
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-01",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Jamie Tellier",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-28",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-=======
       "page_id": "37c24bca-36d7-81e0-8242-e4fca4446761",
       "name": "Meredith Ingbretson",
       "contact": "Meredith Ingbretson",
@@ -1385,7 +1287,6 @@
       "estimated_value": null,
       "source": null,
       "stale": true
->>>>>>> Stashed changes
     },
     {
       "page_id": "38224bca-36d7-81f8-8437-f80db0a61596",
@@ -1398,11 +1299,7 @@
       "days_since_contact": 63,
       "estimated_value": null,
       "source": null,
-<<<<<<< Updated upstream
-      "stale": false
-=======
       "stale": true
->>>>>>> Stashed changes
     },
     {
       "page_id": "38324bca-36d7-8003-8d55-ec2ec8cd2b36",
@@ -1532,56 +1429,20 @@
       "days_since_contact": 29,
       "estimated_value": null,
       "source": null,
-<<<<<<< Updated upstream
-      "stale": false
-    },
-    {
-      "name": "Dante Perez",
-      "contact": "Dante Perez",
-      "email": "dante@vlfsportsperformance.com",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-04-30",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
-=======
       "stale": true
     },
     {
       "page_id": "3ad24bca-36d7-8197-98ef-d2b4a31ddc62",
       "name": "Jamie Tellier",
->>>>>>> Stashed changes
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": null,
-<<<<<<< Updated upstream
-      "last_contacted": "2026-07-09",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 2000.0,
-      "source": null,
-      "stale": false
-=======
       "last_contacted": "2026-07-28",
       "days_since_contact": 22,
       "estimated_value": null,
       "source": null,
       "stale": true
->>>>>>> Stashed changes
     }
   ]
 }
