@@ -410,6 +410,14 @@ def test_build_deals_to_review_is_deterministically_ordered():
     assert [r["deal_key"] for r in review["identity"]] == ["a@x.com", "b@x.com"]
 
 
+def test_unmatched_sale_surfaces_in_identity_queue():
+    deals = build_deals([_sale("ghost@nowhere.com", "2026-08-15")], {}, TODAY)
+    review = build_deals_to_review(deals)
+    keys = [item["deal_key"] for item in review["identity"]]
+    assert "ghost@nowhere.com" in keys
+    assert review["counts"]["identity"] >= 1
+
+
 def test_non_string_email_is_total_and_skipped():
     # A malformed event with a non-string (int) email must not raise —
     # `not e.email` is falsy-only, so a truthy non-string like 12345 used to

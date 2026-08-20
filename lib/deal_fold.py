@@ -358,7 +358,7 @@ def build_deals_to_review(deals: dict) -> dict:
         d = deals[key]
         if not d.review.get("needs"):
             continue
-        if d.review.get("kind") == "ambiguous":
+        if d.review.get("kind") in ("ambiguous", "unmatched_sale"):
             identity.append({
                 "deal_key": d.email,
                 "account_name": d.account_name,
