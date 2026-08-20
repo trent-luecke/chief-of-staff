@@ -1,9 +1,41 @@
 """Turn analyzed Avoma demo transcripts into email-keyed DealEvents."""
 from __future__ import annotations
 
+from datetime import datetime
+
 from lib.deal_crosswalk import FREE_EMAIL_DOMAINS
 from lib.deal_events import DealEvent, make_event_id
 from lib.email_norm import normalize_email
+
+_DATE_FORMATS = ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y")
+
+
+def parse_money(raw: str | None) -> float | None:
+    """'$1,200' -> 1200.0; blank/non-numeric -> None."""
+    if raw is None:
+        return None
+    s = str(raw).strip().replace("$", "").replace(",", "").strip()
+    if not s:
+        return None
+    try:
+        return float(s)
+    except ValueError:
+        return None
+
+
+def parse_close_date(raw: str | None) -> str | None:
+    """Tolerant close-date parse to ISO 'YYYY-MM-DD'; unparseable -> None."""
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if not s:
+        return None
+    for fmt in _DATE_FORMATS:
+        try:
+            return datetime.strptime(s, fmt).date().isoformat()
+        except ValueError:
+            continue
+    return None
 
 _GENERIC_LOCALS = {"info", "sales", "office", "admin", "contact", "hello", "team", "support"}
 

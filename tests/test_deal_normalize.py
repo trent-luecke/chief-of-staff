@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from lib.deal_normalize import normalize_demo_events
+from lib.deal_normalize import normalize_demo_events, parse_money, parse_close_date
 
 
 @dataclass
@@ -75,3 +75,26 @@ def test_free_email_prospect_is_flagged():
     ev = normalize_demo_events([_demo("u9", [{"name": "Davin", "email": "davinroach@gmail.com"}])])[0]
     assert ev.email == "davinroach@gmail.com"
     assert ev.payload["ambiguous_reason"] == "free_email"
+
+
+def test_parse_money_strips_currency_and_commas():
+    assert parse_money("$1,200") == 1200.0
+    assert parse_money("1200") == 1200.0
+    assert parse_money(" $3,499.50 ") == 3499.50
+
+
+def test_parse_money_blank_or_bad_is_none():
+    assert parse_money("") is None
+    assert parse_money(None) is None
+    assert parse_money("N/A") is None
+
+
+def test_parse_close_date_accepts_slash_and_iso():
+    assert parse_close_date("8/18/2026") == "2026-08-18"
+    assert parse_close_date("2026-08-18") == "2026-08-18"
+
+
+def test_parse_close_date_blank_or_bad_is_none():
+    assert parse_close_date("") is None
+    assert parse_close_date(None) is None
+    assert parse_close_date("not a date") is None
