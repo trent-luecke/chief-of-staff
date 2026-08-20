@@ -318,6 +318,7 @@ def main() -> None:
             transcripts, dstore, today=today,
             fetched_at=datetime.utcnow().isoformat() + "Z",
             stale_days=stale_days, base_url=base_url, password=password,
+            config=config,
         )
         print(f"   Deal store: {summary}")
     except Exception as e:

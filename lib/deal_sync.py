@@ -2,19 +2,27 @@
 from __future__ import annotations
 
 import dataclasses
+import sys
 
 from lib.deal_crosswalk import load_crosswalk
 from lib.deal_events import append_events, load_events
 from lib.deal_fold import build_deals
-from lib.deal_normalize import normalize_demo_events
+from lib.deal_normalize import normalize_demo_events, normalize_sale_events
 from lib.deal_projection import deals_to_pipeline_cache
 from lib.metrics_client import push_deals
+from lib.sales_sheet import fetch_sale_rows
 
 
 def refresh_deal_store(transcripts, storage, today: str, fetched_at: str,
                        stale_days: int = 45, cache_key: str = "deal_pipeline_cache.json",
-                       base_url: str = "", password: str = "") -> dict:
+                       base_url: str = "", password: str = "", config: dict | None = None) -> dict:
     appended = append_events(storage, normalize_demo_events(transcripts))
+    if config is not None:
+        try:
+            sale_rows = fetch_sale_rows(config, today)
+            appended += append_events(storage, normalize_sale_events(sale_rows))
+        except Exception as e:  # non-fatal: sales never sink the deal refresh
+            print(f"⚠️  Sale sync error (non-fatal): {e}", file=sys.stderr)
     events = load_events(storage)
     crosswalk = load_crosswalk(storage)
     deals = build_deals(events, crosswalk, today, stale_days=stale_days)

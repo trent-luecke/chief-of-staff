@@ -33,3 +33,31 @@ def test_refresh_is_idempotent_and_skips_push_without_base_url(tmp_path):
     refresh_deal_store(transcripts, s, "2026-08-18", "2026-08-18T00:00:00Z")
     out = refresh_deal_store(transcripts, s, "2026-08-18", "2026-08-18T00:00:00Z")
     assert out == {"deals": 1, "appended": 0, "pushed": False}
+
+
+def test_refresh_ingests_sales_when_config_provided(tmp_path, monkeypatch):
+    s = LocalStorage(base_dir=str(tmp_path))
+    transcripts = [T("u1", "Demo", "2026-08-01T15:00:00Z", "demo", True, "Luke Martin",
+                     [{"name": "Jane", "email": "jane@acme.com"}])]
+    monkeypatch.setattr(
+        "lib.deal_sync.fetch_sale_rows",
+        lambda config, today: [{"date": "8/15/2026", "total_sale": "$1,200",
+                                "customer_name": "Acme", "customer_email": "jane@acme.com",
+                                "salesperson": "Luke Martin", "source": "os_only"}],
+    )
+    out = refresh_deal_store(transcripts, s, "2026-08-18", "2026-08-18T00:00:00Z",
+                             config={"meeting_prep": {"sheets": {"sales_spreadsheet_id": "SID"}}})
+    cache = s.read_json("deal_pipeline_cache.json")
+    lead = next(l for l in cache["leads"] if l["email"] == "jane@acme.com")
+    assert lead["status"] == "won"
+    assert out["appended"] == 2  # 1 demo + 1 sale
+
+
+def test_refresh_without_config_skips_sales(tmp_path, monkeypatch):
+    s = LocalStorage(base_dir=str(tmp_path))
+    monkeypatch.setattr("lib.deal_sync.fetch_sale_rows",
+                        lambda config, today: (_ for _ in ()).throw(AssertionError("must not fetch")))
+    transcripts = [T("u1", "Demo", "2026-08-01T15:00:00Z", "demo", True, "Luke Martin",
+                     [{"name": "Jane", "email": "jane@acme.com"}])]
+    out = refresh_deal_store(transcripts, s, "2026-08-18", "2026-08-18T00:00:00Z")
+    assert out["appended"] == 1  # demo only; sale block not entered
