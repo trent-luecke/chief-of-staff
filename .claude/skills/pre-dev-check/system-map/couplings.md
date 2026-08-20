@@ -31,3 +31,35 @@
 - **Code:** `backend/app/modules/bookings/routes/createOneAppointmentBooking.ts:29-34,63-71` and the `ignoreConflict` arg to `Booking.bookAppointment` in the booking loop
 - **Severity:** high
 - **Discovered:** 2026-08-12 · analysis:member-booked-appointments
+
+### "Attendance" and "sign-in" both derive from a staff-set `booking.isSignedIn` flag
+- **Depends on:** any attendance / engagement / churn metric assumes `booking.isSignedIn` reflects whether the member actually showed up
+- **Held by:** `isSignedIn` is a boolean on `Booking` toggled ONLY by a staff route (`bookings/routes/signIn.ts`, gated `OWNER/ADMIN/FRONT-DESK/TEACHER`). The canonical reports define `attended = status===booked && isSignedIn` and `noShow = booked && !isSignedIn && past` (`reports/helpers/bookings/bookingsGetAttendance.ts:66-82`, mirrored in `members/membersGetAttendance.ts`). There is no member self-check-in and no door/access-control feed into this flag.
+- **Invalidated when:** data coupling — a new consumer treats `isSignedIn` as ground-truth attendance. At any studio that does not rigorously check members in, `isSignedIn` is false for attendees, so attendance reads as zero for the whole roster. A churn/at-risk report keyed on this silently flags everyone at low-check-in-discipline studios.
+- **Code:** `backend/app/modules/bookings/routes/signIn.ts:37-44` (staff gate), `backend/app/modules/bookings/mysqlModel.ts:71,128-135` (`isSignedIn`, `setSignInStatus`), `backend/app/modules/reports/helpers/bookings/bookingsGetAttendance.ts:66-82` (attended/noShow definition)
+- **Severity:** high
+- **Discovered:** 2026-08-17 · analysis:at-risk-report
+
+### Report date boundaries must be computed in `studio.timeZone`, not server/UTC time
+- **Depends on:** any report with calendar-boundary semantics (last full week Mon–Sun, last full calendar month, "as of Sunday evening") assumes boundaries are in the studio's local time
+- **Held by:** TWO date-range paths exist. Timezone-AWARE: `queryGetDateRange(start, end, studio.timeZone)` / `zonedTimeToUtc` — used by `members/membersGetAttendance.ts:29-32`, `reports/routes/payroll/*`, `reports/routes/teambuildr/quickStats.ts:19-20`. Timezone-NAIVE: `reports/helpers/dateRange.ts:getDateRange` does a raw `startDate >= gte AND <= lte` on the UTC column, and `bookingsGetAttendance.ts` uses `startOfDay(new Date())` = server time. The contract-renewal cron also runs on `startOfDay(new Date())` server time (`crons/routes/contractCrons.ts`).
+- **Invalidated when:** data coupling / entry-point — a new report or snapshot cron picks the naive path. Studios not in server-UTC get shifted week/month boundaries; a globally-timed "Sunday evening" snapshot fires at the wrong local moment and clips the just-closed week.
+- **Code:** aware — `@core/utils queryGetDateRange`, `date-fns-tz zonedTimeToUtc`; naive — `backend/app/modules/reports/helpers/dateRange.ts:getDateRange`, `bookingsGetAttendance.ts:52,80`; studio tz — `studios/mysqlModel.ts:150,1164` (`timeZone`)
+- **Severity:** high
+- **Discovered:** 2026-08-17 · analysis:at-risk-report
+
+### "Package" is not an entity — it's a `PricingOption.type`-tagged bundle of `Credit` rows; memberships also mint Credits
+- **Depends on:** package-only logic (low-credit, expiring-package, no-active-package) assumes it can identify "a package" and its credit balance/expiry
+- **Held by:** there is no Package model. A purchase mints `Credit` rows (`credits/mysqlModel.ts` createFromSale) whose source type is `pricingOption.type` — `MEMBERSHIP` vs `CATEGORIES`/`APPOINTMENTS`/`HYBRID` (`credits/mysqlModel.ts:180-188`). Memberships ALSO mint Credit rows (type `MEMBERSHIP`), refreshed every cycle by the contract-renewal cron. Balance is not a stored field: it's Σ(`amount` − `used`) over non-deleted, non-expired credits whose contract isn't paused/canceled (`credits/mysqlModel.ts:316` uses `used < amount`; contract-pause check at `:454-485`). A member can hold several bundles with different expiries.
+- **Invalidated when:** data coupling — a churn report queries credit balance/expiry without filtering `pricingOption.type != MEMBERSHIP`, so it fires package alerts on membership members near cycle-end; or treats "a package" as one balance/expiry when a member holds multiple bundles.
+- **Code:** `backend/app/modules/credits/mysqlModel.ts:180-188` (type discriminator), `:316` (remaining filter), `:454-485` (contract active check); `pricing/mysqlModel.ts` (`PricingOptionTypesENUM`); renewal via `crons/routes/contractCrons.ts` + `sales/helpers/handleSaleOnSuccess.ts`
+- **Severity:** high
+- **Discovered:** 2026-08-17 · analysis:at-risk-report
+
+### "Cancellation" is overloaded — booking-status cancel vs `contract.isCanceled`, and studio-initiated cascades
+- **Depends on:** a "cancellations in last 28 days" churn signal assumes cancellations mean member-initiated disengagement
+- **Held by:** booking cancels live on `booking.status ∈ {canceled(3), late-cancel(4)}` (`core/config/common.ts:213-231`); membership cancel is a separate `contract.isCanceled` boolean. Studio/class-level cancellations CASCADE to members' bookings, flipping them to CANCELED / LATE-CANCEL in bulk (`bookings/helpers/cancelAllBookingsByTimeFrameForAccount.ts:68-102`, `workshops/routes/deleteOne.ts:86`, `sales/mysqlModel.ts:475`) — these are not member disengagement. The canonical attendance report already counts `canceled = canceled || late-cancel` (`bookingsGetAttendance.ts:73-77`).
+- **Invalidated when:** data coupling — the report counts raw booking-status cancellations without excluding studio-initiated cascades or deciding on late-cancel, inflating the churn signal with gym-caused cancellations.
+- **Code:** `backend/core/config/common.ts:213-231` (status enum), `backend/app/modules/bookings/helpers/cancelAllBookingsByTimeFrameForAccount.ts:68-102`, `backend/app/modules/reports/helpers/bookings/bookingsGetAttendance.ts:73-77`, `contracts/mysqlModel.ts` (`isCanceled`)
+- **Severity:** med
+- **Discovered:** 2026-08-17 · analysis:at-risk-report
