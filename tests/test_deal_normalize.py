@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from lib.deal_normalize import normalize_demo_events, parse_money, parse_close_date
+from lib.deal_normalize import normalize_demo_events, normalize_sale_events, parse_money, parse_close_date
 
 
 @dataclass
@@ -98,3 +98,46 @@ def test_parse_close_date_blank_or_bad_is_none():
     assert parse_close_date("") is None
     assert parse_close_date(None) is None
     assert parse_close_date("not a date") is None
+
+
+def _row(email="jane@acme.com", date="8/18/2026", total="$1,200",
+         name="Acme", rep="Luke Martin", source="os_only"):
+    return {"date": date, "total_sale": total, "customer_name": name,
+            "customer_email": email, "salesperson": rep, "source": source}
+
+
+def test_normalize_sale_event_basic():
+    evs = normalize_sale_events([_row()])
+    assert len(evs) == 1
+    e = evs[0]
+    assert e.kind == "sale"
+    assert e.email == "jane@acme.com"
+    assert e.timestamp == "2026-08-18"
+    assert e.rep == "Luke Martin"
+    assert e.account_name == "Acme"
+    assert e.source == "os_only"
+    assert e.payload["deal_value"] == 1200.0
+
+
+def test_normalize_sale_skips_internal_and_blank_email():
+    rows = [_row(email="rep@teambuildr.com"), _row(email=""), _row(email="nope")]
+    assert normalize_sale_events(rows) == []
+
+
+def test_normalize_sale_skips_row_without_date():
+    assert normalize_sale_events([_row(date="")]) == []
+
+
+def test_normalize_sale_event_id_is_stable_and_content_based():
+    a = normalize_sale_events([_row()])[0]
+    b = normalize_sale_events([_row()])[0]
+    assert a.event_id == b.event_id
+    # editing the amount changes the id (new event; fold later-wins handles it)
+    c = normalize_sale_events([_row(total="$1,300")])[0]
+    assert c.event_id != a.event_id
+
+
+def test_normalize_sale_bundle_source_and_null_value():
+    e = normalize_sale_events([_row(total="", source="bundle")])[0]
+    assert e.source == "bundle"
+    assert e.payload["deal_value"] is None

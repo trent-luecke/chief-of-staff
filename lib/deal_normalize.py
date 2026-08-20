@@ -98,3 +98,32 @@ def normalize_demo_events(transcripts: list) -> list[DealEvent]:
             },
         ))
     return events
+
+
+def normalize_sale_events(rows: list[dict]) -> list[DealEvent]:
+    """Turn Sales Tracker rows into email-keyed `sale` DealEvents. Rows without
+    a valid external email or a parseable close date are skipped."""
+    events: list[DealEvent] = []
+    for r in rows:
+        raw_email = r.get("customer_email", "") or ""
+        email = normalize_email(raw_email)
+        if not email:
+            continue
+        close = parse_close_date(r.get("date"))
+        if not close:
+            continue
+        total_raw = r.get("total_sale", "") or ""
+        value = parse_money(total_raw)
+        native_id = f"{close}|{email}|{total_raw}"
+        events.append(DealEvent(
+            event_id=make_event_id("sale", native_id, email),
+            email=email,
+            email_raw=raw_email,
+            kind="sale",
+            timestamp=close,
+            account_name=r.get("customer_name", "") or "",
+            rep=r.get("salesperson", "") or "",
+            source=r.get("source", "") or "",
+            payload={"deal_value": value},
+        ))
+    return events
