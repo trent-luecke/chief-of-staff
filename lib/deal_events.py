@@ -13,7 +13,7 @@ class DealEvent:
     event_id: str
     email: str
     email_raw: str
-    kind: str  # demo | trial | sale | status | manual
+    kind: str  # demo | trial | sale | status | manual | seed
     timestamp: str  # ISO 8601
     account_name: str = ""
     rep: str = ""
