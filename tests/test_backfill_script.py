@@ -1,6 +1,12 @@
 import importlib
+import subprocess
+import sys
+from pathlib import Path
+
 from lib.storage import LocalStorage
 from lib.deal_events import load_events
+
+_SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "backfill_deals.py"
 
 
 def _storage(tmp_path):
@@ -31,3 +37,27 @@ def test_real_run_appends_and_is_idempotent(tmp_path):
     second = mod.run_backfill(st, "2026-08-19T12:00:00Z", dry_run=False)
     assert second["appended"] == 0                        # idempotent
     assert len(load_events(st)) == 2
+
+
+def test_cli_dry_run_invocation_succeeds(tmp_path):
+    """Invoke the script as a real subprocess (not via importlib) to catch
+    sys.path / import errors that pytest's own path setup would mask."""
+    (tmp_path / "config.json").write_text('{"data_dir": "data"}')
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    (data_dir / "pipeline_cache.json").write_text(
+        '{"leads": ['
+        '{"page_id":"p1","name":"Acme","email":"jane@acme.com","status":"In-Trial / Post Demo","last_contacted":"2026-06-24","estimated_value":2000},'
+        '{"page_id":"p2","name":"Baxter","email":null,"status":"Lost","last_contacted":"2026-05-21"}'
+        ']}')
+
+    result = subprocess.run(
+        [sys.executable, str(_SCRIPT), "--dry-run"],
+        cwd=str(tmp_path),
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "leads" in result.stdout
+    assert not (data_dir / "deal_events.jsonl").exists()
