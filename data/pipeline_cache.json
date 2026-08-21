@@ -1,17 +1,6 @@
 {
-  "fetched_at": "2026-08-20T00:00:00Z",
+  "fetched_at": "2026-08-21T00:00:00.000Z",
   "leads": [
-    {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
     {
       "name": "Kim Johnston",
       "contact": "",
@@ -19,6 +8,17 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "High Ground Performance (Taino Fears-Perez)",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -46,12 +46,12 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
+      "name": "Evan Nystrom",
+      "contact": "Evan Nystrom",
+      "email": "evan@outlierathlete.com",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-06",
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -63,6 +63,17 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -90,12 +101,12 @@
       "stale": false
     },
     {
-      "name": "Andrew Levine",
+      "name": "Baxter Pattison",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-21",
+      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -112,17 +123,6 @@
       "stale": false
     },
     {
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-01",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Wave Wellness",
       "contact": "",
       "email": "",
@@ -134,23 +134,12 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "name": "Andrew Levine",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-09",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Evan Nystrom",
-      "contact": "Evan Nystrom",
-      "email": "evan@outlierathlete.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-28",
+      "last_contacted": "2026-07-21",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -167,13 +156,24 @@
       "stale": false
     },
     {
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-09",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Aaron Letinksi",
       "contact": "Aaron Letinski",
       "email": "letinskia26@gmail.com",
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     }
