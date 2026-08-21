@@ -42,6 +42,21 @@ def test_split_sections_empty():
     assert _split_sections([]) == []
 
 
+def test_split_sections_resolves_columns_by_header_name_not_position():
+    # Columns deliberately reordered vs the usual layout.
+    values = [
+        ["Customer Email", "Salesperson", "Date", "Customer Name", "Total Sale"],
+        ["a@acme.com", "Luke Martin", "8/1/2026", "Acme", "$1,000"],
+    ]
+    rows = _split_sections(values)
+    assert rows[0]["customer_email"] == "a@acme.com"
+    assert rows[0]["salesperson"] == "Luke Martin"
+    assert rows[0]["date"] == "8/1/2026"
+    assert rows[0]["customer_name"] == "Acme"
+    assert rows[0]["total_sale"] == "$1,000"
+    assert rows[0]["source"] == "os_only"
+
+
 class _FakeService:
     def __init__(self, values):
         self._values = values

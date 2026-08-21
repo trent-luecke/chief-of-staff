@@ -69,6 +69,8 @@ def fetch_sale_rows(config: dict, today: str, service=None) -> list[dict]:
             .get(spreadsheetId=sid, range=f"'{tab}'!A1:G200")
             .execute()
         )
-    except Exception:
+    except Exception as e:
+        import sys
+        print(f"⚠️  Sales sheet read failed (non-fatal): {e}", file=sys.stderr)
         return []
     return _split_sections(resp.get("values", []))

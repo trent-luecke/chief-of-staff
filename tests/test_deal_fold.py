@@ -529,3 +529,17 @@ def test_later_sale_wins_on_correction():
 def test_sale_only_deal_has_no_cycle_start():
     d = build_deals([_sale("ghost@nowhere.com", "2026-08-15")], {}, TODAY)["ghost@nowhere.com"]
     assert d.cycle_start is None  # excluded from cycle-velocity, still a won count
+
+
+def test_same_date_amount_correction_is_deterministic():
+    # Two sale events, same email + same close date, different amounts (distinct
+    # event_ids). Per spec §7, the winner is decided deterministically by event_id,
+    # NOT guaranteed to be the later-ingested correction. Pin: stable + one of them.
+    events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
+              _sale("jane@acme.com", "2026-08-15", value=1200.0),
+              _sale("jane@acme.com", "2026-08-15", value=1500.0)]
+    d1 = build_deals(list(events), {}, TODAY)["jane@acme.com"]
+    d2 = build_deals(list(reversed(events)), {}, TODAY)["jane@acme.com"]
+    assert d1.outcome == "won" and d1.close_date == "2026-08-15"
+    assert d1.deal_value in (1200.0, 1500.0)
+    assert d1.deal_value == d2.deal_value  # deterministic regardless of input order

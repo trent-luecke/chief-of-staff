@@ -246,7 +246,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
             if e.kind == "sale":
                 p = _payload(e)
                 if e.timestamp:
-                    d.close_date = e.timestamp        # evs sorted → later sale wins
+                    d.close_date = e.timestamp        # evs sorted by (timestamp, event_id): the latest close_date wins (see spec §7)
                 if p.get("deal_value") is not None:
                     d.deal_value = p["deal_value"]
                 if e.source:

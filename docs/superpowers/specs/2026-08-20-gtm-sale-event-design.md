@@ -137,10 +137,26 @@ Sales Tracker (current-month tab)
 
 ## 7. Idempotency & the edit trade-off
 
-`native_id = "{close_date}|{email}|{total_sale}"` makes nightly re-reads no-ops. **Trade-off:**
-editing a sale row's amount/date *after* ingest yields a *new* `event_id`; the fold's
-later-wins rule applies the correction, but a stale sale event remains in the log. Harmless
-(the deal reflects the latest values) and consistent with the append-only model.
+`native_id = "{close_date}|{email}|{total_sale}"` makes nightly re-reads no-ops.
+
+**Edit behavior (known limitation).** Editing a sale row *after* ingest yields a
+*new* `event_id`, so both the old and corrected sale events live in the log. The
+fold does **not** resolve these by ingest order — it applies sale fields in
+`(timestamp, event_id)` sort order, so the winner is the sale with the latest
+`close_date` (ties broken deterministically by `event_id`). Consequences:
+- Correcting a sale's **close date forward** → the corrected event sorts last and
+  wins. ✓
+- Correcting a sale's **close date backward** → the stale (later-dated) event still
+  wins; the correction does **not** apply.
+- Correcting only the **amount** (same close date) → the two events tie on
+  timestamp and the winner is decided deterministically by `event_id`, which is
+  **not guaranteed** to be the corrected row.
+
+For v1 this is acceptable: post-ingest edits are rare and never crash. True
+self-heal (last-appended wins regardless of date) is a fast-follow — it requires
+the fold to preserve ingest order, which it currently discards when sorting
+components. Until then, to force a correction, clear the stale event from
+`deal_events.jsonl`.
 
 ## 8. Out of scope
 
