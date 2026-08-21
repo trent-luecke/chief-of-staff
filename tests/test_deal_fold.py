@@ -531,15 +531,24 @@ def test_sale_only_deal_has_no_cycle_start():
     assert d.cycle_start is None  # excluded from cycle-velocity, still a won count
 
 
-def test_same_date_amount_correction_is_deterministic():
-    # Two sale events, same email + same close date, different amounts (distinct
-    # event_ids). Per spec §7, the winner is decided deterministically by event_id,
-    # NOT guaranteed to be the later-ingested correction. Pin: stable + one of them.
+def test_same_date_amount_correction_last_appended_wins():
+    # Append-only log: a corrected sale row is appended AFTER the original, so the
+    # last-appended sale wins even at the same close date (spec §7 self-heal). The
+    # correction value (1200) is lexically SMALLER than the stale one (1500), so a
+    # naive event_id sort would pick the wrong one — append order must win.
     events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
-              _sale("jane@acme.com", "2026-08-15", value=1200.0),
-              _sale("jane@acme.com", "2026-08-15", value=1500.0)]
-    d1 = build_deals(list(events), {}, TODAY)["jane@acme.com"]
-    d2 = build_deals(list(reversed(events)), {}, TODAY)["jane@acme.com"]
-    assert d1.outcome == "won" and d1.close_date == "2026-08-15"
-    assert d1.deal_value in (1200.0, 1500.0)
-    assert d1.deal_value == d2.deal_value  # deterministic regardless of input order
+              _sale("jane@acme.com", "2026-08-15", value=1500.0),   # original
+              _sale("jane@acme.com", "2026-08-15", value=1200.0)]   # correction, appended later
+    d = build_deals(events, {}, TODAY)["jane@acme.com"]
+    assert d.outcome == "won" and d.close_date == "2026-08-15"
+    assert d.deal_value == 1200.0  # the last-appended correction
+
+
+def test_backward_date_correction_self_heals():
+    # Typo close date 8/16 corrected to 8/15, appended later. The correction wins
+    # even though its close date sorts EARLIER — append order, not date, decides.
+    events = [_demo("a", "jane@acme.com", "2026-08-01T00:00:00Z", ["jane@acme.com"]),
+              _sale("jane@acme.com", "2026-08-16", value=1000.0),   # typo
+              _sale("jane@acme.com", "2026-08-15", value=1000.0)]   # correction, appended later
+    d = build_deals(events, {}, TODAY)["jane@acme.com"]
+    assert d.close_date == "2026-08-15"  # last-appended correction, not the later date

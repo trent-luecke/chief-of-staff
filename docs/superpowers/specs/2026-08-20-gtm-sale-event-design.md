@@ -139,24 +139,25 @@ Sales Tracker (current-month tab)
 
 `native_id = "{close_date}|{email}|{total_sale}"` makes nightly re-reads no-ops.
 
-**Edit behavior (known limitation).** Editing a sale row *after* ingest yields a
-*new* `event_id`, so both the old and corrected sale events live in the log. The
-fold does **not** resolve these by ingest order — it applies sale fields in
-`(timestamp, event_id)` sort order, so the winner is the sale with the latest
-`close_date` (ties broken deterministically by `event_id`). Consequences:
-- Correcting a sale's **close date forward** → the corrected event sorts last and
-  wins. ✓
-- Correcting a sale's **close date backward** → the stale (later-dated) event still
-  wins; the correction does **not** apply.
-- Correcting only the **amount** (same close date) → the two events tie on
-  timestamp and the winner is decided deterministically by `event_id`, which is
-  **not guaranteed** to be the corrected row.
+**Edit behavior (self-heal).** Editing a sale row *after* ingest yields a *new*
+`event_id`, so both the old and corrected sale events live in the log. The fold
+resolves them by **append order**: for a given deal, the **last-appended sale
+wins** (`build_deals` builds an `ingest_index` from the position of each event in
+the append-only `deal_events.jsonl`, and the winning sale is the one with the
+highest index). Because a corrected row is always appended *after* the stale one,
+the correction self-heals — regardless of whether the close date moved forward,
+backward, or not at all (an amount-only fix):
+- Correct the **close date** (either direction) → the last-appended event wins,
+  its date applies. ✓
+- Correct only the **amount** (same close date) → the last-appended event wins,
+  its value applies. ✓
 
-For v1 this is acceptable: post-ingest edits are rare and never crash. True
-self-heal (last-appended wins regardless of date) is a fast-follow — it requires
-the fold to preserve ingest order, which it currently discards when sorting
-components. Until then, to force a correction, clear the stale event from
-`deal_events.jsonl`.
+The stale sale event remains in the log (harmless); the deal reflects the latest
+values. **Order note:** sale-value resolution therefore depends on append order,
+which is well-defined for the append-only log (production always folds events in
+file order via `load_events`). This is a deliberate, narrow exception to the
+fold's otherwise order-independent grouping — append order *is* the authoritative
+"latest" signal for an event-sourced store.
 
 ## 8. Out of scope
 

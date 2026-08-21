@@ -171,6 +171,10 @@ def _canonical_key(component_events: list) -> str:
 
 def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45) -> dict:
     deals: dict[str, Deal] = {}
+    # Append order of the event log (deal_events.jsonl is append-only), used to
+    # resolve sale corrections: the last-appended sale for a deal wins, so a
+    # re-ingested/edited sale row self-heals regardless of close_date (spec §7).
+    ingest_index = {e.event_id: i for i, e in enumerate(events)}
     for comp in _group_components(events):
         evs = sorted(comp, key=lambda e: (e.timestamp or "", e.event_id))
         email = _canonical_key(comp)
@@ -192,6 +196,7 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
         seed_account = ""
         has_sale = False
         sale_source = ""
+        winning_sale_seq = -1
         for e in evs:
             if e.kind == "demo":
                 ts = e.timestamp or None
@@ -244,14 +249,21 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
                 if e.account_name:
                     seed_account = e.account_name
             if e.kind == "sale":
-                p = _payload(e)
-                if e.timestamp:
-                    d.close_date = e.timestamp        # evs sorted by (timestamp, event_id): the latest close_date wins (see spec §7)
-                if p.get("deal_value") is not None:
-                    d.deal_value = p["deal_value"]
-                if e.source:
-                    sale_source = e.source
                 has_sale = True
+                # `evs` is sorted by (timestamp, event_id), NOT append order, so
+                # select the winning sale by append index: the last-appended sale
+                # for this deal wins (a corrected row is appended after the stale
+                # one, so the correction self-heals — spec §7).
+                seq = ingest_index.get(e.event_id, -1)
+                if seq > winning_sale_seq:
+                    winning_sale_seq = seq
+                    p = _payload(e)
+                    if e.timestamp:
+                        d.close_date = e.timestamp
+                    if p.get("deal_value") is not None:
+                        d.deal_value = p["deal_value"]
+                    if e.source:
+                        sale_source = e.source
             if e.timestamp and (d.last_event_at is None or e.timestamp > d.last_event_at):
                 d.last_event_at = e.timestamp
 
@@ -261,6 +273,9 @@ def build_deals(events: list, crosswalk: dict, today: str, stale_days: int = 45)
 
         d.contact_emails = contacts
         d.cycle_start = d.demo_date  # min(trial, demo) == demo in Phase 1a
+        # `has_real` still includes "sale", but the won outcome is resolved in the
+        # branch below; here it is load-bearing only for the seed_anchor guard —
+        # a sale-only deal must not anchor its 45-day clock to a seed import.
         has_real = any(e.kind in ("demo", "trial", "sale") for e in evs)
         if d.outcome == "lost":                 # explicit status=lost event — terminal
             d.stage = "lost"
