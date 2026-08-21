@@ -38,6 +38,21 @@ def test_split_sections_skips_blank_rows_and_handles_growth():
     assert [r["source"] for r in rows] == ["os_only", "os_only", "bundle"]
 
 
+def test_split_sections_skips_repeated_header_row_inside_section():
+    # The real bundle section repeats the column-header row under its label;
+    # it must not be emitted as a (bogus) data row.
+    values = [
+        HEADER,
+        _data("8/1/2026", "$1,000", "Acme", "a@acme.com", "Luke Martin"),
+        ["Bundle Sales"],
+        HEADER,  # repeated column headers inside the bundle section
+        _data("8/13/2026", "$5,000", "Bundle Co", "b@bundle.com", "Ryan Allwein"),
+    ]
+    rows = _split_sections(values)
+    assert [r["source"] for r in rows] == ["os_only", "bundle"]
+    assert rows[1]["customer_name"] == "Bundle Co"  # the real sale, not the header row
+
+
 def test_split_sections_empty():
     assert _split_sections([]) == []
 

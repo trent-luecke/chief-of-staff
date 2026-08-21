@@ -43,6 +43,8 @@ def _split_sections(values: list[list]) -> list[dict]:
             field: (str(raw[idx]).strip() if idx < len(raw) and raw[idx] is not None else "")
             for idx, field in col_field.items()
         }
+        if any(v.lower() in _HEADER_FIELDS for v in rec.values()):
+            continue  # repeated column-header row inside a section (e.g. bundle)
         if not rec.get("customer_email") and not rec.get("date"):
             continue  # blank / non-data row
         rec["source"] = section
