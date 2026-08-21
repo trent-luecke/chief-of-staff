@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-20T13:21:45.010344Z",
+  "fetched_at": "2026-08-21T03:57:00.863626Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -619,7 +619,7 @@
       "email": "jcook.tpa@gmail.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-08-18T17:15:00Z",
+      "last_contacted": "2026-08-20T13:17:56.382171+00:00",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -905,7 +905,7 @@
       "email": "movmntpersonalfitness@gmail.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-08-19T19:30:00Z",
+      "last_contacted": "2026-08-20T13:18:02.563363+00:00",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
