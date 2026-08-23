@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-22T00:00:00Z",
+  "fetched_at": "2026-08-23T00:00:00.000Z",
   "leads": [
     {
       "name": "Kim Johnston",
@@ -68,12 +68,34 @@
       "stale": false
     },
     {
+      "name": "Jamie Tellier",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-28",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
       "name": "Warren Clinkscales – Youth Athlete Training (OS)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-07-06",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Baxter Pattison",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -90,17 +112,6 @@
       "stale": false
     },
     {
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-01",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Sam Tardif",
       "contact": "",
       "email": "",
@@ -112,12 +123,12 @@
       "stale": false
     },
     {
-      "name": "Jamie Tellier",
+      "name": "Wave Wellness",
       "contact": "",
       "email": "",
-      "status": "In-Trial / Post Demo",
+      "status": "No Trial / Post Demo",
       "priority": null,
-      "last_contacted": "2026-07-28",
+      "last_contacted": "2026-06-17",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -129,17 +140,6 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-07-21",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Wave Wellness",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-17",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -173,7 +173,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": null,
       "stale": false
     }
