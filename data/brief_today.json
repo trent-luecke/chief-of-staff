@@ -1,7 +1,134 @@
 {
-  "date": "2026-08-23",
-  "generated_at": "2026-08-23T12:19:49.880100+00:00",
-  "meetings": [],
+  "date": "2026-08-24",
+  "generated_at": "2026-08-24T12:06:22.887075+00:00",
+  "meetings": [
+    {
+      "id": "3vn3bhvbklv265s15fekc0oocf_20260824T140000Z",
+      "title": "Rev: Department Heads",
+      "start": "2026-08-24T09:00:00-05:00",
+      "end": "2026-08-24T09:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "grace@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260824T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-08-24T10:00:00-05:00",
+      "end": "2026-08-24T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260824T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-08-24T10:30:00-05:00",
+      "end": "2026-08-24T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4c2hdmnccbvq0pffiarn5nn8i0",
+      "title": "Social Prompt Brainstorm ",
+      "start": "2026-08-24T11:30:00-05:00",
+      "end": "2026-08-24T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "heather@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "clayton@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260824T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-08-24T12:30:00-05:00",
+      "end": "2026-08-24T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
@@ -9,6 +136,13 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-24cc50",
+      "title": "tony list from course sign ups in 2026",
+      "reason": "horizon",
+      "due_date": null,
+      "project_id": null
     }
   ],
   "deals_to_review": {
