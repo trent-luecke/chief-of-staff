@@ -1,28 +1,16 @@
 {
-  "date": "2026-08-24",
-  "generated_at": "2026-08-24T12:24:25.802841+00:00",
+  "date": "2026-08-25",
+  "generated_at": "2026-08-25T12:04:48.118257+00:00",
   "meetings": [
     {
-      "id": "3vn3bhvbklv265s15fekc0oocf_20260824T140000Z",
-      "title": "Rev: Department Heads",
-      "start": "2026-08-24T09:00:00-05:00",
-      "end": "2026-08-24T09:45:00-05:00",
+      "id": "olt4eh3488fftej670gj40dnro_20260825T133000Z",
+      "title": "TeamBuildr OS Weekly Dev Sync",
+      "start": "2026-08-25T08:30:00-05:00",
+      "end": "2026-08-25T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "grace@teambuildr.com",
+          "email": "kyle@teambuildr.com",
           "name": ""
         },
         {
@@ -30,51 +18,29 @@
           "name": ""
         },
         {
-          "email": "melissa@teambuildr.com",
+          "email": "quinn@teambuildr.com",
           "name": ""
         },
         {
-          "email": "chris@teambuildr.com",
+          "email": "brian@teambuildr.com",
           "name": ""
+        },
+        {
+          "email": "elvis@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
         }
       ],
       "prep": null
     },
     {
-      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260824T150000Z",
-      "title": "Stand Up - Sales",
-      "start": "2026-08-24T10:00:00-05:00",
-      "end": "2026-08-24T10:15:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260824T153000Z",
-      "title": "OS \"Sit Down\"",
-      "start": "2026-08-24T10:30:00-05:00",
-      "end": "2026-08-24T11:00:00-05:00",
+      "id": "51mt8ohiuu1hkk8frh01kj8fie",
+      "title": "OS Follow-Up",
+      "start": "2026-08-25T09:00:00-05:00",
+      "end": "2026-08-25T09:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -85,10 +51,24 @@
       "prep": null
     },
     {
-      "id": "4c2hdmnccbvq0pffiarn5nn8i0",
-      "title": "Social Prompt Brainstorm ",
-      "start": "2026-08-24T11:30:00-05:00",
-      "end": "2026-08-24T12:00:00-05:00",
+      "id": "dd8v77935eol6k905bg547n1j5_20260825T150000Z",
+      "title": "1:1 Weekly OS Meeting",
+      "start": "2026-08-25T10:00:00-05:00",
+      "end": "2026-08-25T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "1ml99kkgsq3riukk68nh2r7bks_20260825T160000Z",
+      "title": "Rainmakers Anonymous",
+      "start": "2026-08-25T11:00:00-05:00",
+      "end": "2026-08-25T11:45:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -96,33 +76,75 @@
           "name": ""
         },
         {
-          "email": "nicole@teambuildr.com",
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "ryan@teambuildr.com",
           "name": ""
         },
         {
-          "email": "heather@teambuildr.com",
+          "email": "emily@teambuildr.com",
           "name": ""
         },
         {
-          "email": "clayton@teambuildr.com",
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260824T173000Z",
-      "title": "OS Dev sync-Rev table",
-      "start": "2026-08-24T12:30:00-05:00",
-      "end": "2026-08-24T12:45:00-05:00",
-      "kind": "internal",
+      "id": "2mn6g8q2d90vgajmp6tdpu00vm",
+      "title": "Excessa <> Trent",
+      "start": "2026-08-25T12:30:00-05:00",
+      "end": "2026-08-25T13:00:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "quinn@teambuildr.com",
+          "email": "contact@excessafit.com",
           "name": ""
         },
         {
-          "email": "brian@teambuildr.com",
+          "email": "delaneyplaster@excessafit.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2j1lsboov3fdiu6ak1mjr0g1ge_20260825T180000Z",
+      "title": "Design updates - Trent / Teofe",
+      "start": "2026-08-25T13:00:00-05:00",
+      "end": "2026-08-25T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
           "name": ""
         }
       ],
@@ -136,13 +158,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-24cc50",
-      "title": "tony list from course sign ups in 2026",
-      "reason": "horizon",
-      "due_date": null,
-      "project_id": null
     }
   ],
   "deals_to_review": {
