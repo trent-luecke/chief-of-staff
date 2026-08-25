@@ -109,3 +109,4 @@
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-08-18T17:58:06", "items": []}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-08-25T15:10:37", "thread_id": "th-2fed41", "text": "nicole to sort out BFU P.S.'s at footer of emails", "person_id": null}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-08-25T15:11:01", "thread_id": "th-da3b32", "text": "figure out what BFU is using for a CTA in their email blast", "person_id": null}
+{"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-08-25T15:17:57", "thread_id": "th-e21caa", "text": "add landing page link to sign up for Mark Fisher marketing course in Storybuildr", "person_id": null}
