@@ -75,3 +75,80 @@ def save_catalog(assets: list[dict], path: Path = DEFAULT_CATALOG_PATH) -> None:
 def new_asset_id() -> str:
     """A short, collision-resistant asset id like 'asset-9f2a1c'."""
     return "asset-" + secrets.token_hex(3)
+
+
+_REQUIRED = ("title", "type", "stage", "sub_stage", "product", "icp", "status", "source")
+
+
+def _is_iso_date(value: object) -> bool:
+    if not isinstance(value, str):
+        return False
+    try:
+        date.fromisoformat(value)
+        return True
+    except ValueError:
+        return False
+
+
+def validate_asset(asset: dict) -> list[str]:
+    """Return a list of validation errors for one asset record ([] = valid)."""
+    errors: list[str] = []
+
+    for field in _REQUIRED:
+        if field not in asset or asset[field] in (None, "", []):
+            errors.append(f"missing required field: {field}")
+
+    title = asset.get("title")
+    if title is not None and not (isinstance(title, str) and title.strip()):
+        errors.append("title must be a non-empty string")
+
+    if asset.get("type") is not None and asset["type"] not in TYPES:
+        errors.append(f"type '{asset['type']}' is not in the controlled vocabulary")
+
+    stage = asset.get("stage")
+    if stage is not None and stage not in STAGES:
+        errors.append(f"stage '{stage}' must be one of {STAGES}")
+
+    sub_stage = asset.get("sub_stage")
+    if stage in STAGE_SUBSTAGE and sub_stage is not None:
+        if sub_stage not in STAGE_SUBSTAGE[stage]:
+            errors.append(
+                f"sub_stage '{sub_stage}' is not valid for stage {stage} "
+                f"(expected one of {STAGE_SUBSTAGE[stage]})"
+            )
+
+    if asset.get("product") is not None and asset["product"] not in PRODUCTS:
+        errors.append(f"product '{asset['product']}' must be one of {PRODUCTS}")
+
+    icp = asset.get("icp")
+    if icp is not None:
+        if not isinstance(icp, list) or not icp:
+            errors.append("icp must be a non-empty list")
+        else:
+            bad = [s for s in icp if s not in ICPS]
+            if bad:
+                errors.append(f"icp contains unknown slugs: {bad} (allowed: {ICPS})")
+
+    if asset.get("status") is not None and asset["status"] not in STATUSES:
+        errors.append(f"status '{asset['status']}' must be one of {STATUSES}")
+
+    if asset.get("source") is not None and asset["source"] not in SOURCES:
+        errors.append(f"source '{asset['source']}' must be one of {SOURCES}")
+
+    for datefield in ("publish_date", "added_at"):
+        if asset.get(datefield) not in (None, "") and not _is_iso_date(asset[datefield]):
+            errors.append(f"{datefield} must be an ISO date (YYYY-MM-DD)")
+
+    return errors
+
+
+def stage_type_warning(asset: dict) -> str | None:
+    """Warn (non-blocking) when a type sits in an unusual stage."""
+    hint = TYPE_STAGE_HINT.get(asset.get("type"))
+    stage = asset.get("stage")
+    if hint and stage and hint != stage:
+        return (
+            f"type '{asset['type']}' usually sits in {hint}, "
+            f"but this asset is tagged {stage} — confirm the tag."
+        )
+    return None

@@ -32,3 +32,59 @@ def test_vocabularies_present():
         "sports_performance", "crossfit", "pt_studio", "hybrid_clinic_gym", "boutique",
     }
     assert fc.PRODUCTS == ["os", "strength", "both"]
+
+
+def _valid_asset(**overrides):
+    base = {
+        "title": "CrossFit ROI calculator",
+        "type": "roi_calculator",
+        "stage": "BOFU",
+        "sub_stage": "evaluation",
+        "product": "os",
+        "icp": ["crossfit"],
+        "status": "planned",
+        "source": "campaign_audit",
+    }
+    base.update(overrides)
+    return base
+
+
+def test_validate_accepts_good_asset():
+    assert fc.validate_asset(_valid_asset()) == []
+
+
+def test_validate_flags_unknown_type():
+    errs = fc.validate_asset(_valid_asset(type="tiktok_dance"))
+    assert any("type" in e for e in errs)
+
+
+def test_validate_flags_substage_stage_mismatch():
+    errs = fc.validate_asset(_valid_asset(stage="TOFU", sub_stage="evaluation"))
+    assert any("sub_stage" in e for e in errs)
+
+
+def test_validate_flags_unknown_icp_and_empty_icp():
+    assert any("icp" in e for e in fc.validate_asset(_valid_asset(icp=["yoga_studio"])))
+    assert any("icp" in e for e in fc.validate_asset(_valid_asset(icp=[])))
+
+
+def test_validate_flags_missing_required_field():
+    a = _valid_asset()
+    del a["title"]
+    assert any("title" in e for e in fc.validate_asset(a))
+
+
+def test_validate_flags_bad_publish_date():
+    assert any("publish_date" in e for e in fc.validate_asset(_valid_asset(publish_date="05/14/2026")))
+
+
+def test_stage_type_warning_fires_on_odd_combo():
+    w = fc.stage_type_warning(_valid_asset(type="blog", stage="BOFU", sub_stage="decision"))
+    assert w is not None and "blog" in w
+
+
+def test_stage_type_warning_silent_on_expected_and_flexible():
+    assert fc.stage_type_warning(_valid_asset(type="roi_calculator", stage="BOFU")) is None
+    assert fc.stage_type_warning(
+        _valid_asset(type="interactive_tool", stage="TOFU", sub_stage="awareness")
+    ) is None
