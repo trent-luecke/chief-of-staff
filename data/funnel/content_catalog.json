@@ -259,5 +259,22 @@
     "notes": "Email send(s) driving traffic to the landing page.",
     "id": "asset-f1a6d9",
     "added_at": "2026-08-26"
+  },
+  {
+    "title": "Lead-to-OS conversion email drip",
+    "type": "email_nurture",
+    "stage": "MOFU",
+    "sub_stage": "consideration",
+    "product": "os",
+    "theme": "lead-to-member conversion",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "publish_date": "2026-09-15",
+    "source": "campaign_audit",
+    "notes": "Standalone reusable MOFU bridge; launches with the Marketing Webinar with Mark Fisher (Sept 2026) but designed to follow ANY TOFU campaign. Trigger: webinar/lead-magnet signup. Goal: move a lead to a paying member or Trial Offer signup inside OS. Audience = not-yet-customers (prospects). Maps to canonical OS JTBD: 'move a lead through to signup without ever dropping one... without adding another app, login, or surface.' 4-email arc: (1) the last-mile revenue leak; (2) the real 2-step signup workflow (create profile -> Stripe invoice or checkout link); (3) turn your funnel CTA into a Trial Offer signup; (4) 0%-processing close -> hand to sales (MOFU->BOFU handoff). GUARDRAILS: frame OS as the conversion/membership DESTINATION, never as CRM/marketing (deliberate stance); do NOT promise one-click deep-link-to-product (leads land on the pricing page & self-select today; per-product URLs are roadmap ~early 2027); email 4 may cite 0%-processing vs tiered competitors but NOT a published-price edge vs PushPress/Wodify/Walla. Grounded in 8 Avoma demos (Apr-Aug 2026) on the lead->signup pain.",
+    "id": "asset-fca68e",
+    "added_at": "2026-08-26"
   }
 ]
