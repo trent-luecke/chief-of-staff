@@ -28,8 +28,14 @@ def test_vocabularies_present():
     assert "interactive_tool" in fc.TYPES
     assert fc.TYPE_STAGE_HINT["interactive_tool"] is None
     assert fc.TYPE_STAGE_HINT["blog"] == "TOFU"
+    # course/landing_page/email_campaign added for the YTD seed
+    assert {"course", "landing_page", "email_campaign"} <= fc.TYPES
+    assert fc.TYPE_STAGE_HINT["course"] == "TOFU"
+    assert fc.TYPE_STAGE_HINT["landing_page"] is None
+    assert fc.TYPE_STAGE_HINT["email_campaign"] is None
     assert set(fc.ICPS) == {
         "sports_performance", "crossfit", "pt_studio", "hybrid_clinic_gym", "boutique",
+        "general",
     }
     assert fc.PRODUCTS == ["os", "strength", "both"]
 

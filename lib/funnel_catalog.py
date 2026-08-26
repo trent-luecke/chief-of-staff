@@ -47,11 +47,15 @@ TYPE_STAGE_HINT: dict[str, str | None] = {
     "pricing_page": "BOFU",
     "customer_story": "BOFU",
     "interactive_tool": None,
+    "course": "TOFU",
+    "landing_page": None,
+    "email_campaign": None,
 }
 TYPES: set[str] = set(TYPE_STAGE_HINT)
 
 ICPS: list[str] = [
     "sports_performance", "crossfit", "pt_studio", "hybrid_clinic_gym", "boutique",
+    "general",
 ]
 PRODUCTS: list[str] = ["os", "strength", "both"]
 STATUSES: list[str] = ["live", "draft", "planned", "retired"]
