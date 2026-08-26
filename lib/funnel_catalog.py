@@ -195,3 +195,47 @@ def similar_themes(theme: str, catalog: list[dict]) -> list[str]:
             out.append(raw)
             seen.add(norm)
     return out
+
+
+def add_asset(asset: dict, catalog: list[dict], today: str | None = None) -> dict:
+    """Validate `asset`, fill id/added_at if absent, append to `catalog`, return it.
+
+    Raises ValueError if the asset fails validation. Does not persist — the
+    caller is responsible for save_catalog().
+    """
+    errors = validate_asset(asset)
+    if errors:
+        raise ValueError("invalid asset: " + "; ".join(errors))
+    stored = dict(asset)
+    stored.setdefault("id", new_asset_id())
+    stored.setdefault("added_at", today or date.today().isoformat())
+    catalog.append(stored)
+    return stored
+
+
+def _counted(pairs) -> dict[str, int]:
+    """A count dict sorted by descending count, then key."""
+    counts = Counter(pairs)
+    return dict(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
+def dispersion(catalog: list[dict]) -> dict:
+    """Aggregate the catalog across every axis the dispersion report renders."""
+    by_stage_status: dict[str, Counter] = {}
+    for a in catalog:
+        stage = a.get("stage", "?")
+        by_stage_status.setdefault(stage, Counter())[a.get("status", "?")] += 1
+
+    return {
+        "total": len(catalog),
+        "by_stage": _counted(a.get("stage", "?") for a in catalog),
+        "by_type": _counted(a.get("type", "?") for a in catalog),
+        "by_icp": _counted(slug for a in catalog for slug in a.get("icp", [])),
+        "by_theme": _counted(a["theme"] for a in catalog if a.get("theme")),
+        "by_product": _counted(a.get("product", "?") for a in catalog),
+        "by_status": _counted(a.get("status", "?") for a in catalog),
+        "by_stage_status": {
+            stage: dict(sorted(c.items(), key=lambda kv: (-kv[1], kv[0])))
+            for stage, c in by_stage_status.items()
+        },
+    }

@@ -152,3 +152,47 @@ def test_find_duplicates_no_false_positive_from_empty_fields():
     catalog = [{"title": "", "url": ""}]
     candidate = {"title": "", "url": ""}
     assert fc.find_duplicates(candidate, catalog) == []
+
+
+import pytest
+
+
+def test_add_asset_fills_id_and_date_and_appends():
+    catalog = []
+    stored = fc.add_asset(_valid_asset(), catalog, today="2026-08-26")
+    assert stored["id"].startswith("asset-")
+    assert stored["added_at"] == "2026-08-26"
+    assert catalog == [stored]
+
+
+def test_add_asset_preserves_existing_id_and_date():
+    stored = fc.add_asset(
+        _valid_asset(id="asset-fixed1", added_at="2026-01-01"), [], today="2026-08-26"
+    )
+    assert stored["id"] == "asset-fixed1"
+    assert stored["added_at"] == "2026-01-01"
+
+
+def test_add_asset_raises_on_invalid():
+    with pytest.raises(ValueError):
+        fc.add_asset(_valid_asset(type="bad_type"), [])
+
+
+def test_dispersion_counts_axes():
+    catalog = [
+        _valid_asset(stage="TOFU", sub_stage="awareness", type="blog",
+                     icp=["crossfit", "sports_performance"], theme="retention",
+                     status="live", product="os"),
+        _valid_asset(stage="TOFU", sub_stage="awareness", type="blog",
+                     icp=["crossfit"], theme="retention", status="planned", product="os"),
+        _valid_asset(stage="MOFU", sub_stage="consideration", type="webinar",
+                     icp=["pt_studio"], theme="onboarding", status="planned", product="both"),
+    ]
+    d = fc.dispersion(catalog)
+    assert d["total"] == 3
+    assert d["by_stage"] == {"TOFU": 2, "MOFU": 1}
+    assert d["by_type"]["blog"] == 2
+    assert d["by_icp"]["crossfit"] == 2
+    assert d["by_theme"]["retention"] == 2
+    assert d["by_product"]["os"] == 2
+    assert d["by_stage_status"]["TOFU"] == {"live": 1, "planned": 1}
