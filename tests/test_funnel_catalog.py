@@ -124,3 +124,31 @@ def test_similar_themes_matches_fragments():
     assert "member retention" in hits
     assert "pricing transparency" not in hits
     assert fc.similar_themes("brand awareness", catalog) == []
+
+
+def test_similar_themes_dedupes_repeated_theme():
+    catalog = [
+        _valid_asset(theme="member retention"),
+        _valid_asset(theme="Member  Retention"),  # same normalized theme, different casing
+    ]
+    hits = fc.similar_themes("retention", catalog)
+    # de-duped by normalized form: the theme appears once, not twice
+    assert len(hits) == 1
+
+
+def test_similar_themes_skips_entries_without_theme():
+    catalog = [
+        _valid_asset(theme="member retention"),
+        {"title": "no theme here"},          # missing theme key
+        _valid_asset(theme=""),               # empty theme
+    ]
+    hits = fc.similar_themes("retention", catalog)
+    assert hits == ["member retention"]       # only the real theme, no crash on the others
+
+
+def test_find_duplicates_no_false_positive_from_empty_fields():
+    # An existing entry with empty title AND empty url must NOT match a candidate
+    # that also has empty title/url — empty strings are not a match signal.
+    catalog = [{"title": "", "url": ""}]
+    candidate = {"title": "", "url": ""}
+    assert fc.find_duplicates(candidate, catalog) == []
