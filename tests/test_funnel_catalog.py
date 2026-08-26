@@ -78,6 +78,15 @@ def test_validate_flags_bad_publish_date():
     assert any("publish_date" in e for e in fc.validate_asset(_valid_asset(publish_date="05/14/2026")))
 
 
+def test_validate_rejects_non_dashed_and_week_dates():
+    # strict YYYY-MM-DD only
+    assert any("publish_date" in e for e in fc.validate_asset(_valid_asset(publish_date="20260514")))
+    assert any("publish_date" in e for e in fc.validate_asset(_valid_asset(publish_date="2026-W20-1")))
+    assert any("added_at" in e for e in fc.validate_asset(_valid_asset(added_at="20260514")))
+    # a genuinely valid date still passes
+    assert fc.validate_asset(_valid_asset(publish_date="2026-05-14")) == []
+
+
 def test_stage_type_warning_fires_on_odd_combo():
     w = fc.stage_type_warning(_valid_asset(type="blog", stage="BOFU", sub_stage="decision"))
     assert w is not None and "blog" in w

@@ -8,6 +8,7 @@ LLM reasoning and grounding-source reads on top.
 from __future__ import annotations
 
 import json
+import re
 import secrets
 from collections import Counter
 from datetime import date
@@ -79,9 +80,13 @@ def new_asset_id() -> str:
 
 _REQUIRED = ("title", "type", "stage", "sub_stage", "product", "icp", "status", "source")
 
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
 
 def _is_iso_date(value: object) -> bool:
     if not isinstance(value, str):
+        return False
+    if not _ISO_DATE_RE.match(value):
         return False
     try:
         date.fromisoformat(value)
