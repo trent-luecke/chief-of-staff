@@ -97,3 +97,30 @@ def test_stage_type_warning_silent_on_expected_and_flexible():
     assert fc.stage_type_warning(
         _valid_asset(type="interactive_tool", stage="TOFU", sub_stage="awareness")
     ) is None
+
+
+def test_normalize_collapses_case_and_space():
+    assert fc._normalize("  Member   Retention ") == "member retention"
+
+
+def test_find_duplicates_by_title_and_url():
+    catalog = [
+        _valid_asset(title="Member Retention Guide", url="https://a.co/x"),
+        _valid_asset(title="Other"),
+    ]
+    by_title = fc.find_duplicates(_valid_asset(title="member  retention guide"), catalog)
+    assert len(by_title) == 1
+    by_url = fc.find_duplicates(_valid_asset(title="Totally New", url="https://a.co/x"), catalog)
+    assert len(by_url) == 1
+    assert fc.find_duplicates(_valid_asset(title="Nothing Alike"), catalog) == []
+
+
+def test_similar_themes_matches_fragments():
+    catalog = [
+        _valid_asset(theme="member retention"),
+        _valid_asset(theme="pricing transparency"),
+    ]
+    hits = fc.similar_themes("retention", catalog)
+    assert "member retention" in hits
+    assert "pricing transparency" not in hits
+    assert fc.similar_themes("brand awareness", catalog) == []

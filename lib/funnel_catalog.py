@@ -157,3 +157,41 @@ def stage_type_warning(asset: dict) -> str | None:
             f"but this asset is tagged {stage} — confirm the tag."
         )
     return None
+
+
+def _normalize(text: str) -> str:
+    """Lowercase, strip, and collapse internal whitespace."""
+    return " ".join(str(text or "").split()).lower()
+
+
+def find_duplicates(asset: dict, catalog: list[dict]) -> list[dict]:
+    """Existing entries that look like the same asset (title or url match)."""
+    title = _normalize(asset.get("title", ""))
+    url = (asset.get("url") or "").strip()
+    hits: list[dict] = []
+    for existing in catalog:
+        same_title = title and _normalize(existing.get("title", "")) == title
+        same_url = url and (existing.get("url") or "").strip() == url
+        if same_title or same_url:
+            hits.append(existing)
+    return hits
+
+
+def similar_themes(theme: str, catalog: list[dict]) -> list[str]:
+    """Distinct existing themes close to `theme` (equal or substring either way)."""
+    cand = _normalize(theme)
+    if not cand:
+        return []
+    out: list[str] = []
+    seen: set[str] = set()
+    for existing in catalog:
+        raw = existing.get("theme")
+        if not raw:
+            continue
+        norm = _normalize(raw)
+        if norm in seen:
+            continue
+        if norm == cand or cand in norm or norm in cand:
+            out.append(raw)
+            seen.add(norm)
+    return out
