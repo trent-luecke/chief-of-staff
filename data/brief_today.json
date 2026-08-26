@@ -1,153 +1,32 @@
 {
-  "date": "2026-08-25",
-  "generated_at": "2026-08-25T12:23:58.807235+00:00",
+  "date": "2026-08-26",
+  "generated_at": "2026-08-26T12:02:39.171547+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20260825T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-08-25T08:30:00-05:00",
-      "end": "2026-08-25T09:00:00-05:00",
+      "id": "6pn807s1i4j9stnk4h5rg6af9b",
+      "title": "OS Report Design 2",
+      "start": "2026-08-26T10:00:00-05:00",
+      "end": "2026-08-26T11:00:00-05:00",
       "kind": "internal",
       "attendees": [
-        {
-          "email": "kyle@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "51mt8ohiuu1hkk8frh01kj8fie",
-      "title": "OS Follow-Up",
-      "start": "2026-08-25T09:00:00-05:00",
-      "end": "2026-08-25T09:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20260825T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-08-25T10:00:00-05:00",
-      "end": "2026-08-25T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20260825T160000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-08-25T11:00:00-05:00",
-      "end": "2026-08-25T11:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
         {
           "email": "teofe@teambuildr.com",
           "name": ""
         },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2mn6g8q2d90vgajmp6tdpu00vm",
-      "title": "Excessa <> Trent",
-      "start": "2026-08-25T12:30:00-05:00",
-      "end": "2026-08-25T13:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "contact@excessafit.com",
-          "name": ""
-        },
-        {
-          "email": "delaneyplaster@excessafit.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2j1lsboov3fdiu6ak1mjr0g1ge_20260825T180000Z",
-      "title": "Design updates - Trent / Teofe",
-      "start": "2026-08-25T13:00:00-05:00",
-      "end": "2026-08-25T14:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
         {
           "email": "jasmine@teambuildr.com",
           "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "_68o34dhg70o38l1h6cp3cc9i60r3ec9h60mj2c1g6sp40rb1epimsbj3dtmg",
+      "title": "\u26a1\ufe0f Maven LIVE: Get Your Vibe Coded Supabase App Production Ready",
+      "start": "2026-08-26T11:00:00-05:00",
+      "end": "2026-08-26T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
