@@ -112,7 +112,7 @@ User pastes a campaign concept/outline. The skill:
 1. Maps each *intended* asset in the campaign to a funnel stage.
 2. Cross-references the existing catalog — what the campaign already has covered vs. net-new.
 3. Flags coverage gaps against the campaign's own goal, with emphasis on the MOFU bridge (does Awareness content hand off to a Consideration-stage asset, or dead-end before the salesperson?).
-4. Generates specific assets to fill gaps (title, format, stage, the prospect pain it answers, supporting `[PROVABLE]` claims) — grounded per Grounding Sources.
+4. Generates specific assets to fill gaps (title, format, stage, the prospect pain it answers, supporting `[PROVABLE]` claims, and any `⚠ guardrail:` flag) — grounded per Grounding Sources.
 5. Proposes logging the campaign's assets to the catalog (byproduct capture), status `planned` unless told otherwise.
 
 ### Mode 3 · Dispersion report
@@ -128,7 +128,7 @@ Focused Consideration-stage brainstorm for the short-term need. Grounded in real
 Modes 2 and 4 read these automatically. Every output **leads with a "Sources pulled" block** — which calls were scanned (with date range), which deals were referenced, and the unique-prospect counts behind each claim — so the evidence is always visible, not just the conclusion.
 
 1. **Avoma transcripts — the MOFU goldmine.** Scans analyzed call data (via the Notion meeting-notes MCP / `query-avoma`) for recurring consideration-stage questions and objections, counting how many *unique* prospects raised each. A question 6 prospects asked unprompted is a MOFU asset brief writing itself. This is what separates grounded output from generic B2B idea lists.
-2. **JTBD + positioning snapshot — the guardrail layer.** `docs/teambuildr-jtbd-product-knowledge-snapshot.md` tags claims `[PROVABLE] / [POSITIONING] / [INTERNAL] / [GUARDRAIL]`. Every generated asset idea is checked against it: it won't over-claim, and it won't trip explicit guardrails (never attack "two invoices," never frame CRM/marketing as a gap, never claim published price against PushPress/Wodify/Walla). Generated briefs cite which `[PROVABLE]` claims back them. Highest-leverage grounding — makes output safe to hand to a copywriter.
+2. **JTBD + positioning snapshot — the guardrail layer.** `docs/teambuildr-jtbd-product-knowledge-snapshot.md` tags claims `[PROVABLE] / [POSITIONING] / [INTERNAL] / [GUARDRAIL]`. Every generated asset idea is checked against it, and any idea that leans on a non-`[PROVABLE]` claim or trips an explicit guardrail (attacking "two invoices," framing CRM/marketing as a gap, claiming published price against PushPress/Wodify/Walla) is **flagged with the specific conflict for Trent to decide on — not silently suppressed.** The idea still appears; it carries a visible `⚠ guardrail:` note naming the rule it brushes against and why. Generated briefs cite which `[PROVABLE]` claims back them. Highest-leverage grounding — surfaces the positioning risk on every idea so nothing reaches a copywriter unexamined, while keeping the call with Trent.
 3. **market-intel competitor data** (`market-intel/data/`) — keeps comparison/differentiation content current and steers around themes competitors already own.
 4. **Pipeline cache** (`data/pipeline_cache.json`) — which ICP segments have deals actively stalling in the consideration/evaluation zone now, so MOFU/BOFU ideation prioritizes the segment losing deals this quarter. Checks `fetched_at` freshness first; warns and offers `sync-pipeline-cache` if stale (>7 days).
 
@@ -162,6 +162,6 @@ The catalog is built so the eventual HubSpot connector is additive, not a rebuil
 ## Success criteria
 
 - Seeding the YTD doc produces a catalog whose stage/type/ICP tags Trent agrees with after minimal correction.
-- A campaign audit surfaces at least one MOFU gap Trent recognizes as real and hands back asset briefs specific enough to act on (grounded in named calls/deals, guardrail-safe).
+- A campaign audit surfaces at least one MOFU gap Trent recognizes as real and hands back asset briefs specific enough to act on (grounded in named calls/deals, with any positioning-guardrail conflicts flagged rather than hidden).
 - The dispersion report makes the MOFU thinness legible at a glance and ties gaps to real prospect questions.
 - The catalog grows across sessions without any dedicated maintenance effort.
