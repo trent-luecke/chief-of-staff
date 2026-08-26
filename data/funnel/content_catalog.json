@@ -1,1 +1,263 @@
-[]
+[
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "AI / automation",
+    "icp": [
+      "general"
+    ],
+    "status": "retired",
+    "source": "seed",
+    "campaign": "AI for Gym Owners Course",
+    "title": "AI for Gym Owners Course",
+    "type": "course",
+    "notes": "OS-branded but no real connection to the platform; now severely outdated. Free resource to get gym owners started with AI.",
+    "id": "asset-a83f4d",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "AI / automation",
+    "icp": [
+      "general"
+    ],
+    "status": "retired",
+    "source": "seed",
+    "campaign": "AI for Gym Owners Course",
+    "title": "AI for Gym Owners Course \u2014 landing page",
+    "type": "landing_page",
+    "notes": "Signup capture page for the campaign.",
+    "id": "asset-9a9831",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "AI / automation",
+    "icp": [
+      "general"
+    ],
+    "status": "retired",
+    "source": "seed",
+    "campaign": "AI for Gym Owners Course",
+    "title": "AI for Gym Owners Course \u2014 email campaign",
+    "type": "email_campaign",
+    "notes": "Email send(s) driving traffic to the landing page.",
+    "id": "asset-41fad2",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "profitability / margin",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Profit Calculator",
+    "title": "Profit Calculator",
+    "type": "interactive_tool",
+    "notes": "Free web app: computes current profit margin and surfaces cost centers / pain points blocking goal margin and revenue.",
+    "id": "asset-0e16da",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "profitability / margin",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Profit Calculator",
+    "title": "Profit Calculator \u2014 landing page",
+    "type": "landing_page",
+    "notes": "Signup capture page for the campaign.",
+    "id": "asset-9a69cc",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "profitability / margin",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Profit Calculator",
+    "title": "Profit Calculator \u2014 email campaign",
+    "type": "email_campaign",
+    "notes": "Email send(s) driving traffic to the landing page.",
+    "id": "asset-22ec10",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "coaching skills",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Programming is not Coaching Course",
+    "title": "Programming is not Coaching Course",
+    "type": "course",
+    "notes": "Free education on the soft skills of coaching. Partnership with Captains & Coaches (content provider / educator).",
+    "id": "asset-bc5662",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "coaching skills",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Programming is not Coaching Course",
+    "title": "Programming is not Coaching Course \u2014 landing page",
+    "type": "landing_page",
+    "notes": "Signup capture page for the campaign.",
+    "id": "asset-0b2365",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "coaching skills",
+    "icp": [
+      "general"
+    ],
+    "status": "live",
+    "source": "seed",
+    "campaign": "Programming is not Coaching Course",
+    "title": "Programming is not Coaching Course \u2014 email campaign",
+    "type": "email_campaign",
+    "notes": "Email send(s) driving traffic to the landing page.",
+    "id": "asset-68f898",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "marketing / storytelling",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "StoryBuildr",
+    "publish_date": "2026-09-15",
+    "title": "StoryBuildr",
+    "type": "interactive_tool",
+    "notes": "Free tool: scrapes social/website and mines personal stories to generate content ideas and find gaps in online presence. Go-live mid-Sept 2026.",
+    "id": "asset-bd7f9a",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "marketing / storytelling",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "StoryBuildr",
+    "publish_date": "2026-09-15",
+    "title": "StoryBuildr \u2014 landing page",
+    "type": "landing_page",
+    "notes": "Signup capture page for the campaign.",
+    "id": "asset-05138c",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "marketing / storytelling",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "StoryBuildr",
+    "publish_date": "2026-09-15",
+    "title": "StoryBuildr \u2014 email campaign",
+    "type": "email_campaign",
+    "notes": "Email send(s) driving traffic to the landing page.",
+    "id": "asset-61c6b6",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "gym marketing",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "Marketing Webinar with Mark Fisher",
+    "publish_date": "2026-09-15",
+    "title": "Marketing Webinar with Mark Fisher",
+    "type": "webinar",
+    "notes": "Free 3-part webinar hosted with Mark Fisher (gym owner / marketing specialist). Go-live mid-Sept 2026.",
+    "id": "asset-6e0f26",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "gym marketing",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "Marketing Webinar with Mark Fisher",
+    "publish_date": "2026-09-15",
+    "title": "Marketing Webinar with Mark Fisher \u2014 landing page",
+    "type": "landing_page",
+    "notes": "Signup capture page for the campaign.",
+    "id": "asset-7483f8",
+    "added_at": "2026-08-26"
+  },
+  {
+    "stage": "TOFU",
+    "sub_stage": "awareness",
+    "product": "os",
+    "theme": "gym marketing",
+    "icp": [
+      "general"
+    ],
+    "status": "planned",
+    "source": "seed",
+    "campaign": "Marketing Webinar with Mark Fisher",
+    "publish_date": "2026-09-15",
+    "title": "Marketing Webinar with Mark Fisher \u2014 email campaign",
+    "type": "email_campaign",
+    "notes": "Email send(s) driving traffic to the landing page.",
+    "id": "asset-f1a6d9",
+    "added_at": "2026-08-26"
+  }
+]
