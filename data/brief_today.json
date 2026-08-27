@@ -1,32 +1,61 @@
 {
-  "date": "2026-08-26",
-  "generated_at": "2026-08-26T12:23:49.730082+00:00",
+  "date": "2026-08-27",
+  "generated_at": "2026-08-27T12:05:45.246388+00:00",
   "meetings": [
     {
-      "id": "6pn807s1i4j9stnk4h5rg6af9b",
-      "title": "OS Report Design 2",
-      "start": "2026-08-26T10:00:00-05:00",
-      "end": "2026-08-26T11:00:00-05:00",
+      "id": "2j1lsboov3fdiu6ak1mjr0g1ge_20260827T180000Z",
+      "title": "Design updates - Trent / Teofe",
+      "start": "2026-08-27T11:00:00-05:00",
+      "end": "2026-08-27T12:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "teofe@teambuildr.com",
+          "email": "jasmine@teambuildr.com",
           "name": ""
         },
         {
-          "email": "jasmine@teambuildr.com",
+          "email": "teofe@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "_68o34dhg70o38l1h6cp3cc9i60r3ec9h60mj2c1g6sp40rb1epimsbj3dtmg",
-      "title": "\u26a1\ufe0f Maven LIVE: Get Your Vibe Coded Supabase App Production Ready",
-      "start": "2026-08-26T11:00:00-05:00",
-      "end": "2026-08-26T12:00:00-05:00",
+      "id": "05qo705ca6f27ai8m3usq7fp05_20260827T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-08-27T12:00:00-05:00",
+      "end": "2026-08-27T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": "## Luke / Trent Prep\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In active build/test phase \u2014 next step is stress-testing the flow with a fake onboarding script fed through Claude.\n- **Open task:** Create fake onboarding script and feed to Claude onboarding for testing\n- **Blocker:** None visible \u2014 just needs execution\n\n---\n\n### StoryBuildr\n**Status:** Approaching a confirmed launch date with design refinement in progress.\n- **Open tasks:**\n  - Audit individual stage design and layout\n  - Email Mark about finalized 9/23 launch date\n- **Blocker:** Mark outreach pending \u2014 launch date needs to be confirmed with him\n\n---\n\n### AI / Sales Team Access\n**Status:** Decision made \u2014 no seat rollout; Trent stays the central builder, access gated behind reps making a concrete case.\n- **Open task:** Produce competitive content on risks of vibe-coded platforms (tied to LaunchOS positioning) \u2014 flagged last session\n- **Blocker:** None; just needs prioritization\n\n---\n\n### Sales Pipeline\n**Status:** July was a strong month; August expected to dip \u2014 Luke is fine with it.\n- Pipeline snapshot: 19 total (13 in-trial/post-demo, 2 no-trial/post-demo, 1 on-hold, 3 need update) \u2014 4 demos MTD\n- **Blocker:** 3 \"Out of Demo / Need Update\" contacts worth flagging \u2014 may need outreach to keep from going cold",
+      "prep_hash": "6b98bec78d02"
+    },
+    {
+      "id": "33bmmosphvtle8mpr9sk7uqmtc",
+      "title": "Doctor",
+      "start": "2026-08-27T13:00:00-05:00",
+      "end": "2026-08-27T14:30:00-05:00",
       "kind": "internal",
       "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "4okovafgct3o8206vld39g929c",
+      "title": "Santiago Diaz Murrieta and Trent Luecke",
+      "start": "2026-08-27T16:00:00-05:00",
+      "end": "2026-08-27T16:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "fisiodiazlax@gmail.com",
+          "name": ""
+        }
+      ],
       "prep": null
     }
   ],
