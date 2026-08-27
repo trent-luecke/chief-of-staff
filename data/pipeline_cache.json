@@ -1,17 +1,6 @@
 {
-  "fetched_at": "2026-08-26T14:10:00.000Z",
+  "fetched_at": "2026-08-27T00:00:00.000Z",
   "leads": [
-    {
-      "name": "Kim Johnston",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
@@ -19,6 +8,17 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -79,6 +79,17 @@
       "stale": false
     },
     {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Mark Olson — Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
@@ -90,12 +101,12 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "name": "Jamie Tellier",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-06",
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -118,17 +129,6 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Jamie Tellier",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -174,17 +174,6 @@
       "priority": "",
       "last_contacted": "2026-08-18",
       "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Aaron Letinksi",
-      "contact": "Aaron Letinski",
-      "email": "letinskia26@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": null,
-      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     },
