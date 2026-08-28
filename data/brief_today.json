@@ -1,6 +1,6 @@
 {
   "date": "2026-08-28",
-  "generated_at": "2026-08-28T12:07:20.777441+00:00",
+  "generated_at": "2026-08-28T21:40:16.063073+00:00",
   "meetings": [
     {
       "id": "006adb4enl5iouf2tb1p87m38i_20260828T133000Z",
@@ -26,10 +26,28 @@
       "prep": null
     },
     {
-      "id": "7cdohf9019sv2vj2ecfpbt4sqo",
-      "title": "Chris & Trent: OS",
+      "id": "g0df5l9cn8s51c5p37ul167l7g",
+      "title": "Rob Van Valkenburgh and Quinn Kastle",
       "start": "2026-08-28T11:00:00-05:00",
       "end": "2026-08-28T11:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "coach@coachvanstrength.com",
+          "name": ""
+        },
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "7cdohf9019sv2vj2ecfpbt4sqo",
+      "title": "Chris & Trent: OS",
+      "start": "2026-08-28T11:30:00-05:00",
+      "end": "2026-08-28T12:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -60,9 +78,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 0,
+      "identity": 1,
       "stale": 0,
-      "total": 0
+      "total": 1
     }
   },
   "what_moved": []
