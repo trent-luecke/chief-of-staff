@@ -1,6 +1,19 @@
 {
-  "fetched_at": "2026-08-27T13:51:36.018372Z",
+  "fetched_at": "2026-08-28T14:58:26.269440Z",
   "leads": [
+    {
+      "page_id": "deal:alex.logan.beasley@gmail.com",
+      "name": "",
+      "contact": "alex.logan.beasley@gmail.com",
+      "email": "alex.logan.beasley@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-08-27T16:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
     {
       "page_id": "deal:alex@smartperformance.ca",
       "name": "Alex Ogbongbemiga",
