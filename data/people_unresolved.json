@@ -535,6 +535,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-08-20"
+    },
+    {
+      "entity": "Alex Beasley",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-28"
     }
   ],
   "previously_notified": [
