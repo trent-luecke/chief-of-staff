@@ -1,17 +1,6 @@
 {
-  "fetched_at": "2026-08-28T00:00:00.000Z",
+  "fetched_at": "2026-08-29T00:00:00Z",
   "leads": [
-    {
-      "name": "Kim Johnston",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
@@ -30,6 +19,17 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -123,23 +123,23 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Wave Wellness",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-06-17",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": null,
       "stale": false
