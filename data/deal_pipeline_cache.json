@@ -1,6 +1,19 @@
 {
-  "fetched_at": "2026-08-28T14:58:26.269440Z",
+  "fetched_at": "2026-08-29T09:48:09.363255Z",
   "leads": [
+    {
+      "page_id": "deal:1edmundtrainer@gmail.com",
+      "name": "",
+      "contact": "1edmundtrainer@gmail.com",
+      "email": "1edmundtrainer@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-08-28T14:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
     {
       "page_id": "deal:alex.logan.beasley@gmail.com",
       "name": "",
@@ -711,6 +724,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2025-08-06",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:jvasichek@css.edu",
+      "name": "Css",
+      "contact": "jvasichek@css.edu",
+      "email": "jvasichek@css.edu",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-08-28T15:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
