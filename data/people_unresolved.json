@@ -543,6 +543,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-08-28"
+    },
+    {
+      "entity": "Julianne Vasichek",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-29"
+    },
+    {
+      "entity": "Edmund Duah Asamoah",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-08-29"
     }
   ],
   "previously_notified": [
