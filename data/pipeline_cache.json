@@ -1,26 +1,15 @@
 {
-  "fetched_at": "2026-08-29T00:00:00Z",
+  "fetched_at": "2026-08-30T00:00:00Z",
   "leads": [
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "David Arcemant",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -28,10 +17,21 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-06-24",
       "estimated_value": null,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "David Arcemant",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     },
     {
@@ -39,21 +39,10 @@
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-06-16",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Andrew Howard – MVMT",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-08-19",
-      "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -61,10 +50,21 @@
       "contact": "Evan Nystrom",
       "email": "evan@outlierathlete.com",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-07-28",
       "estimated_value": null,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Andrew Howard – MVMT",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-19",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     },
     {
@@ -72,21 +72,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-06",
-      "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -101,14 +90,25 @@
       "stale": false
     },
     {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Baxter Pattison",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-07-01",
       "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -116,10 +116,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-07-28",
       "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -127,21 +127,10 @@
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-06-17",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -149,10 +138,21 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-07-21",
       "estimated_value": null,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     },
     {
@@ -160,21 +160,10 @@
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-04-30",
       "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Jesse Cook",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-08-18",
-      "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     },
     {
@@ -182,10 +171,21 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-07-09",
       "estimated_value": null,
-      "source": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Jesse Cook",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-18",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     },
     {
@@ -193,10 +193,10 @@
       "contact": "",
       "email": "",
       "status": "On-Hold",
-      "priority": null,
+      "priority": "",
       "last_contacted": "2026-08-13",
       "estimated_value": null,
-      "source": null,
+      "source": "",
       "stale": false
     }
   ]
