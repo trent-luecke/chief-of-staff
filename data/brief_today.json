@@ -1,17 +1,7 @@
 {
-  "date": "2026-08-29",
-  "generated_at": "2026-08-29T15:54:46.140978+00:00",
-  "meetings": [
-    {
-      "id": "6rro7upqc65ug3umn770e1rq09_20260829T130000Z",
-      "title": "OS Weekend Support (Trent)",
-      "start": "2026-08-29T08:00:00-05:00",
-      "end": "2026-08-29T08:15:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    }
-  ],
+  "date": "2026-08-30",
+  "generated_at": "2026-08-30T12:07:23.414689+00:00",
+  "meetings": [],
   "needs_today": [
     {
       "id": "t-488053",
