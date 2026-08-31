@@ -1,7 +1,92 @@
 {
-  "date": "2026-08-30",
-  "generated_at": "2026-08-30T15:38:18.159524+00:00",
-  "meetings": [],
+  "date": "2026-08-31",
+  "generated_at": "2026-08-31T12:06:59.811158+00:00",
+  "meetings": [
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260831T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-08-31T10:00:00-05:00",
+      "end": "2026-08-31T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260831T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-08-31T10:30:00-05:00",
+      "end": "2026-08-31T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "0hniup3ss9ifnrit74jhhlafe2",
+      "title": "TBOS + Strength Home Combo",
+      "start": "2026-08-31T11:00:00-05:00",
+      "end": "2026-08-31T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": "Lucas Green"
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260831T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-08-31T12:30:00-05:00",
+      "end": "2026-08-31T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
