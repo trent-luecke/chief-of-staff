@@ -1,6 +1,6 @@
 {
   "date": "2026-08-31",
-  "generated_at": "2026-08-31T12:06:59.811158+00:00",
+  "generated_at": "2026-08-31T18:21:02.210758+00:00",
   "meetings": [
     {
       "id": "2cpic22b4ukd85hbqtrsda0qm2_20260831T150000Z",
@@ -81,6 +81,36 @@
         },
         {
           "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5rav1otcp4u0ouuqftuo2e3f4h",
+      "title": "TBOS MBA",
+      "start": "2026-08-31T13:00:00-05:00",
+      "end": "2026-08-31T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nick@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
           "name": ""
         }
       ],
