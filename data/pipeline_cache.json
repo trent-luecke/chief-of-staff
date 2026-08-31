@@ -1,8 +1,19 @@
 {
-  "fetched_at": "2026-08-30T00:00:00Z",
+  "fetched_at": "2026-08-31T13:45:00Z",
   "leads": [
     {
       "name": "High Ground Performance (Taino Fears-Perez)",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "David Arcemant",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -19,17 +30,6 @@
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "David Arcemant",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -79,6 +79,17 @@
       "stale": false
     },
     {
+      "name": "Edmund Duah-Asamoah",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-28",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Mark Olson — Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
@@ -90,23 +101,23 @@
       "stale": false
     },
     {
+      "name": "Alex Beasley",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Warren Clinkscales – Youth Athlete Training (OS)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-07-06",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Baxter Pattison",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -123,12 +134,34 @@
       "stale": false
     },
     {
+      "name": "Sam Tardif",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Wave Wellness",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-17",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Baxter Pattison",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-01",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -145,23 +178,23 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Dante Perez",
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-04-30",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Julianne (Saint John's)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -178,23 +211,23 @@
       "stale": false
     },
     {
-      "name": "Jesse Cook",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-18",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Will Johnson – Grind Time",
       "contact": "",
       "email": "",
       "status": "On-Hold",
       "priority": "",
       "last_contacted": "2026-08-13",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Jesse Cook",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-18",
       "estimated_value": null,
       "source": "",
       "stale": false
