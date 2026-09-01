@@ -119,3 +119,4 @@
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-09-01T13:21:01", "items": ["what all do we owe Mark before he can send his email out in October"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-09-01T15:13:24", "items": ["what all do we owe Mark before he can send his email out in October", "MBA going live soonish"]}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-09-01T15:38:59", "items": ["MBA going live soonish"]}
+{"event": "add_session", "id": "nicole_os_meeting", "ts": "2026-09-01T15:40:00", "session_id": "s-c841b8", "date": "2026-09-01", "body": "- Nicole will take over correspondence with Mark Fisher\n- MBA will go live either week before retreat or week after\n- talked through reworking of user journey regarding StoryBuildr/Marketing course to now involve two workflow routes with MOFU emails"}
