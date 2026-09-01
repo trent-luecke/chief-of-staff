@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-31T09:22:58.919707Z",
+  "fetched_at": "2026-09-01T08:21:10.174328Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -893,6 +893,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2025-10-07",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:meganfeickert@gmail.com",
+      "name": "",
+      "contact": "meganfeickert@gmail.com",
+      "email": "meganfeickert@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-08-31T15:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
