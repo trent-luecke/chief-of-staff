@@ -14,7 +14,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "hewitt-tomlin",
@@ -29,7 +29,7 @@
       "pipeline_record": null,
       "people_file": "data/people/hewitt-tomlin.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "james-peters",
@@ -44,7 +44,7 @@
       "pipeline_record": null,
       "people_file": "data/people/james-peters.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "luke-green",
@@ -59,7 +59,7 @@
       "pipeline_record": null,
       "people_file": "data/people/luke-green.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "luke-martin",
@@ -75,7 +75,7 @@
       "pipeline_record": null,
       "people_file": "data/people/luke-martin.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "nicole-foley",
@@ -90,7 +90,7 @@
       "pipeline_record": null,
       "people_file": "data/people/nicole-foley.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "heather",
@@ -104,7 +104,7 @@
       "pipeline_record": null,
       "people_file": "data/people/heather.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "clayton",
@@ -118,7 +118,7 @@
       "pipeline_record": null,
       "people_file": "data/people/clayton.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ken-andrukow",
@@ -133,7 +133,7 @@
       "pipeline_record": null,
       "people_file": "data/people/ken.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ryan-pace",
@@ -151,28 +151,28 @@
     },
     {
       "id": "patrick-labat-tgmc",
-      "canonical_name": "Patrick Labat \u2014 TGMC",
+      "canonical_name": "Patrick Labat — TGMC",
       "aliases": [
-        "Patrick Labat \u2014 TGMC",
+        "Patrick Labat — TGMC",
         "patrick.labat@tgmc.com"
       ],
       "email": "patrick.labat@tgmc.com",
       "type": "lead",
-      "pipeline_record": "Patrick Labat \u2014 TGMC",
+      "pipeline_record": "Patrick Labat — TGMC",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-08-19"
     },
     {
       "id": "mike-woodby-apex-holland",
-      "canonical_name": "Mike Woodby \u2014 Apex Holland",
+      "canonical_name": "Mike Woodby — Apex Holland",
       "aliases": [
-        "Mike Woodby \u2014 Apex Holland",
+        "Mike Woodby — Apex Holland",
         "mike@apexholland.co"
       ],
       "email": "mike@apexholland.co",
       "type": "lead",
-      "pipeline_record": "Mike Woodby \u2014 Apex Holland",
+      "pipeline_record": "Mike Woodby — Apex Holland",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-05-21"
@@ -263,14 +263,14 @@
     },
     {
       "id": "emma-hicks-for-fitness-athletics",
-      "canonical_name": "Emma Hicks \u2014 For Fitness & Athletics",
+      "canonical_name": "Emma Hicks — For Fitness & Athletics",
       "aliases": [
-        "Emma Hicks \u2014 For Fitness & Athletics",
+        "Emma Hicks — For Fitness & Athletics",
         "emmahicks@forfitnessandathletics.com"
       ],
       "email": "emmahicks@forfitnessandathletics.com",
       "type": "lead",
-      "pipeline_record": "Emma Hicks \u2014 For Fitness & Athletics",
+      "pipeline_record": "Emma Hicks — For Fitness & Athletics",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-08-19"
@@ -300,7 +300,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jeff-davidson",
@@ -313,7 +313,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ben-deloach",
@@ -326,7 +326,7 @@
       "pipeline_record": null,
       "people_file": "data/people/ben-deloach.md",
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "zack",
@@ -339,7 +339,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ryan-allwein",
@@ -352,7 +352,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "josh",
@@ -365,7 +365,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "coachbrigitaroemer",
@@ -378,7 +378,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "roseca",
@@ -391,7 +391,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "chris-reynolds",
@@ -404,7 +404,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jeffromkey",
@@ -417,7 +417,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "benjamin-villalon",
@@ -430,7 +430,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "admin",
@@ -443,7 +443,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "coachpace",
@@ -456,7 +456,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "levelupmobilegym",
@@ -469,7 +469,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "drake",
@@ -482,7 +482,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "asher",
@@ -495,7 +495,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "new-customer",
@@ -521,7 +521,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-22",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "oliviak",
@@ -534,7 +534,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-22",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "alberth",
@@ -547,7 +547,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-23",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "hilbre-t",
@@ -560,7 +560,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "nicholas-lewin",
@@ -573,7 +573,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "bmuller",
@@ -586,7 +586,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mwoodby",
@@ -599,7 +599,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ascendcoachinguk",
@@ -612,7 +612,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-27",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "high-ground-performance-taino-fears-perez",
@@ -625,7 +625,7 @@
       "pipeline_record": "High Ground Performance (Taino Fears-Perez)",
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "david-arcemant",
@@ -638,7 +638,7 @@
       "pipeline_record": "David Arcemant",
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mike-brown-sapt",
@@ -651,7 +651,7 @@
       "pipeline_record": "Mike Brown (SAPT)",
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "lee-douglas-trent-luecke",
@@ -691,7 +691,7 @@
       "pipeline_record": "Dante Perez",
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "brigita-roemer",
@@ -717,7 +717,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tainofearsperez",
@@ -730,7 +730,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "chantia-fears-perez",
@@ -743,7 +743,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "d-arcemant",
@@ -756,7 +756,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mbrown",
@@ -769,7 +769,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "aharvey",
@@ -782,7 +782,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "quinn-kastle",
@@ -795,7 +795,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-29",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "casey-randolph",
@@ -808,7 +808,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-29",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "deseanlberger",
@@ -821,7 +821,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-30",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "info",
@@ -834,7 +834,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-05",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jake",
@@ -847,7 +847,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-05",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tex",
@@ -860,7 +860,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-05",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "rachel-hodgson",
@@ -876,7 +876,7 @@
       "pipeline_record": null,
       "people_file": "data/people/rachel.md",
       "created": "2026-06-05",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ricky",
@@ -889,7 +889,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-06",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mark",
@@ -902,7 +902,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-15",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mingbretson",
@@ -915,21 +915,21 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-15",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "mark-olson-athletic-mentors",
-      "canonical_name": "Mark Olson \u2014 Athletic Mentors",
+      "canonical_name": "Mark Olson — Athletic Mentors",
       "aliases": [
-        "Mark Olson \u2014 Athletic Mentors",
+        "Mark Olson — Athletic Mentors",
         "mark@athleticmentors.com"
       ],
       "email": "mark@athleticmentors.com",
       "type": "lead",
-      "pipeline_record": "Mark Olson \u2014 Athletic Mentors",
+      "pipeline_record": "Mark Olson — Athletic Mentors",
       "people_file": null,
       "created": "2026-06-16",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "meredith-ingbretson",
@@ -956,7 +956,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "andy",
@@ -969,7 +969,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "danny",
@@ -982,7 +982,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tysmith-strength",
@@ -995,7 +995,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tedperlak",
@@ -1008,7 +1008,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "whitneysmith",
@@ -1034,7 +1034,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "chris-stahl",
@@ -1047,7 +1047,7 @@
       "pipeline_record": "Chris Stahl",
       "people_file": null,
       "created": "2026-06-18",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jamie-crone",
@@ -1060,7 +1060,7 @@
       "pipeline_record": "Jamie Crone",
       "people_file": null,
       "created": "2026-06-18",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "wave-wellness",
@@ -1073,7 +1073,7 @@
       "pipeline_record": "Wave Wellness",
       "people_file": null,
       "created": "2026-06-18",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "holland-high-school",
@@ -1113,7 +1113,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "ahmedragy",
@@ -1126,7 +1126,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "cstahl",
@@ -1139,7 +1139,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "pwrdundalk",
@@ -1152,7 +1152,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-22",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "kersten-barr",
@@ -1165,7 +1165,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "michaelholt",
@@ -1178,7 +1178,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-25",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "kim-johnston",
@@ -1191,7 +1191,7 @@
       "pipeline_record": "Kim Johnston",
       "people_file": null,
       "created": "2026-06-26",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "sam-tardif",
@@ -1204,7 +1204,7 @@
       "pipeline_record": "Sam Tardif",
       "people_file": null,
       "created": "2026-06-26",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "sam",
@@ -1217,7 +1217,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-06-26",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "danannkilleen",
@@ -1230,7 +1230,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-01",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "scottsilveus",
@@ -1243,7 +1243,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-01",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "bpattison",
@@ -1256,7 +1256,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-04",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "baxter-pattison",
@@ -1269,7 +1269,7 @@
       "pipeline_record": "Baxter Pattison",
       "people_file": null,
       "created": "2026-07-07",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "dawglb",
@@ -1282,7 +1282,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-08",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "train",
@@ -1295,43 +1295,43 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-08",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "warren-clinkscales-youth-athlete-training-os",
-      "canonical_name": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
+      "canonical_name": "Warren Clinkscales – Youth Athlete Training (OS)",
       "aliases": [
-        "Warren Clinkscales \u2013 Youth Athlete Training (OS)"
+        "Warren Clinkscales – Youth Athlete Training (OS)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
+      "pipeline_record": "Warren Clinkscales – Youth Athlete Training (OS)",
       "people_file": null,
       "created": "2026-07-11",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jennifer-foust-kent-denver-os-lite",
-      "canonical_name": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
+      "canonical_name": "Jennifer Foust – Kent Denver (OS Lite)",
       "aliases": [
-        "Jennifer Foust \u2013 Kent Denver (OS Lite)"
+        "Jennifer Foust – Kent Denver (OS Lite)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
+      "pipeline_record": "Jennifer Foust – Kent Denver (OS Lite)",
       "people_file": null,
       "created": "2026-07-11",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jasmin-bray-rise-sports-performance-os",
-      "canonical_name": "Jasmin Bray \u2013 Rise Sports Performance (OS)",
+      "canonical_name": "Jasmin Bray – Rise Sports Performance (OS)",
       "aliases": [
-        "Jasmin Bray \u2013 Rise Sports Performance (OS)"
+        "Jasmin Bray – Rise Sports Performance (OS)"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Jasmin Bray \u2013 Rise Sports Performance (OS)",
+      "pipeline_record": "Jasmin Bray – Rise Sports Performance (OS)",
       "people_file": null,
       "created": "2026-07-11",
       "last_seen": "2026-08-19"
@@ -1347,7 +1347,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-11",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "john-kurta",
@@ -1360,7 +1360,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "chanelbrown",
@@ -1373,7 +1373,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-17",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "shane",
@@ -1386,7 +1386,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-18",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "taylor",
@@ -1399,7 +1399,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "support",
@@ -1412,7 +1412,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "perry",
@@ -1425,7 +1425,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "brian",
@@ -1438,7 +1438,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-22",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "andrewlevine",
@@ -1451,7 +1451,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-24",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tim-kettenring",
@@ -1507,7 +1507,7 @@
       "pipeline_record": "Evan Nystrom",
       "people_file": null,
       "created": "2026-07-27",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "nathan-obrigewitsch",
@@ -1577,7 +1577,7 @@
       "pipeline_record": "Santiago Diaz Murrieta",
       "people_file": null,
       "created": "2026-07-27",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "peter-messer",
@@ -1632,7 +1632,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-29",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "evan",
@@ -1645,7 +1645,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-30",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jtellier",
@@ -1658,7 +1658,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-30",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "tweber",
@@ -1671,7 +1671,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-07-30",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "razer",
@@ -1712,7 +1712,7 @@
       "pipeline_record": "Jamie Tellier",
       "people_file": null,
       "created": "2026-07-31",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "info-2",
@@ -1809,7 +1809,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-06",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "gstrangos",
@@ -1920,7 +1920,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-07",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "george-strangos",
@@ -1933,7 +1933,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-07",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "david-quirke",
@@ -1946,7 +1946,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-11",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "will-aj10",
@@ -1973,7 +1973,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-13",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "will-johnson",
@@ -1986,7 +1986,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-14",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "forte-performance-training",
@@ -2545,7 +2545,7 @@
       "pipeline_record": "Rob Van Valkenburgh",
       "people_file": null,
       "created": "2026-08-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "brad",
@@ -2857,70 +2857,70 @@
     },
     {
       "id": "mike-ruth-dap",
-      "canonical_name": "Mike Ruth \u2014 DAP",
+      "canonical_name": "Mike Ruth — DAP",
       "aliases": [
-        "Mike Ruth \u2014 DAP",
+        "Mike Ruth — DAP",
         "mike@dappowered.com"
       ],
       "email": "mike@dappowered.com",
       "type": "lead",
-      "pipeline_record": "Mike Ruth \u2014 DAP",
+      "pipeline_record": "Mike Ruth — DAP",
       "people_file": null,
       "created": "2026-08-19",
       "last_seen": "2026-08-19"
     },
     {
       "id": "greg-hetherington-youthlete-academy",
-      "canonical_name": "Greg Hetherington \u2014 Youthlete Academy",
+      "canonical_name": "Greg Hetherington — Youthlete Academy",
       "aliases": [
-        "Greg Hetherington \u2014 Youthlete Academy",
+        "Greg Hetherington — Youthlete Academy",
         "getmoving@youthleteacademy.ca"
       ],
       "email": "getmoving@youthleteacademy.ca",
       "type": "lead",
-      "pipeline_record": "Greg Hetherington \u2014 Youthlete Academy",
+      "pipeline_record": "Greg Hetherington — Youthlete Academy",
       "people_file": null,
       "created": "2026-08-19",
       "last_seen": "2026-08-19"
     },
     {
       "id": "brian-athletes-tpi",
-      "canonical_name": "Brian \u2014 Athletes TPI",
+      "canonical_name": "Brian — Athletes TPI",
       "aliases": [
-        "Brian \u2014 Athletes TPI",
+        "Brian — Athletes TPI",
         "brian@athletestpi.com"
       ],
       "email": "brian@athletestpi.com",
       "type": "lead",
-      "pipeline_record": "Brian \u2014 Athletes TPI",
+      "pipeline_record": "Brian — Athletes TPI",
       "people_file": null,
       "created": "2026-08-19",
       "last_seen": "2026-08-19"
     },
     {
       "id": "sarah-strength-house",
-      "canonical_name": "Sarah \u2014 Strength House",
+      "canonical_name": "Sarah — Strength House",
       "aliases": [
-        "Sarah \u2014 Strength House",
+        "Sarah — Strength House",
         "strengthhouseinc@gmail.com"
       ],
       "email": "strengthhouseinc@gmail.com",
       "type": "lead",
-      "pipeline_record": "Sarah \u2014 Strength House",
+      "pipeline_record": "Sarah — Strength House",
       "people_file": null,
       "created": "2026-08-19",
       "last_seen": "2026-08-19"
     },
     {
       "id": "tyler-landeck-ala",
-      "canonical_name": "Tyler Landeck \u2014 ALA",
+      "canonical_name": "Tyler Landeck — ALA",
       "aliases": [
-        "Tyler Landeck \u2014 ALA",
+        "Tyler Landeck — ALA",
         "tyler.landeck@alaschools.org"
       ],
       "email": "tyler.landeck@alaschools.org",
       "type": "lead",
-      "pipeline_record": "Tyler Landeck \u2014 ALA",
+      "pipeline_record": "Tyler Landeck — ALA",
       "people_file": null,
       "created": "2026-08-19",
       "last_seen": "2026-08-19"
@@ -2964,7 +2964,7 @@
       "pipeline_record": "Jesse Cook",
       "people_file": null,
       "created": "2026-08-19",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "andrew-howard",
@@ -2977,7 +2977,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-20",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "contact",
@@ -3009,29 +3009,29 @@
     },
     {
       "id": "andrew-howard-mvmt",
-      "canonical_name": "Andrew Howard \u2013 MVMT",
+      "canonical_name": "Andrew Howard – MVMT",
       "aliases": [
-        "Andrew Howard \u2013 MVMT"
+        "Andrew Howard – MVMT"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Andrew Howard \u2013 MVMT",
+      "pipeline_record": "Andrew Howard – MVMT",
       "people_file": null,
       "created": "2026-08-27",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "will-johnson-grind-time",
-      "canonical_name": "Will Johnson \u2013 Grind Time",
+      "canonical_name": "Will Johnson – Grind Time",
       "aliases": [
-        "Will Johnson \u2013 Grind Time"
+        "Will Johnson – Grind Time"
       ],
       "email": "",
       "type": "lead",
-      "pipeline_record": "Will Johnson \u2013 Grind Time",
+      "pipeline_record": "Will Johnson – Grind Time",
       "people_file": null,
       "created": "2026-08-27",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "jvasichek",
@@ -3058,7 +3058,7 @@
       "pipeline_record": "Alex Beasley",
       "people_file": null,
       "created": "2026-08-28",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "julianne-vasichek",
@@ -3071,7 +3071,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-29",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "edmund-duah-asamoah",
@@ -3084,7 +3084,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-08-29",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "edmund-duah-asamoah-2",
@@ -3097,7 +3097,7 @@
       "pipeline_record": "Edmund Duah-Asamoah",
       "people_file": null,
       "created": "2026-09-01",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "julianne-saint-john-s",
@@ -3110,7 +3110,7 @@
       "pipeline_record": "Julianne (Saint John's)",
       "people_file": null,
       "created": "2026-09-01",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "meganfeickert",
@@ -3123,7 +3123,7 @@
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-09-01",
-      "last_seen": "2026-09-01"
+      "last_seen": "2026-09-02"
     },
     {
       "id": "info-3",
@@ -3138,6 +3138,19 @@
       "created": "2026-09-01",
       "last_seen": "2026-09-01",
       "provenance": "auto:calendar 2026-09-01 meeting:Will Johnson and Trent Luecke"
+    },
+    {
+      "id": "megan-feickert",
+      "canonical_name": "Megan Feickert",
+      "aliases": [
+        "Megan Feickert"
+      ],
+      "email": "",
+      "type": "lead",
+      "pipeline_record": "Megan Feickert",
+      "people_file": null,
+      "created": "2026-09-02",
+      "last_seen": "2026-09-02"
     }
   ]
 }
