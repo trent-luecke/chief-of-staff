@@ -1,6 +1,6 @@
 {
   "date": "2026-09-02",
-  "generated_at": "2026-09-02T12:08:01.078134+00:00",
+  "generated_at": "2026-09-02T15:31:09.124164+00:00",
   "meetings": [
     {
       "id": "50cfatr093orc55d4r8alqucbl_20260902T130000Z",
@@ -9,6 +9,20 @@
       "end": "2026-09-02T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "58nk6pd6665p52p0a8v0cpj8as",
+      "title": "Tactical x OS",
+      "start": "2026-09-02T10:00:00-05:00",
+      "end": "2026-09-02T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        }
+      ],
       "prep": null
     },
     {
