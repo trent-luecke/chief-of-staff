@@ -1,15 +1,15 @@
 {
-  "fetched_at": "2026-09-02T14:00:00Z",
+  "fetched_at": "2026-09-03T07:00:00Z",
   "leads": [
     {
       "name": "Kim Johnston",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-06-24",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -17,10 +17,10 @@
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -28,10 +28,10 @@
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -39,10 +39,10 @@
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-06-16",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -50,7 +50,7 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-08-31",
       "estimated_value": null,
       "source": "Trial Sign-Up",
@@ -61,10 +61,10 @@
       "contact": "Evan Nystrom",
       "email": "evan@outlierathlete.com",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-07-28",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -72,21 +72,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-08-19",
       "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Edmund Duah-Asamoah",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-28",
-      "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -94,10 +83,21 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Edmund Duah-Asamoah",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-08-28",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     },
     {
@@ -116,21 +116,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-07-06",
       "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Alex Beasley",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-27",
-      "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -138,43 +127,10 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-07-28",
       "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Wave Wellness",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-17",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Andrew Levine",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-21",
-      "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
@@ -182,43 +138,54 @@
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-07-01",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
-      "name": "Julianne (Saint John's)",
+      "name": "Wave Wellness",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-28",
+      "priority": null,
+      "last_contacted": "2026-06-17",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "name": "Sam Tardif",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-09",
+      "priority": null,
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
-      "source": "",
+      "source": null,
       "stale": false
     },
     {
-      "name": "Jesse Cook",
+      "name": "Alex Beasley",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-18",
+      "priority": null,
+      "last_contacted": "2026-08-27",
       "estimated_value": null,
-      "source": "",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Andrew Levine",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-21",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     },
     {
@@ -226,10 +193,21 @@
       "contact": "Dante Perez",
       "email": "dante@vlfsportsperformance.com",
       "status": "In-Trial / Post Demo",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-04-30",
       "estimated_value": null,
-      "source": "",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-09",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     },
     {
@@ -237,10 +215,32 @@
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
-      "priority": "",
+      "priority": null,
       "last_contacted": "2026-09-01",
       "estimated_value": null,
-      "source": "",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Julianne (Saint John's)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-08-28",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Jesse Cook",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-08-18",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     }
   ]
