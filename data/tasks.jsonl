@@ -286,3 +286,4 @@
 {"event": "create", "task_id": "t-704340", "title": "outline how to get a lead into OS for MOFU content", "source": "ui", "created_at": "2026-09-01", "due_date": "2026-09-04", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "complete", "task_id": "t-020930", "completed_at": "2026-09-02"}
 {"event": "complete", "task_id": "t-45224b", "completed_at": "2026-09-02"}
+{"event": "delete", "task_id": "t-24cc50"}
