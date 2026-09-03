@@ -1,52 +1,184 @@
 {
-  "date": "2026-09-02",
-  "generated_at": "2026-09-02T15:31:09.124164+00:00",
+  "date": "2026-09-03",
+  "generated_at": "2026-09-03T15:26:42.387210+00:00",
   "meetings": [
     {
-      "id": "50cfatr093orc55d4r8alqucbl_20260902T130000Z",
-      "title": "invoice for Ubuntu",
-      "start": "2026-09-02T08:00:00-05:00",
-      "end": "2026-09-02T08:15:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "58nk6pd6665p52p0a8v0cpj8as",
-      "title": "Tactical x OS",
-      "start": "2026-09-02T10:00:00-05:00",
-      "end": "2026-09-02T10:30:00-05:00",
-      "kind": "internal",
+      "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20260903T123000Z",
+      "title": "Luke & Tony Sync",
+      "start": "2026-09-03T07:30:00-05:00",
+      "end": "2026-09-03T08:00:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "melissa@teambuildr.com",
+          "email": "antonio@weinbergventures.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "_68o34dhg70o38l1h6cpj6c9g74qjicpi60mj2c1g6spk0rb1epimsbj3dtmg",
-      "title": "\u26a1\ufe0f Maven LIVE: Use Claude to Query Product Data",
-      "start": "2026-09-02T11:00:00-05:00",
-      "end": "2026-09-02T11:45:00-05:00",
+      "id": "72ss8s07kdp8i58sltoqh5hrg7",
+      "title": "Luke Brian Trent",
+      "start": "2026-09-03T08:00:00-05:00",
+      "end": "2026-09-03T08:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "0dfh78cddi2otqfhfgh4pi5577",
+      "title": "Quinn / Trent: Onboarding Planning",
+      "start": "2026-09-03T08:30:00-05:00",
+      "end": "2026-09-03T09:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "7pcvnnnnd79l4tomq8l0j6dk3k",
-      "title": "TBOS/Strength ",
-      "start": "2026-09-02T13:00:00-05:00",
-      "end": "2026-09-02T14:00:00-05:00",
+      "id": "427va7uog7950apj45agnlp33o_20260903T143000Z",
+      "title": "OS | Marketing 2.0",
+      "start": "2026-09-03T09:30:00-05:00",
+      "end": "2026-09-03T10:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2b04fa5k3lf7od3evdve0dllgk",
+      "title": "Prep for devs - TBOS Reports",
+      "start": "2026-09-03T11:00:00-05:00",
+      "end": "2026-09-03T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
           "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "05qo705ca6f27ai8m3usq7fp05_20260903T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-09-03T12:00:00-05:00",
+      "end": "2026-09-03T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": "## Luke / Trent Prep\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In testing \u2014 building out fake onboarding script to feed Claude for QA.\n- **Open tasks:** Create fake onboarding script \u2192 feed to Claude onboarding flow for testing\n- **Blocker:** None surfaced\n\n---\n\n### StoryBuildr\n**Status:** Closing in on 9/23 launch \u2014 stage design audit underway, launch date needs to be confirmed with Mark.\n- **Open tasks:** Audit individual stage design/layout; email Mark to confirm 9/23 launch date\n- **Blocker:** Launch date not yet locked with Mark \u2014 email is the next gate\n\n---\n\n### AI / Sales Team Rollout\n**Status:** Decided \u2014 no open seats; Trent is the centralized AI builder, reps come with a specific need.\n- **Open tasks:** Produce competitive content around vibe-coded platforms (danger angle, tied to LaunchOS \"one place\" positioning)\n- **Blocker:** None; direction is set\n\n---\n\n### Pipeline\n**Status:** July was a strong month; August expected to be soft \u2014 no demos booked MTD.\n- Snapshot: 22 in pipeline (16 In-Trial/Post Demo \u00b7 3 No Trial/Post Demo \u00b7 3 Need Update)\n- **Blocker:** 3 \"Out of Demo / Need Update\" contacts \u2014 worth a quick flag on whether any need action",
+      "prep_hash": "6b98bec78d02"
+    },
+    {
+      "id": "5voel6av0ivosisq40jjq8uho3",
+      "title": "TEAMBUILDR FANTASY FOOTBALL DRAFT",
+      "start": "2026-09-03T14:00:00-05:00",
+      "end": "2026-09-03T15:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
           "name": ""
         },
         {
           "email": "clayton@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "csnyder@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "elodder@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "elvis@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "emily@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "heather@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
+        },
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
           "name": ""
         }
       ],
