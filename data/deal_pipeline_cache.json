@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-03T07:54:04.663734Z",
+  "fetched_at": "2026-09-04T07:49:03.572170Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -282,6 +282,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2026-05-14",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:contact@bauerselite.com",
+      "name": "Bauerselite",
+      "contact": "contact@bauerselite.com",
+      "email": "contact@bauerselite.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-03T18:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
