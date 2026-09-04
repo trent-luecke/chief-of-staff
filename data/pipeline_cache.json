@@ -1,28 +1,6 @@
 {
-  "fetched_at": "2026-09-03T07:00:00Z",
+  "fetched_at": "2026-09-04T14:00:00Z",
   "leads": [
-    {
-      "name": "Kim Johnston",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
     {
       "name": "David Arcemant",
       "contact": "",
@@ -46,6 +24,17 @@
       "stale": false
     },
     {
+      "name": "Peyton Buckley",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-09-03",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
       "name": "Megan Feickert",
       "contact": "",
       "email": "",
@@ -54,17 +43,6 @@
       "last_contacted": "2026-08-31",
       "estimated_value": null,
       "source": "Trial Sign-Up",
-      "stale": false
-    },
-    {
-      "name": "Evan Nystrom",
-      "contact": "Evan Nystrom",
-      "email": "evan@outlierathlete.com",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-28",
-      "estimated_value": null,
-      "source": null,
       "stale": false
     },
     {
@@ -101,14 +79,36 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
+      "name": "Evan Nystrom",
+      "contact": "Evan Nystrom",
+      "email": "evan@outlierathlete.com",
       "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
+      "priority": null,
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
-      "source": "Inbound Email",
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-24",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Wave Wellness",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-06-17",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     },
     {
@@ -123,12 +123,12 @@
       "stale": false
     },
     {
-      "name": "Jamie Tellier",
+      "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
-      "status": "In-Trial / Post Demo",
+      "status": "Out of Demo / Need Upate",
       "priority": null,
-      "last_contacted": "2026-07-28",
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -145,12 +145,12 @@
       "stale": false
     },
     {
-      "name": "Wave Wellness",
+      "name": "Jamie Tellier",
       "contact": "",
       "email": "",
-      "status": "No Trial / Post Demo",
+      "status": "In-Trial / Post Demo",
       "priority": null,
-      "last_contacted": "2026-06-17",
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -200,28 +200,6 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-09",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Will Johnson – Grind Time",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-09-01",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Julianne (Saint John's)",
       "contact": "",
       "email": "",
@@ -233,12 +211,45 @@
       "stale": false
     },
     {
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-09",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
+      "stale": false
+    },
+    {
       "name": "Jesse Cook",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-08-18",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Will Johnson – Grind Time",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": "2026-09-01",
       "estimated_value": null,
       "source": null,
       "stale": false
