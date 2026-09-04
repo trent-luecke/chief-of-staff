@@ -91,6 +91,28 @@ Quinn is moving to a new role; a new hire takes this over. The design must minim
 
 ---
 
+## Bug Tracker field enhancements (gap analysis)
+
+The Bug Tracker currently has **no account field and no dates** — those live only in the Account Health Metrics DB we are sunsetting. Before Health Metrics is retired, the Bug Tracker must absorb every field the ingest needs, so **Flow B sources 100% of its data from the Bug Tracker** with nothing left stranded in the retired DB. This gap analysis is a required, gating part of Phase 1.
+
+| Health Tracker field | Disposition | Notes |
+|---|---|---|
+| `Account` (text) | **ADD to tracker → `Affected/Reported Accounts`** (relation → Accounts DB, many) | The core fix. Replaces the text field; enables per-account fan-out. One relation covers both "reported by" and "affected" at account grain. |
+| `Shortcut URL` (url) | **ADD to tracker** | Structured field; today it appears only in freeform sync notes. |
+| `Date Ticket Closed` (date) | **ADD to tracker → `Date Closed`** | Global close date. Set when Status → Done (can be a Notion button/automation so it isn't hand-typed). Ingest reads this. |
+| `Who reported it` (text) | **ADD to tracker (optional)** | Person-level reporter, distinct from account. Include if reporter context is wanted for churn; otherwise the Accounts relation already covers account-level attribution. |
+| `Severity of Ticket` (multi-select) | **Reuse existing `Priority Level`** + add "Not actually a bug" | Already decided — one field, no duplicate. |
+| `Date Created` (date) | **Already automatic** — Notion created time | No new field. Fidelity note: Notion `created_time` ≈ report date only if tickets are logged promptly. If closer fidelity to the true Shortcut/report date is needed, add an optional `Date Reported` override field. |
+| `Average time to resolve` (text) | **Computed downstream** | Never a hand-typed field again. |
+| `How long before resolved` (formula) | **Computed downstream** | Derived in the store. |
+| `How many times per account` (text) | **Computed downstream** | Derived in the store. |
+| `Name` (title) | **Drop** — redundant with tracker's `Ticket Name` | — |
+| *Resolved-for-customer (per account)* | **Lives in CSM surface / `ticket_accounts`**, NOT the tracker | Per-account value; a ticket-level Notion field cannot hold it. |
+
+**Net new Bug Tracker fields:** `Affected/Reported Accounts` (relation), `Shortcut URL` (url), `Date Closed` (date), optionally `Who reported it` (text) and `Date Reported` (date). **Modified:** `Priority Level` gains a "Not actually a bug" option.
+
+---
+
 ## Data model (shared store: OS-Metric-Sync `dashboard.db`)
 
 **`accounts`** — the account dimension (didn't exist before):
@@ -105,8 +127,8 @@ Quinn is moving to a new role; a new hire takes this over. The design must minim
 |---|---|
 | `ticket_id` | Notion page id (natural key) |
 | `ticket_name`, `shortcut_url`, `priority`, `technical_area[]`, `status` | Notion tracker |
-| `created_date` | Notion created time |
-| `global_closed_date` | Notion (when Status → Done) |
+| `created_date` | Notion created time (or optional `Date Reported`) |
+| `global_closed_date` | Bug Tracker `Date Closed` field |
 | `notion_last_edited` | for change detection |
 
 **`ticket_accounts`** — the fan-out fact (replaces the text `Account` field):
@@ -171,7 +193,7 @@ A dedicated tab (in the CSM surface, mirrored to Trent), reviewed together as a 
 
 ## Rough phase breakdown (for the implementation plan)
 
-1. **Accounts dimension** — Flow A (Sheet → `accounts` + Notion Accounts DB); add `Accounts Affected` relation + `Shortcut URL` + `Resolved` handling to the Bug Tracker; add "Not actually a bug" to Priority.
+1. **Accounts dimension + Bug Tracker enhancements** — Flow A (Sheet → `accounts` + Notion Accounts DB); apply the full **Bug Tracker field gap analysis** (add `Affected/Reported Accounts` relation, `Shortcut URL`, `Date Closed`, optional `Who reported it` / `Date Reported`; add "Not actually a bug" to `Priority Level`). Gating requirement: the tracker must hold everything the ingest needs before Health Metrics is retired.
 2. **Bug ingest fan-out** — extend `fetch-bugs` into `tickets` + `ticket_accounts` with resolved-date preservation.
 3. **CSM surface** — read views + resolved-date write + scoped auth.
 4. **Onboarding & Recurrence view** — the two panels.
