@@ -10,10 +10,10 @@
 
 Bug tickets flow through two Notion surfaces:
 
-1. **TeamBuildr OS 🪲 Tracker** (in the Dev Sync Notes page) — the working bug list, four fields only: `Ticket Name`, `Status`, `Priority Level` (High/Moderate/Low), `Technical Area of Issue` (multi-select). **No account. No dates.**
+1. **TeamBuildr OS 🪲 Tracker** (in the Dev Sync Notes page) — the working bug list. Live schema: `Ticket Name` (title), `Status`, `Priority Level` (High/Moderate/Low), `Technical Area of Issue` (multi-select, 13 options), `Shortcut URL` (url), `Date Created` (auto created_time), `Date Completed` (manual date), `Days before closed/fixed` (formula), `Ticket Owner` (created_by), `Last Update`, `Needs Updating?` (checkbox). It already has the Shortcut link, both dates, and a resolve-duration formula — but **no account field**, and the workflow doesn't actually *use* the date/formula fields it has.
 2. **Account Health Metrics** — a second Notion DB fed by an automation off the tracker. It carries `Account` (plain text, doubles as the grouping key), `Ticket Name`, `Shortcut URL`, `Date Created`, `Date Ticket Closed`, `How long before resolved` (formula), `Severity`, `Who reported it`, plus two **hand-typed** text fields: `How many times did each account have a ticket` and `Average time to resolve`.
 
-Because the tracker holds no account or dates, the CSM (Quinn) reconstructs everything after the fact. Per the workflow transcript, for every closed ticket he: opens Shortcut → reads the account name → reads the created date → **digs through ticket comments** to find the real "fixed-for-this-customer" date → hand-tags severity → types the account name (which relocates the row into that gym's group) → eyeballs and re-edits neighboring rows.
+The tracker's own dates and resolve formula sit unused; the workflow **re-derives all of it by hand in the Health tracker instead**, and the account (which the tracker can't hold) forces a Shortcut lookup. So for every closed ticket the CSM (Quinn): opens Shortcut → reads the account name → reads the created date → **digs through ticket comments** to find the real "fixed-for-this-customer" date → hand-tags severity → types the account name (which relocates the row into that gym's group) → eyeballs and re-edits neighboring rows.
 
 ### The five concrete pain points
 
@@ -93,23 +93,23 @@ Quinn is moving to a new role; a new hire takes this over. The design must minim
 
 ## Bug Tracker field enhancements (gap analysis)
 
-The Bug Tracker currently has **no account field and no dates** — those live only in the Account Health Metrics DB we are sunsetting. Before Health Metrics is retired, the Bug Tracker must absorb every field the ingest needs, so **Flow B sources 100% of its data from the Bug Tracker** with nothing left stranded in the retired DB. This gap analysis is a required, gating part of Phase 1.
+Rooted in the **live** tracker schema (verified 2026-09-04). Most of what the ingest needs already exists in the tracker — it just isn't being *used*; the workflow re-derives it by hand in the Health tracker. The only field that must be **created** is the accounts relation. Goal: **Flow B sources 100% of its data from the Bug Tracker**, nothing stranded in the retired Health DB. Gating part of Phase 1.
 
-| Health Tracker field | Disposition | Notes |
+| Health Tracker field | Bug Tracker reality | Action |
 |---|---|---|
-| `Account` (text) | **ADD to tracker → `Affected/Reported Accounts`** (relation → Accounts DB, many) | The core fix. Replaces the text field; enables per-account fan-out. One relation covers both "reported by" and "affected" at account grain. |
-| `Shortcut URL` (url) | **ADD to tracker** | Structured field; today it appears only in freeform sync notes. |
-| `Date Ticket Closed` (date) | **ADD to tracker → `Date Closed`** | Global close date. Set when Status → Done (can be a Notion button/automation so it isn't hand-typed). Ingest reads this. |
-| `Who reported it` (text) | **ADD to tracker (optional)** | Person-level reporter, distinct from account. Include if reporter context is wanted for churn; otherwise the Accounts relation already covers account-level attribution. |
-| `Severity of Ticket` (multi-select) | **Reuse existing `Priority Level`** + add "Not actually a bug" | Already decided — one field, no duplicate. |
-| `Date Created` (date) | **Already automatic** — Notion created time | No new field. Fidelity note: Notion `created_time` ≈ report date only if tickets are logged promptly. If closer fidelity to the true Shortcut/report date is needed, add an optional `Date Reported` override field. |
-| `Average time to resolve` (text) | **Computed downstream** | Never a hand-typed field again. |
-| `How long before resolved` (formula) | **Computed downstream** | Derived in the store. |
-| `How many times per account` (text) | **Computed downstream** | Derived in the store. |
-| `Name` (title) | **Drop** — redundant with tracker's `Ticket Name` | — |
-| *Resolved-for-customer (per account)* | **Lives in CSM surface / `ticket_accounts`**, NOT the tracker | Per-account value; a ticket-level Notion field cannot hold it. |
+| `Account` (text) | ❌ **Missing** | **CREATE `Affected/Reported Accounts`** (relation → Accounts DB, many). The one true gap; replaces the text field, enables per-account fan-out. One relation covers "reported by" + "affected" at account grain. |
+| `Shortcut URL` (url) | ✅ Exists (`Shortcut URL`) | **Reuse.** Make it a filled-at-intake field (bake into the Bug Ticket Template). |
+| `Date Ticket Closed` (date) | ✅ Exists (`Date Completed`, manual) | **Reuse as the global close date.** Enforce it's set on close (template + `Needs Updating?` checkbox already exist to support this). |
+| `Date Created` (date) | ✅ Exists (auto `created_time`) | **Reuse.** Fidelity note: `created_time` ≈ report date only if tickets are logged promptly; add an optional `Date Reported` override only if that gap proves material. |
+| `How long before resolved` (formula) | ✅ Exists (`Days before closed/fixed`) | **Reuse** as the global per-ticket resolve. Per-account response time is still computed downstream (uses the CSM's resolved-for-customer date). |
+| `Severity of Ticket` (multi-select) | ⚠️ Partial (`Priority Level`: High/Moderate/Low) | **ADD "Not actually a bug" option** to `Priority Level`. One field, no duplicate. |
+| `Who reported it` (text) | ⚠️ `Ticket Owner` = internal logger, not the customer | **ADD (optional)** a customer-reporter field only if you want the person-level complainer for churn context; else the Accounts relation covers account-level attribution. |
+| `Average time to resolve` (text) | — | **Computed downstream.** Never hand-typed again. |
+| `How many times per account` (text) | — | **Computed downstream.** |
+| `Name` (title) | tracker `Ticket Name` | **Drop** — redundant. |
+| *Resolved-for-customer (per account)* | — | **Lives in CSM surface / `ticket_accounts`**, NOT the tracker. Per-account value a ticket-level Notion field can't hold. |
 
-**Net new Bug Tracker fields:** `Affected/Reported Accounts` (relation), `Shortcut URL` (url), `Date Closed` (date), optionally `Who reported it` (text) and `Date Reported` (date). **Modified:** `Priority Level` gains a "Not actually a bug" option.
+**Net Notion changes shrink to:** (1) **create** `Affected/Reported Accounts` relation; (2) **add** "Not actually a bug" to `Priority Level`; (3) **optionally add** a customer-reporter field. Everything else already exists — the work is making `Shortcut URL` + `Date Completed` reliably filled at intake/close (via the existing **Bug Ticket Template** and `Needs Updating?` checkbox).
 
 ---
 
@@ -127,9 +127,9 @@ The Bug Tracker currently has **no account field and no dates** — those live o
 |---|---|
 | `ticket_id` | Notion page id (natural key) |
 | `ticket_name`, `shortcut_url`, `priority`, `technical_area[]`, `status` | Notion tracker |
-| `created_date` | Notion created time (or optional `Date Reported`) |
-| `global_closed_date` | Bug Tracker `Date Closed` field |
-| `notion_last_edited` | for change detection |
+| `created_date` | Bug Tracker `Date Created` (auto; or optional `Date Reported`) |
+| `global_closed_date` | Bug Tracker `Date Completed` field |
+| `notion_last_edited` | Bug Tracker `Last Update` — for change detection |
 
 **`ticket_accounts`** — the fan-out fact (replaces the text `Account` field):
 | column | source |
@@ -193,7 +193,7 @@ A dedicated tab (in the CSM surface, mirrored to Trent), reviewed together as a 
 
 ## Rough phase breakdown (for the implementation plan)
 
-1. **Accounts dimension + Bug Tracker enhancements** — Flow A (Sheet → `accounts` + Notion Accounts DB); apply the full **Bug Tracker field gap analysis** (add `Affected/Reported Accounts` relation, `Shortcut URL`, `Date Closed`, optional `Who reported it` / `Date Reported`; add "Not actually a bug" to `Priority Level`). Gating requirement: the tracker must hold everything the ingest needs before Health Metrics is retired.
+1. **Accounts dimension + Bug Tracker enhancements** — Flow A (Sheet → `accounts` + Notion Accounts DB); apply the **gap analysis**: create the `Affected/Reported Accounts` relation, add "Not actually a bug" to `Priority Level`, optionally add a customer-reporter field, and make the already-existing `Shortcut URL` + `Date Completed` reliably filled at intake/close (bake into the Bug Ticket Template). Gating requirement: the tracker must hold everything the ingest needs before Health Metrics is retired.
 2. **Bug ingest fan-out** — extend `fetch-bugs` into `tickets` + `ticket_accounts` with resolved-date preservation.
 3. **CSM surface** — read views + resolved-date write + scoped auth.
 4. **Onboarding & Recurrence view** — the two panels.
