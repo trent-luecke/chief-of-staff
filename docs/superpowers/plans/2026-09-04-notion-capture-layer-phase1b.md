@@ -19,6 +19,17 @@
 
 ---
 
+## Execution status (2026-09-04)
+
+- Task 1 (OS Accounts Database): ✅ done
+- Task 2 (Bug Tracker relation + "Not actually a bug"): ✅ done (relation still one-way — optional two-way toggle)
+- Task 3 (`GET /api/accounts`): ✅ done — os-metric-sync PR #5 merged (0ada6ff), 144 tests
+- Task 4 (seed): ✅ done — all 98 active accounts seeded into the OS Accounts Database via direct Notion MCP create-pages. Live fetch validated: `railway run python3 fetch_accounts.py` → 98 accounts, all with join_date.
+- Task 5 (scheduled mirror): ✅ done — task `os-accounts-notion-mirror` created (~8:25am local daily). Uses `railway run python3 fetch_accounts.py` (secret-free) → upsert to Notion; add/upsert-only. NOTE: scheduled tasks run locally only while the desktop app is open.
+- **Task 6 (Trent): ⏳ click "Run now" once to pre-approve the task's tools (railway/Bash + Notion writes)** so unattended runs don't stall on permission prompts.
+
+---
+
 ### Task 1: Canonical Accounts database in Notion — DONE (verify)
 
 **Status:** ✅ Created manually 2026-09-04 as **"OS Accounts Database"** (`collection://3d124bca-36d7-8069-a2fa-000b83deae3d`) with `Account Name` (title), `Join Date` (date), `Status` (select: Active/Churned). Matches the schema needed by the mirror.
