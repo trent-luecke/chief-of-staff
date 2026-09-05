@@ -1,51 +1,19 @@
 {
-  "date": "2026-09-04",
-  "generated_at": "2026-09-04T15:22:41.008238+00:00",
+  "date": "2026-09-05",
+  "generated_at": "2026-09-05T12:09:25.461867+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20260904T133000Z",
-      "title": "Focus Work",
-      "start": "2026-09-04T08:30:00-05:00",
-      "end": "2026-09-04T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "2m91n5tv6f7tvsekmo3sgbtihp",
-      "title": "Trent / Teofe",
-      "start": "2026-09-04T09:00:00-05:00",
-      "end": "2026-09-04T10:00:00-05:00",
+      "id": "5siqnatg22vegd2lf58tbiglqb_20260905T130000Z",
+      "title": "OS Weekend Support (Quinn)",
+      "start": "2026-09-05T08:00:00-05:00",
+      "end": "2026-09-05T08:15:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "teofe@teambuildr.com",
+          "email": "quinn@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "e6l3at50kf3a1o0qu6vdslukak",
-      "title": "Alina Bushma and Trent Luecke",
-      "start": "2026-09-04T10:30:00-05:00",
-      "end": "2026-09-04T11:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "alinabushma00@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20260904T193000Z",
-      "title": "Out of office",
-      "start": "2026-09-04T14:30:00-05:00",
-      "end": "2026-09-04T17:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
       "prep": null
     }
   ],
@@ -60,7 +28,14 @@
     {
       "id": "t-704340",
       "title": "outline how to get a lead into OS for MOFU content",
-      "reason": "due",
+      "reason": "overdue",
+      "due_date": "2026-09-04",
+      "project_id": null
+    },
+    {
+      "id": "t-217830",
+      "title": "look into solution for Force Lab's issue using MBA",
+      "reason": "overdue",
       "due_date": "2026-09-04",
       "project_id": null
     }
