@@ -87,3 +87,40 @@ def test_reset_clears_calls():
     assert len(llm_logger._calls) == 1
     llm_logger.reset()
     assert llm_logger._calls == []
+
+
+# ── Pricing resolver: the source of the silent-$0 bug ────────────────────────
+# Before this, opus-4-8 (used by scout/interviews) and market-intel's
+# date-suffixed sonnet-4-20250514 resolved to nothing and logged as $0.
+
+def _cost(model, inp=1_000_000, out=0):
+    from lib import llm_logger
+    llm_logger.reset()
+    llm_logger.log_usage("t", FakeUsage(input_tokens=inp, output_tokens=out), model)
+    return llm_logger._calls[0]["estimated_cost_usd"]
+
+
+def test_opus_48_priced_at_current_rate():
+    # Opus 4.8 is $5/$25 per M — NOT the old $15/$75.
+    assert _cost("claude-opus-4-8", inp=1_000_000, out=0) == 5.0
+    assert _cost("claude-opus-4-8", inp=0, out=1_000_000) == 25.0
+
+
+def test_haiku_45_priced_at_current_rate():
+    # Haiku 4.5 is $1/$5 per M.
+    assert _cost("claude-haiku-4-5", inp=1_000_000, out=0) == 1.0
+    assert _cost("claude-haiku-4-5", inp=0, out=1_000_000) == 5.0
+
+
+def test_date_suffixed_model_resolves_via_normalization():
+    # market-intel's model and the dated haiku snapshot must not log as $0.
+    assert _cost("claude-sonnet-4-20250514", inp=1_000_000, out=0) == 3.0
+    assert _cost("claude-haiku-4-5-20251001", inp=1_000_000, out=0) == 1.0
+
+
+def test_sonnet_46_still_correct():
+    assert _cost("claude-sonnet-4-6", inp=1_000_000, out=0) == 3.0
+
+
+def test_truly_unknown_model_still_zero():
+    assert _cost("claude-unknown-99") == 0.0

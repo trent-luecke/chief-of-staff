@@ -48,7 +48,7 @@ def save_brief_state(storage, state: dict) -> None:
 
 def main() -> None:
     config = load_config()
-    from lib.storage import build_storage
+    from lib.storage import build_storage, registry_storage
     from lib.llm_logger import flush
     storage = build_storage(config)
 
@@ -157,7 +157,7 @@ def main() -> None:
             state["processed_reply_ids"] = list(processed_ids)
             save_brief_state(storage, state)
     finally:
-        flush("email_reply", storage)
+        flush("email_reply", registry_storage(config))  # git-anchored cost log
 
 
 if __name__ == "__main__":

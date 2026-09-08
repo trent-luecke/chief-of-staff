@@ -394,6 +394,18 @@ def main() -> None:
     except Exception as e:
         print(f"⚠️  Notion queue write error (non-fatal): {e}", file=sys.stderr)
 
+    # ── Persist per-call Claude spend to the git-anchored cost log ──
+    # Done before the Slack send (which may sys.exit) so cost is never lost.
+    try:
+        from lib.storage import registry_storage
+        from lib.llm_logger import flush
+        from lib.cost_report import refresh
+        cost_store = registry_storage(config)
+        flush("avoma_sync", cost_store)
+        refresh(cost_store)
+    except Exception as e:
+        print(f"⚠️  Cost log flush error (non-fatal): {e}", file=sys.stderr)
+
     # Build and send Slack DM
     slack_text = build_slack_message(pipeline_updates, onboarding_updates, today)
     try:

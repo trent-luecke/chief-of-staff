@@ -3,3 +3,4 @@ data/notes.jsonl merge=union
 data/meetings.jsonl merge=union
 data/notion_updates_queue.jsonl merge=union
 data/deal_events.jsonl merge=union
+data/state/llm_calls.jsonl merge=union

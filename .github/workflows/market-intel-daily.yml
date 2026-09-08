@@ -41,5 +41,10 @@ jobs:
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python market_intel.py
 
+      - name: Commit LLM cost log
+        run: |
+          git add data/state/llm_calls.jsonl data/state/cost_summary.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore(cost): market-intel LLM spend [skip ci]"
+
       - name: Push data files
         run: git push origin main

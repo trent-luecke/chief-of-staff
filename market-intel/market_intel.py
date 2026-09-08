@@ -14,6 +14,7 @@ import os
 import re
 import smtplib
 import subprocess
+import sys
 import time
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
@@ -31,6 +32,7 @@ load_dotenv()
 
 # ── Paths ──────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).parent
+REPO_ROOT = BASE_DIR.parent
 CONFIG_DIR = BASE_DIR / "config"
 DATA_DIR = BASE_DIR / "data"
 BRIEFS_DIR = BASE_DIR / "briefs"
@@ -39,6 +41,34 @@ SEEN_URLS_FILE = CONFIG_DIR / "seen_urls.json"
 COMPETITORS_FILE = CONFIG_DIR / "competitors.json"
 QUERIES_FILE = CONFIG_DIR / "queries.json"
 CSV_LOG = DATA_DIR / "intel-log.csv"
+
+
+# ── Cost logging (git-anchored, shared with the rest of chief-of-staff) ──────
+# market-intel lives in its own dir and doesn't otherwise use lib.storage; wire
+# just the LLM cost log so its per-article Claude spend is visible on main.
+# Every hook is best-effort — market-intel must never break on a logging error.
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+
+def _log_cost(usage, model: str) -> None:
+    try:
+        from lib.llm_logger import log_usage
+        log_usage("market_intel", usage, model)
+    except Exception:
+        pass
+
+
+def _flush_cost() -> None:
+    try:
+        from lib.llm_logger import flush
+        from lib.storage import LocalStorage
+        from lib.cost_report import refresh
+        store = LocalStorage(base_dir=str(REPO_ROOT / "data"))
+        flush("market_intel", store)
+        refresh(store)
+    except Exception as e:
+        log.warning(f"cost flush failed (non-fatal): {e}")
 
 CATEGORY_DIRS = {
     "feature_launch": DATA_DIR / "features",
@@ -320,6 +350,7 @@ def classify_article(client: anthropic.Anthropic, item: dict) -> dict | None:
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_message}],
         )
+        _log_cost(response.usage, "claude-sonnet-4-20250514")
         raw = response.content[0].text
         result = parse_classification(raw)
         if result is None:
@@ -638,6 +669,8 @@ def run_daily(dry_run: bool = False):
 
     save_seen_urls(updated_seen)
     log.info(f"Stored {len(stored_records)} records. Breakdown: {breakdown}")
+
+    _flush_cost()  # persist per-article Claude spend before git_commit_push stages it
 
     if stored_records and not dry_run:
         subject, body = format_daily_email(stored_records, today)
