@@ -55,6 +55,7 @@ jobs:
         run: |
           git add data/brief_today.json 2>/dev/null || true
           git add data/people_registry.json 2>/dev/null || true
+          git add data/state/llm_calls.jsonl data/state/cost_summary.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "No brief/people changes to commit."
           else

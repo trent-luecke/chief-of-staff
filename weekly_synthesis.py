@@ -197,13 +197,13 @@ def _main_inner(config: dict, run_date, storage) -> None:
 def main() -> None:
     config = load_config()
     run_date = date.today()
-    from lib.storage import build_storage
+    from lib.storage import build_storage, registry_storage
     from lib.llm_logger import flush
     storage = build_storage(config)
     try:
         _main_inner(config, run_date, storage)
     finally:
-        flush("weekly_synthesis", storage)
+        flush("weekly_synthesis", registry_storage(config))  # git-anchored cost log
 
 
 if __name__ == "__main__":

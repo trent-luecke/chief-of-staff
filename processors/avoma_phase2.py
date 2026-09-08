@@ -375,6 +375,11 @@ def _handle_fresh_message(
         tools=[_PROPOSE_TOOL, _PROPOSE_PROJECT_LINK_TOOL],
         messages=[{"role": "user", "content": user_content}],
     )
+    try:
+        from lib.llm_logger import log_usage
+        log_usage("avoma_phase2", response.usage, model)
+    except Exception:
+        pass
 
     correction_input = None
     project_link_input = None

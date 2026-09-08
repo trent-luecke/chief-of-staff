@@ -19,13 +19,21 @@ def load_config(path: str = "config.json") -> dict:
 
 
 def run(config: dict, dry_run: bool = False, no_email: bool = False) -> None:
-    from lib.storage import build_storage
+    from lib.storage import build_storage, registry_storage
     from lib.llm_logger import flush
     storage = build_storage(config)
     try:
         _run_inner(config, storage, dry_run=dry_run, no_email=no_email)
     finally:
-        flush("daily_brief", storage)
+        # Cost log is git-anchored (see lib.llm_logger), so flush to the working
+        # tree, then roll it up into the committed cost_summary.json.
+        cost_store = registry_storage(config)
+        flush("daily_brief", cost_store)
+        try:
+            from lib.cost_report import refresh
+            refresh(cost_store)
+        except Exception as e:
+            print(f"WARNING: cost summary refresh failed: {e}", file=sys.stderr)
 
 
 def _run_inner(config: dict, storage, dry_run: bool = False, no_email: bool = False) -> None:

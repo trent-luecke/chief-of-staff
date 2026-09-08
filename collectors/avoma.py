@@ -288,6 +288,11 @@ def _analyze_with_claude(
                 ),
             }],
         )
+        try:
+            from lib.llm_logger import log_usage
+            log_usage("avoma_analyze", response.usage, model)
+        except Exception:
+            pass
         for block in response.content:
             if block.type == "tool_use" and block.name == "extract_call_analysis":
                 return block.input

@@ -253,14 +253,14 @@ def main() -> None:
         sys.exit(0)
 
     config = load_config()
-    from lib.storage import build_storage
+    from lib.storage import build_storage, registry_storage
     from lib.llm_logger import flush
     storage = build_storage(config)
 
     try:
         _main_inner(query, chat_id, bot_token, config, storage, reply_to_id=reply_to_id)
     finally:
-        flush("ask", storage)
+        flush("ask", registry_storage(config))  # git-anchored cost log
 
 
 if __name__ == "__main__":
