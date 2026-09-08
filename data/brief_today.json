@@ -1,6 +1,6 @@
 {
   "date": "2026-09-08",
-  "generated_at": "2026-09-08T12:03:19.071871+00:00",
+  "generated_at": "2026-09-08T15:29:58.741205+00:00",
   "meetings": [
     {
       "id": "olt4eh3488fftej670gj40dnro_20260908T133000Z",
@@ -9,10 +9,6 @@
       "end": "2026-09-08T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
-        {
-          "email": "kyle@teambuildr.com",
-          "name": ""
-        },
         {
           "email": "luke@teambuildr.com",
           "name": ""
@@ -32,6 +28,28 @@
         {
           "email": "james@teambuildr.com",
           "name": "James Peters"
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "1tqpngik9q6mavidphrjcfuafh",
+      "title": "Preston Sports Performance: OS Support",
+      "start": "2026-09-08T09:30:00-05:00",
+      "end": "2026-09-08T10:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "info@prestonsportsperformance.co.uk",
+          "name": ""
+        },
+        {
+          "email": "jake@prestonsportsperformance.co.uk",
+          "name": ""
         }
       ],
       "prep": null

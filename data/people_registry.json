@@ -3219,6 +3219,34 @@
       "created": "2026-09-08",
       "last_seen": "2026-09-08",
       "provenance": "auto:calendar 2026-09-08 meeting:MANNY SILVEIRA and Trent Luecke"
+    },
+    {
+      "id": "info-4",
+      "canonical_name": "Info",
+      "aliases": [
+        "info@prestonsportsperformance.co.uk"
+      ],
+      "email": "info@prestonsportsperformance.co.uk",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-09-08",
+      "last_seen": "2026-09-08",
+      "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
+    },
+    {
+      "id": "jake-2",
+      "canonical_name": "Jake",
+      "aliases": [
+        "jake@prestonsportsperformance.co.uk"
+      ],
+      "email": "jake@prestonsportsperformance.co.uk",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-09-08",
+      "last_seen": "2026-09-08",
+      "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
     }
   ]
 }
