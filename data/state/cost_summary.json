@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-09-09T07:56:51Z",
+  "reference_date": "2026-09-09",
+  "total_calls": 8,
+  "totals": {
+    "calls": 8,
+    "input_tokens": 49535,
+    "output_tokens": 8327,
+    "cost_usd": 0.27351
+  },
+  "windows": {
+    "last_7d": {
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    },
+    "last_30d": {
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    },
+    "all_time": {
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    }
+  },
+  "by_job": [
+    {
+      "run_type": "avoma_sync",
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    }
+  ],
+  "by_caller": [
+    {
+      "caller": "avoma_analyze",
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    }
+  ],
+  "by_model": [
+    {
+      "model": "claude-sonnet-4-6",
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    }
+  ],
+  "by_day": [
+    {
+      "date": "2026-09-09",
+      "calls": 8,
+      "input_tokens": 49535,
+      "output_tokens": 8327,
+      "cost_usd": 0.27351
+    }
+  ]
+}
