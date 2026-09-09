@@ -295,3 +295,4 @@
 {"event": "create", "task_id": "t-217830", "title": "look into solution for Force Lab's issue using MBA", "source": "ui", "created_at": "2026-09-04", "due_date": "2026-09-04", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "complete", "task_id": "t-217830", "completed_at": "2026-09-09"}
 {"event": "create", "task_id": "t-c5e5b8", "title": "create support/overviews of MBA", "source": "ui", "created_at": "2026-09-09", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-9a5ad0", "title": "test if $0 MBA still requires credit purchase", "source": "ui", "created_at": "2026-09-09", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
