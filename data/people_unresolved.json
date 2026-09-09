@@ -575,6 +575,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-05"
+    },
+    {
+      "entity": "Preston Sports Performance",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-09"
+    },
+    {
+      "entity": "Jake Atherton",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-09"
     }
   ],
   "previously_notified": [
