@@ -1,58 +1,46 @@
 {
-  "date": "2026-09-09",
-  "generated_at": "2026-09-09T12:06:35.134510+00:00",
+  "date": "2026-09-10",
+  "generated_at": "2026-09-10T12:08:17.125442+00:00",
   "meetings": [
     {
-      "id": "_68o34dhg70o36l1i6cp3ic1n6koj4e1m6omj2c1g6ook0rb1epimsbj3dtmg",
-      "title": "\u26a1\ufe0f Maven LIVE: Self-Driving Loops in PostHog's Setup Wizard",
-      "start": "2026-09-09T11:00:00-05:00",
-      "end": "2026-09-09T12:00:00-05:00",
+      "id": "i1389v7tfsre658ev2gsi1ov3g",
+      "title": "Jesse Cook and Trent Luecke",
+      "start": "2026-09-10T09:00:00-05:00",
+      "end": "2026-09-10T09:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "jcook.tpa@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "3a8a7rldteq02fg1mnhiargaog",
+      "title": "Out of office",
+      "start": "2026-09-10T11:00:00-05:00",
+      "end": "2026-09-11T15:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "41k0f9etjvqtnmlo11nfuqouv4",
-      "title": "TBOS / Strength Home ",
-      "start": "2026-09-09T13:30:00-05:00",
-      "end": "2026-09-09T14:30:00-05:00",
+      "id": "pom9crl1fs5njdo4589ac3deio",
+      "title": "Flight to Salt Lake City (DL 736)",
+      "start": "2026-09-10T14:00:00-05:00",
+      "end": "2026-09-10T17:39:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "alex@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "tyler@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "clayton@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "hr4hlre4egvup70vl5rj29ps1c",
-      "title": "Tom Anderson and Trent Luecke",
-      "start": "2026-09-09T15:00:00-05:00",
-      "end": "2026-09-09T15:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "thomasanderson580@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "t.anderson@wcstrength.com",
-          "name": ""
-        }
-      ],
+      "id": "ng13e680u9jkn51366us1n21m4",
+      "title": "Flight to Seattle (DL 871)",
+      "start": "2026-09-10T18:20:00-05:00",
+      "end": "2026-09-10T20:36:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
@@ -70,20 +58,13 @@
       "reason": "overdue",
       "due_date": "2026-09-04",
       "project_id": null
-    },
-    {
-      "id": "t-217830",
-      "title": "look into solution for Force Lab's issue using MBA",
-      "reason": "overdue",
-      "due_date": "2026-09-04",
-      "project_id": null
     }
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 4,
+      "identity": 6,
       "stale": 0,
-      "total": 4
+      "total": 6
     }
   },
   "what_moved": []
