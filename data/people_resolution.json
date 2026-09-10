@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-09-09T00:00:00",
+  "resolved_at": "2026-09-10T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -17412,6 +17412,104 @@
       "primary_person_id": "trent-luecke",
       "related_person_ids": [],
       "confidence": "embedded"
+    },
+    "3735": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3736": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3737": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3738": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3739": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3740": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3741": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3742": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3743": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3744": {
+      "primary_person_id": "antonio",
+      "related_person_ids": [
+        "robert-wagnerpt",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "3745": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3746": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3747": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3748": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3749": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3750": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3751": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3752": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "3753": {
+      "primary_person_id": "ryan-allwein",
+      "related_person_ids": [],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -17682,7 +17780,14 @@
     3589,
     3626,
     3672,
-    3673
+    3673,
+    3728,
+    3729,
+    3730,
+    3731,
+    3732,
+    3733,
+    3734
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -17786,6 +17891,12 @@
     "thread:Re: TeamBuildr glitch",
     "thread:Accepted: Jesse Cook and Trent Luecke @ Thu Sep 10, 2026 9am - 9:30am (CDT) (trent@teambuildr.com)",
     "thread:Re: Connecting on new system for Force Lab Training",
-    "thread:Fwd: Still time to save big this weekend"
+    "thread:Fwd: Still time to save big this weekend",
+    "thread:Accepted: TeamBuildr OS Weekly Dev Sync @ Weekly from 8:30am to 9am on Tuesday (CDT) (Trent Luecke)",
+    "thread:Re: Robert Wagner @ Movement Wins - TeamBuildr OS Reconnect on Member Management and Strength",
+    "thread:Re: Preston Sports Performance MEMBERSHIPS",
+    "thread:Teambuildr insurance renewal",
+    "thread:Accepted: Preston Sports Performance: OS Support",
+    "thread:Accepted: TeamBuildr OS Weekly Dev Sync @ Tue Sep 8, 2026 8:30am - 9am (CDT) (Trent Luecke)"
   ]
 }

@@ -591,6 +591,38 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-09"
+    },
+    {
+      "entity": "Will Johnson - Grind Time",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "will-johnson-grind-time",
+      "candidate_score": 92.0,
+      "added": "2026-09-10"
+    },
+    {
+      "entity": "Andrew Howard - MVMT",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "andrew-howard-mvmt",
+      "candidate_score": 90.0,
+      "added": "2026-09-10"
+    },
+    {
+      "entity": "Amber Carroll",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-10"
+    },
+    {
+      "entity": "Karen Dickson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-10"
     }
   ],
   "previously_notified": [
