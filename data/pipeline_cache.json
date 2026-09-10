@@ -1,15 +1,26 @@
 {
-  "fetched_at": "2026-09-09T13:42:00Z",
+  "fetched_at": "2026-09-10T14:00:00Z",
   "leads": [
     {
-      "name": "Peyton Buckley",
+      "name": "Karen Dickson",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-09-03",
+      "last_contacted": "2026-09-09",
       "estimated_value": null,
-      "source": "Calendly Demo",
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Tom Anderson (Steadfast Performance)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-09-09",
+      "estimated_value": null,
+      "source": "",
       "stale": false
     },
     {
@@ -46,7 +57,18 @@
       "stale": false
     },
     {
-      "name": "Will Johnson - Grind Time",
+      "name": "Peyton Buckley",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-09-03",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Will Johnson – Grind Time",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -101,7 +123,7 @@
       "stale": false
     },
     {
-      "name": "Andrew Howard - MVMT",
+      "name": "Andrew Howard – MVMT",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -156,7 +178,7 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust - Kent Denver (OS Lite)",
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -167,7 +189,7 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales - Youth Athlete Training (OS)",
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -189,7 +211,7 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
+      "name": "Kim Johnston",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -200,7 +222,7 @@
       "stale": false
     },
     {
-      "name": "Kim Johnston",
+      "name": "Sam Tardif",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -233,7 +255,7 @@
       "stale": false
     },
     {
-      "name": "Mark Olson - Athletic Mentors",
+      "name": "Mark Olson — Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
@@ -255,10 +277,10 @@
       "stale": false
     },
     {
-      "name": "Mike Brown (SAPT)",
+      "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
-      "status": "In-Trial / Post Demo",
+      "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-05-27",
       "estimated_value": null,
@@ -266,10 +288,10 @@
       "stale": false
     },
     {
-      "name": "High Ground Performance (Taino Fears-Perez)",
+      "name": "Mike Brown (SAPT)",
       "contact": "",
       "email": "",
-      "status": "Out of Demo / Need Upate",
+      "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-05-27",
       "estimated_value": null,
