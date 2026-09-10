@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-09T07:56:51.254391Z",
+  "fetched_at": "2026-09-10T07:58:58.344320Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -9,6 +9,19 @@
       "status": "demoed",
       "priority": null,
       "last_contacted": "2026-08-28T14:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:ahandy82@gmail.com",
+      "name": "",
+      "contact": "ahandy82@gmail.com",
+      "email": "ahandy82@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-09T13:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -1413,6 +1426,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2026-03-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:thomasanderson580@gmail.com",
+      "name": "",
+      "contact": "thomasanderson580@gmail.com",
+      "email": "thomasanderson580@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-09T20:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
