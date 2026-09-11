@@ -68,7 +68,7 @@
       "stale": false
     },
     {
-      "name": "Will Johnson – Grind Time",
+      "name": "Will Johnson \u2013 Grind Time",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -123,7 +123,7 @@
       "stale": false
     },
     {
-      "name": "Andrew Howard – MVMT",
+      "name": "Andrew Howard \u2013 MVMT",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -139,10 +139,11 @@
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-08-18",
+      "last_contacted": "2026-09-10",
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": false,
+      "days_since_contact": 1
     },
     {
       "name": "Evan Nystrom",
@@ -178,7 +179,7 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "name": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -189,7 +190,7 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "name": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -255,7 +256,7 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
+      "name": "Mark Olson \u2014 Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",

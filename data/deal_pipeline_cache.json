@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-10T07:58:58.344320Z",
+  "fetched_at": "2026-09-11T07:55:56.294264Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -671,7 +671,7 @@
       "email": "jcook.tpa@gmail.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-08-20T13:17:56.382171+00:00",
+      "last_contacted": "2026-09-10T14:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
