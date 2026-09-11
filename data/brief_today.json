@@ -1,21 +1,7 @@
 {
-  "date": "2026-09-10",
-  "generated_at": "2026-09-10T15:25:38.212485+00:00",
+  "date": "2026-09-11",
+  "generated_at": "2026-09-11T12:10:08.120464+00:00",
   "meetings": [
-    {
-      "id": "i1389v7tfsre658ev2gsi1ov3g",
-      "title": "Jesse Cook and Trent Luecke",
-      "start": "2026-09-10T09:00:00-05:00",
-      "end": "2026-09-10T09:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "jcook.tpa@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
     {
       "id": "3a8a7rldteq02fg1mnhiargaog",
       "title": "Out of office",
@@ -26,19 +12,49 @@
       "prep": null
     },
     {
-      "id": "pom9crl1fs5njdo4589ac3deio",
-      "title": "Flight to Salt Lake City (DL 736)",
-      "start": "2026-09-10T14:00:00-05:00",
-      "end": "2026-09-10T17:39:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260911T133000Z",
+      "title": "Focus Work",
+      "start": "2026-09-11T08:30:00-05:00",
+      "end": "2026-09-11T10:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "ng13e680u9jkn51366us1n21m4",
-      "title": "Flight to Seattle (DL 871)",
-      "start": "2026-09-10T18:20:00-05:00",
-      "end": "2026-09-10T20:36:00-05:00",
+      "id": "2lpse4qi5vv2fnu981bbnuqgf7",
+      "title": "TBOS Member Alerts Kick Off",
+      "start": "2026-09-11T12:00:00-05:00",
+      "end": "2026-09-11T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jake@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260911T193000Z",
+      "title": "Out of office",
+      "start": "2026-09-11T14:30:00-05:00",
+      "end": "2026-09-11T17:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
