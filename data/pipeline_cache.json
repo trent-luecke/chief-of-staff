@@ -1,13 +1,13 @@
 {
-  "fetched_at": "2026-09-10T14:00:00Z",
+  "fetched_at": "2026-09-11T12:00:00Z",
   "leads": [
     {
-      "name": "Karen Dickson",
+      "name": "Jesse Cook",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-09-09",
+      "last_contacted": "2026-09-10",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -24,7 +24,18 @@
       "stale": false
     },
     {
-      "name": "Robert Wagner @ Movement Wins",
+      "name": "Karen Dickson",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-09-09",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Preston Sports Performance",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -35,7 +46,7 @@
       "stale": false
     },
     {
-      "name": "Preston Sports Performance",
+      "name": "Robert Wagner @ Movement Wins",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -68,7 +79,7 @@
       "stale": false
     },
     {
-      "name": "Will Johnson \u2013 Grind Time",
+      "name": "Will Johnson – Grind Time",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -123,7 +134,7 @@
       "stale": false
     },
     {
-      "name": "Andrew Howard \u2013 MVMT",
+      "name": "Andrew Howard – MVMT",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -132,18 +143,6 @@
       "estimated_value": null,
       "source": "",
       "stale": false
-    },
-    {
-      "name": "Jesse Cook",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-09-10",
-      "estimated_value": null,
-      "source": "",
-      "stale": false,
-      "days_since_contact": 1
     },
     {
       "name": "Evan Nystrom",
@@ -179,7 +178,7 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -190,7 +189,7 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -212,7 +211,7 @@
       "stale": false
     },
     {
-      "name": "Kim Johnston",
+      "name": "Sam Tardif",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -223,7 +222,7 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
+      "name": "Kim Johnston",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
@@ -256,7 +255,7 @@
       "stale": false
     },
     {
-      "name": "Mark Olson \u2014 Athletic Mentors",
+      "name": "Mark Olson — Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
@@ -267,7 +266,7 @@
       "stale": false
     },
     {
-      "name": "David Arcemant",
+      "name": "High Ground Performance (Taino Fears-Perez)",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -278,7 +277,7 @@
       "stale": false
     },
     {
-      "name": "High Ground Performance (Taino Fears-Perez)",
+      "name": "David Arcemant",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
@@ -307,6 +306,138 @@
       "priority": "",
       "last_contacted": "2026-04-30",
       "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Jen Kimball",
+      "contact": "Jen Kimball",
+      "email": "jennifer.kimball@imail.org",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-03-10",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Patrick Labat — TGMC",
+      "contact": "Patrick Labat",
+      "email": "patrick.labat@tgmc.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "Medium",
+      "last_contacted": "2026-03-10",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Santiago Diaz Murrieta",
+      "contact": "Santiago Diaz Murrieta",
+      "email": "fisiodiazlax@gmail.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-03-09",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Emma Hicks — For Fitness & Athletics",
+      "contact": "Emma Hicks",
+      "email": "emmahicks@forfitnessandathletics.com",
+      "status": "On-Hold",
+      "priority": "Medium",
+      "last_contacted": "2026-03-05",
+      "estimated_value": null,
+      "source": "Marketing",
+      "stale": false
+    },
+    {
+      "name": "Alex Ogbongbemiga",
+      "contact": "Alex Ogbongbemiga",
+      "email": "alex@smartperformance.ca",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-01-30",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Graham Aird",
+      "contact": "Graham Aird",
+      "email": "gaird@greycliffcap.com",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-01-29",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "ANTHONY DAVID",
+      "contact": "ANTHONY DAVID",
+      "email": "anthonydavid60@yahoo.com",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-01-07",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Kevin Williamson",
+      "contact": "Kevin Williamson",
+      "email": "kwilliamson@pwrperformance.co",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2025-10-06",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Tim Kettenring",
+      "contact": "Tim Kettenring",
+      "email": "tim@maverickhumanperformance.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2025-08-14",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Aaron Letinksi",
+      "contact": "Aaron Letinski",
+      "email": "letinskia26@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 2000.0,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Dustin Sport Performance",
+      "contact": "Jack Dustin",
+      "email": "dustin.sportperformance@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": null,
+      "estimated_value": 750.0,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "The Bullpen Utah",
+      "contact": "William Schlee",
+      "email": "billy@thebullpenut.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": "Medium",
+      "last_contacted": null,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     }
