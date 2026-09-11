@@ -623,6 +623,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-10"
+    },
+    {
+      "entity": "Tom Anderson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": "t-anderson",
+      "candidate_score": 90.9090909090909,
+      "added": "2026-09-11"
     }
   ],
   "previously_notified": [
