@@ -575,62 +575,6 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-05"
-    },
-    {
-      "entity": "Preston Sports Performance",
-      "email": null,
-      "source": "avoma",
-      "candidate_id": null,
-      "candidate_score": 0,
-      "added": "2026-09-09"
-    },
-    {
-      "entity": "Jake Atherton",
-      "email": null,
-      "source": "avoma",
-      "candidate_id": null,
-      "candidate_score": 0,
-      "added": "2026-09-09"
-    },
-    {
-      "entity": "Will Johnson - Grind Time",
-      "email": null,
-      "source": "pipeline",
-      "candidate_id": "will-johnson-grind-time",
-      "candidate_score": 92.0,
-      "added": "2026-09-10"
-    },
-    {
-      "entity": "Andrew Howard - MVMT",
-      "email": null,
-      "source": "pipeline",
-      "candidate_id": "andrew-howard-mvmt",
-      "candidate_score": 90.0,
-      "added": "2026-09-10"
-    },
-    {
-      "entity": "Amber Carroll",
-      "email": null,
-      "source": "avoma",
-      "candidate_id": null,
-      "candidate_score": 0,
-      "added": "2026-09-10"
-    },
-    {
-      "entity": "Karen Dickson",
-      "email": null,
-      "source": "avoma",
-      "candidate_id": null,
-      "candidate_score": 0,
-      "added": "2026-09-10"
-    },
-    {
-      "entity": "Tom Anderson",
-      "email": null,
-      "source": "avoma",
-      "candidate_id": "t-anderson",
-      "candidate_score": 90.9090909090909,
-      "added": "2026-09-11"
     }
   ],
   "previously_notified": [
@@ -639,9 +583,7 @@
     "Alberth",
     "Alex Beasley",
     "Alina Bushma",
-    "Amber Carroll",
     "Andrew Howard",
-    "Andrew Howard - MVMT",
     "Andrew Levine",
     "Andrewlevine",
     "Asher",
@@ -670,7 +612,6 @@
     "Evan",
     "George Strangos",
     "Hilbre T",
-    "Jake Atherton",
     "Jasmin Bray - Rise Sports Performance (OS)",
     "Jeff Davidson",
     "Jeffromkey",
@@ -681,7 +622,6 @@
     "Josh",
     "Jtellier",
     "Julianne Vasichek",
-    "Karen Dickson",
     "Lee Douglas",
     "Levelupmobilegym",
     "Mbrown",
@@ -692,7 +632,6 @@
     "Nicholas Lewin",
     "Oliviak",
     "Perry",
-    "Preston Sports Performance",
     "Quinn Kastle",
     "Ricky",
     "Roseca",
@@ -706,12 +645,10 @@
     "Support",
     "Tainofearsperez",
     "Taylor",
-    "Tom Anderson",
     "Train",
     "Tweber",
     "Warren Clinkscales - Youth Athlete Training (OS)",
     "Will Johnson",
-    "Will Johnson - Grind Time",
     "Zack"
   ]
 }

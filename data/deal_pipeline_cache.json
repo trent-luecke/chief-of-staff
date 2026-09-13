@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-13T08:03:39.951553Z",
+  "fetched_at": "2026-09-08T07:51:14.672869Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -9,19 +9,6 @@
       "status": "demoed",
       "priority": null,
       "last_contacted": "2026-08-28T14:30:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "page_id": "deal:ahandy82@gmail.com",
-      "name": "",
-      "contact": "ahandy82@gmail.com",
-      "email": "ahandy82@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-09-09T13:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -671,7 +658,7 @@
       "email": "jcook.tpa@gmail.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-09-10T14:00:00Z",
+      "last_contacted": "2026-08-20T13:17:56.382171+00:00",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -1426,19 +1413,6 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2026-03-12",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "page_id": "deal:thomasanderson580@gmail.com",
-      "name": "",
-      "contact": "thomasanderson580@gmail.com",
-      "email": "thomasanderson580@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-09-09T20:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
