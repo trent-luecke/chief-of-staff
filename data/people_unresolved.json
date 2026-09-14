@@ -575,6 +575,54 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-05"
+    },
+    {
+      "entity": "Preston Sports Performance",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-14"
+    },
+    {
+      "entity": "Jake Atherton",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-14"
+    },
+    {
+      "entity": "Amber Carroll",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-14"
+    },
+    {
+      "entity": "Karen Dickson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-14"
+    },
+    {
+      "entity": "Tom Anderson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-14"
+    },
+    {
+      "entity": "T Anderson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": "tom-anderson",
+      "candidate_score": 90.9090909090909,
+      "added": "2026-09-14"
     }
   ],
   "previously_notified": [
