@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-14T08:35:58.246642Z",
+  "fetched_at": "2026-09-15T08:26:21.602044Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -698,6 +698,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2025-08-27",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:joe@joedelltraining.com",
+      "name": "Joedelltraining",
+      "contact": "joe@joedelltraining.com",
+      "email": "joe@joedelltraining.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-14T14:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
