@@ -133,3 +133,4 @@
 {"event": "set_agenda", "id": "luke_1on1", "ts": "2026-09-04T13:27:55", "items": []}
 {"event": "add_thread", "id": "nicole_os_meeting", "ts": "2026-09-08T15:11:01", "thread_id": "th-488ec7", "text": "MOFU content for MBA that can be used for StoryBuildr workflow", "person_id": null}
 {"event": "set_agenda", "id": "nicole_os_meeting", "ts": "2026-09-15T13:06:59", "items": ["go through support video upload to YT process", "update Tex's CTA in final email to send people to new course"]}
+{"event": "delete_thread", "id": "nicole_os_meeting", "ts": "2026-09-15T13:07:52", "thread_id": "th-e21caa"}
