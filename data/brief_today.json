@@ -1,141 +1,23 @@
 {
-  "date": "2026-09-15",
-  "generated_at": "2026-09-15T15:51:53.100621+00:00",
+  "date": "2026-09-16",
+  "generated_at": "2026-09-16T12:10:32.502985+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20260915T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-09-15T08:30:00-05:00",
-      "end": "2026-09-15T09:00:00-05:00",
+      "id": "g38t39mjtv5l3mimvn6akncgr0",
+      "title": "Out of office",
+      "start": "2026-09-16T00:00:00-05:00",
+      "end": "2026-09-19T00:00:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "klg5htodgbltooajd0nronbgcs",
-      "title": "Mark Sich and Trent Luecke",
-      "start": "2026-09-15T09:15:00-05:00",
-      "end": "2026-09-15T09:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "marksich@abetterwaytotrain.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "f3p7m90edah4jjfvic638ouvc0",
-      "title": "Erica Mulholland and Trent Luecke",
-      "start": "2026-09-15T09:45:00-05:00",
-      "end": "2026-09-15T10:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "esuter26@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20260915T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-09-15T10:00:00-05:00",
-      "end": "2026-09-15T10:30:00-05:00",
+      "id": "r69geg5cqd5g4hvkl1uvumjo2o",
+      "title": "Flight to Wash. DC (WN 684)",
+      "start": "2026-09-16T10:45:00-05:00",
+      "end": "2026-09-16T13:15:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "sbbl7kccfsqu9p1bpr4m0j4u0g",
-      "title": "Cory Goshkagarian and Trent Luecke",
-      "start": "2026-09-15T10:45:00-05:00",
-      "end": "2026-09-15T11:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "coryg@princeton.edu",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "que2jrrbi956fdvkr5vd6dlvo4",
-      "title": "Taylor Folsom and Trent Luecke",
-      "start": "2026-09-15T11:45:00-05:00",
-      "end": "2026-09-15T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "tfolsom@gus.pittstate.edu",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "q9nqsih9dhjbk1c4gp3pqfks4k",
-      "title": "Michael Sullivan and Trent Luecke",
-      "start": "2026-09-15T14:45:00-05:00",
-      "end": "2026-09-15T15:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "msulli55@syr.edu",
-          "name": ""
-        },
-        {
-          "email": "ampedrot@syr.edu",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "bupcbh7ev2td6crv33drc3f6d4",
-      "title": "Tom Anderson and Trent Luecke",
-      "start": "2026-09-15T16:00:00-05:00",
-      "end": "2026-09-15T16:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "thomasanderson580@gmail.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     }
   ],
