@@ -1,6 +1,6 @@
 {
-  "date": "2026-09-17",
-  "generated_at": "2026-09-17T15:53:16.250913+00:00",
+  "date": "2026-09-18",
+  "generated_at": "2026-09-18T12:07:54.403088+00:00",
   "meetings": [
     {
       "id": "g38t39mjtv5l3mimvn6akncgr0",
@@ -12,41 +12,22 @@
       "prep": null
     },
     {
-      "id": "427va7uog7950apj45agnlp33o_20260917T143000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-09-17T09:30:00-05:00",
-      "end": "2026-09-17T10:00:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260918T133000Z",
+      "title": "Focus Work",
+      "start": "2026-09-18T08:30:00-05:00",
+      "end": "2026-09-18T10:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20260917T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-09-17T12:00:00-05:00",
-      "end": "2026-09-17T12:30:00-05:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260918T193000Z",
+      "title": "Out of office",
+      "start": "2026-09-18T14:30:00-05:00",
+      "end": "2026-09-18T17:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent \u2014 Meeting Prep\n\n---\n\n### OS Skits\n**Status:** Three concepts greenlit; still in pre-production (no scripts, locations, or needs built yet.**\n- Open: Clayton to write up all three concepts and send to Speaker 3; scripts/locations/needs still to be built\n- **Blocker:** Nothing blocking, but no production assets exist yet \u2014 still fully on Clayton/Luke to execute\n\n---\n\n### Andrea Onboarding\n**Status:** Tuesday kickoff planned; access provisioning in progress but not complete.\n- Open: Brian alignment, Andrea messaged with schedule, Slack channels added, Thomas/backend to grant OS super admin\n- **Blocker:** Intercom seat on hold until Gwen's transition is official \u2014 don't rename James's account in the meantime\n\n---\n\n### Strength Scheduling for Tactical\n**Status:** Scoped and pushed to early next year \u2014 groups/tags + staff-side bulk booking are the two asks.\n- Open: No immediate tasks; Beaver Fit referral/bundle angle via Jason worth keeping warm\n- No current blocker; just a timing decision\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In testing phase \u2014 fake onboarding script needs to be created and fed into Claude.\n- Open: Create fake onboarding script \u2192 feed to Claude for testing\n- No blocker noted\n\n---\n\n### StoryBuildr\n**Status:** Active build \u2014 audit underway, launch date targeting 9/23.\n- Open: Audit individual stage design/layout; email Mark to confirm 9/23 launch date\n- **Blocker/Watch:** Launch date not yet confirmed with Mark \u2014 email is the next unblocked action\n\n---\n\n### Sales Pipeline\n**Status:** 41 deals in pipeline; 5 demos MTD.\n- Largest bucket: In-Trial/Post Demo (22) \u2014 follow-up priority\n- Watch: 11 \"Out of Demo / Need Update\" \u2014 these are at risk of going cold\n- Ryan + Jeff tasked with Claude workflow testing ahead of retreat (Avoma drafts, ROI PDFs, call review)",
-      "prep_hash": "6b98bec78d02"
+      "attendees": [],
+      "prep": null
     }
   ],
   "needs_today": [
