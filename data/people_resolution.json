@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-09-18T00:00:00",
+  "resolved_at": "2026-09-19T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -19710,6 +19710,41 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "4236": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4237": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4238": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4239": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4240": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4241": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4242": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -20029,7 +20064,8 @@
     4171,
     4172,
     4214,
-    4215
+    4215,
+    4235
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
