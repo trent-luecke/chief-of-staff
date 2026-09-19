@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-09-18T15:20:54Z",
-  "reference_date": "2026-09-18",
+  "generated_at": "2026-09-19T07:50:00Z",
+  "reference_date": "2026-09-19",
   "total_calls": 382,
   "totals": {
     "calls": 382,
@@ -10,10 +10,10 @@
   },
   "windows": {
     "last_7d": {
-      "calls": 264,
-      "input_tokens": 2703666,
-      "output_tokens": 299180,
-      "cost_usd": 12.598698
+      "calls": 214,
+      "input_tokens": 2206752,
+      "output_tokens": 242707,
+      "cost_usd": 10.260861
     },
     "last_30d": {
       "calls": 382,
