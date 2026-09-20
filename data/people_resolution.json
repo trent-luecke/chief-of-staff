@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-09-19T00:00:00",
+  "resolved_at": "2026-09-20T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -19745,6 +19745,31 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "4245": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4246": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4247": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4248": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "4249": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -20065,7 +20090,9 @@
     4172,
     4214,
     4215,
-    4235
+    4235,
+    4243,
+    4244
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -20196,6 +20223,8 @@
     "thread:Re: Training",
     "thread:Re: Congrats.",
     "thread:quick question",
-    "thread:Are you attending UNBOUND this year?"
+    "thread:Are you attending UNBOUND this year?",
+    "thread:Re: your meta ad",
+    "thread:Re: New build questions"
   ]
 }
