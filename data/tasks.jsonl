@@ -298,3 +298,4 @@
 {"event": "complete", "task_id": "t-217830", "completed_at": "2026-09-21"}
 {"event": "create", "task_id": "t-f9db3c", "title": "update sales tracker to include intermountain sale", "source": "ui", "created_at": "2026-09-21", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-3865cc", "title": "finish olds training program", "source": "ui", "created_at": "2026-09-21", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-e1f10a", "title": "clear out unresolved people entities", "source": "ui", "created_at": "2026-09-21", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
