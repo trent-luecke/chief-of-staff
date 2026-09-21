@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-20T00:00:00Z",
+  "fetched_at": "2026-09-21T00:00:00.000Z",
   "leads": [
     {
       "name": "Joe Dell Training",
@@ -79,17 +79,6 @@
       "stale": false
     },
     {
-      "name": "Megan Feickert",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-31",
-      "estimated_value": null,
-      "source": "Trial Sign-Up",
-      "stale": false
-    },
-    {
       "name": "Evan Nystrom",
       "contact": "Evan Nystrom",
       "email": "evan@outlierathlete.com",
@@ -101,34 +90,23 @@
       "stale": false
     },
     {
+      "name": "Megan Feickert",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-31",
+      "estimated_value": null,
+      "source": "Trial Sign-Up",
+      "stale": false
+    },
+    {
       "name": "Wave Wellness",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-06-17",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-06",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Jamie Tellier",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -151,6 +129,28 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-05-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Jamie Tellier",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-28",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -211,28 +211,6 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
-      "estimated_value": null,
-      "source": "Inbound Email",
-      "stale": false
-    },
-    {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-09",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Tom Anderson (Steadfast Performance)",
       "contact": "",
       "email": "",
@@ -241,6 +219,17 @@
       "last_contacted": "2026-09-09",
       "estimated_value": null,
       "source": "",
+      "stale": false
+    },
+    {
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
+      "estimated_value": null,
+      "source": "Inbound Email",
       "stale": false
     },
     {
@@ -277,12 +266,12 @@
       "stale": false
     },
     {
-      "name": "Preston Sports Performance",
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
       "contact": "",
       "email": "",
-      "status": "Out of Demo / Need Upate",
+      "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-09-08",
+      "last_contacted": "2026-07-09",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -305,6 +294,17 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-09-01",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Preston Sports Performance",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-09-08",
       "estimated_value": null,
       "source": "",
       "stale": false
