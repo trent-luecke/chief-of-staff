@@ -551,12 +551,14 @@
     },
     {
       "id": "hilbre-t",
-      "canonical_name": "Hilbre T",
+      "canonical_name": "Hilbre Kirk",
       "aliases": [
-        "Hilbre T"
+        "Hilbre T",
+        "Bre Kirk",
+        "info@ascend-coaching.co.uk"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "info@ascend-coaching.co.uk",
+      "type": "customer",
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-24",
