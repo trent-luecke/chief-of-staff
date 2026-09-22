@@ -447,13 +447,15 @@
     },
     {
       "id": "levelupmobilegym",
-      "canonical_name": "Levelupmobilegym",
+      "canonical_name": "Daniel Prol",
       "aliases": [
-        "Levelupmobilegym"
+        "Levelupmobilegym",
+        "Daniel",
+        "Daniel Prol"
       ],
-      "email": "",
-      "type": "unknown",
-      "pipeline_record": null,
+      "email": "levelupmobilegym@gmail.com",
+      "type": "customer",
+      "pipeline_record": "Level Up Mobile Gym",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-09-22"
