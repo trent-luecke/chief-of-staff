@@ -3226,30 +3226,18 @@
       "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
     },
     {
-      "id": "jake-2",
+      "id": "jake-atherton",
       "canonical_name": "Jake Atherton",
       "aliases": [
+        "Jake Atherton",
         "jake@prestonsportsperformance.co.uk",
         "Preston Sports Performance",
-        "preston-sports-performance"
+        "preston-sports-performance",
+        "jake-2"
       ],
       "email": "jake@prestonsportsperformance.co.uk",
       "type": "customer",
       "pipeline_record": "Preston Sports Performance",
-      "people_file": null,
-      "created": "2026-09-08",
-      "last_seen": "2026-09-08",
-      "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
-    },
-    {
-      "id": "jake-atherton",
-      "canonical_name": "Jake Atherton",
-      "aliases": [
-        "Jake Atherton"
-      ],
-      "email": "",
-      "type": "unknown",
-      "pipeline_record": null,
       "people_file": null,
       "created": "2026-09-14",
       "last_seen": "2026-09-22"
