@@ -3241,12 +3241,12 @@
     },
     {
       "id": "preston-sports-performance",
-      "canonical_name": "Preston Sports Performance",
+      "canonical_name": "Jake Atherton",
       "aliases": [
         "Preston Sports Performance"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "jake@prestonsportsperformance.co.uk",
+      "type": "customer",
       "pipeline_record": "Preston Sports Performance",
       "people_file": null,
       "created": "2026-09-14",
