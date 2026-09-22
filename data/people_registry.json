@@ -3227,30 +3227,19 @@
     },
     {
       "id": "jake-2",
-      "canonical_name": "Jake",
-      "aliases": [
-        "jake@prestonsportsperformance.co.uk"
-      ],
-      "email": "jake@prestonsportsperformance.co.uk",
-      "type": "unknown",
-      "pipeline_record": null,
-      "people_file": null,
-      "created": "2026-09-08",
-      "last_seen": "2026-09-08",
-      "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
-    },
-    {
-      "id": "preston-sports-performance",
       "canonical_name": "Jake Atherton",
       "aliases": [
-        "Preston Sports Performance"
+        "jake@prestonsportsperformance.co.uk",
+        "Preston Sports Performance",
+        "preston-sports-performance"
       ],
       "email": "jake@prestonsportsperformance.co.uk",
       "type": "customer",
       "pipeline_record": "Preston Sports Performance",
       "people_file": null,
-      "created": "2026-09-14",
-      "last_seen": "2026-09-22"
+      "created": "2026-09-08",
+      "last_seen": "2026-09-08",
+      "provenance": "auto:calendar 2026-09-08 meeting:Preston Sports Performance: OS Support"
     },
     {
       "id": "jake-atherton",
