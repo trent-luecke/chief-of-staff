@@ -631,6 +631,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-15"
+    },
+    {
+      "entity": "Joe Pfister",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-09-22"
     }
   ],
   "previously_notified": [
