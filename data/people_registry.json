@@ -355,13 +355,15 @@
     },
     {
       "id": "coachbrigitaroemer",
-      "canonical_name": "Coachbrigitaroemer",
+      "canonical_name": "Brigita Roemer",
       "aliases": [
-        "Coachbrigitaroemer"
+        "Coachbrigitaroemer",
+        "Brigita Roemer",
+        "Brigita"
       ],
-      "email": "",
-      "type": "unknown",
-      "pipeline_record": null,
+      "email": "brigitaroemer7@gmail.com",
+      "type": "customer",
+      "pipeline_record": "Force Lab Training",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-09-22"
