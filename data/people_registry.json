@@ -541,21 +541,6 @@
       "last_seen": "2026-09-22"
     },
     {
-      "id": "hilbre-t",
-      "canonical_name": "Hilbre Kirk",
-      "aliases": [
-        "Hilbre T",
-        "Bre Kirk",
-        "info@ascend-coaching.co.uk"
-      ],
-      "email": "info@ascend-coaching.co.uk",
-      "type": "customer",
-      "pipeline_record": null,
-      "people_file": null,
-      "created": "2026-05-24",
-      "last_seen": "2026-09-22"
-    },
-    {
       "id": "nicholas-lewin",
       "canonical_name": "Nicholas Lewin",
       "aliases": [
@@ -599,12 +584,16 @@
     },
     {
       "id": "ascendcoachinguk",
-      "canonical_name": "Ascendcoachinguk",
+      "canonical_name": "Hilbre Kirk",
       "aliases": [
-        "Ascendcoachinguk"
+        "Ascendcoachinguk",
+        "Hilbre T",
+        "Bre Kirk",
+        "info@ascend-coaching.co.uk",
+        "hilbre-t"
       ],
-      "email": "",
-      "type": "unknown",
+      "email": "info@ascend-coaching.co.uk",
+      "type": "customer",
       "pipeline_record": null,
       "people_file": null,
       "created": "2026-05-27",
