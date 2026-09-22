@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-21T08:36:17.512626Z",
+  "fetched_at": "2026-09-22T08:19:43.495704Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -711,6 +711,19 @@
       "status": "demoed",
       "priority": null,
       "last_contacted": "2026-09-14T14:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:joe@pfpfit.com",
+      "name": "Pfpfit",
+      "contact": "joe@pfpfit.com",
+      "email": "joe@pfpfit.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-21T15:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
