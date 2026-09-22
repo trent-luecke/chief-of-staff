@@ -394,13 +394,14 @@
     },
     {
       "id": "jeffromkey",
-      "canonical_name": "Jeffromkey",
+      "canonical_name": "Jeff Romkey",
       "aliases": [
-        "Jeffromkey"
+        "Jeffromkey",
+        "Athletic Golf"
       ],
-      "email": "",
-      "type": "unknown",
-      "pipeline_record": null,
+      "email": "jeff@athleticgolf.club",
+      "type": "customer",
+      "pipeline_record": "Athletic Golf",
       "people_file": null,
       "created": "2026-05-20",
       "last_seen": "2026-09-22"
