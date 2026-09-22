@@ -1,24 +1,80 @@
 {
-  "date": "2026-09-21",
-  "generated_at": "2026-09-21T17:20:57.807929+00:00",
+  "date": "2026-09-22",
+  "generated_at": "2026-09-22T12:06:44.504268+00:00",
   "meetings": [
     {
-      "id": "3vn3bhvbklv265s15fekc0oocf_20260921T140000Z",
-      "title": "Rev: Department Heads",
-      "start": "2026-09-21T09:00:00-05:00",
-      "end": "2026-09-21T09:45:00-05:00",
+      "id": "olt4eh3488fftej670gj40dnro_20260922T133000Z",
+      "title": "TeamBuildr OS Weekly Dev Sync",
+      "start": "2026-09-22T08:30:00-05:00",
+      "end": "2026-09-22T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
         },
         {
           "email": "brian@teambuildr.com",
           "name": ""
         },
         {
+          "email": "elvis@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "dd8v77935eol6k905bg547n1j5_20260922T150000Z",
+      "title": "1:1 Weekly OS Meeting",
+      "start": "2026-09-22T10:00:00-05:00",
+      "end": "2026-09-22T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "1ml99kkgsq3riukk68nh2r7bks_20260922T160000Z",
+      "title": "Rainmakers Anonymous",
+      "start": "2026-09-22T11:00:00-05:00",
+      "end": "2026-09-22T11:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
           "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "emily@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
           "name": ""
         },
         {
@@ -26,129 +82,61 @@
           "name": ""
         },
         {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
           "email": "chris@teambuildr.com",
           "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2cpic22b4ukd85hbqtrsda0qm2_20260921T150000Z",
-      "title": "Stand Up - Sales",
-      "start": "2026-09-21T10:00:00-05:00",
-      "end": "2026-09-21T10:15:00-05:00",
-      "kind": "internal",
-      "attendees": [
+        },
         {
           "email": "jeff@teambuildr.com",
           "name": ""
         },
         {
-          "email": "ryan@teambuildr.com",
+          "email": "melissa@teambuildr.com",
           "name": ""
         },
         {
           "email": "lmartin@teambuildr.com",
           "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20260921T153000Z",
-      "title": "OS \"Sit Down\"",
-      "start": "2026-09-21T10:30:00-05:00",
-      "end": "2026-09-21T11:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "62tlsor43d08ncmkh4jcujaqp2",
-      "title": "Trent / Heather",
-      "start": "2026-09-21T11:00:00-05:00",
-      "end": "2026-09-21T11:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "heather@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "vcnfgdans1c8u2m6442ugsjljk",
-      "title": "Grant Lalla and Trent Luecke",
-      "start": "2026-09-21T11:30:00-05:00",
-      "end": "2026-09-21T11:45:00-05:00",
+      "id": "n96rel8715u5m0align21t9rp0",
+      "title": "Scott Hislen and Trent Luecke",
+      "start": "2026-09-22T12:30:00-05:00",
+      "end": "2026-09-22T12:45:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "grant@tinsleyperformance.com",
+          "email": "scotthislen@gmail.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20260921T173000Z",
-      "title": "OS Dev sync-Rev table",
-      "start": "2026-09-21T12:30:00-05:00",
-      "end": "2026-09-21T12:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "v8l38h228vt2vass7du4015u9s",
-      "title": "Coach Rolle and Trent Luecke",
-      "start": "2026-09-21T14:30:00-05:00",
-      "end": "2026-09-21T14:45:00-05:00",
+      "id": "iklmtppmmuu1d7vbvbfek3jsq4",
+      "title": "Melissa Roberts and Trent Luecke",
+      "start": "2026-09-22T14:00:00-05:00",
+      "end": "2026-09-22T14:15:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "coachrolle@fivestarlinemen.com",
+          "email": "melissadcroberts@outlook.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "428gd9b47p7qnk6gpe3pbicob0",
-      "title": "Johnny Rodriguez and Trent Luecke",
-      "start": "2026-09-21T16:00:00-05:00",
-      "end": "2026-09-21T16:15:00-05:00",
+      "id": "84qp6jhvhh3g2if8afrhshl48c",
+      "title": "Brandon Mikkelson and Trent Luecke",
+      "start": "2026-09-22T15:30:00-05:00",
+      "end": "2026-09-22T15:45:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "z.snbb@fmail.com",
+          "email": "bmikkelson@vvuhsd.org",
           "name": ""
         }
       ],
