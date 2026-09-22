@@ -164,20 +164,6 @@
       "last_seen": "2026-09-20"
     },
     {
-      "id": "mike-woodby-apex-holland",
-      "canonical_name": "Mike Woodby \u2014 Apex Holland",
-      "aliases": [
-        "Mike Woodby \u2014 Apex Holland",
-        "mike@apexholland.co"
-      ],
-      "email": "mike@apexholland.co",
-      "type": "lead",
-      "pipeline_record": "Mike Woodby \u2014 Apex Holland",
-      "people_file": null,
-      "created": "2026-05-20",
-      "last_seen": "2026-05-21"
-    },
-    {
       "id": "tzach-feinsilver",
       "canonical_name": "Tzach Feinsilver",
       "aliases": [
@@ -594,11 +580,14 @@
       "id": "mwoodby",
       "canonical_name": "Mwoodby",
       "aliases": [
-        "Mwoodby"
+        "Mwoodby",
+        "Mike Woodby \u2014 Apex Holland",
+        "mike@apexholland.co",
+        "mike-woodby-apex-holland"
       ],
-      "email": "",
+      "email": "mike@apexholland.co",
       "type": "unknown",
-      "pipeline_record": null,
+      "pipeline_record": "Mike Woodby \u2014 Apex Holland",
       "people_file": null,
       "created": "2026-05-24",
       "last_seen": "2026-09-22"
