@@ -1,34 +1,28 @@
 {
-  "date": "2026-09-22",
-  "generated_at": "2026-09-22T15:55:17.417962+00:00",
+  "date": "2026-09-23",
+  "generated_at": "2026-09-23T12:08:01.996923+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20260922T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-09-22T08:30:00-05:00",
-      "end": "2026-09-22T09:00:00-05:00",
-      "kind": "internal",
+      "id": "ch4esq8ov28i3f1qpsrhgovtus",
+      "title": "mads and Trent Luecke",
+      "start": "2026-09-23T08:30:00-05:00",
+      "end": "2026-09-23T08:45:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "luke@teambuildr.com",
+          "email": "mads.holst.christensen@aafk.no",
           "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "7r8svjrqja42c98gu9rcq9p7td",
+      "title": "Andrea / Trent: OS Onboarding",
+      "start": "2026-09-23T09:00:00-05:00",
+      "end": "2026-09-23T10:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
         {
           "email": "andrea@teambuildr.com",
           "name": ""
@@ -37,106 +31,110 @@
       "prep": null
     },
     {
-      "id": "dd8v77935eol6k905bg547n1j5_20260922T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-09-22T10:00:00-05:00",
-      "end": "2026-09-22T10:30:00-05:00",
+      "id": "oqm3raf0opol7d68cll074rlng",
+      "title": "Matt Wagner and Trent Luecke",
+      "start": "2026-09-23T10:00:00-05:00",
+      "end": "2026-09-23T10:15:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "mwagner@duneland.k12.in.us",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5g8t0oh2nr8877tfgk4kqu8ti3",
+      "title": "Nick Orioli @ Orioli Performance Center - TeamBuildr OS Reconnect on Member Management and Strength",
+      "start": "2026-09-23T10:30:00-05:00",
+      "end": "2026-09-23T11:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "antonio@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nickoriolitraining@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "q0g4nbr5o6k87gesg8fd7a9044",
+      "title": "Matt Sillanpaa and Trent Luecke",
+      "start": "2026-09-23T11:30:00-05:00",
+      "end": "2026-09-23T11:45:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "matt@thebrickhousefitness.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "3khqb2cijansip4trdrfmp4djr",
+      "title": "Mentoring Call (Ken Andrukow)",
+      "start": "2026-09-23T12:00:00-05:00",
+      "end": "2026-09-23T13:00:00-05:00",
       "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "9ak0lgviljnrdptlkvs97mdjjo",
+      "title": "Todd Parsons and Trent Luecke",
+      "start": "2026-09-23T13:00:00-05:00",
+      "end": "2026-09-23T13:15:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "nicole@teambuildr.com",
+          "email": "todd.parsons@mcsdonline.org",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20260922T160000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-09-22T11:00:00-05:00",
-      "end": "2026-09-22T11:45:00-05:00",
+      "id": "464v9n48it7jvn7p8lg5lgthsr",
+      "title": "mba support docs",
+      "start": "2026-09-23T13:15:00-05:00",
+      "end": "2026-09-23T14:15:00-05:00",
       "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "guoqi0k70j4fnigapsuh4vpt40",
+      "title": "Laura Ruiz Rocha and Trent Luecke",
+      "start": "2026-09-23T14:30:00-05:00",
+      "end": "2026-09-23T14:45:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
+          "email": "lauraruizelitefut@gmail.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "n96rel8715u5m0align21t9rp0",
-      "title": "Scott Hislen and Trent Luecke",
-      "start": "2026-09-22T12:30:00-05:00",
-      "end": "2026-09-22T12:45:00-05:00",
+      "id": "alakm8m5tittpnukjnm458mvqk",
+      "title": "Bridgette LeBer and Trent Luecke",
+      "start": "2026-09-23T16:00:00-05:00",
+      "end": "2026-09-23T16:15:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "scotthislen@gmail.com",
+          "email": "rebelridersgym@gmail.com",
           "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "iklmtppmmuu1d7vbvbfek3jsq4",
-      "title": "Melissa Roberts and Trent Luecke",
-      "start": "2026-09-22T14:00:00-05:00",
-      "end": "2026-09-22T14:15:00-05:00",
-      "kind": "external",
-      "attendees": [
+        },
         {
-          "email": "melissadcroberts@outlook.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "84qp6jhvhh3g2if8afrhshl48c",
-      "title": "Brandon Mikkelson and Trent Luecke",
-      "start": "2026-09-22T15:30:00-05:00",
-      "end": "2026-09-22T15:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "bmikkelson@vvuhsd.org",
+          "email": "lukevita3@gmail.com",
           "name": ""
         }
       ],
