@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-23T08:23:28.224209Z",
+  "fetched_at": "2026-09-24T08:17:52.236131Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -1023,6 +1023,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2026-01-20",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:nickoriolitraining@gmail.com",
+      "name": "",
+      "contact": "nickoriolitraining@gmail.com",
+      "email": "nickoriolitraining@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-23T15:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
