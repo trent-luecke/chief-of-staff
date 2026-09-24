@@ -303,3 +303,4 @@
 {"event": "complete", "task_id": "t-f9db3c", "completed_at": "2026-09-22"}
 {"event": "complete", "task_id": "t-0fd16d", "completed_at": "2026-09-22"}
 {"event": "create", "task_id": "t-7effa5", "title": "get quinn to share welcome template for OS", "source": "ui", "created_at": "2026-09-22", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-a793f7", "title": "assess storybuildr bugs and update branding to reflect OS", "source": "ui", "created_at": "2026-09-24", "due_date": "2026-09-25", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
