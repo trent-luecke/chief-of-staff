@@ -306,3 +306,4 @@
 {"event": "create", "task_id": "t-a793f7", "title": "assess storybuildr bugs and update branding to reflect OS", "source": "ui", "created_at": "2026-09-24", "due_date": "2026-09-25", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "edit", "task_id": "t-d6a136", "patch": {"horizon": "2026-10-02"}}
 {"event": "complete", "task_id": "t-3865cc", "completed_at": "2026-09-25"}
+{"event": "create", "task_id": "t-4d32bc", "title": "respond to Terrebone regarding tax export from OS", "source": "ui", "created_at": "2026-09-25", "due_date": "2026-09-25", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
