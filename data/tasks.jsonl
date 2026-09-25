@@ -312,3 +312,4 @@
 {"event": "delete", "task_id": "t-dc5e16"}
 {"event": "delete", "task_id": "t-92eb44"}
 {"event": "complete", "task_id": "t-704340", "completed_at": "2026-09-25"}
+{"event": "create", "task_id": "t-18af74", "title": "update HelpDocs", "source": "ui", "created_at": "2026-09-25", "due_date": "2026-09-28", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
