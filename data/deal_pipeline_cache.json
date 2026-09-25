@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-24T08:17:52.236131Z",
+  "fetched_at": "2026-09-25T08:40:07.424428Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -178,6 +178,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2026-03-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:bryany.parker@gmail.com",
+      "name": "",
+      "contact": "bryany.parker@gmail.com",
+      "email": "bryany.parker@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-24T10:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
