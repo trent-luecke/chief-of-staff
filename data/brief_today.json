@@ -1,277 +1,101 @@
 {
-  "date": "2026-09-24",
-  "generated_at": "2026-09-24T16:09:50.825076+00:00",
+  "date": "2026-09-25",
+  "generated_at": "2026-09-25T12:13:28.982224+00:00",
   "meetings": [
     {
-      "id": "73j45e0nsjstih1abbap2jsucd",
-      "title": "MBA support docs",
-      "start": "2026-09-24T08:00:00-05:00",
-      "end": "2026-09-24T09:00:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20260925T133000Z",
+      "title": "Focus Work",
+      "start": "2026-09-25T08:30:00-05:00",
+      "end": "2026-09-25T10:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g88ok8h9m612j6ci66gqk8h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g6sqkcdhn68qk4c1n68s34e1k8p0jidpg70p46h1m88qk6c9h6l20",
-      "title": "Teambuildr Strength and OS Onboarding",
-      "start": "2026-09-24T09:00:00-05:00",
-      "end": "2026-09-24T11:00:00-05:00",
+      "id": "c9dogs3jp41cmlvcs4kaq1iips",
+      "title": "Sydney Vander Hoef and Trent Luecke",
+      "start": "2026-09-25T11:15:00-05:00",
+      "end": "2026-09-25T11:30:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "luke@teambuildr.com",
-          "name": "Luke Green"
-        },
-        {
-          "email": "claire.west@imail.org",
-          "name": "Claire West"
-        },
-        {
-          "email": "elodder@teambuildr.com",
-          "name": "Evan Lodder"
-        },
-        {
-          "email": "steve@treadmetrix.com",
-          "name": "Steve Swanson"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": "Andrea Alamo"
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": "Brian Szutkowski"
-        },
-        {
-          "email": "alec.febo@imail.org",
-          "name": "Alec Febo"
-        },
-        {
-          "email": "brennen.ames@imail.org",
-          "name": "Brennen Ames"
-        },
-        {
-          "email": "fernando.lara@imail.org",
-          "name": "Fernando Lara"
-        },
-        {
-          "email": "jennifer.kimball@imail.org",
-          "name": "Jen Kimball"
-        },
-        {
-          "email": "jeremy.wiley@imail.org",
-          "name": "Jeremy Wiley"
-        },
-        {
-          "email": "josh.bullock@imail.org",
-          "name": "Josh Bullock"
-        },
-        {
-          "email": "mcgyver.clark@imail.org",
-          "name": "McGyver Clark"
-        },
-        {
-          "email": "melissa.linstrom@imail.org",
-          "name": "Melissa Linstrom"
-        },
-        {
-          "email": "rich.hall@imail.org",
-          "name": "Rich Hall"
-        },
-        {
-          "email": "wesley.hoglin@imail.org",
-          "name": "Wesley Hoglin"
-        },
-        {
-          "email": "bailie.harper@imail.org",
-          "name": "Bailie Harper"
-        },
-        {
-          "email": "brennen.reese@imail.org",
-          "name": "Brennen Reese"
-        },
-        {
-          "email": "chelsie.campbell@imail.org",
-          "name": "Chelsie Campbell"
-        },
-        {
-          "email": "jenna.eskelson@imail.org",
-          "name": "Jenna Lee"
-        },
-        {
-          "email": "jonathan.mills2@imail.org",
-          "name": "Jonathan Mills"
-        },
-        {
-          "email": "justin.cox@imail.org",
-          "name": "Justin Cox"
-        },
-        {
-          "email": "kara.foster@imail.org",
-          "name": "Kara Foster"
-        },
-        {
-          "email": "kristin.fellows@imail.org",
-          "name": "Kristin Fellows"
-        },
-        {
-          "email": "logan.child@imail.org",
-          "name": "Logan Child"
-        },
-        {
-          "email": "madalyn.huber@imail.org",
-          "name": "Madalyn Huber"
-        },
-        {
-          "email": "nicholas.dolce@imail.org",
-          "name": "Nicholas Dolce"
-        },
-        {
-          "email": "noah.fuailetolo@imail.org",
-          "name": "Noah Fuailetolo"
-        },
-        {
-          "email": "ryan.kunkler@imail.org",
-          "name": "Ryan Kunkler"
-        },
-        {
-          "email": "ted.hugunin@imail.org",
-          "name": "Ted Hugunin"
-        },
-        {
-          "email": "tiffany.gust@imail.org",
-          "name": "Tiffany Gust"
-        },
-        {
-          "email": "tj.stevens@imail.org",
-          "name": "TJ Stevens"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "7ofo2fb1vst413q7mhsp1ebaoa",
-      "title": "Wave // TeamBuildr Set-Up",
-      "start": "2026-09-24T11:00:00-05:00",
-      "end": "2026-09-24T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "danny1mcpherson@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jill.enloehamill@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "tedperlak1234@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "tysmith.strength@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "whitneysmith322@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "andy@krichco.com",
+          "email": "valourperformance@gmail.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20260924T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-09-24T12:00:00-05:00",
-      "end": "2026-09-24T12:30:00-05:00",
+      "id": "6c653klqrfcif46u2rdhusqdui",
+      "title": "Shannon Mccarty @ Fresh Kut Fitness - TeamBuildr OS Reconnect on Member Management and Strength",
+      "start": "2026-09-25T12:00:00-05:00",
+      "end": "2026-09-25T12:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "antonio@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "freshkupfitness@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "84qp6jhvhh3g2if8afrhshl48c",
+      "title": "Brandon Mikkelson and Trent Luecke",
+      "start": "2026-09-25T12:00:00-05:00",
+      "end": "2026-09-25T12:15:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "bmikkelson@vvuhsd.org",
+          "name": ""
+        },
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "bhrp6jccp7evkjv4vl7d7v3g1g",
+      "title": "Danny Poggi and Trent Luecke",
+      "start": "2026-09-25T12:45:00-05:00",
+      "end": "2026-09-25T13:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "riseperformancedanny@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5g24m343j30f3oc2rnm442tb08",
+      "title": "Manny / Trent: OS Chat",
+      "start": "2026-09-25T13:30:00-05:00",
+      "end": "2026-09-25T14:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "mannysilveira@primitiveathletix.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20260925T193000Z",
+      "title": "Out of office",
+      "start": "2026-09-25T14:30:00-05:00",
+      "end": "2026-09-25T17:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### OS Skits\n**Status:** Three concepts greenlit; now in scripting/logistics phase.\n- Clayton to write up all three and send to Speaker 3\n- Scripts, locations, and needs still to be built out\n- **Blocker:** None yet, but nothing is scripted \u2014 Clayton's writeup is the critical next step.\n\n---\n\n### Andrea Onboarding\n**Status:** Tuesday kickoff planned; access provisioning in motion.\n- Speaker 3 to message Andrea with Tuesday schedule and loop Brian\n- Thomas/backend to grant OS super admin\n- Add Andrea to OS + OS sales Slack channels\n- **Blocker:** Intercom seat on hold until Gwen's transition is official \u2014 don't rename James's account in the meantime.\n\n---\n\n### Strength Scheduling for Tactical\n**Status:** Scoped for early next year; groups/tags + bulk booking are the two core asks.\n- Groups/tags (filtering, Zapier) pulling parity from TeamBuildr Strength\n- Staff-side bulk booking to be built alongside\n- Booking restrictions by group intentionally out of scope\n- **Blocker:** None active \u2014 this is a next-year build. Beaver Fit (~$300M) flagged as a possible referral angle via Jason worth monitoring.\n\n---\n\n### Claude-Assisted Onboarding\n**Status:** In testing setup.\n- Next: create fake onboarding script and feed into Claude for testing\n- **Blocker:** None noted; waiting on script creation to begin real evaluation.\n\n---\n\n### StoryBuildr\n**Status:** Active; launch date being finalized.\n- Audit individual stage design and layout in progress\n- Email Mark re: finalized 9/23 launch date pending\n- **Blocker:** None noted; confirm launch date communication to Mark is sent.\n\n---\n\n### Pipeline\n**Status:** 29 deals active; 7 demos MTD.\n- 19 In-Trial / Post Demo\n- 5 Out of Demo / Need Update \u2014 worth flagging for follow-up prioritization\n- 3 No Trial / Post Demo, 2 On-Hold\n- **Blocker:** None noted, but the \"Need Update\" bucket (5) is the one to watch.",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "9ak0lgviljnrdptlkvs97mdjjo",
-      "title": "Todd Parsons and Trent Luecke",
-      "start": "2026-09-24T12:30:00-05:00",
-      "end": "2026-09-24T12:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "todd.parsons@mcsdonline.org",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "9ngk0bhopts80vks7kqbgrbhgo",
-      "title": "Kevin Kendall and Trent Luecke",
-      "start": "2026-09-24T13:15:00-05:00",
-      "end": "2026-09-24T13:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "kkendall@greencastle.k12.in.us",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "0gt9mat35tl1cct7o4u481b640",
-      "title": "Member-booked Appointments Overview",
-      "start": "2026-09-24T14:00:00-05:00",
-      "end": "2026-09-24T15:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "v5jncqcil834b9fg9mq0fmmdns",
-      "title": "Merren Coad and Trent Luecke",
-      "start": "2026-09-24T15:30:00-05:00",
-      "end": "2026-09-24T15:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "merrencoad@gmail.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     }
   ],
@@ -289,13 +113,20 @@
       "reason": "overdue",
       "due_date": "2026-09-04",
       "project_id": null
+    },
+    {
+      "id": "t-a793f7",
+      "title": "assess storybuildr bugs and update branding to reflect OS",
+      "reason": "due",
+      "due_date": "2026-09-25",
+      "project_id": null
     }
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 5,
+      "identity": 6,
       "stale": 0,
-      "total": 5
+      "total": 6
     }
   },
   "what_moved": []
