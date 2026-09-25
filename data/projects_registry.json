@@ -16,20 +16,6 @@
       "last_seen": "2026-08-04"
     },
     {
-      "id": "storybuildr",
-      "canonical_name": "StoryBuildr",
-      "aliases": [],
-      "status": "active",
-      "members": [
-        {
-          "id": "luke-green",
-          "role": "contact"
-        }
-      ],
-      "created": "2026-06-07",
-      "last_seen": "2026-08-04"
-    },
-    {
       "id": "claude-builder",
       "canonical_name": "Claude-Builder",
       "aliases": [],
