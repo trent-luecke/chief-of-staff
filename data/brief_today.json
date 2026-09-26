@@ -1,99 +1,12 @@
 {
-  "date": "2026-09-25",
-  "generated_at": "2026-09-25T16:10:40.614130+00:00",
+  "date": "2026-09-26",
+  "generated_at": "2026-09-26T12:12:51.695753+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20260925T133000Z",
-      "title": "Focus Work",
-      "start": "2026-09-25T08:30:00-05:00",
-      "end": "2026-09-25T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "c9dogs3jp41cmlvcs4kaq1iips",
-      "title": "Sydney Vander Hoef and Trent Luecke",
-      "start": "2026-09-25T11:15:00-05:00",
-      "end": "2026-09-25T11:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "valourperformance@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "6c653klqrfcif46u2rdhusqdui",
-      "title": "Shannon Mccarty @ Fresh Kut Fitness - TeamBuildr OS Reconnect on Member Management and Strength",
-      "start": "2026-09-25T12:00:00-05:00",
-      "end": "2026-09-25T12:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "antonio@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "freshkupfitness@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "84qp6jhvhh3g2if8afrhshl48c",
-      "title": "Brandon Mikkelson and Trent Luecke",
-      "start": "2026-09-25T12:00:00-05:00",
-      "end": "2026-09-25T12:15:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "bmikkelson@vvuhsd.org",
-          "name": ""
-        },
-        {
-          "email": "amanda@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "bhrp6jccp7evkjv4vl7d7v3g1g",
-      "title": "Danny Poggi and Trent Luecke",
-      "start": "2026-09-25T12:45:00-05:00",
-      "end": "2026-09-25T13:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "riseperformancedanny@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5g24m343j30f3oc2rnm442tb08",
-      "title": "Manny / Trent: OS Chat",
-      "start": "2026-09-25T13:30:00-05:00",
-      "end": "2026-09-25T14:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "mannysilveira@primitiveathletix.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20260925T193000Z",
-      "title": "Out of office",
-      "start": "2026-09-25T14:30:00-05:00",
-      "end": "2026-09-25T17:30:00-05:00",
+      "id": "6rro7upqc65ug3umn770e1rq09_20260926T130000Z",
+      "title": "OS Weekend Support (Trent)",
+      "start": "2026-09-26T08:00:00-05:00",
+      "end": "2026-09-26T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -108,25 +21,18 @@
       "project_id": "q3-os-launch"
     },
     {
-      "id": "t-704340",
-      "title": "outline how to get a lead into OS for MOFU content",
-      "reason": "overdue",
-      "due_date": "2026-09-04",
-      "project_id": null
-    },
-    {
       "id": "t-a793f7",
       "title": "assess storybuildr bugs and update branding to reflect OS",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-09-25",
       "project_id": null
     }
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 6,
+      "identity": 7,
       "stale": 0,
-      "total": 6
+      "total": 7
     }
   },
   "what_moved": []
