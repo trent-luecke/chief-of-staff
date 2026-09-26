@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-25T08:40:07.424428Z",
+  "fetched_at": "2026-09-26T08:26:59.850203Z",
   "leads": [
     {
       "page_id": "deal:1edmundtrainer@gmail.com",
@@ -490,6 +490,19 @@
       "status": "in_trial",
       "priority": null,
       "last_contacted": "2026-03-09",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:freshkupfitness@gmail.com",
+      "name": "",
+      "contact": "freshkupfitness@gmail.com",
+      "email": "freshkupfitness@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-09-25T17:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
