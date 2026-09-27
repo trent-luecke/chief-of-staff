@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-09-26T00:00:00.000Z",
+  "fetched_at": "2026-09-27T00:00:00Z",
   "leads": [
     {
       "name": "Wave Wellness",
@@ -79,12 +79,12 @@
       "stale": false
     },
     {
-      "name": "Evan Nystrom",
-      "contact": "Evan Nystrom",
-      "email": "evan@outlierathlete.com",
+      "name": "Kim Johnston",
+      "contact": "",
+      "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-28",
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -101,17 +101,6 @@
       "stale": false
     },
     {
-      "name": "Kim Johnston",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Jesse Cook",
       "contact": "",
       "email": "",
@@ -123,23 +112,12 @@
       "stale": false
     },
     {
-      "name": "Sam Tardif",
-      "contact": "",
-      "email": "",
+      "name": "Evan Nystrom",
+      "contact": "Evan Nystrom",
+      "email": "evan@outlierathlete.com",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-06-24",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-07-06",
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -156,6 +134,17 @@
       "stale": false
     },
     {
+      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-07-06",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Jamie Tellier",
       "contact": "",
       "email": "",
@@ -167,12 +156,12 @@
       "stale": false
     },
     {
-      "name": "Edmund Duah-Asamoah",
+      "name": "Sam Tardif",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-08-28",
+      "last_contacted": "2026-06-24",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -189,23 +178,23 @@
       "stale": false
     },
     {
+      "name": "Edmund Duah-Asamoah",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-28",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Andrew Levine",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-07-21",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "name": "Bryany Parker and Chris Reynolds",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-09-24",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -222,14 +211,14 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
-      "contact": "Mark Olson",
-      "email": "mark@athleticmentors.com",
+      "name": "Bryany Parker and Chris Reynolds",
+      "contact": "",
+      "email": "",
       "status": "In-Trial / Post Demo",
-      "priority": "High",
-      "last_contacted": "2026-06-11",
+      "priority": "",
+      "last_contacted": "2026-09-24",
       "estimated_value": null,
-      "source": "Inbound Email",
+      "source": "",
       "stale": false
     },
     {
@@ -244,14 +233,14 @@
       "stale": false
     },
     {
-      "name": "Joe Pfister – Fitness and Performance Frederick (PFP Fit)",
-      "contact": "Joe Pfister (owner); Kyle (team member)",
-      "email": "",
+      "name": "Mark Olson — Athletic Mentors",
+      "contact": "Mark Olson",
+      "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-09-21",
+      "priority": "High",
+      "last_contacted": "2026-06-11",
       "estimated_value": null,
-      "source": "",
+      "source": "Inbound Email",
       "stale": false
     },
     {
@@ -277,23 +266,23 @@
       "stale": false
     },
     {
-      "name": "Julianne (Saint John's)",
-      "contact": "",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-08-28",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Robert Wagner @ Movement Wins",
       "contact": "",
       "email": "",
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-09-08",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Julianne (Saint John's)",
+      "contact": "",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-08-28",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -310,23 +299,34 @@
       "stale": false
     },
     {
-      "name": "Preston Sports Performance",
-      "contact": "",
-      "email": "",
-      "status": "Out of Demo / Need Upate",
-      "priority": "",
-      "last_contacted": "2026-09-08",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Tom Anderson (Steadfast Performance)",
       "contact": "",
       "email": "",
       "status": "No Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-09-09",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Joe Pfister – Fitness and Performance Frederick (PFP Fit)",
+      "contact": "Joe Pfister (owner); Kyle (team member)",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-09-21",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Preston Sports Performance",
+      "contact": "",
+      "email": "",
+      "status": "Out of Demo / Need Upate",
+      "priority": "",
+      "last_contacted": "2026-09-08",
       "estimated_value": null,
       "source": "",
       "stale": false
