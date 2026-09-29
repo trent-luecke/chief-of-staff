@@ -173,13 +173,13 @@ We are stoked to have you trying us out, and I think you'll find a lot to like i
 
 **`{{middle}}` — Existing Strength customer** (`account_status = Active` / active `teambuildr_subscription`):
 ```
-We're stoked to have you checking out OS! Since {{facility}} is already running TeamBuildr Strength, you're in a great spot — you can manage the training side and the business/scheduling side under one roof, and existing Strength accounts tend to have the smoothest time getting set up.
+We're stoked to have you checking out OS! Since {{facility}} already runs TeamBuildr Strength, this is an easy next step. You can keep your training programming and your booking and scheduling in one place, and accounts that already use Strength usually have the smoothest setup.
 ```
-Facility-less fallback: `Since you're already running TeamBuildr Strength, you're in a great spot — ...`
+Facility-less fallback: `Since you already run TeamBuildr Strength, this is an easy next step. You can keep your training programming and your booking and scheduling in one place, and accounts that already use Strength usually have the smoothest setup.`
 
 **`{{middle}}` — Concurrent Strength trial** (Strength `trial` active, or lead present in the Front Strength inbox):
 ```
-We're stoked to have you trying us out! Looks like you're kicking the tires on TeamBuildr Strength as well — they're built to work together, so I'm happy to walk you through how OS and Strength fit side by side.
+We're stoked to have you trying us out! Looks like you're kicking the tires on TeamBuildr Strength too. They're built to work together, so I'm happy to walk you through how OS and Strength fit side by side.
 ```
 
 ### Touch 2 — Follow-up (reply on the touch-1 thread)
