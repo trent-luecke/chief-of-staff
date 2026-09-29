@@ -98,4 +98,58 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 4. Front `search_conversations` scope my_conversations, query=<lead.email>: if a "TeamBuildr OS: Welcome!" thread exists, outreachConvId = its id; read_conversation → if `drafts` non-empty, hasPendingDraft=true → skip this lead (never stack drafts).
 5. If no Front thread exists (lead first emailed via HubSpot), touches 2/3 go out as a fresh outbound to the lead (not a threaded reply). Correct recipient; threading differs only for launch-era in-flight leads.
 
+## Step F — Compose the draft (DRAFT ONLY — never send)
+Only if NOT suppressed (Step C) AND nextTouch is 1/2/3 AND not hasPendingDraft.
+- Always BCC `4238329@bcc.hubspot.com`. Send-from channel `cha_30ds1`. `shared=false` (private draft for Trent).
+- `bodyFormat` html: linkify the "Book a call with me" / "Grab 30 minutes on my calendar" / "Let's get you set up…" phrases onto the Calendly URL; keep the 👉 emoji on touches 2/3.
+- Personalize {{first_name}} (fallback "there") and {{facility}} (omit the clause if missing/generic).
+- **Do NOT add a signature or a closing like "Thanks,"** — the `cha_30ds1` channel auto-appends "Have a good one!" + Trent's signature block. End the body at the last content line.
+
+### Touch 1 (nextTouch=1): NEW outbound conversation
+create_draft: channelId=cha_30ds1, to=[lead.email], bcc=[4238329@bcc.hubspot.com], subject="TeamBuildr OS: Welcome!", shared=false.
+Body skeleton:
+```
+Hey {{first_name}}!
+
+This is Trent, from TeamBuildr OS. Saw you signed up for a trial account and wanted to reach out and introduce myself.
+
+{{middle}}
+
+Were there any questions I could help out with? If it's easier, you can book a call using this link -> Book a call with me [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+```
+{{middle}} by segment:
+- os_only:
+  `We are stoked to have you trying us out, and I think you'll find a lot to like in TeamBuildr OS for your business.`
+- existing_strength_customer:
+  `We're stoked to have you checking out OS! Since {{facility}} already runs TeamBuildr Strength, this is an easy next step. You can keep your training programming and your booking and scheduling in one place, and accounts that already use Strength usually have the smoothest setup.`
+  (facility-less: `Since you already run TeamBuildr Strength, this is an easy next step. You can keep your training programming and your booking and scheduling in one place, and accounts that already use Strength usually have the smoothest setup.`)
+- concurrent_strength_trial:
+  `We're stoked to have you trying us out! Looks like you're kicking the tires on TeamBuildr Strength too. They're built to work together, so I'm happy to walk you through how OS and Strength fit side by side.`
+
+### Touch 2 (nextTouch=2): REPLY on outreachConvId (or NEW outbound subject "Re: TeamBuildr OS: Welcome!" to lead.email if no Front thread)
+create_draft: conversationId=outreachConvId, bcc=[4238329@bcc.hubspot.com], shared=false. Body:
+```
+Hey {{first_name}}!
+
+Just wanted to follow up and push this to the top of your inbox. Hope you're enjoying your trial with us so far.
+
+Got a question? Hit reply. Or if you're ready to dive in:
+
+👉 Grab 30 minutes on my calendar [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+```
+
+### Touch 3 (nextTouch=3): REPLY on outreachConvId (or NEW outbound as above)
+create_draft: conversationId=outreachConvId, bcc=[4238329@bcc.hubspot.com], shared=false. Body:
+```
+Hey {{first_name}}!
+
+As your trial starts to come to a close, I wanted to reach out one last time. It's not too late to get yourself acquainted with TeamBuildr OS and start setting up your account.
+
+If now isn't a great time, let me know, but if you're interested in chatting, I'll leave my link below.
+
+👉 Let's get you set up right before your trial ends. [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+
+We'd love to be part of your story.
+```
+
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->

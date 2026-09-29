@@ -163,9 +163,8 @@ This is Trent, from TeamBuildr OS. Saw you signed up for a trial account and wan
 {{middle}}
 
 Were there any questions I could help out with? If it's easier, you can book a call using this link -> Book a call with me [https://calendly.com/trent-luecke/30-minute-tbos-demo]
-
-Thanks, {{first_name}}!
 ```
+(No "Thanks," closing — the `cha_30ds1` channel auto-appends "Have a good one!" + Trent's signature. Do not add a signature in the body.)
 
 **`{{middle}}` — OS-only** (no Strength account or trial):
 ```
@@ -192,8 +191,6 @@ Just wanted to follow up and push this to the top of your inbox. Hope you're enj
 Got a question? Hit reply. Or if you're ready to dive in:
 
 👉 Grab 30 minutes on my calendar [https://calendly.com/trent-luecke/30-minute-tbos-demo]
-
-Thanks, {{first_name}}!
 ```
 
 ### Touch 3 — Final / trial-end (reply on the touch-1 thread)
