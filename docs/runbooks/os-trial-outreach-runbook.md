@@ -45,7 +45,7 @@ Reassignment only works for reps who exist in Front. Match is by name (HubSpot `
 | Kylah Broadnax (1362076808) | tea_2j88x |
 | Seth Gray (79961820) | tea_cyjq2 |
 | Cora Van Dyck (80743806) | tea_2kps1 |
-| Rachel Hodgson (303992238) | tea_2grep — NEEDS CONFIRM (Front name is "Rachel Newman") |
+| Rachel Hodgson (303992238) | tea_2grep (same person as Front "Rachel Newman"; note: she does not own demos, so this row is effectively unused) |
 
 **Unmappable active demo owners (no Front account → suppress + flag, never auto-assign):** Nick Hawkins (47696639), Shane Gring (77519053), Josh Beedle (84308332), Duncan Richey (87381684), Penn Riney (93606412), Alec Metzger (95076082), Eduardo/Eddy Poveda (95183716), John Rowbotham (96600088), Tyler Samani-Sprunk (3987522), Haley Mathis (47680956), Dawn Mathis* (39493992). Non-human owners (Info TeamBuildr 217718845, GymStudio Info 415599761, Analytics Account) also never receive assignments.
 
