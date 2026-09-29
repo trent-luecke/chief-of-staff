@@ -102,6 +102,12 @@ For each `Lead`:
 
 - **Run summary (in-session, optionally Slack):** counts of drafts created (touch 1/2/3), leads suppressed for a booked demo, reassignments, dedup flags, and anything needing Trent's eyes (flagged generic-meeting suppressions, unmappable owners, contact-not-found, parse failures).
 
+### 8. Touch-log comments
+- **Input:** the notification thread (`notificationConvId`) + the matching SENT emails from component 4.
+- **Does:** maintains a chronological record of actual sends on the HubSpot notification thread by adding one comment per touch — `First email sent: M/D`, `Follow-up email sent: M/D`, `Final email sent: M/D` — mapped from the distinct SENT days (ascending). Front comments can't be edited, so it's one comment per touch rather than a single edited block. Idempotent: it reads the thread's existing comments and only adds a missing label. Runs for every lead with a contact, regardless of suppression/cadence state, so it back-fills prior sends (including pre-launch in-flight leads).
+- **Output:** 0–3 new comments per lead over the lifecycle.
+- **Why HubSpot-derived, not draft-time:** logs only what actually sent (accurate), appearing on the first run after the send — a ≤1-day lag versus the click.
+
 ## Cadence timing
 
 | Touch | Trigger | Anchor |

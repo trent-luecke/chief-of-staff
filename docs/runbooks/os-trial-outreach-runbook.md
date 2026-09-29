@@ -152,21 +152,34 @@ If now isn't a great time, let me know, but if you're interested in chatting, I'
 We'd love to be part of your story.
 ```
 
+## Step H — Touch-log comments (record actual sends on the notification thread)
+Records when each outreach email actually went out, as comments on the OS notification thread (notificationConvId). Uses ACTUAL sends from HubSpot (Step E), not draft dates — so it only logs what truly sent, and it back-fills prior sends (incl. pre-launch/in-flight leads).
+1. From Step E's matching SENT emails, take the DISTINCT send days sorted ascending. The 1st, 2nd, 3rd map to First / Follow-up / Final.
+2. For each send day that exists, the intended comment is:
+   - 1st → `First email sent: M/D`
+   - 2nd → `Follow-up email sent: M/D`
+   - 3rd → `Final email sent: M/D`
+3. Read the notification thread's existing comments (from Step A's read_conversation; paginate the timeline if there are many entries). If a comment already begins with that label ("First email sent" / "Follow-up email sent" / "Final email sent"), SKIP it — only `add_comment` the missing ones. This makes it idempotent and back-fills history.
+4. Run this for every scanned lead that has a HubSpot contact, regardless of suppression (Step C) or nextTouch — it is a record of real sends, independent of whether a new draft is created today. Use the notification thread currently being processed (for duplicate signups, the one assigned to Trent, else the most recent).
+
 ## Daily flow (orchestration)
 Run Step A once, then for each Lead run this pipeline in order (early exits save work):
 1. **Step B** — HubSpot contact + segment. If contact not found → add to summary "contact not found", skip this lead (fail-safe: never draft without a contact).
-2. **Step C** — demo-booked check. If suppressed:
+2. **Step E** — cadence: compute touchCount / lastSend / send-days from HubSpot, and hasPendingDraft.
+3. **Step H** — touch-log comments: post any missing First/Follow-up/Final "…sent: M/D" comments on notificationConvId. Always runs (records real sends even for suppressed or completed leads).
+4. **Step C** — demo-booked check. If suppressed:
    - if `reassignTeammateId` (a rep who is in Front): `assign_conversation` notificationConvId → reassignTeammateId.
    - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
-   - SKIP drafting; go to next lead.
-3. **Step E** — cadence. If `nextTouch` is null (done/not due) or `hasPendingDraft` → skip this lead.
-4. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending.`
-5. **Step F** — compose the draft (draft only, using the segment for touch 1).
+   - Do NOT draft; go to next lead.
+5. Cadence gate: if `nextTouch` is null (done/not due) or `hasPendingDraft` → go to next lead (no draft).
+6. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending.`
+7. **Step F** — compose the draft (draft only, using the segment for touch 1).
 
 ## Run summary (final message, one block)
 - Drafts created: touch1=N, touch2=N, touch3=N (list lead name + segment for touch1)
 - Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
 - Dedup flags (also in Strength): N (list leads)
+- Touch-log comments added: N (First/Follow-up/Final sent-date records)
 - Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
