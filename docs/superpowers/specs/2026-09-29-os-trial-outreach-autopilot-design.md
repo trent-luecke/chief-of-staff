@@ -140,3 +140,54 @@ Derived at build time (no user input): OS/Strength inbox ids (known), rep-owner 
 - Richer HubSpot contact enrichment for personalization if templates need more than name/org.
 - Optional auto-send for the highest-confidence touches once trust is established.
 - Consider open-deal state as an additional "already engaged" signal beyond booked demos.
+
+## Appendix A — Template copy (provided 2026-09-29)
+
+**Personalization:** `{{first_name}}` resolves from the HubSpot contact's `firstname` (already fetched during the demo-check), **not** parsed from the Front notification `Name` (which mixes titles/initials — "Coach Edgar", "Joey H"). Fallback when `firstname` is missing or non-personal → `Hey there!`.
+
+**Shared CTA (all three touches):** `https://calendly.com/trent-luecke/30-minute-tbos-demo` — Trent's own OS demo Calendly. A booking through this link creates an OS demo owned by Trent, which the demo-check detects on the next run and auto-suppresses the remaining touches (self-consistent cadence stop).
+
+**HubSpot BCC (all three):** `4238329@bcc.hubspot.com`.
+
+### Touch 1 — Initial (new outbound conversation)
+- **Subject:** `TeamBuildr OS: Welcome!`
+- **Body:**
+```
+Hey {{first_name}}!
+
+This is Trent, from TeamBuildr OS. Saw you signed up for a trial account and wanted to reach out and introduce myself.
+
+We are stoked to have you trying us out and I think you'll find that TeamBuildr OS and TeamBuildr Strength could be a great combination for your business.
+
+Were there any questions I could help out with? If it's easier, you can book a call using this link -> Book a call with me [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+
+Thanks, {{first_name}}!
+```
+
+### Touch 2 — Follow-up (reply on the touch-1 thread)
+```
+Hey {{first_name}}!
+
+Just wanted to follow up and push this to the top of your inbox. Hope you're enjoying your trial with us so far.
+
+Got a question? Hit reply. Or if you're ready to dive in:
+
+👉 Grab 30 minutes on my calendar [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+
+Thanks, {{first_name}}!
+```
+
+### Touch 3 — Final / trial-end (reply on the touch-1 thread)
+```
+Hey {{first_name}}!
+
+As your trial starts to come to a close, I wanted to reach out one last time. It's not too late to get yourself acquainted with TeamBuildr OS and start setting up your account.
+
+If now isn't a great time, let me know, but if you're interested in chatting, I'll leave my link below.
+
+👉 Let's get you set up right before your trial ends. [https://calendly.com/trent-luecke/30-minute-tbos-demo]
+
+We'd love to be part of your story.
+```
+
+**Rendering note:** bracketed link text becomes an HTML `<a>` anchor on the phrase (e.g. "Book a call with me", "Grab 30 minutes on my calendar") wrapping the URL; emojis pass through as UTF-8.
