@@ -51,4 +51,13 @@ Reassignment only works for reps who exist in Front. Match is by name (HubSpot `
 
 Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front teammate (unless it's Trent). Otherwise → suppress the lead and flag "demo owner <name> not in Front — assign manually."
 
+## Step A — Scan OS trials
+1. Front `search_conversations`: scope `all_inboxes`, filters.inboxId=`inb_346ip`, query "New Account". Page until you have all conversations whose inbound notification is within the trial window (see step 4).
+2. Keep conversations whose subject is exactly "TeamBuildr OS - New Account" and whose `assigneeId` is null (untouched) or `tea_2glc1` (Trent's). Skip any assigned to another teammate (out of Trent's lane). NOTE: include BOTH open and archived — Trent's in-flight leads are archived + team-snoozed + assigned to himself, so status is NOT a filter.
+3. For each kept conversation, `read_conversation` (limit 5) and parse the `message_inbound` content:
+   `New Account Created: Name: <name> Email: <email> Org. Name: <org> Studio Num.: <id> Trial Exp: <MM/DD/YYYY> Contact Number: <phone> HubSpot: View Contact ...`
+   Extract: email, name, org, trialExpiration (parse MM/DD/YYYY). Record notificationConvId + notificationAssigneeId.
+4. Active-window gate: process a lead only if `trialExpiration >= today - 1 day` (trial not already lapsed). Drop expired trials.
+5. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
+
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->

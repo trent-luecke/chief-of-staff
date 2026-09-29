@@ -272,53 +272,58 @@ git commit -m "feat(outreach): Strength-inbox dedup recipe"
 
 ---
 
-### Task 6: Cadence-state recipe (find outreach conversation, count touches)
+### Task 6: Cadence-state recipe (count touches from HubSpot EMAIL engagements)
 
 **Files:**
 - Modify: `docs/runbooks/os-trial-outreach-runbook.md`
 
 **Interfaces:**
-- Consumes: `Lead.email`, `Lead.trialExpiration` (Task 2).
-- Produces: `nextTouch ∈ {1,2,3,null}` and `hasPendingDraft: bool`; consumed by Task 8.
+- Consumes: `Lead.trialExpiration` (Task 2), HubSpot `contactId` (Task 3), `Lead.email`.
+- Produces: `nextTouch ∈ {1,2,3,null}`, `outreachConvId?` (Front thread for reply targeting), and `hasPendingDraft: bool`; consumed by Task 8.
 
-- [ ] **Step 1: Validate finding a Trent↔recipient conversation and counting outbound**
+**Why HubSpot, not Front outbound** (validated 2026-09-29): Trent's historical touches were sent from HubSpot, not Front, and log as HubSpot EMAIL engagements (e.g. subject "TeamBuildr OS: Welcome!", owner 294790730, status SENT). Future Front sends log there too via the BCC. Counting Front outbound would miss the HubSpot-sent history and re-introduce in-flight leads. Matching on the shared subject also sidesteps BCC owner-attribution fuzziness.
 
-Pick an existing real email thread between Trent and any external person (Front `search_conversations` scope `my_conversations`, `query:"<that person's email>"`). Run `read_conversation` and confirm you can count `message_outbound` entries authored by `tea_2glc1` and read their timestamps, and that the first page reports `drafts`. Expected: an accurate outbound count + last-send timestamp + drafts array.
+- [ ] **Step 1: Validate the EMAIL-engagement count on a known in-flight lead**
+
+Run HubSpot `search_crm_objects`: `objectType: "EMAIL"`, `filterGroups: [{ associatedWith: [{ objectType: "contacts", operator: "EQUAL", objectIdValues: [<contactId>] }] }]`, `properties: ["hs_email_subject","hs_timestamp","hs_email_status"]`, `sorts: [{propertyName:"hs_timestamp",direction:"DESCENDING"}]`. Expected (for `roman.geary@icloud.com`, contact 249850848897): one SENT email, subject "TeamBuildr OS: Welcome!" → touchCount 1.
 
 - [ ] **Step 2: Validate the empty case for a fresh lead**
 
-Run the same search for a brand-new OS lead's email. Expected: no outreach conversation yet (0 outbound) → this lead is touch 1.
+Run the same query for a brand-new OS lead's contactId. Expected: no matching outreach email → touchCount 0 → touch 1.
 
-- [ ] **Step 3: Confirm the derivation + idempotency rules**
+- [ ] **Step 3: Find the Front outreach thread + pending-draft guard**
 
-Confirm the logic:
-- outbound count 0 → `nextTouch = 1`
-- 1, and `today − lastSend ≥ 7d` → `nextTouch = 2` (else null; not due yet)
-- 2, and `today ≥ trialExpiration − 1d` → `nextTouch = 3` (else null)
-- 3 → `nextTouch = null` (done)
-- If an unsent draft already exists on the outreach conversation (`drafts` non-empty), `hasPendingDraft = true` → skip (never stack drafts).
+Run Front `search_conversations` scope `my_conversations`, `query:"<lead.email>"`; if a "TeamBuildr OS: Welcome!" thread exists, note its id as `outreachConvId` and run `read_conversation` to check `drafts` (pending). Expected: for a HubSpot-only in-flight lead, no Front thread (touches 2/3 will be a fresh outbound); for a Front-native lead, the thread is found.
 
-- [ ] **Step 4: Record the recipe in the runbook**
+- [ ] **Step 4: Confirm the derivation + idempotency rules**
+
+- touchCount = count of associated EMAIL engagements with `hs_email_status = SENT` and `hs_email_subject` containing "TeamBuildr OS: Welcome!". lastSend = latest such `hs_timestamp`.
+- `0 → nextTouch 1`; `1 and (today − lastSend ≥ 7d) → 2` else null; `2 and (today ≥ trialExpiration − 1d) → 3` else null; `3 → null`.
+- If a Front outreach thread has a non-empty `drafts` array, `hasPendingDraft = true` → skip (never stack drafts).
+
+- [ ] **Step 5: Record the recipe in the runbook**
 
 Append:
 
 ```markdown
-## Step E — Cadence state
-1. Front search_conversations scope my_conversations, query=<lead.email>. If a Trent<->lead conversation exists, read_conversation.
-2. touchCount = number of message_outbound entries authored by tea_2glc1. lastSend = latest such timestamp. hasPendingDraft = drafts non-empty.
+## Step E — Cadence state (from HubSpot EMAIL engagements)
+1. HubSpot search_crm_objects EMAIL, filterGroups[0].associatedWith=[{objectType:"contacts",operator:"EQUAL",objectIdValues:[contactId]}],
+   properties: hs_email_subject, hs_timestamp, hs_email_status; sort hs_timestamp desc.
+2. touchCount = # of results with hs_email_status=SENT AND hs_email_subject contains "TeamBuildr OS: Welcome!". lastSend = latest matching hs_timestamp.
 3. nextTouch:
    - 0 -> 1
    - 1 and (today - lastSend >= 7 days) -> 2, else null
    - 2 and (today >= trialExpiration - 1 day) -> 3, else null
    - 3 -> null (done)
-4. If hasPendingDraft -> skip this lead (do not create another draft).
+4. Front search_conversations scope my_conversations, query=<lead.email>: if a "TeamBuildr OS: Welcome!" thread exists, outreachConvId = its id; read_conversation -> if drafts non-empty, hasPendingDraft=true -> skip this lead.
+5. If no Front thread exists (lead first emailed via HubSpot), touches 2/3 are sent as a fresh outbound to the lead (not a reply). Correct recipient; threading differs only for launch-era in-flight leads.
 ```
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add docs/runbooks/os-trial-outreach-runbook.md
-git commit -m "feat(outreach): cadence-state derivation recipe"
+git commit -m "feat(outreach): cadence-state recipe (HubSpot EMAIL engagements)"
 ```
 
 ---

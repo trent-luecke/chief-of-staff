@@ -72,14 +72,15 @@ Each component is independently testable with a clear input/output contract.
 - **Reassignment target:** if suppressed and `meetingOwnerId` resolves (via `search_owners` → email/name → Front `list_teammates` → teammate id), that teammate is the reassignment target. If the owner is Trent, keep assigned to Trent. If the owner can't be mapped to a Front teammate, do not auto-assign — flag it.
 
 ### 4. Cadence engine (touch-state derivation)
-- **Input:** a `Lead` (email + trialExpiration).
-- **Does:** finds the outreach conversation with this lead (Front conversation where the lead's email is the recipient, on Trent's channel) and counts **Trent's outbound messages** to derive the touch state. Because Trent now sends from Front, each send is a real timestamped outbound message — this is the ground truth, no external tracker.
-  - 0 sent → **touch 1 due** now (Leg A)
-  - 1 sent, and `today − lastSendDate ≥ 7d` → **touch 2 due** (Leg B)
-  - 2 sent, and `today ≥ trialExpiration − 1d` → **touch 3 due** (Leg B)
-  - 3 sent → **done**, skip
-- **Output:** `nextTouch: 1|2|3|null`.
-- **Idempotency guard:** if an unsent draft already exists on the lead's outreach conversation (`read_conversation.drafts`), skip — never stack drafts.
+- **Input:** a `Lead` (email + trialExpiration) and its HubSpot `contactId`.
+- **Does:** counts touches from **HubSpot EMAIL engagements** associated with the contact — the single source of truth. HubSpot-sent emails log there natively, and Front sends log there via the BCC, so this survives the HubSpot→Front transition and doesn't depend on BCC owner attribution. Count EMAIL engagements with `hs_email_status = SENT` whose `hs_email_subject` contains `TeamBuildr OS: Welcome!` (touch 1 is the exact subject; touches 2–3 are `Re: TeamBuildr OS: Welcome!` replies). `lastSend` = the latest such `hs_timestamp`.
+  - 0 → **touch 1 due** now (Leg A)
+  - 1, and `today − lastSend ≥ 7d` → **touch 2 due** (Leg B)
+  - 2, and `today ≥ trialExpiration − 1d` → **touch 3 due** (Leg B)
+  - 3 → **done**, skip
+- **Output:** `nextTouch: 1|2|3|null`, plus the Front outreach conversation id if one exists (the "TeamBuildr OS: Welcome!" thread Trent sent from Front) for reply targeting on touches 2–3.
+- **Idempotency guard:** if an unsent draft already exists on the lead's Front outreach conversation (`read_conversation.drafts`), skip — never stack drafts.
+- **Transition note:** a lead first emailed via HubSpot (pre-launch) has no Front thread; its touch 2/3 draft starts a fresh outbound to the lead rather than a threaded reply. Correct recipient, slightly different threading — affects only the handful of in-flight leads at launch.
 
 ### 5. Draft composer
 - **Input:** `Lead`, `nextTouch`, template set, and (for touch 1) the lead's Strength segment.
