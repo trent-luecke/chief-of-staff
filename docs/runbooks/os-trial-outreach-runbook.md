@@ -95,8 +95,8 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
    - 1 and (today − lastSend ≥ 7 days) → 2, else null
    - 2 and (today ≥ trialExpiration − 1 day) → 3, else null
    - 3 → null (done)
-4. Front `search_conversations` scope my_conversations, query=<lead.email>: if a "TeamBuildr OS: Welcome!" thread exists, outreachConvId = its id; read_conversation → if `drafts` non-empty, hasPendingDraft=true → skip this lead (never stack drafts).
-5. If no Front thread exists (lead first emailed via HubSpot), touches 2/3 go out as a fresh outbound to the lead (not a threaded reply). Correct recipient; threading differs only for launch-era in-flight leads.
+4. Idempotency: Front `search_conversations` scope my_conversations, query=<lead.email>; read any matching conversation and if any has a non-empty `drafts` array (an unsent draft from a prior run), hasPendingDraft=true → skip this lead (never stack drafts).
+5. Every touch (1, 2, 3) is sent as a NEW outbound conversation (see Step F) — never a threaded reply. Reply drafts cannot carry a BCC, which would drop HubSpot logging and break this counter; new-outbound-with-BCC guarantees each touch logs and advances the count.
 
 ## Step F — Compose the draft (DRAFT ONLY — never send)
 Only if NOT suppressed (Step C) AND nextTouch is 1/2/3 AND not hasPendingDraft.
@@ -126,8 +126,8 @@ Were there any questions I could help out with? If it's easier, you can book a c
 - concurrent_strength_trial:
   `We're stoked to have you trying us out! Looks like you're kicking the tires on TeamBuildr Strength too. They're built to work together, so I'm happy to walk you through how OS and Strength fit side by side.`
 
-### Touch 2 (nextTouch=2): REPLY on outreachConvId (or NEW outbound subject "Re: TeamBuildr OS: Welcome!" to lead.email if no Front thread)
-create_draft: conversationId=outreachConvId, bcc=[4238329@bcc.hubspot.com], shared=false. Body:
+### Touch 2 (nextTouch=2): NEW outbound conversation
+create_draft: channelId=cha_30ds1, to=[lead.email], bcc=[4238329@bcc.hubspot.com], subject="Re: TeamBuildr OS: Welcome!", shared=false. (New outbound, NOT a reply — a reply would drop the BCC.) Body:
 ```
 Hey {{first_name}}!
 
@@ -138,8 +138,8 @@ Got a question? Hit reply. Or if you're ready to dive in:
 👉 Grab 30 minutes on my calendar [https://calendly.com/trent-luecke/30-minute-tbos-demo]
 ```
 
-### Touch 3 (nextTouch=3): REPLY on outreachConvId (or NEW outbound as above)
-create_draft: conversationId=outreachConvId, bcc=[4238329@bcc.hubspot.com], shared=false. Body:
+### Touch 3 (nextTouch=3): NEW outbound conversation
+create_draft: channelId=cha_30ds1, to=[lead.email], bcc=[4238329@bcc.hubspot.com], subject="Re: TeamBuildr OS: Welcome!", shared=false. (New outbound, NOT a reply.) Body:
 ```
 Hey {{first_name}}!
 

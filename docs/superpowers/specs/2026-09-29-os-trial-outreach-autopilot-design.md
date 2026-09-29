@@ -78,13 +78,13 @@ Each component is independently testable with a clear input/output contract.
   - 1, and `today − lastSend ≥ 7d` → **touch 2 due** (Leg B)
   - 2, and `today ≥ trialExpiration − 1d` → **touch 3 due** (Leg B)
   - 3 → **done**, skip
-- **Output:** `nextTouch: 1|2|3|null`, plus the Front outreach conversation id if one exists (the "TeamBuildr OS: Welcome!" thread Trent sent from Front) for reply targeting on touches 2–3.
-- **Idempotency guard:** if an unsent draft already exists on the lead's Front outreach conversation (`read_conversation.drafts`), skip — never stack drafts.
-- **Transition note:** a lead first emailed via HubSpot (pre-launch) has no Front thread; its touch 2/3 draft starts a fresh outbound to the lead rather than a threaded reply. Correct recipient, slightly different threading — affects only the handful of in-flight leads at launch.
+- **Output:** `nextTouch: 1|2|3|null`.
+- **Idempotency guard:** search the lead's Front conversations (`my_conversations` by email); if any has an unsent draft (`read_conversation.drafts`), skip — never stack drafts.
+- **All touches are new outbound + BCC** (not replies), so every send logs to HubSpot regardless of how the previous touch was sent. This is what carries in-flight leads cleanly across the HubSpot→Front transition — no manual BCC-adding needed.
 
 ### 5. Draft composer
 - **Input:** `Lead`, `nextTouch`, template set, and (for touch 1) the lead's Strength segment.
-- **Does:** selects the touch-N template — for touch 1, picks the `{{middle}}` variant by Strength segment (existing-customer > concurrent-trial > OS-only; see Appendix A) — personalizes `{{first_name}}`/`{{facility}}`, and creates the draft via `create_draft` — for touch 1 a **new outbound conversation** `to` the lead's email from Trent's channel with `subject`; for touches 2–3 a reply on the existing outreach conversation. Adds Trent's HubSpot logging **BCC** on every draft so the send logs to the HubSpot timeline.
+- **Does:** selects the touch-N template — for touch 1, picks the `{{middle}}` variant by Strength segment (existing-customer > concurrent-trial > OS-only; see Appendix A) — personalizes `{{first_name}}`/`{{facility}}`, and creates the draft via `create_draft`. **Every touch is a new outbound conversation** `to` the lead's email from channel `cha_30ds1` with a `subject` (touch 1 `TeamBuildr OS: Welcome!`; touches 2–3 `Re: TeamBuildr OS: Welcome!`) and Trent's HubSpot logging **BCC**. Touches are NOT threaded replies: `create_draft` only honors `bcc` on a new outbound conversation, so a reply would silently drop the BCC and break HubSpot logging + the cadence counter (found in the supervised run 2026-09-29).
 - **Output:** draft created (private to Trent for review).
 
 ### 6. Reassignment
