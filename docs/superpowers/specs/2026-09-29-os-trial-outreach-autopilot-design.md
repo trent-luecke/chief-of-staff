@@ -82,8 +82,8 @@ Each component is independently testable with a clear input/output contract.
 - **Idempotency guard:** if an unsent draft already exists on the lead's outreach conversation (`read_conversation.drafts`), skip — never stack drafts.
 
 ### 5. Draft composer
-- **Input:** `Lead`, `nextTouch`, template set.
-- **Does:** selects the touch-N template, personalizes from parsed fields (name/org), and creates the draft via `create_draft` — for touch 1 a **new outbound conversation** `to` the lead's email from Trent's channel with `subject`; for touches 2–3 a reply on the existing outreach conversation. Adds Trent's HubSpot logging **BCC** on every draft so the send logs to the HubSpot timeline.
+- **Input:** `Lead`, `nextTouch`, template set, and (for touch 1) the lead's Strength segment.
+- **Does:** selects the touch-N template — for touch 1, picks the `{{middle}}` variant by Strength segment (existing-customer > concurrent-trial > OS-only; see Appendix A) — personalizes `{{first_name}}`/`{{facility}}`, and creates the draft via `create_draft` — for touch 1 a **new outbound conversation** `to` the lead's email from Trent's channel with `subject`; for touches 2–3 a reply on the existing outreach conversation. Adds Trent's HubSpot logging **BCC** on every draft so the send logs to the HubSpot timeline.
 - **Output:** draft created (private to Trent for review).
 
 ### 6. Reassignment
@@ -143,25 +143,43 @@ Derived at build time (no user input): OS/Strength inbox ids (known), rep-owner 
 
 ## Appendix A — Template copy (provided 2026-09-29)
 
-**Personalization:** `{{first_name}}` resolves from the HubSpot contact's `firstname` (already fetched during the demo-check), **not** parsed from the Front notification `Name` (which mixes titles/initials — "Coach Edgar", "Joey H"). Fallback when `firstname` is missing or non-personal → `Hey there!`.
+**Personalization:** `{{first_name}}` resolves from the HubSpot contact's `firstname` (already fetched during the demo-check), **not** parsed from the Front notification `Name` (which mixes titles/initials — "Coach Edgar", "Joey H"). Fallback when `firstname` is missing or non-personal → `Hey there!`. `{{facility}}` resolves from the notification `Org Name` (HubSpot company as fallback); omitted from the sentence when missing or clearly not a facility.
+
+**Touch 1 is segmented** on the lead's Strength relationship (read from the same HubSpot contact fetch used for the demo-check — `account_status`, `teambuildr_subscription_start_date/_end_date`, Strength `trial_start/_end` — plus the Front Strength-inbox dedup). Touches 2 and 3 are not segmented. Segment precedence when more than one could apply: **existing Strength customer > concurrent Strength trial > OS-only.**
 
 **Shared CTA (all three touches):** `https://calendly.com/trent-luecke/30-minute-tbos-demo` — Trent's own OS demo Calendly. A booking through this link creates an OS demo owned by Trent, which the demo-check detects on the next run and auto-suppresses the remaining touches (self-consistent cadence stop).
 
 **HubSpot BCC (all three):** `4238329@bcc.hubspot.com`.
 
-### Touch 1 — Initial (new outbound conversation)
+### Touch 1 — Initial (new outbound conversation), segmented
 - **Subject:** `TeamBuildr OS: Welcome!`
-- **Body:**
+- **Body skeleton** (only `{{middle}}` varies by segment):
 ```
 Hey {{first_name}}!
 
 This is Trent, from TeamBuildr OS. Saw you signed up for a trial account and wanted to reach out and introduce myself.
 
-We are stoked to have you trying us out and I think you'll find that TeamBuildr OS and TeamBuildr Strength could be a great combination for your business.
+{{middle}}
 
 Were there any questions I could help out with? If it's easier, you can book a call using this link -> Book a call with me [https://calendly.com/trent-luecke/30-minute-tbos-demo]
 
 Thanks, {{first_name}}!
+```
+
+**`{{middle}}` — OS-only** (no Strength account or trial):
+```
+We are stoked to have you trying us out, and I think you'll find a lot to like in TeamBuildr OS for your business.
+```
+
+**`{{middle}}` — Existing Strength customer** (`account_status = Active` / active `teambuildr_subscription`):
+```
+We're stoked to have you checking out OS! Since {{facility}} is already running TeamBuildr Strength, you're in a great spot — you can manage the training side and the business/scheduling side under one roof, and existing Strength accounts tend to have the smoothest time getting set up.
+```
+Facility-less fallback: `Since you're already running TeamBuildr Strength, you're in a great spot — ...`
+
+**`{{middle}}` — Concurrent Strength trial** (Strength `trial` active, or lead present in the Front Strength inbox):
+```
+We're stoked to have you trying us out! Looks like you're kicking the tires on TeamBuildr Strength as well — they're built to work together, so I'm happy to walk you through how OS and Strength fit side by side.
 ```
 
 ### Touch 2 — Follow-up (reply on the touch-1 thread)
