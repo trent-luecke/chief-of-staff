@@ -60,4 +60,42 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 4. Active-window gate: process a lead only if `trialExpiration >= today - 1 day` (trial not already lapsed). Drop expired trials.
 5. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
 
+## Step B — HubSpot contact + Strength segment
+1. HubSpot `search_crm_objects` CONTACT, query=<lead.email>, properties: email, firstname, company, teambuildr_subscription_end_date, trial_end, os_subscription_level, lifecyclestage.
+2. If NO contact matches → do NOT draft; add to summary "contact not found"; stop this lead (fail-safe).
+3. contactId = result id. firstName = firstname (fallback "there"). facility = lead.org (fallback company; omit the facility clause if missing or clearly not a facility name).
+4. Strength segment (precedence: customer > concurrent-trial > os_only):
+   - `existing_strength_customer`: `teambuildr_subscription_end_date` is set AND ≥ today. **Do NOT use `account_status`** — it is stale (shows "Active" for long-lapsed subs, e.g. a sub that ended 2025).
+   - `concurrent_strength_trial`: Strength `trial_end` ≥ today, OR the lead is present in the Strength inbox (Step D).
+   - `os_only`: otherwise (includes lapsed Strength customers and lapsed trials).
+
+## Step C — Demo-booked check (runs BEFORE drafting, every touch)
+1. HubSpot `search_crm_objects` MEETING_EVENT, filterGroups[0].associatedWith=[{objectType:"contacts",operator:"EQUAL",objectIdValues:[contactId]}], properties: hs_meeting_title, hs_meeting_start_time, hs_meeting_outcome, hubspot_owner_id.
+2. Keep meetings where hs_meeting_start_time > now, hs_meeting_outcome=SCHEDULED, and title does NOT start with "[Canceled]".
+3. Classify by title:
+   - contains "Demo" → SUPPRESS (confident)
+   - contains "Orientation" or "Support" → ignore (not sales contact)
+   - anything else (incl. "… Minute Meeting") → SUPPRESS (flagged)
+4. If suppressed, resolve hubspot_owner_id via the Config owner→teammate map:
+   - maps to Trent (tea_2glc1) → keep assigned to Trent, no reassignment.
+   - maps to another teammate → reassignTeammateId = that id.
+   - not in the map (e.g. Nick Hawkins) → no reassignment; mark "demo owner not in Front — assign manually".
+5. If suppressed → skip drafting this lead this run (Step F).
+
+## Step D — Strength dedup
+1. Front `search_conversations`: scope all_inboxes, filters.inboxId=inb_25ub, query=<lead.email>.
+2. alsoInStrength = any match found. If true and the lead is not already existing_strength_customer → segment = concurrent_strength_trial.
+
+## Step E — Cadence state (from HubSpot EMAIL engagements)
+1. HubSpot `search_crm_objects` EMAIL, filterGroups[0].associatedWith=[{objectType:"contacts",operator:"EQUAL",objectIdValues:[contactId]}], properties: hs_email_subject, hs_timestamp, hs_email_status; sort hs_timestamp desc.
+2. Matching emails = hs_email_status=SENT AND hs_email_subject contains "TeamBuildr OS: Welcome!" (this also matches "Re: …" replies and "Front: …" prefixed logs; it excludes other teams' templates like "Book your TeamBuildr Overview").
+   touchCount = number of DISTINCT CALENDAR DAYS among matching emails (dedupes double-logged Front/BCC copies of one send). lastSend = the latest matching day.
+3. nextTouch:
+   - 0 → 1
+   - 1 and (today − lastSend ≥ 7 days) → 2, else null
+   - 2 and (today ≥ trialExpiration − 1 day) → 3, else null
+   - 3 → null (done)
+4. Front `search_conversations` scope my_conversations, query=<lead.email>: if a "TeamBuildr OS: Welcome!" thread exists, outreachConvId = its id; read_conversation → if `drafts` non-empty, hasPendingDraft=true → skip this lead (never stack drafts).
+5. If no Front thread exists (lead first emailed via HubSpot), touches 2/3 go out as a fresh outbound to the lead (not a threaded reply). Correct recipient; threading differs only for launch-era in-flight leads.
+
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->

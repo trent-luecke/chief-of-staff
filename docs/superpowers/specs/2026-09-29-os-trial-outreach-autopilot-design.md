@@ -73,7 +73,7 @@ Each component is independently testable with a clear input/output contract.
 
 ### 4. Cadence engine (touch-state derivation)
 - **Input:** a `Lead` (email + trialExpiration) and its HubSpot `contactId`.
-- **Does:** counts touches from **HubSpot EMAIL engagements** associated with the contact — the single source of truth. HubSpot-sent emails log there natively, and Front sends log there via the BCC, so this survives the HubSpot→Front transition and doesn't depend on BCC owner attribution. Count EMAIL engagements with `hs_email_status = SENT` whose `hs_email_subject` contains `TeamBuildr OS: Welcome!` (touch 1 is the exact subject; touches 2–3 are `Re: TeamBuildr OS: Welcome!` replies). `lastSend` = the latest such `hs_timestamp`.
+- **Does:** counts touches from **HubSpot EMAIL engagements** associated with the contact — the single source of truth. HubSpot-sent emails log there natively, and Front sends log there via the BCC, so this survives the HubSpot→Front transition and doesn't depend on BCC owner attribution. Count EMAIL engagements with `hs_email_status = SENT` whose `hs_email_subject` contains `TeamBuildr OS: Welcome!` (touch 1 is the exact subject; touches 2–3 are `Re: …` replies; `Front: …`-prefixed logs also match). **Count distinct calendar days**, not raw rows — Front/BCC can double-log a single send, and touches are ≥7 days apart, so one day = one touch. `lastSend` = the latest matching day.
   - 0 → **touch 1 due** now (Leg A)
   - 1, and `today − lastSend ≥ 7d` → **touch 2 due** (Leg B)
   - 2, and `today ≥ trialExpiration − 1d` → **touch 3 due** (Leg B)
@@ -146,7 +146,7 @@ Derived at build time (no user input): OS/Strength inbox ids (known), rep-owner 
 
 **Personalization:** `{{first_name}}` resolves from the HubSpot contact's `firstname` (already fetched during the demo-check), **not** parsed from the Front notification `Name` (which mixes titles/initials — "Coach Edgar", "Joey H"). Fallback when `firstname` is missing or non-personal → `Hey there!`. `{{facility}}` resolves from the notification `Org Name` (HubSpot company as fallback); omitted from the sentence when missing or clearly not a facility.
 
-**Touch 1 is segmented** on the lead's Strength relationship (read from the same HubSpot contact fetch used for the demo-check — `account_status`, `teambuildr_subscription_start_date/_end_date`, Strength `trial_start/_end` — plus the Front Strength-inbox dedup). Touches 2 and 3 are not segmented. Segment precedence when more than one could apply: **existing Strength customer > concurrent Strength trial > OS-only.**
+**Touch 1 is segmented** on the lead's Strength relationship (read from the same HubSpot contact fetch used for the demo-check — `teambuildr_subscription_end_date`, Strength `trial_end` — plus the Front Strength-inbox dedup). **Do not use `account_status`**: validation found it stale (reads "Active" for subscriptions that lapsed over a year ago). Existing-customer = `teambuildr_subscription_end_date ≥ today`. Touches 2 and 3 are not segmented. Segment precedence when more than one could apply: **existing Strength customer > concurrent Strength trial > OS-only.**
 
 **Shared CTA (all three touches):** `https://calendly.com/trent-luecke/30-minute-tbos-demo` — Trent's own OS demo Calendly. A booking through this link creates an OS demo owned by Trent, which the demo-check detects on the next run and auto-suppresses the remaining touches (self-consistent cadence stop).
 
@@ -172,7 +172,7 @@ Thanks, {{first_name}}!
 We are stoked to have you trying us out, and I think you'll find a lot to like in TeamBuildr OS for your business.
 ```
 
-**`{{middle}}` — Existing Strength customer** (`account_status = Active` / active `teambuildr_subscription`):
+**`{{middle}}` — Existing Strength customer** (`teambuildr_subscription_end_date ≥ today`):
 ```
 We're stoked to have you checking out OS! Since {{facility}} already runs TeamBuildr Strength, this is an easy next step. You can keep your training programming and your booking and scheduling in one place, and accounts that already use Strength usually have the smoothest setup.
 ```

@@ -153,9 +153,9 @@ Run the same lookup for a known active-Strength contact (from `search_crm_object
 - [ ] **Step 3: Confirm the classification rules**
 
 Confirm the decision produces the right segment for both test contacts:
-- `existing_strength_customer` if `account_status = "Active"` OR (`teambuildr_subscription_start_date` set AND `teambuildr_subscription_end_date` in the future).
-- else `concurrent_strength_trial` if Strength `trial_start`/`trial_end` indicates an active trial (this is finalized together with the Front dedup in Task 5).
-- else `os_only`.
+- `existing_strength_customer` if `teambuildr_subscription_end_date` is set AND ≥ today. **Do NOT use `account_status`** — validation found it stale (reads "Active" for subscriptions lapsed >1 year, e.g. contact Joey H whose sub ended 2025-04-23).
+- else `concurrent_strength_trial` if Strength `trial_end` ≥ today (finalized together with the Front dedup in Task 5).
+- else `os_only` (includes lapsed Strength customers/trials).
 - Precedence: existing_strength_customer > concurrent_strength_trial > os_only.
 
 - [ ] **Step 4: Record the recipe in the runbook**
