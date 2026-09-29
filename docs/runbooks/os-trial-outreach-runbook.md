@@ -9,7 +9,7 @@ Version-controlled source of the `os-trial-outreach` claude.ai scheduled task. R
 - BCC on every draft: `4238329@bcc.hubspot.com`
 - Trent Front teammate: `tea_2glc1` (HubSpot owner 294790730)
 - Calendly CTA: `https://calendly.com/trent-luecke/30-minute-tbos-demo`
-- Trial-window scan: notifications created in the last 16 days
+- Scan paging bound: stop paging notifications older than ~16 days (14-day trial + buffer). The real active filter is the Trial Expiration gate in Step A.
 - Cadence: touch1 new; touch2 ≥7d after touch1 sent; touch3 within 1d of Trial Expiration; max 3 touches
 
 ### HubSpot owner → Front teammate map (for demo-booked reassignment)
@@ -151,5 +151,23 @@ If now isn't a great time, let me know, but if you're interested in chatting, I'
 
 We'd love to be part of your story.
 ```
+
+## Daily flow (orchestration)
+Run Step A once, then for each Lead run this pipeline in order (early exits save work):
+1. **Step B** — HubSpot contact + segment. If contact not found → add to summary "contact not found", skip this lead (fail-safe: never draft without a contact).
+2. **Step C** — demo-booked check. If suppressed:
+   - if `reassignTeammateId` (a rep who is in Front): `assign_conversation` notificationConvId → reassignTeammateId.
+   - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
+   - SKIP drafting; go to next lead.
+3. **Step E** — cadence. If `nextTouch` is null (done/not due) or `hasPendingDraft` → skip this lead.
+4. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending.`
+5. **Step F** — compose the draft (draft only, using the segment for touch 1).
+
+## Run summary (final message, one block)
+- Drafts created: touch1=N, touch2=N, touch3=N (list lead name + segment for touch1)
+- Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
+- Dedup flags (also in Strength): N (list leads)
+- Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
+- If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->
