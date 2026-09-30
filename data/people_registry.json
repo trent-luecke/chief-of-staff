@@ -3973,6 +3973,20 @@
       "created": "2026-09-30",
       "last_seen": "2026-09-30",
       "provenance": "auto:calendar 2026-09-30 meeting:Jan Wenke and Trent Luecke"
+    },
+    {
+      "id": "athleticbt",
+      "canonical_name": "Athleticbt",
+      "aliases": [
+        "athleticbt@gmail.com"
+      ],
+      "email": "athleticbt@gmail.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-09-30",
+      "last_seen": "2026-09-30",
+      "provenance": "auto:calendar 2026-09-30 meeting:TeamBuildr OS Orientation: Athletic Break-Through, LLC"
     }
   ]
 }

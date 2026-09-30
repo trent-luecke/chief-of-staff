@@ -1,6 +1,6 @@
 {
   "date": "2026-09-30",
-  "generated_at": "2026-09-30T12:06:00.220967+00:00",
+  "generated_at": "2026-09-30T17:05:15.967406+00:00",
   "meetings": [
     {
       "id": "mttv8ifrb8oet6n12poa26a1js",
@@ -77,6 +77,20 @@
       "prep": null
     },
     {
+      "id": "5g24m343j30f3oc2rnm442tb08",
+      "title": "Manny / Trent: OS Chat",
+      "start": "2026-09-30T14:00:00-05:00",
+      "end": "2026-09-30T14:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "mannysilveira@primitiveathletix.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
       "id": "55npcnorb83anbomegrlap9v08",
       "title": "Jan Wenke and Trent Luecke",
       "start": "2026-09-30T15:00:00-05:00",
@@ -85,6 +99,24 @@
       "attendees": [
         {
           "email": "jwenke@illinois.edu",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "qlm18ich8ml55ndi3303d16e1k",
+      "title": "TeamBuildr OS Orientation: Athletic Break-Through, LLC",
+      "start": "2026-09-30T16:15:00-05:00",
+      "end": "2026-09-30T16:45:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "athleticbt@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
           "name": ""
         }
       ],
