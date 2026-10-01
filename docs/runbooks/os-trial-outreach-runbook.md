@@ -53,7 +53,7 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 
 ## Step A — Scan OS trials
 1. Front `search_conversations`: scope `all_inboxes`, filters.inboxId=`inb_346ip`, query "New Account". Page until you have all conversations whose inbound notification is within the trial window (see step 4).
-2. Keep conversations whose subject is exactly "TeamBuildr OS - New Account" and whose `assigneeId` is null (untouched) or `tea_2glc1` (Trent's). Skip any assigned to another teammate (out of Trent's lane). NOTE: include BOTH open and archived — Trent's in-flight leads are archived + team-snoozed + assigned to himself, so status is NOT a filter.
+2. Keep conversations whose subject is exactly "TeamBuildr OS - New Account" AND `assigneeId` is null (untouched) or `tea_2glc1` (Trent's) AND `ticketStatus.category` is NOT `resolved`. Skip any assigned to another teammate (out of Trent's lane). **Skip any whose ticketStatus is "Resolved"** — that is Trent's "dismissed / not pursuing" marker (junk, existing customer, handed off, etc.); the routine must never re-draft a Resolved lead. NOTE: include open and archived non-resolved leads — Trent's in-flight leads are archived + team-snoozed + assigned to himself (ticketStatus "Waiting"/"Open"), so archived status alone is NOT a skip; only "Resolved" is.
 3. For each kept conversation, `read_conversation` (limit 5) and parse the `message_inbound` content:
    `New Account Created: Name: <name> Email: <email> Org. Name: <org> Studio Num.: <id> Trial Exp: <MM/DD/YYYY> Contact Number: <phone> HubSpot: View Contact ...`
    Extract: email, name, org, trialExpiration (parse MM/DD/YYYY). Record notificationConvId + notificationAssigneeId.
@@ -88,8 +88,13 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 
 ## Step E — Cadence state (from HubSpot EMAIL engagements)
 1. HubSpot `search_crm_objects` EMAIL, filterGroups[0].associatedWith=[{objectType:"contacts",operator:"EQUAL",objectIdValues:[contactId]}], properties: hs_email_subject, hs_timestamp, hs_email_status; sort hs_timestamp desc.
-2. Matching emails = hs_email_status=SENT AND hs_email_subject contains "TeamBuildr OS: Welcome!" (this also matches "Re: …" replies and "Front: …" prefixed logs; it excludes other teams' templates like "Book your TeamBuildr Overview").
+2. Matching emails = hs_email_status=SENT AND hs_email_subject CONTAINS ANY of these outreach subjects (case-insensitive; "Re: …" and "Front: …" prefixes still match via contains):
+   - `TeamBuildr OS: Welcome!`
+   - `TeamBuildr OS Follow-Up`
+   - `TeamBuildr OS Trial`
+   This covers the current template (Welcome + Re: replies) and the older manual subjects (Follow-Up, Trial) used on in-flight leads. It excludes other teams' templates ("Book your TeamBuildr Overview") and the notification ("… - New Account").
    touchCount = number of DISTINCT CALENDAR DAYS among matching emails (dedupes double-logged Front/BCC copies of one send). lastSend = the latest matching day.
+   CAVEAT: a touch sent outside HubSpot (never logged) is invisible here regardless of subject — the Resolved-status skip (Step A) is the backstop for leads whose history isn't in HubSpot.
 3. nextTouch:
    - 0 → 1
    - 1 and (today − lastSend ≥ 7 days) → 2, else null
