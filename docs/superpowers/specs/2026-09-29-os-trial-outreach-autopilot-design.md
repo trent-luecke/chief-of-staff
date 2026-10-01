@@ -108,6 +108,11 @@ For each `Lead`:
 - **Output:** 0–3 new comments per lead over the lifecycle.
 - **Why HubSpot-derived, not draft-time:** logs only what actually sent (accurate), appearing on the first run after the send — a ≤1-day lag versus the click.
 
+### 9. End-of-sequence cleanup
+- **Input:** the notification thread + `touchCount` from component 4.
+- **Does:** when `touchCount == 3` (the final email has sent and the sequence is complete), applies Trent's manual end-of-sequence habit automatically: tags the notification `Expired Trial` (`tag_v1kw1`) and archives it. Idempotent — checks existing tags/status first. `tag_conversation` and `update_conversation_status` both work on archived threads (added 2026-10-01 at Trent's request).
+- **Output:** the notification tagged + archived; the Step-A trial-expiration gate then drops it from the scan within a day or two. The archive is usually a no-op since leads arrive archived; the tag is the meaningful action.
+
 ## Cadence timing
 
 | Touch | Trigger | Anchor |

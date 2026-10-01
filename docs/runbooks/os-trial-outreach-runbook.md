@@ -9,6 +9,7 @@ Version-controlled source of the `os-trial-outreach` claude.ai scheduled task. R
 - BCC on every draft: `4238329@bcc.hubspot.com`
 - Trent Front teammate: `tea_2glc1` (HubSpot owner 294790730)
 - Calendly CTA: `https://calendly.com/trent-luecke/30-minute-tbos-demo`
+- "Expired Trial" tag (applied after the final email): `tag_v1kw1`
 - Scan paging bound: stop paging notifications older than ~16 days (14-day trial + buffer). The real active filter is the Trial Expiration gate in Step A.
 - Cadence: touch1 new; touch2 ≥7d after touch1 sent; touch3 within 1d of Trial Expiration; max 3 touches
 
@@ -168,11 +169,18 @@ Records when each outreach email actually went out, as comments on the OS notifi
 4. Run this for every scanned lead that has a HubSpot contact, regardless of suppression (Step C) or nextTouch — it is a record of real sends, independent of whether a new draft is created today. Use the notification thread currently being processed (for duplicate signups, the one assigned to Trent, else the most recent).
 5. Archived/snoozed threads: add_comment works on them in place and does NOT reopen or resurface them (verified 2026-10-01 on archived+snoozed leads — they stayed archived). So the log lands on in-flight snoozed notifications without Trent having to unarchive anything.
 
+## Step I — End-of-sequence cleanup (after the final email)
+When `touchCount == 3` (the Final email has actually sent, per Step E — the full sequence is complete):
+1. If the notification thread's `tagIds` does NOT already include `tag_v1kw1` ("Expired Trial"), add it: `tag_conversation` addTags=[`tag_v1kw1`].
+2. If the thread's `status` is not already "archived", archive it: `update_conversation_status` status="archived". (Usually already archived, since leads come in archived; idempotent no-op if so.)
+Idempotent — check existing `tagIds`/`status` first so daily re-runs don't re-tag or thrash. Runs regardless of suppression/draft state. After this the Step A trial-expiration gate drops the lead from the scan within a day or two (touch 3 sends ~1 day before expiry).
+
 ## Daily flow (orchestration)
 Run Step A once, then for each Lead run this pipeline in order (early exits save work):
 1. **Step B** — HubSpot contact + segment. If contact not found → add to summary "contact not found", skip this lead (fail-safe: never draft without a contact).
 2. **Step E** — cadence: compute touchCount / lastSend / send-days from HubSpot, and hasPendingDraft.
 3. **Step H** — touch-log comments: post any missing First/Follow-up/Final "…sent: M/D" comments on notificationConvId. Always runs (records real sends even for suppressed or completed leads).
+3b. **Step I** — if `touchCount == 3` (final email sent): tag the notification "Expired Trial" (tag_v1kw1) if not already, and archive it if not already. End-of-sequence cleanup.
 4. **Step C** — demo-booked check. If suppressed:
    - if `reassignTeammateId` (a rep who is in Front): `assign_conversation` notificationConvId → reassignTeammateId.
    - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
@@ -186,6 +194,7 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
 - Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
 - Dedup flags (also in Strength): N (list leads)
 - Touch-log comments added: N (First/Follow-up/Final sent-date records)
+- Sequences completed (tagged Expired Trial after final email): N
 - Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
