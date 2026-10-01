@@ -1,54 +1,34 @@
 {
-  "date": "2026-09-30",
-  "generated_at": "2026-09-30T17:05:15.967406+00:00",
+  "date": "2026-10-01",
+  "generated_at": "2026-10-01T12:03:25.947392+00:00",
   "meetings": [
     {
-      "id": "mttv8ifrb8oet6n12poa26a1js",
-      "title": "Joshua Bullock and Trent Luecke",
-      "start": "2026-09-30T09:30:00-05:00",
-      "end": "2026-09-30T10:00:00-05:00",
+      "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20261001T123000Z",
+      "title": "Luke & Tony Sync",
+      "start": "2026-10-01T07:30:00-05:00",
+      "end": "2026-10-01T08:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "josh.bullock@inflectionathlete.com",
+          "email": "antonio@weinbergventures.com",
           "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "eunrteli1vd11efnadj8lat0rk",
-      "title": "FergalWynneRehab and Trent Luecke",
-      "start": "2026-09-30T10:30:00-05:00",
-      "end": "2026-09-30T10:45:00-05:00",
-      "kind": "external",
-      "attendees": [
+        },
         {
-          "email": "siseire@gmail.com",
+          "email": "luke@teambuildr.com",
           "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "71gf7t34cvo1h1prme31i1bo9n",
-      "title": "Trent & Andrea: OS",
-      "start": "2026-09-30T11:00:00-05:00",
-      "end": "2026-09-30T11:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
+        },
         {
-          "email": "andrea@teambuildr.com",
+          "email": "ryan@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "4jro9h5lp96o834dtt6bpjqvg6",
-      "title": "Nicole/Trent/Clayton - OS CaMpAiGn ~~ LiMeWiRe [OFFICIAL AUDIO]",
-      "start": "2026-09-30T12:00:00-05:00",
-      "end": "2026-09-30T13:00:00-05:00",
+      "id": "427va7uog7950apj45agnlp33o_20261001T143000Z",
+      "title": "OS | Marketing 2.0",
+      "start": "2026-10-01T09:30:00-05:00",
+      "end": "2026-10-01T10:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -56,67 +36,112 @@
           "name": ""
         },
         {
-          "email": "clayton@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "em6e9ser01da61eomud4a457as",
-      "title": "Chris Okonji  and Trent Luecke",
-      "start": "2026-09-30T13:30:00-05:00",
-      "end": "2026-09-30T13:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "chrisjeremey@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5g24m343j30f3oc2rnm442tb08",
-      "title": "Manny / Trent: OS Chat",
-      "start": "2026-09-30T14:00:00-05:00",
-      "end": "2026-09-30T14:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "mannysilveira@primitiveathletix.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "55npcnorb83anbomegrlap9v08",
-      "title": "Jan Wenke and Trent Luecke",
-      "start": "2026-09-30T15:00:00-05:00",
-      "end": "2026-09-30T15:15:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "jwenke@illinois.edu",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "qlm18ich8ml55ndi3303d16e1k",
-      "title": "TeamBuildr OS Orientation: Athletic Break-Through, LLC",
-      "start": "2026-09-30T16:15:00-05:00",
-      "end": "2026-09-30T16:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "athleticbt@gmail.com",
+          "email": "luke@teambuildr.com",
           "name": ""
         },
         {
-          "email": "chris@teambuildr.com",
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2dek0jc4tjhh589357533r1meu",
+      "title": "OS x Manny Brainstorm",
+      "start": "2026-10-01T10:00:00-05:00",
+      "end": "2026-10-01T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5m9d7vk5utt3f9lfvdio5k070t",
+      "title": "USR TeamBuildr OS Demo",
+      "start": "2026-10-01T11:30:00-05:00",
+      "end": "2026-10-01T12:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "todd@bxcpartners.com",
+          "name": ""
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "drew@lesspellman.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "05qo705ca6f27ai8m3usq7fp05_20261001T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-10-01T12:00:00-05:00",
+      "end": "2026-10-01T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null,
+      "prep_hash": "6b98bec78d02"
+    },
+    {
+      "id": "d59ucmvkvhk209kiq8f2ai8gqs",
+      "title": "Jeanelle Thomas and Trent Luecke",
+      "start": "2026-10-01T13:00:00-05:00",
+      "end": "2026-10-01T13:15:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "jeanelle.thomas01@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "0av85nsk2kbis5onl5iuldlmi0",
+      "title": "Billy Moore and Trent Luecke",
+      "start": "2026-10-01T14:30:00-05:00",
+      "end": "2026-10-01T14:45:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "bmoore@carmelhs.org",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "gqsam0v74ofvdf8hdp9i9pd0ec",
+      "title": "Ben Berreckman and Trent Luecke",
+      "start": "2026-10-01T16:00:00-05:00",
+      "end": "2026-10-01T16:15:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "ben@plyomat.com",
           "name": ""
         }
       ],
@@ -148,9 +173,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 7,
+      "identity": 0,
       "stale": 0,
-      "total": 7
+      "total": 0
     }
   },
   "what_moved": []
