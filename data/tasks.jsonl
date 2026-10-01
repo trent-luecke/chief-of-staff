@@ -317,3 +317,4 @@
 {"event": "create", "task_id": "t-95116c", "title": "Edit Story Builder to include OS branding and add the new workflow that includes the modal after clicking the download button.", "source": "ui", "created_at": "2026-09-30", "due_date": null, "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-10-01"}
 {"event": "complete", "task_id": "t-18af74", "completed_at": "2026-10-01"}
 {"event": "complete", "task_id": "t-a793f7", "completed_at": "2026-10-01"}
+{"event": "complete", "task_id": "t-e1f10a", "completed_at": "2026-10-01"}
