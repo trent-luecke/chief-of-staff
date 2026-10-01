@@ -166,6 +166,7 @@ Records when each outreach email actually went out, as comments on the OS notifi
    - 3rd → `Final email sent: M/D`
 3. Read the notification thread's existing comments (from Step A's read_conversation; paginate the timeline if there are many entries). If a comment already begins with that label ("First email sent" / "Follow-up email sent" / "Final email sent"), SKIP it — only `add_comment` the missing ones. This makes it idempotent and back-fills history.
 4. Run this for every scanned lead that has a HubSpot contact, regardless of suppression (Step C) or nextTouch — it is a record of real sends, independent of whether a new draft is created today. Use the notification thread currently being processed (for duplicate signups, the one assigned to Trent, else the most recent).
+5. Archived/snoozed threads: add_comment works on them in place and does NOT reopen or resurface them (verified 2026-10-01 on archived+snoozed leads — they stayed archived). So the log lands on in-flight snoozed notifications without Trent having to unarchive anything.
 
 ## Daily flow (orchestration)
 Run Step A once, then for each Lead run this pipeline in order (early exits save work):
