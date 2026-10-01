@@ -127,3 +127,4 @@
 {"event_id": "6e1b13e4bf546f65", "email": "freshkupfitness@gmail.com", "email_raw": "", "kind": "manual", "timestamp": "2026-10-01T10:00:38.509369+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"action": "not_a_deal"}}
 {"event_id": "1f8eef2d219810e2", "email": "1edmundtrainer@gmail.com", "email_raw": "", "kind": "manual", "timestamp": "2026-10-01T10:00:45.561601+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"action": "not_a_deal"}}
 {"event_id": "a8784777ee74029d", "email": "alex.logan.beasley@gmail.com", "email_raw": "", "kind": "manual", "timestamp": "2026-10-01T10:00:53.559955+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"action": "not_a_deal"}}
+{"event_id": "5b9ba1f682c859aa", "email": "bryany.parker@gmail.com", "email_raw": "", "kind": "manual", "timestamp": "2026-10-01T10:00:59.193141+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"action": "not_a_deal"}}
