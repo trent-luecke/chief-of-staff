@@ -1,164 +1,32 @@
 {
-  "date": "2026-10-01",
-  "generated_at": "2026-10-01T17:41:33.722389+00:00",
+  "date": "2026-10-02",
+  "generated_at": "2026-10-02T12:09:34.754307+00:00",
   "meetings": [
     {
-      "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20261001T123000Z",
-      "title": "Luke & Tony Sync",
-      "start": "2026-10-01T07:30:00-05:00",
-      "end": "2026-10-01T08:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "antonio@weinbergventures.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "427va7uog7950apj45agnlp33o_20261001T143000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-10-01T09:30:00-05:00",
-      "end": "2026-10-01T10:00:00-05:00",
+      "id": "50cfatr093orc55d4r8alqucbl_20261002T130000Z",
+      "title": "invoice for Ubuntu",
+      "start": "2026-10-02T08:00:00-05:00",
+      "end": "2026-10-02T08:15:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "2dek0jc4tjhh589357533r1meu",
-      "title": "OS x Manny Brainstorm",
-      "start": "2026-10-01T10:00:00-05:00",
-      "end": "2026-10-01T10:30:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261002T133000Z",
+      "title": "Focus Work",
+      "start": "2026-10-02T08:30:00-05:00",
+      "end": "2026-10-02T10:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "5m9d7vk5utt3f9lfvdio5k070t",
-      "title": "USR TeamBuildr OS Demo",
-      "start": "2026-10-01T11:30:00-05:00",
-      "end": "2026-10-01T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "todd@bxcpartners.com",
-          "name": ""
-        },
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "drew@lesspellman.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261001T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-10-01T12:00:00-05:00",
-      "end": "2026-10-01T12:30:00-05:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261002T193000Z",
+      "title": "Out of office",
+      "start": "2026-10-02T10:30:00-05:00",
+      "end": "2026-10-02T16:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### OS Skits\n**Status:** Three concepts greenlit; now in script/logistics build-out phase.\n- Clayton is compiling the three concepts into a list\n- Scripts, locations, and prop/talent needs still TBD\n- **Blocker:** Clayton's writeup needs to go to Luke (Speaker 3) before scripts can progress\n\n---\n\n### Andrea Onboarding\n**Status:** Tuesday kickoff planned; access provisioning in flight.\n- Andrea to be added to OS + OS sales Slack channels\n- Thomas/backend to grant OS super admin\n- Calendly and HubSpot access queued\n- **Blocker/Defer:** Intercom seat on hold until Gwen transition is official \u2014 don't rename James's account\n\n---\n\n### Strength Scheduling for Tactical\n**Status:** Scoped for early next year; no active build yet.\n- Groups/tags (filtering, Zapier) and staff-side bulk booking are the two core asks\n- Booking restrictions by group intentionally out of scope\n- **Note:** Beaver Fit referral/bundle angle via Jason worth watching as a forcing function\n\n---\n\n### Claude / Sales Team\n**Status:** Ryan and Jeff tasked with breaking Claude pre-retreat; one open build task.\n- **Open:** Create fake onboarding script \u2192 feed into Claude onboarding for testing\n- Front-Avoma integration now live (replaces messy Gmail workaround)\n- Retreat outputs: follow-up drafts from Avoma, custom ROI PDFs, per-call review vs. 5 criteria\n\n---\n\n### Pipeline\n**Status:** 45 deals; 0 demos booked MTD \u2014 flagging for awareness.\n- 24 In-Trial / Post Demo\n- 5 No Trial / Post Demo\n- 11 Out of Demo / Need Update \u2190 largest cleanup opportunity\n- **Blocker:** 0 demos MTD is the headline number to address",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "d59ucmvkvhk209kiq8f2ai8gqs",
-      "title": "Jeanelle Thomas and Trent Luecke",
-      "start": "2026-10-01T13:00:00-05:00",
-      "end": "2026-10-01T13:15:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "jeanelle.thomas01@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "4pc8tunigu6ejc8q9a8vb2uetd",
-      "title": "Trent / Quinn",
-      "start": "2026-10-01T13:30:00-05:00",
-      "end": "2026-10-01T14:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "0av85nsk2kbis5onl5iuldlmi0",
-      "title": "Billy Moore and Trent Luecke",
-      "start": "2026-10-01T14:30:00-05:00",
-      "end": "2026-10-01T14:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "bmoore@carmelhs.org",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "gqsam0v74ofvdf8hdp9i9pd0ec",
-      "title": "Ben Berreckman and Trent Luecke",
-      "start": "2026-10-01T16:00:00-05:00",
-      "end": "2026-10-01T16:15:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "ben@plyomat.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     }
   ],
@@ -173,13 +41,13 @@
     {
       "id": "t-2bca56",
       "title": "get with james to discuss how to push changes",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-10-01",
       "project_id": null
     },
     {
-      "id": "t-95116c",
-      "title": "Edit Story Builder to include OS branding and add the new workflow that includes the modal after clicking the download button.",
+      "id": "t-d6a136",
+      "title": "look into how Front connection w/ Claude can be leveraged",
       "reason": "horizon",
       "due_date": null,
       "project_id": null
@@ -187,9 +55,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 0,
-      "stale": 0,
-      "total": 0
+      "identity": 1,
+      "stale": 1,
+      "total": 2
     }
   },
   "what_moved": []
