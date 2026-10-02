@@ -687,6 +687,38 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-09-27"
+    },
+    {
+      "entity": "Andrew Zwiers",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-02"
+    },
+    {
+      "entity": "Todd Buchner",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-02"
+    },
+    {
+      "entity": "David Garza",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-02"
+    },
+    {
+      "entity": "Manny Silveria",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": "mannysilveira",
+      "candidate_score": 92.85714285714286,
+      "added": "2026-10-02"
     }
   ],
   "previously_notified": [
