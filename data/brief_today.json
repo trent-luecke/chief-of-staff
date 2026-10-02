@@ -1,6 +1,6 @@
 {
   "date": "2026-10-02",
-  "generated_at": "2026-10-02T12:09:34.754307+00:00",
+  "generated_at": "2026-10-02T17:02:03.312507+00:00",
   "meetings": [
     {
       "id": "50cfatr093orc55d4r8alqucbl_20261002T130000Z",
@@ -37,13 +37,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-2bca56",
-      "title": "get with james to discuss how to push changes",
-      "reason": "overdue",
-      "due_date": "2026-10-01",
-      "project_id": null
     },
     {
       "id": "t-d6a136",
