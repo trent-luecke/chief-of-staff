@@ -1,32 +1,6 @@
 {
-  "fetched_at": "2026-10-01T09:47:40.899207Z",
+  "fetched_at": "2026-10-02T09:29:27.628616Z",
   "leads": [
-    {
-      "page_id": "deal:1edmundtrainer@gmail.com",
-      "name": "",
-      "contact": "1edmundtrainer@gmail.com",
-      "email": "1edmundtrainer@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-08-28T14:30:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "page_id": "deal:alex.logan.beasley@gmail.com",
-      "name": "",
-      "contact": "alex.logan.beasley@gmail.com",
-      "email": "alex.logan.beasley@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-08-27T16:30:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
     {
       "page_id": "deal:alex@smartperformance.ca",
       "name": "Alex Ogbongbemiga",
@@ -184,19 +158,6 @@
       "stale": false
     },
     {
-      "page_id": "deal:bryany.parker@gmail.com",
-      "name": "",
-      "contact": "bryany.parker@gmail.com",
-      "email": "bryany.parker@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-09-24T10:30:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "page_id": "deal:c.gorres@onyxelite.com",
       "name": "Chris Gorres",
       "contact": "",
@@ -301,19 +262,6 @@
       "stale": false
     },
     {
-      "page_id": "deal:contact@bauerselite.com",
-      "name": "Bauerselite",
-      "contact": "contact@bauerselite.com",
-      "email": "contact@bauerselite.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-09-03T18:15:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "page_id": "deal:crperformanceladies@gmail.com",
       "name": "Carley Koch",
       "contact": "",
@@ -405,6 +353,19 @@
       "stale": false
     },
     {
+      "page_id": "deal:drew@lesspellman.com",
+      "name": "Lesspellman",
+      "contact": "drew@lesspellman.com",
+      "email": "drew@lesspellman.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-01T16:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "page_id": "deal:drewdevine249@gmail.com",
       "name": "Drew DeVine",
       "contact": "",
@@ -490,19 +451,6 @@
       "status": "in_trial",
       "priority": null,
       "last_contacted": "2026-03-09",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
-      "page_id": "deal:freshkupfitness@gmail.com",
-      "name": "",
-      "contact": "freshkupfitness@gmail.com",
-      "email": "freshkupfitness@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-09-25T17:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -688,7 +636,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:jeff@accelerationpro.com",
@@ -964,19 +912,6 @@
       "stale": false
     },
     {
-      "page_id": "deal:meganfeickert@gmail.com",
-      "name": "",
-      "contact": "meganfeickert@gmail.com",
-      "email": "meganfeickert@gmail.com",
-      "status": "demoed",
-      "priority": null,
-      "last_contacted": "2026-08-31T15:15:00Z",
-      "days_since_contact": null,
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "page_id": "deal:mike.hall@athletixperformance.com",
       "name": "Mike Hall",
       "contact": "",
@@ -1061,7 +996,7 @@
       "email": "nickoriolitraining@gmail.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-09-23T15:30:00Z",
+      "last_contacted": "2026-10-01T10:00:34.298925+00:00",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
