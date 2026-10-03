@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-02T09:29:27.628616Z",
+  "fetched_at": "2026-10-03T08:57:56.689913Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -496,6 +496,19 @@
       "stale": false
     },
     {
+      "page_id": "deal:hanlyj@lordwandsworth.org",
+      "name": "Lordwandsworth",
+      "contact": "hanlyj@lordwandsworth.org",
+      "email": "hanlyj@lordwandsworth.org",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-02T14:00:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "page_id": "deal:hello@eliteuperformance.com",
       "name": "David Gonzalez",
       "contact": "",
@@ -961,7 +974,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:mwoodby@hollandpublicschools.org",
