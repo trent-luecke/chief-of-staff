@@ -1,32 +1,19 @@
 {
-  "date": "2026-10-02",
-  "generated_at": "2026-10-02T17:02:03.312507+00:00",
+  "date": "2026-10-03",
+  "generated_at": "2026-10-03T12:09:23.599226+00:00",
   "meetings": [
     {
-      "id": "50cfatr093orc55d4r8alqucbl_20261002T130000Z",
-      "title": "invoice for Ubuntu",
-      "start": "2026-10-02T08:00:00-05:00",
-      "end": "2026-10-02T08:15:00-05:00",
+      "id": "5siqnatg22vegd2lf58tbiglqb_20261003T130000Z",
+      "title": "OS Weekend Support (Quinn)",
+      "start": "2026-10-03T08:00:00-05:00",
+      "end": "2026-10-03T08:15:00-05:00",
       "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "006adb4enl5iouf2tb1p87m38i_20261002T133000Z",
-      "title": "Focus Work",
-      "start": "2026-10-02T08:30:00-05:00",
-      "end": "2026-10-02T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20261002T193000Z",
-      "title": "Out of office",
-      "start": "2026-10-02T10:30:00-05:00",
-      "end": "2026-10-02T16:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        }
+      ],
       "prep": null
     }
   ],
@@ -37,20 +24,13 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-d6a136",
-      "title": "look into how Front connection w/ Claude can be leveraged",
-      "reason": "horizon",
-      "due_date": null,
-      "project_id": null
     }
   ],
   "deals_to_review": {
     "counts": {
       "identity": 1,
-      "stale": 1,
-      "total": 2
+      "stale": 2,
+      "total": 3
     }
   },
   "what_moved": []
