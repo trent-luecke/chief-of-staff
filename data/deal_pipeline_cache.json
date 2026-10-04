@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-03T08:57:56.689913Z",
+  "fetched_at": "2026-10-04T09:25:00.137042Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -12,7 +12,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:andreaalamo88@gmail.com",
@@ -51,7 +51,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:artemio@zenithx.com.au",
@@ -103,7 +103,7 @@
       "days_since_contact": null,
       "estimated_value": 2000,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:bmv1120@gmail.com",
@@ -324,7 +324,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:deseanlberger@gmail.com",
@@ -402,7 +402,7 @@
       "days_since_contact": null,
       "estimated_value": 750,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:emmahicks@forfitnessandathletics.com",
@@ -415,7 +415,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:evan@outlierathlete.com",
@@ -428,7 +428,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:fernando.vb24@gmail.com",
@@ -454,7 +454,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:gaird@greycliffcap.com",
@@ -467,7 +467,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:getmoving@youthleteacademy.ca",
@@ -675,7 +675,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:jim@jimsgymelmira.com",
@@ -831,7 +831,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:landesstrengthspeed@gmail.com",
@@ -870,7 +870,7 @@
       "days_since_contact": null,
       "estimated_value": 2000,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:lindsey@exis.life",
@@ -896,7 +896,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:mark@dinardosports.com",
@@ -1052,7 +1052,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:36d24bca-36d7-8145-b0f1-efb72a01da30",
@@ -1065,7 +1065,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:36d24bca-36d7-8174-add3-da85aff78bbd",
@@ -1104,7 +1104,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:38224bca-36d7-811a-9240-c97ce8440b66",
@@ -1117,7 +1117,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:38224bca-36d7-8132-ae36-d7c78a7f999a",
@@ -1143,7 +1143,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:38324bca-36d7-8117-b595-c733bcdf51ca",
@@ -1169,7 +1169,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:38a24bca-36d7-8128-a418-f65bc79d6a86",
@@ -1182,7 +1182,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:39524bca-36d7-8106-8054-eb99bc1087ad",
@@ -1195,7 +1195,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:39524bca-36d7-81a4-99a3-fa60b5b9abb8",
@@ -1221,7 +1221,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:39924bca-36d7-818a-8818-fb5fefcd54c2",
@@ -1247,7 +1247,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:3ad24bca-36d7-8184-8e45-da1ef44ab7b2",
@@ -1260,7 +1260,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:3ad24bca-36d7-8197-98ef-d2b4a31ddc62",
@@ -1273,7 +1273,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:omniperformancetraining@gmail.com",
@@ -1312,7 +1312,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:peterwmesser@gmail.com",
@@ -1455,7 +1455,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:tyler.landeck@alaschools.org",
