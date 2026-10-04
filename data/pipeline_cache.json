@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-03T00:00:00Z",
+  "fetched_at": "2026-10-04T00:00:00Z",
   "leads": [
     {
       "name": "USR (Andrew Zwiers / Todd Buchner)",
@@ -492,7 +492,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     },
@@ -503,7 +503,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": null,
-      "estimated_value": 750,
+      "estimated_value": 750.0,
       "source": "",
       "stale": false
     },
@@ -514,7 +514,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     }
