@@ -144,3 +144,4 @@
 {"event_id": "ecddd460fb372f14", "email": "gaird@greycliffcap.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:35.413964+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
 {"event_id": "b6ccbb58c84f20a0", "email": "jcook.tpa@gmail.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:42.493645+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "active"}}
 {"event_id": "0999d9e62dd48629", "email": "jennifer.kimball@imail.org", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:47.811808+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "active"}}
+{"event_id": "ae4f0ba6949662ae", "email": "kwilliamson@pwrperformance.co", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:52.855935+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
