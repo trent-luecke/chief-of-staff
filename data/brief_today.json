@@ -1,6 +1,6 @@
 {
   "date": "2026-10-05",
-  "generated_at": "2026-10-05T12:06:26.429450+00:00",
+  "generated_at": "2026-10-05T19:58:10.736969+00:00",
   "meetings": [
     {
       "id": "3vn3bhvbklv265s15fekc0oocf_20261005T140000Z",
@@ -167,13 +167,20 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
+    },
+    {
+      "id": "t-34b540",
+      "title": "ask emily to mmove andrea assessment to amanda",
+      "reason": "due",
+      "due_date": "2026-10-05",
+      "project_id": null
     }
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 1,
-      "stale": 29,
-      "total": 30
+      "identity": 0,
+      "stale": 13,
+      "total": 13
     }
   },
   "what_moved": []
