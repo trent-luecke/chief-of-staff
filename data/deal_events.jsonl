@@ -145,3 +145,4 @@
 {"event_id": "b6ccbb58c84f20a0", "email": "jcook.tpa@gmail.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:42.493645+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "active"}}
 {"event_id": "0999d9e62dd48629", "email": "jennifer.kimball@imail.org", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:47.811808+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "active"}}
 {"event_id": "ae4f0ba6949662ae", "email": "kwilliamson@pwrperformance.co", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:52.855935+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
+{"event_id": "25b4cfb8b7e03c91", "email": "letinskia26@gmail.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:58.240693+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
