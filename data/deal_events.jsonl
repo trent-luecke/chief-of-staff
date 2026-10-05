@@ -140,3 +140,4 @@
 {"event_id": "05d364f6608d3958", "email": "dustin.sportperformance@gmail.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:12.073260+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
 {"event_id": "54ce762c4b7628ca", "email": "emmahicks@forfitnessandathletics.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:17.364508+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
 {"event_id": "2f6f7aa7cc0c9061", "email": "evan@outlierathlete.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:22.833735+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "lost"}}
+{"event_id": "12b96c9e40f745b7", "email": "fisiodiazlax@gmail.com", "email_raw": "", "kind": "status", "timestamp": "2026-10-05T14:30:28.971772+00:00", "account_name": "", "rep": "", "source": "ui", "payload": {"status": "active"}}
