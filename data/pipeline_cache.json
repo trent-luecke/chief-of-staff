@@ -1,6 +1,17 @@
 {
-  "fetched_at": "2026-10-04T00:00:00Z",
+  "fetched_at": "2026-10-05T07:00:00Z",
   "leads": [
+    {
+      "name": "James Hanly",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-02",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
     {
       "name": "USR (Andrew Zwiers / Todd Buchner)",
       "contact": "",
