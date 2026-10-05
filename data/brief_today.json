@@ -1,7 +1,165 @@
 {
-  "date": "2026-10-04",
-  "generated_at": "2026-10-04T16:08:09.970494+00:00",
-  "meetings": [],
+  "date": "2026-10-05",
+  "generated_at": "2026-10-05T12:06:26.429450+00:00",
+  "meetings": [
+    {
+      "id": "3vn3bhvbklv265s15fekc0oocf_20261005T140000Z",
+      "title": "Rev: Department Heads",
+      "start": "2026-10-05T09:00:00-05:00",
+      "end": "2026-10-05T09:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20261005T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-10-05T10:00:00-05:00",
+      "end": "2026-10-05T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20261005T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-10-05T10:30:00-05:00",
+      "end": "2026-10-05T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "33ptutsinairjdb964gldvlb3h_20261005T160000Z",
+      "title": "OS Member Alerts",
+      "start": "2026-10-05T11:00:00-05:00",
+      "end": "2026-10-05T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jake@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261005T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-10-05T12:30:00-05:00",
+      "end": "2026-10-05T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "0uu0j076e2l0taa0svvmn1eefs",
+      "title": "OS Ideadtion",
+      "start": "2026-10-05T13:00:00-05:00",
+      "end": "2026-10-05T14:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "b6dkgevsok1d2ut34fd2inv8pg",
+      "title": "School pick up",
+      "start": "2026-10-05T15:00:00-05:00",
+      "end": "2026-10-05T16:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
