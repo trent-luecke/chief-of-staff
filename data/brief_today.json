@@ -1,6 +1,6 @@
 {
   "date": "2026-10-06",
-  "generated_at": "2026-10-06T12:05:15.728812+00:00",
+  "generated_at": "2026-10-06T17:33:13.454526+00:00",
   "meetings": [
     {
       "id": "olt4eh3488fftej670gj40dnro_20261006T133000Z",
@@ -137,14 +137,26 @@
       "prep": null
     },
     {
-      "id": "2rarbhavfp84dnvg8v9e8d0733",
-      "title": "Trent / Melissa",
-      "start": "2026-10-06T12:30:00-05:00",
-      "end": "2026-10-06T13:00:00-05:00",
-      "kind": "internal",
+      "id": "624j8hb07o6vcpg995tjhakrv0",
+      "title": "Brian Guthrie and Ryan Allwein",
+      "start": "2026-10-06T13:00:00-05:00",
+      "end": "2026-10-06T13:30:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "melissa@teambuildr.com",
+          "email": "karlovato2@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "marika.korpinen@quantum-movement.com",
+          "name": ""
+        },
+        {
+          "email": "brian.guthrie@quantum-movement.com",
           "name": ""
         }
       ],
@@ -167,13 +179,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-34b540",
-      "title": "ask emily to mmove andrea assessment to amanda",
-      "reason": "overdue",
-      "due_date": "2026-10-05",
-      "project_id": null
     }
   ],
   "deals_to_review": {

@@ -4163,6 +4163,48 @@
       "created": "2026-10-06",
       "last_seen": "2026-10-06",
       "provenance": "auto:calendar 2026-10-06 meeting:ForceLab: OS Support"
+    },
+    {
+      "id": "karlovato2",
+      "canonical_name": "Karlovato2",
+      "aliases": [
+        "karlovato2@gmail.com"
+      ],
+      "email": "karlovato2@gmail.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-10-06",
+      "last_seen": "2026-10-06",
+      "provenance": "auto:calendar 2026-10-06 meeting:Brian Guthrie and Ryan Allwein"
+    },
+    {
+      "id": "marika-korpinen",
+      "canonical_name": "Marika Korpinen",
+      "aliases": [
+        "marika.korpinen@quantum-movement.com"
+      ],
+      "email": "marika.korpinen@quantum-movement.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-10-06",
+      "last_seen": "2026-10-06",
+      "provenance": "auto:calendar 2026-10-06 meeting:Brian Guthrie and Ryan Allwein"
+    },
+    {
+      "id": "brian-guthrie",
+      "canonical_name": "Brian Guthrie",
+      "aliases": [
+        "brian.guthrie@quantum-movement.com"
+      ],
+      "email": "brian.guthrie@quantum-movement.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-10-06",
+      "last_seen": "2026-10-06",
+      "provenance": "auto:calendar 2026-10-06 meeting:Brian Guthrie and Ryan Allwein"
     }
   ]
 }
