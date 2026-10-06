@@ -1,85 +1,33 @@
 {
-  "date": "2026-10-05",
-  "generated_at": "2026-10-05T19:58:10.736969+00:00",
+  "date": "2026-10-06",
+  "generated_at": "2026-10-06T12:05:15.728812+00:00",
   "meetings": [
     {
-      "id": "3vn3bhvbklv265s15fekc0oocf_20261005T140000Z",
-      "title": "Rev: Department Heads",
-      "start": "2026-10-05T09:00:00-05:00",
-      "end": "2026-10-05T09:45:00-05:00",
+      "id": "olt4eh3488fftej670gj40dnro_20261006T133000Z",
+      "title": "TeamBuildr OS Weekly Dev Sync",
+      "start": "2026-10-06T08:30:00-05:00",
+      "end": "2026-10-06T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
         },
         {
           "email": "brian@teambuildr.com",
           "name": ""
         },
         {
-          "email": "ryan@teambuildr.com",
+          "email": "elvis@teambuildr.com",
           "name": ""
         },
         {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2cpic22b4ukd85hbqtrsda0qm2_20261005T150000Z",
-      "title": "Stand Up - Sales",
-      "start": "2026-10-05T10:00:00-05:00",
-      "end": "2026-10-05T10:15:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20261005T153000Z",
-      "title": "OS \"Sit Down\"",
-      "start": "2026-10-05T10:30:00-05:00",
-      "end": "2026-10-05T11:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "amanda@teambuildr.com",
-          "name": ""
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
         },
         {
           "email": "andrea@teambuildr.com",
@@ -89,72 +37,124 @@
       "prep": null
     },
     {
-      "id": "33ptutsinairjdb964gldvlb3h_20261005T160000Z",
-      "title": "OS Member Alerts",
-      "start": "2026-10-05T11:00:00-05:00",
-      "end": "2026-10-05T12:00:00-05:00",
+      "id": "4hc5olc4da5r2g94moc0fu9v04",
+      "title": "ForceLab: OS Support",
+      "start": "2026-10-06T09:00:00-05:00",
+      "end": "2026-10-06T09:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "polina@teambuildr.com",
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "d95meisfo8trjdhl00lunnvhc8",
+      "title": "ForceLab: OS Support",
+      "start": "2026-10-06T09:00:00-05:00",
+      "end": "2026-10-06T09:30:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "coachbrigitaroemer@forcelabtraining.com",
           "name": ""
         },
         {
-          "email": "jasmine@teambuildr.com",
+          "email": "andrea@teambuildr.com",
           "name": ""
         },
         {
-          "email": "jake@teambuildr.com",
+          "email": "austinbblau@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "dd8v77935eol6k905bg547n1j5_20261006T150000Z",
+      "title": "1:1 Weekly OS Meeting",
+      "start": "2026-10-06T10:00:00-05:00",
+      "end": "2026-10-06T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "1ml99kkgsq3riukk68nh2r7bks_20261006T160000Z",
+      "title": "Rainmakers Anonymous",
+      "start": "2026-10-06T11:00:00-05:00",
+      "end": "2026-10-06T11:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
           "name": ""
         },
         {
-          "email": "josh@teambuildr.com",
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "emily@teambuildr.com",
           "name": ""
         },
         {
           "email": "teofe@teambuildr.com",
           "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261005T173000Z",
-      "title": "OS Dev sync-Rev table",
-      "start": "2026-10-05T12:30:00-05:00",
-      "end": "2026-10-05T12:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
+        },
         {
-          "email": "quinn@teambuildr.com",
+          "email": "luke@teambuildr.com",
           "name": ""
         },
         {
-          "email": "brian@teambuildr.com",
+          "email": "chris@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "0uu0j076e2l0taa0svvmn1eefs",
-      "title": "OS Ideadtion",
-      "start": "2026-10-05T13:00:00-05:00",
-      "end": "2026-10-05T14:00:00-05:00",
+      "id": "2rarbhavfp84dnvg8v9e8d0733",
+      "title": "Trent / Melissa",
+      "start": "2026-10-06T12:30:00-05:00",
+      "end": "2026-10-06T13:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "teofe@teambuildr.com",
+          "email": "melissa@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "b6dkgevsok1d2ut34fd2inv8pg",
-      "title": "School pick up",
-      "start": "2026-10-05T15:00:00-05:00",
-      "end": "2026-10-05T16:30:00-05:00",
+      "id": "qdtktbaa52jqne4iibvvlinc8g",
+      "title": "Doctor",
+      "start": "2026-10-06T14:15:00-05:00",
+      "end": "2026-10-06T15:45:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -171,7 +171,7 @@
     {
       "id": "t-34b540",
       "title": "ask emily to mmove andrea assessment to amanda",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-10-05",
       "project_id": null
     }
