@@ -727,6 +727,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-04"
+    },
+    {
+      "entity": "Austin Blau",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": "austinbblau",
+      "candidate_score": 90.9090909090909,
+      "added": "2026-10-07"
+    },
+    {
+      "entity": "Kyle Murphy",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-07"
     }
   ],
   "previously_notified": [

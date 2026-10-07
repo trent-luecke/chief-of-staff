@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-10-06T00:00:00",
+  "resolved_at": "2026-10-07T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -26120,6 +26120,525 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "5588": {
+      "primary_person_id": "bryany-parker-and-chris-reynolds",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5589": {
+      "primary_person_id": "joe-pfister-fitness-and-performance-frederick-pfp-fit",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5590": {
+      "primary_person_id": "joe-dell-training",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5591": {
+      "primary_person_id": "jesse-cook",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5592": {
+      "primary_person_id": "karen-dickson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5593": {
+      "primary_person_id": "peyton-buckley",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5594": {
+      "primary_person_id": "megan-feickert",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5595": {
+      "primary_person_id": "edmund-duah-asamoah-2",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5596": {
+      "primary_person_id": "alex-beasley",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5597": {
+      "primary_person_id": "andrew-howard-mvmt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5598": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5599": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5600": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5601": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5602": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5603": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5604": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5605": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5606": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5607": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5608": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5609": {
+      "primary_person_id": "jen-kimball",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5610": {
+      "primary_person_id": "patrick-labat-tgmc",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5611": {
+      "primary_person_id": "santiago-diaz-murrieta",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5612": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5613": {
+      "primary_person_id": "tom-anderson-steadfast-performance",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5614": {
+      "primary_person_id": "jake-atherton",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5615": {
+      "primary_person_id": "robert-wagner-movement-wins",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5616": {
+      "primary_person_id": "alina-bushma",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5617": {
+      "primary_person_id": "will-johnson-grind-time",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5618": {
+      "primary_person_id": "julianne-saint-john-s",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5619": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5620": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5621": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5622": {
+      "primary_person_id": "emma-hicks-for-fitness-athletics",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5623": {
+      "primary_person_id": "alex-ogbongbemiga",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5624": {
+      "primary_person_id": "graham-aird",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5625": {
+      "primary_person_id": "anthony-david",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5626": {
+      "primary_person_id": "kevin-williamson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5627": {
+      "primary_person_id": "tim-kettenring",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5628": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5629": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5630": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5631": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5632": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5633": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5634": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5635": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5636": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5637": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5638": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5641": {
+      "primary_person_id": "bryany-parker-and-chris-reynolds",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5642": {
+      "primary_person_id": "joe-pfister-fitness-and-performance-frederick-pfp-fit",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5643": {
+      "primary_person_id": "joe-dell-training",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5644": {
+      "primary_person_id": "jesse-cook",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5645": {
+      "primary_person_id": "karen-dickson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5646": {
+      "primary_person_id": "peyton-buckley",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5647": {
+      "primary_person_id": "megan-feickert",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5648": {
+      "primary_person_id": "edmund-duah-asamoah-2",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5649": {
+      "primary_person_id": "alex-beasley",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5650": {
+      "primary_person_id": "andrew-howard-mvmt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5651": {
+      "primary_person_id": "evan-nystrom",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5652": {
+      "primary_person_id": "jamie-tellier",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5653": {
+      "primary_person_id": "andrewlevine",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5654": {
+      "primary_person_id": "jennifer-foust-kent-denver-os-lite",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5655": {
+      "primary_person_id": "warren-clinkscales-youth-athlete-training-os",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5656": {
+      "primary_person_id": "baxter-pattison",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5657": {
+      "primary_person_id": "sam-tardif",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5658": {
+      "primary_person_id": "kim-johnston",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5659": {
+      "primary_person_id": "mark-olson-athletic-mentors",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5660": {
+      "primary_person_id": "mike-brown-sapt",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5661": {
+      "primary_person_id": "dante-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5662": {
+      "primary_person_id": "jen-kimball",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5663": {
+      "primary_person_id": "patrick-labat-tgmc",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5664": {
+      "primary_person_id": "santiago-diaz-murrieta",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5665": {
+      "primary_person_id": "wave-wellness",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5666": {
+      "primary_person_id": "tom-anderson-steadfast-performance",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5667": {
+      "primary_person_id": "jake-atherton",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5668": {
+      "primary_person_id": "robert-wagner-movement-wins",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5669": {
+      "primary_person_id": "alina-bushma",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5670": {
+      "primary_person_id": "will-johnson-grind-time",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5671": {
+      "primary_person_id": "julianne-saint-john-s",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5672": {
+      "primary_person_id": "chris-stahl",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5673": {
+      "primary_person_id": "high-ground-performance-taino-fears-perez",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5674": {
+      "primary_person_id": "david-arcemant",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5675": {
+      "primary_person_id": "emma-hicks-for-fitness-athletics",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5676": {
+      "primary_person_id": "alex-ogbongbemiga",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5677": {
+      "primary_person_id": "graham-aird",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5678": {
+      "primary_person_id": "anthony-david",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5679": {
+      "primary_person_id": "kevin-williamson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5680": {
+      "primary_person_id": "tim-kettenring",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "5681": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5682": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5683": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5684": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5685": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5686": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5687": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5688": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5689": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5690": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "5691": {
+      "primary_person_id": "andrea-alamo",
+      "related_person_ids": [
+        "austinbblau",
+        "coachbrigitaroemer",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "5692": {
+      "primary_person_id": "ryan-allwein",
+      "related_person_ids": [],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -26510,7 +27029,13 @@
     5365,
     5366,
     5377,
-    5378
+    5378,
+    5584,
+    5585,
+    5586,
+    5587,
+    5639,
+    5640
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -26673,6 +27198,11 @@
     "thread:Re: Team OS + TeamBuildr Strength",
     "thread:Re: Question for Trent",
     "thread:to Trent",
-    "thread:Report"
+    "thread:Report",
+    "thread:Re: Report",
+    "thread:Re: Charging Clients",
+    "thread:Re: Force Lab Training Question",
+    "thread:Teambuildr Office Hours with Trent",
+    "thread:Re: Schedule time is out …"
   ]
 }
