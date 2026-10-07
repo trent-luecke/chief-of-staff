@@ -1,174 +1,51 @@
 {
-  "date": "2026-10-06",
-  "generated_at": "2026-10-06T17:33:13.454526+00:00",
+  "date": "2026-10-07",
+  "generated_at": "2026-10-07T12:07:28.169855+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20261006T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-10-06T08:30:00-05:00",
-      "end": "2026-10-06T09:00:00-05:00",
+      "id": "foidrb585p1sr48jfq8akub02c",
+      "title": "Ellie card for Mrs. Katie",
+      "start": "2026-10-07T07:30:00-05:00",
+      "end": "2026-10-07T07:45:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "4hc5olc4da5r2g94moc0fu9v04",
-      "title": "ForceLab: OS Support",
-      "start": "2026-10-06T09:00:00-05:00",
-      "end": "2026-10-06T09:30:00-05:00",
+      "id": "lo4o2jmd56a4qsl6b73jo9nl30",
+      "title": "Truman Doctor",
+      "start": "2026-10-07T09:15:00-05:00",
+      "end": "2026-10-07T11:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "d95meisfo8trjdhl00lunnvhc8",
-      "title": "ForceLab: OS Support",
-      "start": "2026-10-06T09:00:00-05:00",
-      "end": "2026-10-06T09:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "coachbrigitaroemer@forcelabtraining.com",
-          "name": ""
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "austinbblau@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20261006T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-10-06T10:00:00-05:00",
-      "end": "2026-10-06T10:30:00-05:00",
+      "id": "2rarbhavfp84dnvg8v9e8d0733",
+      "title": "Trent / Melissa",
+      "start": "2026-10-07T12:30:00-05:00",
+      "end": "2026-10-07T13:00:00-05:00",
       "kind": "internal",
       "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20261006T160000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-10-06T11:00:00-05:00",
-      "end": "2026-10-06T11:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
         {
           "email": "melissa@teambuildr.com",
           "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "624j8hb07o6vcpg995tjhakrv0",
-      "title": "Brian Guthrie and Ryan Allwein",
-      "start": "2026-10-06T13:00:00-05:00",
-      "end": "2026-10-06T13:30:00-05:00",
-      "kind": "external",
+      "id": "7qrpo96gobc47c3jplbelg4efc",
+      "title": "Trent / Teofe",
+      "start": "2026-10-07T13:00:00-05:00",
+      "end": "2026-10-07T14:00:00-05:00",
+      "kind": "internal",
       "attendees": [
         {
-          "email": "karlovato2@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "marika.korpinen@quantum-movement.com",
-          "name": ""
-        },
-        {
-          "email": "brian.guthrie@quantum-movement.com",
+          "email": "teofe@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "qdtktbaa52jqne4iibvvlinc8g",
-      "title": "Doctor",
-      "start": "2026-10-06T14:15:00-05:00",
-      "end": "2026-10-06T15:45:00-05:00",
-      "kind": "internal",
-      "attendees": [],
       "prep": null
     }
   ],
@@ -183,9 +60,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 0,
+      "identity": 2,
       "stale": 13,
-      "total": 13
+      "total": 15
     }
   },
   "what_moved": []
