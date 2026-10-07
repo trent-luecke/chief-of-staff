@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-06T09:49:45.757361Z",
+  "fetched_at": "2026-10-07T09:55:22.097927Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -139,6 +139,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2025-12-01",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:marika.korpinen@quantum-movement.com",
+      "name": "Quantum Movement",
+      "contact": "marika.korpinen@quantum-movement.com",
+      "email": "marika.korpinen@quantum-movement.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-06T18:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -828,6 +841,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2026-10-05T14:30:52.855935+00:00",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:kyle.murphy@me.com",
+      "name": "",
+      "contact": "kyle.murphy@me.com",
+      "email": "kyle.murphy@me.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-06T13:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
