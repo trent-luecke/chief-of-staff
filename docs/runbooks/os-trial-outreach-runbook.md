@@ -10,6 +10,7 @@ Version-controlled source of the `os-trial-outreach` claude.ai scheduled task. R
 - Trent Front teammate: `tea_2glc1` (HubSpot owner 294790730)
 - Calendly CTA: `https://calendly.com/trent-luecke/30-minute-tbos-demo`
 - "Expired Trial" tag (applied after the final email): `tag_v1kw1`
+- "Trial Outreach" tag (the in-sequence marker on the notification thread): `tag_4puwt6`
 - Scan paging bound: stop paging notifications older than ~16 days (14-day trial + buffer). The real active filter is the Trial Expiration gate in Step A.
 - Cadence: touch1 new; touch2 ≥7d after touch1 sent; touch3 within 1d of Trial Expiration; max 3 touches
 
@@ -54,12 +55,18 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 
 ## Step A — Scan OS trials
 1. Front `search_conversations`: scope `all_inboxes`, filters.inboxId=`inb_346ip`, query "New Account". Page until you have all conversations whose inbound notification is within the trial window (see step 4).
-2. Keep conversations whose subject is exactly "TeamBuildr OS - New Account" AND `assigneeId` is null (untouched) or `tea_2glc1` (Trent's) AND `ticketStatus.category` is NOT `resolved`. Skip any assigned to another teammate (out of Trent's lane). **Skip any whose ticketStatus is "Resolved"** — that is Trent's "dismissed / not pursuing" marker (junk, existing customer, handed off, etc.); the routine must never re-draft a Resolved lead. NOTE: include open and archived non-resolved leads — Trent's in-flight leads are archived + team-snoozed + assigned to himself (ticketStatus "Waiting"/"Open"), so archived status alone is NOT a skip; only "Resolved" is.
-3. For each kept conversation, `read_conversation` (limit 5) and parse the `message_inbound` content:
+2. Keep conversations whose subject is exactly "TeamBuildr OS - New Account" AND `assigneeId` is null (untouched) or `tea_2glc1` (Trent's). Skip any assigned to another teammate (out of Trent's lane).
+   **IGNORE `ticketStatus` entirely.** Front auto-sets every archived conversation to "Resolved", so Resolved carries no meaning here (this was the 2026-10-08 bug: the old "skip Resolved" rule hid every archived in-flight lead). Membership in the sequence is decided ONLY by the Trial Outreach tag (`tag_4puwt6`), per the lanes below.
+3. Assign each kept conversation a **lane**:
+   - `tagged` — `tagIds` includes `tag_4puwt6` (any status, archived or not). In the sequence: full pipeline (touches 1–3).
+   - `new` — no `tag_4puwt6` AND `status` is NOT archived (still sitting open in the inbox). A fresh signup Trent hasn't triaged: eligible for **touch 1 only**.
+   - `archived_untagged` — no `tag_4puwt6` AND `status` is archived. Trent either dismissed it (deleted the touch-1 draft + archived) or sent touch 1 and archived it without tagging. Handled in Step E2 (auto-tag) — never drafted unless auto-tagged.
+   How Trent drives it: sending touch 1 = opt in (the routine auto-tags, Step E2). Deleting the touch-1 draft + archiving = dismiss. **Removing the Trial Outreach tag = stop the sequence** (the routine never re-adds a tag Trent removed — see Step E2's marker rule).
+4. For each kept conversation, `read_conversation` (limit 5) and parse the `message_inbound` content:
    `New Account Created: Name: <name> Email: <email> Org. Name: <org> Studio Num.: <id> Trial Exp: <MM/DD/YYYY> Contact Number: <phone> HubSpot: View Contact ...`
    Extract: email, name, org, trialExpiration (parse MM/DD/YYYY). Record notificationConvId + notificationAssigneeId.
-4. Active-window gate: process a lead only if `trialExpiration >= today - 1 day` (trial not already lapsed). Drop expired trials.
-5. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
+5. Active-window gate: process a lead only if `trialExpiration >= today - 1 day` (trial not already lapsed). Drop expired trials.
+6. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
 
 ## Step B — HubSpot contact + Strength segment
 1. HubSpot `search_crm_objects` CONTACT, query=<lead.email>, properties: email, firstname, company, teambuildr_subscription_end_date, trial_end, os_subscription_level, lifecyclestage.
@@ -95,7 +102,7 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
    - `TeamBuildr OS Trial`
    This covers the current template (Welcome + Re: replies) and the older manual subjects (Follow-Up, Trial) used on in-flight leads. It excludes other teams' templates ("Book your TeamBuildr Overview") and the notification ("… - New Account").
    touchCount = number of DISTINCT CALENDAR DAYS among matching emails (dedupes double-logged Front/BCC copies of one send). lastSend = the latest matching day.
-   CAVEAT: a touch sent outside HubSpot (never logged) is invisible here regardless of subject — the Resolved-status skip (Step A) is the backstop for leads whose history isn't in HubSpot.
+   CAVEAT: a touch sent outside HubSpot (never logged) is invisible here regardless of subject — if one slips through, Trent removes the Trial Outreach tag (Step A lanes) to stop the sequence.
 3. nextTouch:
    - 0 → 1
    - 1 and (today − lastSend ≥ 7 days) → 2, else null
@@ -103,6 +110,16 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
    - 3 → null (done)
 4. Idempotency: Front `search_conversations` scope my_conversations, query=<lead.email>; read any matching conversation and if any has a non-empty `drafts` array (an unsent draft from a prior run), hasPendingDraft=true → skip this lead (never stack drafts).
 5. Every touch (1, 2, 3) is sent as a NEW outbound conversation (see Step F) — never a threaded reply. Reply drafts cannot carry a BCC, which would drop HubSpot logging and break this counter; new-outbound-with-BCC guarantees each touch logs and advances the count.
+
+## Step E2 — Auto-tag (sending touch 1 = opt in)
+Runs right after Step E, for leads in lane `new` or `archived_untagged` (Step A) — never for `tagged`.
+1. If `touchCount == 0`:
+   - lane `new` → stays `new` (touch-1 candidate). Continue.
+   - lane `archived_untagged` → Trent dismissed it (deleted the draft + archived). **Skip silently** — no comment, no draft, not listed under contact-not-found, not in the summary.
+2. If `touchCount >= 1` (touch 1 really went out per HubSpot):
+   - **Removed-tag marker check:** if the notification thread already has a comment beginning `Added to Trial Outreach` OR `First email sent`, this lead was in the sequence before and Trent has since removed the tag → he stopped it. **Skip silently, never re-tag.**
+   - Otherwise → `tag_conversation` addTags=[`tag_4puwt6`] on notificationConvId, then `add_comment`: `Added to Trial Outreach (auto: touch 1 sent M/D).` (M/D = first send day). Treat the lead as lane `tagged` for the rest of this run. Do NOT unarchive / change status.
+Step B's contact-not-found for an `archived_untagged` lead is also silent (it's almost always junk Trent already dismissed).
 
 ## Step F — Compose the draft (DRAFT ONLY — never send)
 Only if NOT suppressed (Step C) AND nextTouch is 1/2/3 AND not hasPendingDraft.
@@ -166,7 +183,7 @@ Records when each outreach email actually went out, as comments on the OS notifi
    - 2nd → `Follow-up email sent: M/D`
    - 3rd → `Final email sent: M/D`
 3. Read the notification thread's existing comments (from Step A's read_conversation; paginate the timeline if there are many entries). If a comment already begins with that label ("First email sent" / "Follow-up email sent" / "Final email sent"), SKIP it — only `add_comment` the missing ones. This makes it idempotent and back-fills history.
-4. Run this for every scanned lead that has a HubSpot contact, regardless of suppression (Step C) or nextTouch — it is a record of real sends, independent of whether a new draft is created today. Use the notification thread currently being processed (for duplicate signups, the one assigned to Trent, else the most recent).
+4. Run this for every lead in lane `tagged` (incl. leads auto-tagged in Step E2) or `new` that has a HubSpot contact — never for a silently-skipped `archived_untagged` lead — regardless of suppression (Step C) or nextTouch — it is a record of real sends, independent of whether a new draft is created today. Use the notification thread currently being processed (for duplicate signups, the one assigned to Trent, else the most recent).
 5. Archived/snoozed threads: add_comment works on them in place and does NOT reopen or resurface them (verified 2026-10-01 on archived+snoozed leads — they stayed archived). So the log lands on in-flight snoozed notifications without Trent having to unarchive anything.
 
 ## Step I — End-of-sequence cleanup (after the final email)
@@ -179,13 +196,14 @@ Idempotent — check existing `tagIds`/`status` first so daily re-runs don't re-
 Run Step A once, then for each Lead run this pipeline in order (early exits save work):
 1. **Step B** — HubSpot contact + segment. If contact not found → add to summary "contact not found", skip this lead (fail-safe: never draft without a contact).
 2. **Step E** — cadence: compute touchCount / lastSend / send-days from HubSpot, and hasPendingDraft.
+2b. **Step E2** — lane resolution / auto-tag. `archived_untagged` leads either get auto-tagged (→ `tagged`) or are skipped silently here. Lane `new` with touchCount ≥ 1 is also auto-tagged.
 3. **Step H** — touch-log comments: post any missing First/Follow-up/Final "…sent: M/D" comments on notificationConvId. Always runs (records real sends even for suppressed or completed leads).
 3b. **Step I** — if `touchCount == 3` (final email sent): tag the notification "Expired Trial" (tag_v1kw1) if not already, and archive it if not already. End-of-sequence cleanup.
 4. **Step C** — demo-booked check. If suppressed:
    - if `reassignTeammateId` (a rep who is in Front): `assign_conversation` notificationConvId → reassignTeammateId.
    - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
    - Do NOT draft; go to next lead.
-5. Cadence gate: if `nextTouch` is null (done/not due) or `hasPendingDraft` → go to next lead (no draft).
+5. Cadence gate: if `nextTouch` is null (done/not due) or `hasPendingDraft` → go to next lead (no draft). Lane `new` may only receive touch 1 (touches 2/3 require lane `tagged`). Note: a `new` lead whose touch-1 draft Trent deleted but did NOT archive gets a fresh touch-1 draft next run — archiving is the dismiss signal.
 6. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending.`
 7. **Step F** — compose the draft (draft only, using the segment for touch 1).
 
@@ -194,13 +212,14 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
 - Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
 - Dedup flags (also in Strength): N (list leads)
 - Touch-log comments added: N (First/Follow-up/Final sent-date records)
+- Auto-tagged into Trial Outreach (touch 1 sent): N (list leads)
 - Sequences completed (tagged Expired Trial after final email): N
 - Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
 ## Companion task — midday log pass (log-only)
 A second scheduled task (`os-trial-outreach-log`, weekdays 12:00 CT) runs a LOGGING-ONLY subset of this runbook, so a follow-up sent in the morning gets its sent-date comment / Expired-Trial tag the same day instead of waiting for the next 8:30 run.
-It runs ONLY: **Step A** (scan + all skip rules), **Step B** limited to resolving the HubSpot contactId/email (skip the Strength-segment classification — that's only for drafting), **Step E** (touchCount from HubSpot sends), **Step H** (touch-log comments), **Step I** (end-of-sequence tag + archive).
+It runs ONLY: **Step A** (scan + all skip rules), **Step B** limited to resolving the HubSpot contactId/email (skip the Strength-segment classification — that's only for drafting), **Step E** (touchCount from HubSpot sends), **Step E2** (auto-tag — so a touch 1 sent this morning joins the sequence the same day), **Step H** (touch-log comments), **Step I** (end-of-sequence tag + archive).
 It does NOT run **Step C** (demo-check/reassign), **Step D** (dedup comment), or **Step F** (drafting) — it never creates a draft. Every step it runs is idempotent, so re-running at noon never duplicates a comment/tag. All drafting stays in the 8:30 run.
 
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->
