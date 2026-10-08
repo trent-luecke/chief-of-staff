@@ -338,3 +338,4 @@
 {"event": "complete", "task_id": "t-12c408", "completed_at": "2026-10-06"}
 {"event": "complete", "task_id": "t-13b858", "completed_at": "2026-10-06"}
 {"event": "create", "task_id": "t-bf3158", "title": "run Melissa meeting transcript through JTBD process", "source": "ui", "created_at": "2026-10-08", "due_date": "2026-10-08", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-1a4fd0", "title": "un-archive the new trials that i archived after setting up auto outreach", "source": "ui", "created_at": "2026-10-08", "due_date": "2026-10-08", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
