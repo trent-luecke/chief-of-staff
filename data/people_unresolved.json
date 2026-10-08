@@ -743,6 +743,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-07"
+    },
+    {
+      "entity": "Karla Lovato",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-08"
+    },
+    {
+      "entity": "Britton Ezell",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-08"
     }
   ],
   "previously_notified": [
