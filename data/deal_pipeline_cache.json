@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-07T09:55:22.097927Z",
+  "fetched_at": "2026-10-08T10:07:22.013226Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -165,6 +165,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2026-03-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:britton.ezell@yahoo.com",
+      "name": "",
+      "contact": "britton.ezell@yahoo.com",
+      "email": "britton.ezell@yahoo.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-07T15:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
