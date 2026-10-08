@@ -340,3 +340,4 @@
 {"event": "create", "task_id": "t-bf3158", "title": "run Melissa meeting transcript through JTBD process", "source": "ui", "created_at": "2026-10-08", "due_date": "2026-10-08", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-1a4fd0", "title": "un-archive the new trials that i archived after setting up auto outreach", "source": "ui", "created_at": "2026-10-08", "due_date": "2026-10-08", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "create", "task_id": "t-31e372", "title": "update outreach automation so that archiving doesn't break the follow up cadence or maybe create a tag to use", "source": "ui", "created_at": "2026-10-08", "due_date": "2026-10-08", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "edit", "task_id": "t-d87673", "patch": {"horizon": "2026-10-09"}}
