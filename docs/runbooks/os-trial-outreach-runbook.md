@@ -66,7 +66,8 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
    `New Account Created: Name: <name> Email: <email> Org. Name: <org> Studio Num.: <id> Trial Exp: <MM/DD/YYYY> Contact Number: <phone> HubSpot: View Contact ...`
    Extract: email, name, org, trialExpiration (parse MM/DD/YYYY). Record notificationConvId + notificationAssigneeId.
 5. Active-window gate: process a lead only if `trialExpiration >= today - 1 day` (trial not already lapsed). Drop expired trials.
-6. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
+6. **Duplicate signups** (same parsed email on 2+ kept notifications): pick ONE canonical thread — the one carrying `tag_4puwt6` if any, else the one assigned to Trent, else the most recent. Process only the canonical thread as the lead's notificationConvId; ignore the others entirely (never tag, comment on, or draft from them).
+7. If the body does not parse (format drift), skip the lead and add it to the summary "parse failures". Never draft from a half-parsed record.
 
 ## Step B — HubSpot contact + Strength segment
 1. HubSpot `search_crm_objects` CONTACT, query=<lead.email>, properties: email, firstname, company, teambuildr_subscription_end_date, trial_end, os_subscription_level, lifecyclestage.
