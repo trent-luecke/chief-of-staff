@@ -1,76 +1,32 @@
 {
-  "date": "2026-10-08",
-  "generated_at": "2026-10-08T18:10:52.892437+00:00",
+  "date": "2026-10-09",
+  "generated_at": "2026-10-09T12:07:53.624620+00:00",
   "meetings": [
     {
-      "id": "op6qmklhl9vq2a5grfbjbpkkuk",
-      "title": "Truman field trip reminder",
-      "start": "2026-10-08T06:00:00-05:00",
-      "end": "2026-10-08T06:15:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261009T133000Z",
+      "title": "Focus Work",
+      "start": "2026-10-09T08:30:00-05:00",
+      "end": "2026-10-09T10:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "4so1c1621d82bpr58r2ssp6mrr",
-      "title": "pharmacy",
-      "start": "2026-10-08T09:30:00-05:00",
-      "end": "2026-10-08T10:30:00-05:00",
+      "id": "5pnlm0vhi2l58c3h52rvpq5f5h",
+      "title": "Llama Llama Red Pajama",
+      "start": "2026-10-09T10:30:00-05:00",
+      "end": "2026-10-09T11:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261008T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-10-08T12:00:00-05:00",
-      "end": "2026-10-08T12:30:00-05:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261009T193000Z",
+      "title": "Out of office",
+      "start": "2026-10-09T14:30:00-05:00",
+      "end": "2026-10-09T17:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### OS Skits\n**Status:** Three skits greenlit; in script/logistics build-out phase.\n- Clayton still needs to write up the three concepts and send to Luke/Speaker 3\n- Scripts, locations, and prop/talent needs not yet built out\n- **No blocker, but nothing moves until Clayton's writeup lands**\n\n---\n\n### Andrea Onboarding\n**Status:** Tuesday kickoff planned; access provisioning in progress.\n- Speaker 3 to message Andrea with Tuesday schedule and loop Brian\n- Add Andrea to OS + OS sales Slack channels\n- Coordinate with Thomas/backend for OS super admin access\n- **Blocker: Intercom seat on hold until Gwen's transition is officially confirmed \u2014 don't touch James's account in the meantime**\n\n---\n\n### Strength Scheduling for Tactical (Groups/Tags + Bulk Booking)\n**Status:** Scoped and queued for early next year; not a current build.\n- Groups/tags feature may pull parity from TeamBuildr Strength\n- Bulk booking is staff-side only\n- Booking restrictions by group intentionally descoped\n- **No active blocker; Beaver Fit referral/bundle angle (~$300M base) worth revisiting with Jason when build gets closer**\n\n---\n\n### Claude-Assisted Sales Workflows\n**Status:** Ryan and Jeff tasked with stress-testing Claude before the retreat.\n- Open task: create a fake onboarding script and feed into Claude for testing\n- Ideas in play: Avoma \u2192 draft follow-ups, custom ROI PDFs, per-call review vs. criteria\n- Front-Avoma integration now live (replaces messy Gmail path)\n- **No blocker; retreat is the forcing function**\n\n---\n\n### Pipeline Snapshot\n- **50 deals total** \u2014 27 in-trial/post-demo, 6 no-trial/post-demo, 5 on-hold, 12 need update\n- **5 demos MTD**\n- **Watch item: 12 \"out of demo / need update\" accounts \u2014 worth a quick prioritization pass**",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g8p33eghk8d2jihi36kq48h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g612j8e9m64oj2gq38os3ah9k750j0d1j68rj4e9n6134aca36kog",
-      "title": "Teambuildr Office Hours with Trent",
-      "start": "2026-10-08T13:00:00-05:00",
-      "end": "2026-10-08T14:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "brennen.ames@imail.org",
-          "name": "Brennen Ames"
-        },
-        {
-          "email": "jennifer.kimball@imail.org",
-          "name": "Jen Kimball"
-        },
-        {
-          "email": "jeremy.wiley@imail.org",
-          "name": "Jeremy Wiley"
-        },
-        {
-          "email": "justin.cox@imail.org",
-          "name": "Justin Cox"
-        },
-        {
-          "email": "logan.child@imail.org",
-          "name": "Logan Child"
-        },
-        {
-          "email": "melissa.linstrom@imail.org",
-          "name": "Melissa Linstrom"
-        },
-        {
-          "email": "rich.hall@imail.org",
-          "name": "Rich Hall"
-        }
-      ],
+      "attendees": [],
       "prep": null
     }
   ],
@@ -85,14 +41,14 @@
     {
       "id": "t-bf3158",
       "title": "run Melissa meeting transcript through JTBD process",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-10-08",
       "project_id": null
     },
     {
       "id": "t-1a4fd0",
       "title": "un-archive the new trials that i archived after setting up auto outreach",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-10-08",
       "project_id": null
     }
