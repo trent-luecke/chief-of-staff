@@ -1,44 +1,12 @@
 {
-  "date": "2026-10-09",
-  "generated_at": "2026-10-09T17:42:24.949477+00:00",
+  "date": "2026-10-10",
+  "generated_at": "2026-10-10T12:07:00.499155+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20261009T133000Z",
-      "title": "Focus Work",
-      "start": "2026-10-09T08:30:00-05:00",
-      "end": "2026-10-09T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "0ee1u8bajr2cmkflv5ntl62euu",
-      "title": "Trent / Teofe",
-      "start": "2026-10-09T09:30:00-05:00",
-      "end": "2026-10-09T10:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5pnlm0vhi2l58c3h52rvpq5f5h",
-      "title": "Llama Llama Red Pajama",
-      "start": "2026-10-09T10:30:00-05:00",
-      "end": "2026-10-09T11:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20261009T193000Z",
-      "title": "Out of office",
-      "start": "2026-10-09T14:30:00-05:00",
-      "end": "2026-10-09T17:30:00-05:00",
+      "id": "6rro7upqc65ug3umn770e1rq09_20261010T130000Z",
+      "title": "OS Weekend Support (Trent)",
+      "start": "2026-10-10T08:00:00-05:00",
+      "end": "2026-10-10T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null

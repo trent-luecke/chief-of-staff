@@ -1062,3 +1062,15 @@
 {"timestamp": "2026-10-10T09:28:50Z", "run_type": "avoma_sync", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9302, "output_tokens": 1137, "estimated_cost_usd": 0.044961}
 {"timestamp": "2026-10-10T09:28:50Z", "run_type": "avoma_sync", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 6385, "output_tokens": 1130, "estimated_cost_usd": 0.036105}
 {"timestamp": "2026-10-10T09:28:50Z", "run_type": "avoma_sync", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 7433, "output_tokens": 1055, "estimated_cost_usd": 0.038124}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 5858, "output_tokens": 983, "estimated_cost_usd": 0.032319}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 8680, "output_tokens": 1114, "estimated_cost_usd": 0.04275}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9302, "output_tokens": 1128, "estimated_cost_usd": 0.044826}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 6385, "output_tokens": 1356, "estimated_cost_usd": 0.039495}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 7433, "output_tokens": 1137, "estimated_cost_usd": 0.039354}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 10027, "output_tokens": 1289, "estimated_cost_usd": 0.049416}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 2417, "output_tokens": 676, "estimated_cost_usd": 0.017391}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 5900, "output_tokens": 1331, "estimated_cost_usd": 0.037665}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9741, "output_tokens": 1272, "estimated_cost_usd": 0.048303}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9184, "output_tokens": 1263, "estimated_cost_usd": 0.046497}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "brief", "model": "claude-sonnet-4-6", "input_tokens": 2246, "output_tokens": 264, "estimated_cost_usd": 0.010698}
+{"timestamp": "2026-10-10T12:12:37Z", "run_type": "daily_brief", "caller": "memory_synthesizer", "model": "claude-sonnet-4-6", "input_tokens": 111301, "output_tokens": 4224, "estimated_cost_usd": 0.397263}
