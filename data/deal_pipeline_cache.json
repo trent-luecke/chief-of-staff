@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-11T09:42:59.987435Z",
+  "fetched_at": "2026-10-12T10:16:03.795519Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -792,7 +792,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:kagarcia@latitudeperformance.ca",

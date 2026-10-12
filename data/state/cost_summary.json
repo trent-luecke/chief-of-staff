@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-11T16:56:31Z",
-  "reference_date": "2026-10-11",
+  "generated_at": "2026-10-12T10:16:04Z",
+  "reference_date": "2026-10-12",
   "total_calls": 1095,
   "totals": {
     "calls": 1095,
@@ -10,16 +10,16 @@
   },
   "windows": {
     "last_7d": {
-      "calls": 174,
-      "input_tokens": 2432748,
-      "output_tokens": 226551,
-      "cost_usd": 10.696509
+      "calls": 155,
+      "input_tokens": 2121377,
+      "output_tokens": 200833,
+      "cost_usd": 9.376626
     },
     "last_30d": {
-      "calls": 977,
-      "input_tokens": 10948306,
-      "output_tokens": 1163546,
-      "cost_usd": 50.298108
+      "calls": 927,
+      "input_tokens": 10451392,
+      "output_tokens": 1107073,
+      "cost_usd": 47.960271
     },
     "all_time": {
       "calls": 1095,
@@ -31,40 +31,40 @@
   "by_job": [
     {
       "run_type": "daily_brief",
-      "calls": 746,
-      "input_tokens": 9259148,
-      "output_tokens": 916598,
-      "cost_usd": 41.526414
+      "calls": 707,
+      "input_tokens": 8843710,
+      "output_tokens": 871799,
+      "cost_usd": 39.608115
     },
     {
       "run_type": "avoma_sync",
-      "calls": 231,
-      "input_tokens": 1689158,
-      "output_tokens": 246948,
-      "cost_usd": 8.771694
+      "calls": 220,
+      "input_tokens": 1607682,
+      "output_tokens": 235274,
+      "cost_usd": 8.352156
     }
   ],
   "by_caller": [
     {
       "caller": "avoma_analyze",
-      "calls": 846,
-      "input_tokens": 6153252,
-      "output_tokens": 906855,
-      "cost_usd": 32.062581
+      "calls": 800,
+      "input_tokens": 5829489,
+      "output_tokens": 858954,
+      "cost_usd": 30.372777
     },
     {
       "caller": "memory_synthesizer",
-      "calls": 49,
-      "input_tokens": 4602105,
-      "output_tokens": 228833,
-      "cost_usd": 17.23881
+      "calls": 47,
+      "input_tokens": 4433739,
+      "output_tokens": 221043,
+      "cost_usd": 16.616862
     },
     {
       "caller": "brief",
-      "calls": 49,
-      "input_tokens": 169842,
-      "output_tokens": 18963,
-      "cost_usd": 0.793971
+      "calls": 47,
+      "input_tokens": 165057,
+      "output_tokens": 18181,
+      "cost_usd": 0.767886
     },
     {
       "caller": "people",
@@ -84,20 +84,13 @@
   "by_model": [
     {
       "model": "claude-sonnet-4-6",
-      "calls": 977,
-      "input_tokens": 10948306,
-      "output_tokens": 1163546,
-      "cost_usd": 50.298108
+      "calls": 927,
+      "input_tokens": 10451392,
+      "output_tokens": 1107073,
+      "cost_usd": 47.960271
     }
   ],
   "by_day": [
-    {
-      "date": "2026-09-12",
-      "calls": 50,
-      "input_tokens": 496914,
-      "output_tokens": 56473,
-      "cost_usd": 2.337837
-    },
     {
       "date": "2026-09-13",
       "calls": 30,
