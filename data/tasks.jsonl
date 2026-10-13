@@ -349,3 +349,4 @@
 {"event": "create", "task_id": "t-f6cc74", "title": "get manager comments from Amanda for Andrea", "source": "ui", "created_at": "2026-10-13", "due_date": "2026-10-28", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "complete", "task_id": "t-c9fb7c", "completed_at": "2026-10-13"}
 {"event": "create", "task_id": "t-838b82", "title": "ask dev about \"reauthorize Stripe\" message in Park CityOS account", "source": "ui", "created_at": "2026-10-13", "due_date": "2026-10-14", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-65ac9d", "title": "go through OS hub pages from clayton", "source": "ui", "created_at": "2026-10-13", "due_date": "2026-10-15", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
