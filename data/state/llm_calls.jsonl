@@ -1104,3 +1104,12 @@
 {"timestamp": "2026-10-14T12:11:28Z", "run_type": "daily_brief", "caller": "people", "model": "claude-sonnet-4-6", "input_tokens": 1012, "output_tokens": 328, "estimated_cost_usd": 0.007956}
 {"timestamp": "2026-10-14T12:11:28Z", "run_type": "daily_brief", "caller": "brief", "model": "claude-sonnet-4-6", "input_tokens": 5704, "output_tokens": 358, "estimated_cost_usd": 0.022482}
 {"timestamp": "2026-10-14T12:11:28Z", "run_type": "daily_brief", "caller": "memory_synthesizer", "model": "claude-sonnet-4-6", "input_tokens": 115202, "output_tokens": 5910, "estimated_cost_usd": 0.434256}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9625, "output_tokens": 1107, "estimated_cost_usd": 0.04548}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9390, "output_tokens": 1228, "estimated_cost_usd": 0.04659}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9374, "output_tokens": 1229, "estimated_cost_usd": 0.046557}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9002, "output_tokens": 997, "estimated_cost_usd": 0.041961}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 6300, "output_tokens": 1081, "estimated_cost_usd": 0.035115}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "avoma_analyze", "model": "claude-sonnet-4-6", "input_tokens": 9222, "output_tokens": 1203, "estimated_cost_usd": 0.045711}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "people", "model": "claude-sonnet-4-6", "input_tokens": 929, "output_tokens": 238, "estimated_cost_usd": 0.006357}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "brief", "model": "claude-sonnet-4-6", "input_tokens": 5716, "output_tokens": 349, "estimated_cost_usd": 0.022383}
+{"timestamp": "2026-10-14T16:15:02Z", "run_type": "daily_brief", "caller": "memory_synthesizer", "model": "claude-sonnet-4-6", "input_tokens": 117919, "output_tokens": 6202, "estimated_cost_usd": 0.446787}
