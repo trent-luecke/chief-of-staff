@@ -1,33 +1,123 @@
 {
-  "date": "2026-10-13",
-  "generated_at": "2026-10-13T18:35:54.795667+00:00",
+  "date": "2026-10-14",
+  "generated_at": "2026-10-14T12:04:46.268527+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20261013T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-10-13T08:30:00-05:00",
-      "end": "2026-10-13T09:00:00-05:00",
+      "id": "cg391jfr1cptsfp1rsdb1vjo7k",
+      "title": "OLOM Geaux Pink - pink accessories + uniform bottoms, optional $5 cash donation",
+      "start": "2026-10-14T05:45:00-05:00",
+      "end": "2026-10-14T06:00:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "7cmg7fkclo21s5jjinl13loc0s",
+      "title": "Doctor",
+      "start": "2026-10-14T09:00:00-05:00",
+      "end": "2026-10-14T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "fumdcnpp0vbvgf5onjuser8fff_20261014T160000Z",
+      "title": "Sales // Marketing Sync ",
+      "start": "2026-10-14T11:00:00-05:00",
+      "end": "2026-10-14T11:45:00-05:00",
       "kind": "internal",
       "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "eduardo@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "nicole@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "heather@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "clayton@teambuildr.com",
+          "name": ""
+        },
         {
           "email": "luke@teambuildr.com",
           "name": ""
         },
         {
-          "email": "quinn@teambuildr.com",
+          "email": "chris@teambuildr.com",
           "name": ""
         },
         {
-          "email": "brian@teambuildr.com",
+          "email": "jeff@teambuildr.com",
           "name": ""
         },
         {
-          "email": "elvis@teambuildr.com",
+          "email": "lmartin@teambuildr.com",
           "name": ""
         },
         {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "4un9f8burdi0tq6g8i411qcv32",
+      "title": "Member Alerts",
+      "start": "2026-10-14T13:00:00-05:00",
+      "end": "2026-10-14T13:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "polina@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jasmine@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jake@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "josh@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "201j0fipj0kve713flla184mro",
+      "title": "MANNY SILVEIRA and Trent Luecke",
+      "start": "2026-10-14T15:30:00-05:00",
+      "end": "2026-10-14T16:00:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "mannysilveira@primitiveathletix.com",
+          "name": ""
         },
         {
           "email": "andrea@teambuildr.com",
@@ -37,87 +127,44 @@
       "prep": null
     },
     {
-      "id": "dd8v77935eol6k905bg547n1j5_20261013T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-10-13T10:00:00-05:00",
-      "end": "2026-10-13T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g85332h2471148h246kqk8h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g8oo42dq68oqk2h1h6sp3ah1k8kskcchm6sr32g9o74p48ghg74q0",
-      "title": "Teambuildr Office Hours with Trent",
-      "start": "2026-10-13T11:00:00-05:00",
-      "end": "2026-10-13T12:00:00-05:00",
+      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g851jah9l8oqj8dq26l0k8h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g68ok6d9o6d242chp8h2jgh1k8ks3cea288r4ad9l69342e1p8520",
+      "title": "Teambuildr OS spec file conversation",
+      "start": "2026-10-14T16:30:00-05:00",
+      "end": "2026-10-14T17:00:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "claire.west@imail.org",
-          "name": "Claire West"
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
         },
         {
-          "email": "brennen.ames@imail.org",
-          "name": "Brennen Ames"
+          "email": "bryan.vanderwerff@imail.org",
+          "name": "Bryan Vanderwerff"
         },
         {
-          "email": "fernando.lara@imail.org",
-          "name": "Fernando Lara"
+          "email": "april.wilson@imail.org",
+          "name": "April Wilson"
         },
         {
           "email": "jennifer.kimball@imail.org",
           "name": "Jen Kimball"
         },
         {
-          "email": "jeremy.wiley@imail.org",
-          "name": "Jeremy Wiley"
-        },
-        {
-          "email": "josh.bullock@imail.org",
-          "name": "Josh Bullock"
-        },
-        {
-          "email": "justin.cox@imail.org",
-          "name": "Justin Cox"
-        },
-        {
-          "email": "logan.child@imail.org",
-          "name": "Logan Child"
-        },
-        {
-          "email": "rich.hall@imail.org",
-          "name": "Rich Hall"
-        },
-        {
-          "email": "ted.hugunin@imail.org",
-          "name": "Ted Hugunin"
+          "email": "lauren.tarufelli@imail.org",
+          "name": "Lauren Tarufelli"
         }
       ],
       "prep": null
     },
     {
-      "id": "igd11vqi2vgied7oqgj6bckp1o",
-      "title": "Doctor",
-      "start": "2026-10-13T13:00:00-05:00",
-      "end": "2026-10-13T15:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "000stdnulbl83j0fs9llkcj7r0",
-      "title": "SAF / Trent: TeamBuildr OS Reconnect",
-      "start": "2026-10-13T13:30:00-05:00",
-      "end": "2026-10-13T14:00:00-05:00",
+      "id": "t38cnm9trcqfbc4tqflc4b5il4",
+      "title": "Kristy / Trent: OS Demo",
+      "start": "2026-10-14T19:00:00-05:00",
+      "end": "2026-10-14T19:30:00-05:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "safathlete@gmail.com",
+          "email": "kristy@elitetrainingstudio.com",
           "name": ""
         }
       ],
@@ -137,6 +184,13 @@
       "title": "run Melissa meeting transcript through JTBD process",
       "reason": "overdue",
       "due_date": "2026-10-08",
+      "project_id": null
+    },
+    {
+      "id": "t-838b82",
+      "title": "ask dev about \"reauthorize Stripe\" message in Park CityOS account",
+      "reason": "due",
+      "due_date": "2026-10-14",
       "project_id": null
     }
   ],
