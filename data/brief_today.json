@@ -1,6 +1,6 @@
 {
   "date": "2026-10-15",
-  "generated_at": "2026-10-15T12:08:23.581337+00:00",
+  "generated_at": "2026-10-15T15:56:46.947050+00:00",
   "meetings": [
     {
       "id": "1ig0k941k9ae9vprsiunor0spg",
@@ -87,13 +87,6 @@
     {
       "id": "t-65ac9d",
       "title": "go through OS hub pages from clayton",
-      "reason": "due",
-      "due_date": "2026-10-15",
-      "project_id": null
-    },
-    {
-      "id": "t-41d3d3",
-      "title": "email April from Intermountain the spec files",
       "reason": "due",
       "due_date": "2026-10-15",
       "project_id": null
