@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-14T07:00:00Z",
+  "fetched_at": "2026-10-15T18:05:00Z",
   "leads": [
     {
       "name": "Joe Dell Training",
@@ -123,6 +123,17 @@
       "stale": false
     },
     {
+      "name": "Kristy (OS Demo)",
+      "contact": "",
+      "email": "",
+      "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-10-15",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "name": "Mark Olson — Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
@@ -145,23 +156,23 @@
       "stale": false
     },
     {
-      "name": "USR (Andrew Zwiers / Todd Buchner)",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-10-01",
-      "estimated_value": null,
-      "source": "",
-      "stale": false
-    },
-    {
       "name": "Jesse Cook",
       "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-09-10",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "USR (Andrew Zwiers / Todd Buchner)",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-01",
       "estimated_value": null,
       "source": "",
       "stale": false
@@ -190,7 +201,7 @@
     },
     {
       "name": "Joe Pfister – Fitness and Performance Frederick (PFP Fit)",
-      "contact": "Joe Pfister",
+      "contact": "Joe Pfister (owner); Kyle (team member)",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
@@ -211,25 +222,14 @@
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "name": "Shannon Mccarty – Fresh Kut Fitness",
       "contact": "",
       "email": "",
-      "status": "In-Trial / Post Demo",
+      "status": "No Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-07-09",
+      "last_contacted": "2026-09-25",
       "estimated_value": null,
       "source": "",
-      "stale": false
-    },
-    {
-      "name": "Peyton Buckley",
-      "contact": "",
-      "email": "",
-      "status": "In-Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-09-03",
-      "estimated_value": null,
-      "source": "Calendly Demo",
       "stale": false
     },
     {
@@ -277,25 +277,25 @@
       "stale": false
     },
     {
-      "name": "Shannon Mccarty – Fresh Kut Fitness",
+      "name": "Jennifer Foust – Kent Denver (OS Lite)",
       "contact": "",
       "email": "",
-      "status": "No Trial / Post Demo",
+      "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-09-25",
+      "last_contacted": "2026-07-09",
       "estimated_value": null,
       "source": "",
       "stale": false
     },
     {
-      "name": "Kyle Murphy and Ryan Allwein",
-      "contact": "Kyle Murphy",
+      "name": "Peyton Buckley",
+      "contact": "",
       "email": "",
       "status": "In-Trial / Post Demo",
       "priority": "",
-      "last_contacted": "2026-10-06",
+      "last_contacted": "2026-09-03",
       "estimated_value": null,
-      "source": "",
+      "source": "Calendly Demo",
       "stale": false
     },
     {
@@ -316,6 +316,17 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": "2026-09-08",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Kyle Murphy and Ryan Allwein",
+      "contact": "Kyle Murphy",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-06",
       "estimated_value": null,
       "source": "",
       "stale": false
