@@ -1,54 +1,43 @@
 {
-  "date": "2026-10-14",
-  "generated_at": "2026-10-14T16:06:21.121373+00:00",
+  "date": "2026-10-15",
+  "generated_at": "2026-10-15T12:08:23.581337+00:00",
   "meetings": [
     {
-      "id": "cg391jfr1cptsfp1rsdb1vjo7k",
-      "title": "OLOM Geaux Pink - pink accessories + uniform bottoms, optional $5 cash donation",
-      "start": "2026-10-14T05:45:00-05:00",
-      "end": "2026-10-14T06:00:00-05:00",
+      "id": "1ig0k941k9ae9vprsiunor0spg",
+      "title": "TeamBuildr OS: Meeting",
+      "start": "2026-10-15T05:15:00-05:00",
+      "end": "2026-10-15T05:45:00-05:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "matt@fitnessinvest.no",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "tfn2e2h6vssa70v46ecd5uedds",
+      "title": "Truman 50th day - 1950s attire encouraged; sign + return report-card envelope",
+      "start": "2026-10-15T07:30:00-05:00",
+      "end": "2026-10-15T07:45:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "7cmg7fkclo21s5jjinl13loc0s",
-      "title": "Doctor",
-      "start": "2026-10-14T09:00:00-05:00",
-      "end": "2026-10-14T11:00:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "fumdcnpp0vbvgf5onjuser8fff_20261014T160000Z",
-      "title": "Sales // Marketing Sync ",
-      "start": "2026-10-14T11:00:00-05:00",
-      "end": "2026-10-14T11:45:00-05:00",
+      "id": "427va7uog7950apj45agnlp33o_20261015T143000Z",
+      "title": "OS | Marketing 2.0",
+      "start": "2026-10-15T09:30:00-05:00",
+      "end": "2026-10-15T10:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "eduardo@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
           "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "heather@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "clayton@teambuildr.com",
           "name": ""
         },
         {
@@ -56,118 +45,34 @@
           "name": ""
         },
         {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
+          "email": "rachel@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "4un9f8burdi0tq6g8i411qcv32",
-      "title": "Member Alerts",
-      "start": "2026-10-14T13:00:00-05:00",
-      "end": "2026-10-14T13:30:00-05:00",
+      "id": "05qo705ca6f27ai8m3usq7fp05_20261015T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-10-15T12:00:00-05:00",
+      "end": "2026-10-15T12:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "polina@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jasmine@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jake@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "josh@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
+          "email": "luke@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": null
+      "prep": "## Luke / Trent \u2014 Project Status Update\n\n---\n\n### \ud83d\udfe2 Andrea's Onboarding\nFast, autonomous learner \u2014 onboarding going very well.\n- **Next:** Send Andrea's self-assessment to Amanda for comments once Andrea fills it out; pull Andrea in to help shape the bottom-of-funnel project.\n- **Blocker:** None.\n\n---\n\n### \ud83d\udfe1 Q1 Bottom-of-Funnel OS Project\nFramed the problem (clunky prospect-to-OS flow); solution is an unlisted landing page with buy/book button \u2014 shaping begins ~November after cycle 5 kicks off.\n- **Next:** Pull in Andrea and a marketing-savvy customer to shape it.\n- **Decision logged:** No form builder included.\n- **Blocker:** Not starting shaping until cycle 5; sales team is ready and waiting.\n\n---\n\n### \ud83d\udfe1 Usage Tracking / Member Booked Appointments\nBare-minimum tracking (accessed/set up) is the target standard for future launches; Amplitude was cut.\n- **Next:** Raise usage tracking at CSM DevSync; ask James to pull per-account usage counts for heavy-user outreach.\n- **Blocker:** No tracking in place yet \u2014 limits feedback and marketing signal.\n\n---\n\n### \ud83d\udfe1 Intermountain Onboarding\nOnly Jen's facilities (Park City, part of Tosh) have meaningfully progressed after a fire-hose first call.\n- **Next:** Future sessions should be hands-on/build-along format.\n- **Blocker:** Onboarding approach needs to change before broader Intermountain progress is realistic.\n\n---\n\n### \ud83d\udd34 Tactical Bundle (Melissa's Request)\nNo action \u2014 key features are at least 6 months out; Melissa has been told.\n- **Decision logged:** Tactical bundle requests will not shape the OS roadmap.\n- **Blocker:** Feature readiness. Holding the line here.\n\n---\n\n### \ud83d\udfe2 Pipeline\n36 total; 6 demos MTD. October looks strong with 2\u20133 hot leads (Norwegian, Aussie).\n- **Next:** Mobile booking and churn report come before groups for cycle 1 of 27 likely bottom-of-funnel leads.\n- **Blocker:** None flagged \u2014 Luke wants to map good months against campaigns in December; dashboard is ready to support that.\n\n---\n\n### \ud83d\udfe1 Claude-Assisted Onboarding\nIn early testing phase.\n- **Next:** Create fake onboarding script and feed into Claude onbo",
+      "prep_hash": "6b98bec78d02"
     },
     {
-      "id": "201j0fipj0kve713flla184mro",
-      "title": "MANNY SILVEIRA and Trent Luecke",
-      "start": "2026-10-14T15:30:00-05:00",
-      "end": "2026-10-14T16:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "mannysilveira@primitiveathletix.com",
-          "name": ""
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "_60q30c1g60o30e1i60o4ac1g60rj8gpl88rj2c1h84s34h9g60s30c1g60o30c1g851jah9l8oqj8dq26l0k8h1g64o30c1g60o30c1g60o30c1g60o32c1g60o30c1g68ok6d9o6d242chp8h2jgh1k8ks3cea288r4ad9l69342e1p8520",
-      "title": "Teambuildr OS spec file conversation",
-      "start": "2026-10-14T16:30:00-05:00",
-      "end": "2026-10-14T17:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "bryan.vanderwerff@imail.org",
-          "name": "Bryan Vanderwerff"
-        },
-        {
-          "email": "april.wilson@imail.org",
-          "name": "April Wilson"
-        },
-        {
-          "email": "jennifer.kimball@imail.org",
-          "name": "Jen Kimball"
-        },
-        {
-          "email": "lauren.tarufelli@imail.org",
-          "name": "Lauren Tarufelli"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "t38cnm9trcqfbc4tqflc4b5il4",
-      "title": "Kristy / Trent: OS Demo",
-      "start": "2026-10-14T19:00:00-05:00",
-      "end": "2026-10-14T19:30:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "kristy@elitetrainingstudio.com",
-          "name": ""
-        }
-      ],
+      "id": "6sb21umegk1a88acbo61ku43in",
+      "title": "hold for early call",
+      "start": "2026-10-15T15:00:00-05:00",
+      "end": "2026-10-15T16:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
@@ -180,17 +85,17 @@
       "project_id": "q3-os-launch"
     },
     {
-      "id": "t-bf3158",
-      "title": "run Melissa meeting transcript through JTBD process",
-      "reason": "overdue",
-      "due_date": "2026-10-08",
+      "id": "t-65ac9d",
+      "title": "go through OS hub pages from clayton",
+      "reason": "due",
+      "due_date": "2026-10-15",
       "project_id": null
     },
     {
-      "id": "t-838b82",
-      "title": "ask dev about \"reauthorize Stripe\" message in Park CityOS account",
+      "id": "t-41d3d3",
+      "title": "email April from Intermountain the spec files",
       "reason": "due",
-      "due_date": "2026-10-14",
+      "due_date": "2026-10-15",
       "project_id": null
     }
   ],
