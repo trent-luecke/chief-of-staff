@@ -353,3 +353,4 @@
 {"event": "edit", "task_id": "t-838b82", "patch": {"horizon": "2026-10-14"}}
 {"event": "complete", "task_id": "t-838b82", "completed_at": "2026-10-14"}
 {"event": "complete", "task_id": "t-bf3158", "completed_at": "2026-10-14"}
+{"event": "edit", "task_id": "t-f6cc74", "patch": {"horizon": "2026-10-26"}}
