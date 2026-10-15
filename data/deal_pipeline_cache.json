@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-14T08:26:12.729019Z",
+  "fetched_at": "2026-10-15T08:05:21.824098Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -151,7 +151,7 @@
       "email": "marika.korpinen@quantum-movement.com",
       "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-10-06T18:00:00Z",
+      "last_contacted": "2026-10-14T17:33:58.813284+00:00",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -238,11 +238,11 @@
     {
       "page_id": "deal:charle.jaspers@outlook.com",
       "name": "Charle Jaspers",
-      "contact": "",
+      "contact": "charle.jaspers@outlook.com",
       "email": "charle.jaspers@outlook.com",
-      "status": "lost",
+      "status": "demoed",
       "priority": null,
-      "last_contacted": "2026-02-05",
+      "last_contacted": "2026-10-14T11:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
