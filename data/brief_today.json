@@ -1,76 +1,30 @@
 {
-  "date": "2026-10-15",
-  "generated_at": "2026-10-15T15:56:46.947050+00:00",
+  "date": "2026-10-16",
+  "generated_at": "2026-10-16T12:09:21.583888+00:00",
   "meetings": [
     {
-      "id": "1ig0k941k9ae9vprsiunor0spg",
-      "title": "TeamBuildr OS: Meeting",
-      "start": "2026-10-15T05:15:00-05:00",
-      "end": "2026-10-15T05:45:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "matt@fitnessinvest.no",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "tfn2e2h6vssa70v46ecd5uedds",
-      "title": "Truman 50th day - 1950s attire encouraged; sign + return report-card envelope",
-      "start": "2026-10-15T07:30:00-05:00",
-      "end": "2026-10-15T07:45:00-05:00",
+      "id": "6icj7ericd4npgen2tbbjpm3dg",
+      "title": "Fall break - no school",
+      "start": "2026-10-16T07:30:00-05:00",
+      "end": "2026-10-16T07:45:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "427va7uog7950apj45agnlp33o_20261015T143000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-10-15T09:30:00-05:00",
-      "end": "2026-10-15T10:00:00-05:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261016T133000Z",
+      "title": "Focus Work",
+      "start": "2026-10-16T08:30:00-05:00",
+      "end": "2026-10-16T10:30:00-05:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261015T170000Z",
-      "title": "Luke / Trent",
-      "start": "2026-10-15T12:00:00-05:00",
-      "end": "2026-10-15T12:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent \u2014 Project Status Update\n\n---\n\n### \ud83d\udfe2 Andrea's Onboarding\nFast, autonomous learner \u2014 onboarding going very well.\n- **Next:** Send Andrea's self-assessment to Amanda for comments once Andrea fills it out; pull Andrea in to help shape the bottom-of-funnel project.\n- **Blocker:** None.\n\n---\n\n### \ud83d\udfe1 Q1 Bottom-of-Funnel OS Project\nFramed the problem (clunky prospect-to-OS flow); solution is an unlisted landing page with buy/book button \u2014 shaping begins ~November after cycle 5 kicks off.\n- **Next:** Pull in Andrea and a marketing-savvy customer to shape it.\n- **Decision logged:** No form builder included.\n- **Blocker:** Not starting shaping until cycle 5; sales team is ready and waiting.\n\n---\n\n### \ud83d\udfe1 Usage Tracking / Member Booked Appointments\nBare-minimum tracking (accessed/set up) is the target standard for future launches; Amplitude was cut.\n- **Next:** Raise usage tracking at CSM DevSync; ask James to pull per-account usage counts for heavy-user outreach.\n- **Blocker:** No tracking in place yet \u2014 limits feedback and marketing signal.\n\n---\n\n### \ud83d\udfe1 Intermountain Onboarding\nOnly Jen's facilities (Park City, part of Tosh) have meaningfully progressed after a fire-hose first call.\n- **Next:** Future sessions should be hands-on/build-along format.\n- **Blocker:** Onboarding approach needs to change before broader Intermountain progress is realistic.\n\n---\n\n### \ud83d\udd34 Tactical Bundle (Melissa's Request)\nNo action \u2014 key features are at least 6 months out; Melissa has been told.\n- **Decision logged:** Tactical bundle requests will not shape the OS roadmap.\n- **Blocker:** Feature readiness. Holding the line here.\n\n---\n\n### \ud83d\udfe2 Pipeline\n36 total; 6 demos MTD. October looks strong with 2\u20133 hot leads (Norwegian, Aussie).\n- **Next:** Mobile booking and churn report come before groups for cycle 1 of 27 likely bottom-of-funnel leads.\n- **Blocker:** None flagged \u2014 Luke wants to map good months against campaigns in December; dashboard is ready to support that.\n\n---\n\n### \ud83d\udfe1 Claude-Assisted Onboarding\nIn early testing phase.\n- **Next:** Create fake onboarding script and feed into Claude onbo",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "6sb21umegk1a88acbo61ku43in",
-      "title": "hold for early call",
-      "start": "2026-10-15T15:00:00-05:00",
-      "end": "2026-10-15T16:30:00-05:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261016T193000Z",
+      "title": "Out of office",
+      "start": "2026-10-16T08:30:00-05:00",
+      "end": "2026-10-16T16:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -87,7 +41,7 @@
     {
       "id": "t-65ac9d",
       "title": "go through OS hub pages from clayton",
-      "reason": "due",
+      "reason": "overdue",
       "due_date": "2026-10-15",
       "project_id": null
     }
