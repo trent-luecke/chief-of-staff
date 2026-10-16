@@ -759,6 +759,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-08"
+    },
+    {
+      "entity": "Matt Holley",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-16"
+    },
+    {
+      "entity": "Kristy Pearce",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-16"
     }
   ],
   "previously_notified": [
