@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-15T08:05:21.824098Z",
+  "fetched_at": "2026-10-16T08:01:21.917404Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -76,6 +76,19 @@
       "last_contacted": "2025-07-15",
       "days_since_contact": null,
       "estimated_value": 2000,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:cody@journeyfarperformance.com",
+      "name": "Journeyfarperformance",
+      "contact": "cody@journeyfarperformance.com",
+      "email": "cody@journeyfarperformance.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-15T19:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
       "source": "",
       "stale": false
     },
@@ -958,6 +971,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2025-10-07",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:matt@fitnessinvest.no",
+      "name": "Fitnessinvest",
+      "contact": "matt@fitnessinvest.no",
+      "email": "matt@fitnessinvest.no",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-15T10:15:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
