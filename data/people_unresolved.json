@@ -775,6 +775,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-16"
+    },
+    {
+      "entity": "Cody",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-17"
+    },
+    {
+      "entity": "Dj Johnson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-17"
     }
   ],
   "previously_notified": [
