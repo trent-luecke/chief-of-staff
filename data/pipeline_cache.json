@@ -1,11 +1,33 @@
 {
-  "fetched_at": "2026-10-18T00:00:00Z",
+  "fetched_at": "2026-10-19T00:00:00Z",
   "leads": [
+    {
+      "name": "Asher Wojciechowski",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-15",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
     {
       "name": "Kristy (OS Demo)",
       "contact": "",
       "email": "",
       "status": "On-Hold",
+      "priority": "",
+      "last_contacted": "2026-10-15",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "name": "Matt Holley",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
       "priority": "",
       "last_contacted": "2026-10-15",
       "estimated_value": null,
@@ -35,17 +57,6 @@
       "stale": false
     },
     {
-      "name": "Brian Guthrie and Ryan Allwein",
-      "contact": "Brian Guthrie",
-      "email": "",
-      "status": "No Trial / Post Demo",
-      "priority": "",
-      "last_contacted": "2026-10-06",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
       "name": "Kyle Murphy and Ryan Allwein",
       "contact": "Kyle Murphy",
       "email": "",
@@ -54,6 +65,17 @@
       "last_contacted": "2026-10-06",
       "estimated_value": null,
       "source": "",
+      "stale": false
+    },
+    {
+      "name": "Brian Guthrie and Ryan Allwein",
+      "contact": "Brian Guthrie",
+      "email": "",
+      "status": "No Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-06",
+      "estimated_value": null,
+      "source": "Calendly Demo",
       "stale": false
     },
     {
@@ -558,7 +580,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     },
@@ -569,7 +591,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "",
       "last_contacted": null,
-      "estimated_value": 750,
+      "estimated_value": 750.0,
       "source": "",
       "stale": false
     },
@@ -580,7 +602,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": "",
       "stale": false
     }
