@@ -1,7 +1,112 @@
 {
-  "date": "2026-10-18",
-  "generated_at": "2026-10-18T15:03:37.297635+00:00",
-  "meetings": [],
+  "date": "2026-10-19",
+  "generated_at": "2026-10-19T12:06:05.827647+00:00",
+  "meetings": [
+    {
+      "id": "3vn3bhvbklv265s15fekc0oocf_20261019T140000Z",
+      "title": "Rev: Department Heads",
+      "start": "2026-10-19T09:00:00-05:00",
+      "end": "2026-10-19T09:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20261019T150000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-10-19T10:00:00-05:00",
+      "end": "2026-10-19T10:15:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20261019T153000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-10-19T10:30:00-05:00",
+      "end": "2026-10-19T11:00:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261019T173000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-10-19T12:30:00-05:00",
+      "end": "2026-10-19T12:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
