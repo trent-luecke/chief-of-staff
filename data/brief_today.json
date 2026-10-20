@@ -1,85 +1,33 @@
 {
-  "date": "2026-10-19",
-  "generated_at": "2026-10-19T17:54:20.676707+00:00",
+  "date": "2026-10-20",
+  "generated_at": "2026-10-20T12:06:18.046057+00:00",
   "meetings": [
     {
-      "id": "3vn3bhvbklv265s15fekc0oocf_20261019T140000Z",
-      "title": "Rev: Department Heads",
-      "start": "2026-10-19T09:00:00-05:00",
-      "end": "2026-10-19T09:45:00-05:00",
+      "id": "olt4eh3488fftej670gj40dnro_20261020T133000Z",
+      "title": "TeamBuildr OS Weekly Dev Sync",
+      "start": "2026-10-20T08:30:00-05:00",
+      "end": "2026-10-20T09:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
         },
         {
           "email": "brian@teambuildr.com",
           "name": ""
         },
         {
-          "email": "ryan@teambuildr.com",
+          "email": "elvis@teambuildr.com",
           "name": ""
         },
         {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2cpic22b4ukd85hbqtrsda0qm2_20261019T150000Z",
-      "title": "Stand Up - Sales",
-      "start": "2026-10-19T10:00:00-05:00",
-      "end": "2026-10-19T10:15:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20261019T153000Z",
-      "title": "OS \"Sit Down\"",
-      "start": "2026-10-19T10:30:00-05:00",
-      "end": "2026-10-19T11:00:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "amanda@teambuildr.com",
-          "name": ""
+          "email": "james@teambuildr.com",
+          "name": "James Peters"
         },
         {
           "email": "andrea@teambuildr.com",
@@ -89,21 +37,76 @@
       "prep": null
     },
     {
-      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261019T173000Z",
-      "title": "OS Dev sync-Rev table",
-      "start": "2026-10-19T12:30:00-05:00",
-      "end": "2026-10-19T12:45:00-05:00",
+      "id": "dd8v77935eol6k905bg547n1j5_20261020T150000Z",
+      "title": "1:1 Weekly OS Meeting",
+      "start": "2026-10-20T10:00:00-05:00",
+      "end": "2026-10-20T10:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
+          "email": "nicole@teambuildr.com",
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "1ml99kkgsq3riukk68nh2r7bks_20261020T160000Z",
+      "title": "Rainmakers Anonymous",
+      "start": "2026-10-20T11:00:00-05:00",
+      "end": "2026-10-20T11:45:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "rachel@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "emily@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "dam0dhml1pftsqp4ov59o9iknc",
+      "title": "Doctor",
+      "start": "2026-10-20T15:30:00-05:00",
+      "end": "2026-10-20T16:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
