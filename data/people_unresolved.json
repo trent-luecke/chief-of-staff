@@ -791,6 +791,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-17"
+    },
+    {
+      "entity": "Julianne (Saint Johns)",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "julianne-saint-john-s",
+      "candidate_score": 97.77777777777777,
+      "added": "2026-10-21"
     }
   ],
   "previously_notified": [
