@@ -1,110 +1,41 @@
 {
-  "date": "2026-10-20",
-  "generated_at": "2026-10-20T15:56:59.308158+00:00",
+  "date": "2026-10-21",
+  "generated_at": "2026-10-21T12:05:48.494431+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20261020T133000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-10-20T08:30:00-05:00",
-      "end": "2026-10-20T09:00:00-05:00",
+      "id": "05qo705ca6f27ai8m3usq7fp05_20261022T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-10-21T12:00:00-05:00",
+      "end": "2026-10-21T12:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
           "email": "luke@teambuildr.com",
           "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
         }
       ],
-      "prep": null
+      "prep": "## Luke / Trent Prep\n\n---\n\n### Andrea's Onboarding\n**Status:** Going well \u2014 she's fast and autonomous.\n- **Open task:** Feed a fake onboarding script to Claude-assisted onboarding for testing\n- No blocker\n\n---\n\n### Q1 Bottom-of-Funnel OS Project\n**Status:** Problem framed, solution sketched (unlisted landing page), shaping expected after Cycle 5 kicks off \\~November.\n- **Open task:** Pull in Andrea and a marketing-savvy customer to help shape it\n- **Note:** No form builder (decided); not yet in active build\n\n---\n\n### Usage Tracking / Member Booked Appointments\n**Status:** Low adoption signal so far; moving toward bare-minimum tracking on future launches.\n- **Open task:** Raise usage tracking at CSM DevSync; ask James to pull per-account usage counts for outreach\n- No hard blocker, but Amplitude is gone so tracking approach is still TBD\n\n---\n\n### Intermountain Onboarding\n**Status:** Early \u2014 only Jen's facilities (Park City / part of Tosh) have made real progress after a dense first call.\n- **Open task:** Future sessions should be hands-on/build-along format (no specific task assigned yet, more a process change)\n- **Blocker:** Initial fire-hose format slowed progress; need to restructure approach for next session\n\n---\n\n### Tactical Bundle (Melissa's Request)\n**Status:** Holding \u2014 key features are 6+ months out; Melissa's request will not shape the roadmap.\n- **Open task:** None active; boundary set\n- No blocker \u2014 decision is made, just needs to stay held\n\n---\n\n### Pipeline\n**Status:** October looks strong \u2014 2\u20133 hot leads (Norwegian, Aussie); 55 total in pipeline, 9 demos MTD.\n- **Open task:** Luke wants to map good months to campaigns in December; Trent has a dashboard ready to support that\n- No blocker noted; Cycle 1 of 27 is likely bottom-of-funnel, with mobile booking and churn report ahead of groups\n\n---\n\n### Self-Assessment / Reviews\n**Status:** Trent's self-assessment is pending; Luke can't start reviews until it's done \u2014 targeting late October.\n- **Open tasks:** Trent completes self-assessment; sends Andrea's assessment to Amanda once Andrea fills it out\n- **Blocker:** Reviews are gated on Trent's self-assessment",
+      "prep_hash": "6b98bec78d02"
     },
     {
-      "id": "dd8v77935eol6k905bg547n1j5_20261020T150000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-10-20T10:00:00-05:00",
-      "end": "2026-10-20T10:30:00-05:00",
-      "kind": "internal",
+      "id": "2nf6oomqjl7mklnfitr2ete2k7",
+      "title": "Wesley / Trent: OS Support",
+      "start": "2026-10-21T13:00:00-05:00",
+      "end": "2026-10-21T13:30:00-05:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "nicole@teambuildr.com",
+          "email": "wesley.hoglin@imail.org",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20261020T160000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-10-20T11:00:00-05:00",
-      "end": "2026-10-20T11:45:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dam0dhml1pftsqp4ov59o9iknc",
-      "title": "Doctor",
-      "start": "2026-10-20T15:30:00-05:00",
-      "end": "2026-10-20T16:30:00-05:00",
+      "id": "5bplptt7quno2phecus78u3u8m",
+      "title": "school pick up",
+      "start": "2026-10-21T14:30:00-05:00",
+      "end": "2026-10-21T15:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
