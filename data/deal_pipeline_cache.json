@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-20T08:13:59.451734Z",
+  "fetched_at": "2026-10-21T08:20:37.610097Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -1023,6 +1023,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2026-06-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:mortensen.jacob@ysd7.org",
+      "name": "Ysd7",
+      "contact": "mortensen.jacob@ysd7.org",
+      "email": "mortensen.jacob@ysd7.org",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-20T20:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
