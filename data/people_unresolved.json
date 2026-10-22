@@ -799,6 +799,14 @@
       "candidate_id": "julianne-saint-john-s",
       "candidate_score": 97.77777777777777,
       "added": "2026-10-21"
+    },
+    {
+      "entity": "Mortensen Jacob",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-22"
     }
   ],
   "previously_notified": [
