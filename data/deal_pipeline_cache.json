@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-21T08:20:37.610097Z",
+  "fetched_at": "2026-10-22T08:25:48.425694Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -925,6 +925,19 @@
       "stale": false
     },
     {
+      "page_id": "deal:lewisjosephswaby@gmail.com",
+      "name": "",
+      "contact": "lewisjosephswaby@gmail.com",
+      "email": "lewisjosephswaby@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-21T15:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "page_id": "deal:lindsey@exis.life",
       "name": "Lindsey",
       "contact": "",
@@ -1504,6 +1517,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2026-03-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:support@tntstrongsomd.com",
+      "name": "Tntstrongsomd",
+      "contact": "support@tntstrongsomd.com",
+      "email": "support@tntstrongsomd.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-21T18:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
