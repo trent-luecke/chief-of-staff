@@ -365,3 +365,4 @@
 {"event": "create", "task_id": "t-0f1f82", "title": "record voiceover for member alerts pt 1", "source": "ui", "created_at": "2026-10-23", "due_date": "2026-10-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
 {"event": "delete", "task_id": "t-0f1f82"}
 {"event": "create", "task_id": "t-3f34dd", "title": "touch up member alerts report video to reflect new alert colors", "source": "ui", "created_at": "2026-10-23", "due_date": "2026-10-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "create", "task_id": "t-5d2a96", "title": "record voiceover for part 1 member alerts", "source": "ui", "created_at": "2026-10-23", "due_date": "2026-10-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
