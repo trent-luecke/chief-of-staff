@@ -1,6 +1,6 @@
 {
   "date": "2026-10-23",
-  "generated_at": "2026-10-23T12:01:43.425931+00:00",
+  "generated_at": "2026-10-23T15:59:56.319678+00:00",
   "meetings": [
     {
       "id": "006adb4enl5iouf2tb1p87m38i_20261023T133000Z",
@@ -16,6 +16,15 @@
       "title": "Little Saints Tailgate",
       "start": "2026-10-23T10:00:00-05:00",
       "end": "2026-10-23T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "m9qejj0cscs6lbugkpc8mq1ufc",
+      "title": "Call Jen",
+      "start": "2026-10-23T12:00:00-05:00",
+      "end": "2026-10-23T12:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -46,10 +55,10 @@
       "project_id": null
     },
     {
-      "id": "t-65c6a2",
-      "title": "film mobile overview of OS w/ linked accounts",
-      "reason": "overdue",
-      "due_date": "2026-10-21",
+      "id": "t-3f34dd",
+      "title": "touch up member alerts report video to reflect new alert colors",
+      "reason": "due",
+      "due_date": "2026-10-23",
       "project_id": null
     }
   ],
