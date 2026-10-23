@@ -363,3 +363,4 @@
 {"event": "complete", "task_id": "t-65c6a2", "completed_at": "2026-10-23"}
 {"event": "create", "task_id": "t-283218", "title": "follow up w/ rachel about Manny contract", "source": "ui", "created_at": "2026-10-23", "due_date": "2026-10-26", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": "2026-10-26"}
 {"event": "create", "task_id": "t-0f1f82", "title": "record voiceover for member alerts pt 1", "source": "ui", "created_at": "2026-10-23", "due_date": "2026-10-23", "metadata": {}, "project_id": null, "collaborators": [], "owner": null, "horizon": null}
+{"event": "delete", "task_id": "t-0f1f82"}
