@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-10-22T00:00:00",
+  "resolved_at": "2026-10-23T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -33962,6 +33962,98 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "7220": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7221": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7222": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7223": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7224": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7225": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7226": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7227": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7228": {
+      "primary_person_id": "wesley-hoglin",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "7229": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "7230": {
+      "primary_person_id": "jeff-davidson",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "7233": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7234": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7235": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7236": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7237": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7238": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7239": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -34419,7 +34511,13 @@
     7098,
     7099,
     7100,
-    7159
+    7159,
+    7216,
+    7217,
+    7218,
+    7219,
+    7231,
+    7232
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -34612,6 +34710,9 @@
     "thread:Re: TeamBuildr OS",
     "thread:RE: McKay - TeamBuildr OS",
     "thread:Re: TeamBuildr OS + BFU 2027 Schtuff",
-    "thread:Re: contact at TeamBuildr"
+    "thread:Re: contact at TeamBuildr",
+    "thread:strength and conditioning / Q4",
+    "thread:Re: Receipt",
+    "thread:Re: schedule clash"
   ]
 }

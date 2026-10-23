@@ -807,6 +807,30 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-22"
+    },
+    {
+      "entity": "Todd Newcomer",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-23"
+    },
+    {
+      "entity": "Troy",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-23"
+    },
+    {
+      "entity": "Lewis Swaby",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-23"
     }
   ],
   "previously_notified": [
