@@ -1,30 +1,30 @@
 {
-  "date": "2026-10-22",
-  "generated_at": "2026-10-22T16:15:49.137493+00:00",
+  "date": "2026-10-23",
+  "generated_at": "2026-10-23T12:01:43.425931+00:00",
   "meetings": [
     {
-      "id": "2ualir88iurpq435tnfmk4qki5",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261023T133000Z",
+      "title": "Focus Work",
+      "start": "2026-10-23T08:30:00-05:00",
+      "end": "2026-10-23T10:30:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "md3kdicr1hljl7c0cgorpmc90s",
+      "title": "Little Saints Tailgate",
+      "start": "2026-10-23T10:00:00-05:00",
+      "end": "2026-10-23T12:00:00-05:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261023T193000Z",
       "title": "Out of office",
-      "start": "2026-10-22T00:00:00-05:00",
-      "end": "2026-10-23T00:00:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "qoitiqh2uaf50hfq3aah9snj1k",
-      "title": "Conferences - no school",
-      "start": "2026-10-22T07:30:00-05:00",
-      "end": "2026-10-22T07:45:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "bmmq6bdu69oth46ltpm46kvj30",
-      "title": "Teacher Meeting",
-      "start": "2026-10-22T14:30:00-05:00",
-      "end": "2026-10-22T15:45:00-05:00",
+      "start": "2026-10-23T14:30:00-05:00",
+      "end": "2026-10-23T17:30:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
