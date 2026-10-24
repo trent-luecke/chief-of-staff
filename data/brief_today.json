@@ -1,39 +1,12 @@
 {
-  "date": "2026-10-23",
-  "generated_at": "2026-10-23T15:59:56.319678+00:00",
+  "date": "2026-10-24",
+  "generated_at": "2026-10-24T12:01:31.288716+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20261023T133000Z",
-      "title": "Focus Work",
-      "start": "2026-10-23T08:30:00-05:00",
-      "end": "2026-10-23T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "md3kdicr1hljl7c0cgorpmc90s",
-      "title": "Little Saints Tailgate",
-      "start": "2026-10-23T10:00:00-05:00",
-      "end": "2026-10-23T12:00:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "m9qejj0cscs6lbugkpc8mq1ufc",
-      "title": "Call Jen",
-      "start": "2026-10-23T12:00:00-05:00",
-      "end": "2026-10-23T12:15:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20261023T193000Z",
-      "title": "Out of office",
-      "start": "2026-10-23T14:30:00-05:00",
-      "end": "2026-10-23T17:30:00-05:00",
+      "id": "6rro7upqc65ug3umn770e1rq09_20261024T130000Z",
+      "title": "OS Weekend Support (Trent)",
+      "start": "2026-10-24T08:00:00-05:00",
+      "end": "2026-10-24T08:15:00-05:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -52,13 +25,6 @@
       "title": "go through OS hub pages from clayton",
       "reason": "overdue",
       "due_date": "2026-10-15",
-      "project_id": null
-    },
-    {
-      "id": "t-3f34dd",
-      "title": "touch up member alerts report video to reflect new alert colors",
-      "reason": "due",
-      "due_date": "2026-10-23",
       "project_id": null
     }
   ],
