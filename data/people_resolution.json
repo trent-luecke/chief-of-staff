@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-10-24T00:00:00",
+  "resolved_at": "2026-10-25T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -34599,6 +34599,31 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "7360": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7361": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7362": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7364": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7365": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -35070,7 +35095,11 @@
     7244,
     7245,
     7301,
-    7302
+    7302,
+    7357,
+    7358,
+    7359,
+    7363
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -35272,6 +35301,7 @@
     "thread:RE: Information needed for SFTP request",
     "thread:Re: Offer to Purchase a Commercial License for TeamBuildr Data for Artificial Intelligence Development",
     "thread:Fwd: Teambuildr",
-    "thread:Re: Information needed for SFTP request"
+    "thread:Re: Information needed for SFTP request",
+    "thread:RE: Mob Armor Order"
   ]
 }
