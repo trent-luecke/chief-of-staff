@@ -1,17 +1,7 @@
 {
-  "date": "2026-10-24",
-  "generated_at": "2026-10-24T14:57:20.986616+00:00",
-  "meetings": [
-    {
-      "id": "6rro7upqc65ug3umn770e1rq09_20261024T130000Z",
-      "title": "OS Weekend Support (Trent)",
-      "start": "2026-10-24T08:00:00-05:00",
-      "end": "2026-10-24T08:15:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    }
-  ],
+  "date": "2026-10-25",
+  "generated_at": "2026-10-25T12:01:18.320844+00:00",
+  "meetings": [],
   "needs_today": [
     {
       "id": "t-488053",
