@@ -1,0 +1,338 @@
+<title>Member Alerts Sales Handoff</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column with a sticky section index on wide screens; a mock report row and alert legend carry the product detail */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #17202b;
+  --muted: #5a6573;
+  --line: #dde2e8;
+  --accent: #1f5fbf;
+  --accent-soft: #e6eefa;
+  --red: #c4362c;  --red-bg: #fbe8e6;
+  --yel: #8a5a00;  --yel-bg: #fdf1d6;
+  --grey: #4d5866; --grey-bg: #eceff3;
+  --good: #1d7a4a; --good-bg: #e3f4ea;
+  --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161d; --surface: #19202a; --ink: #e7ebf0; --muted: #9aa5b3; --line: #2b3441;
+  --accent: #7fb0ff; --accent-soft: #1c2b44;
+  --red: #ff8a80; --red-bg: #3a1d1b; --yel: #f2c45c; --yel-bg: #352a12;
+  --grey: #b8c1cc; --grey-bg: #262e39; --good: #6fd39c; --good-bg: #16301f;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #11161d; --surface: #19202a; --ink: #e7ebf0; --muted: #9aa5b3; --line: #2b3441;
+  --accent: #7fb0ff; --accent-soft: #1c2b44;
+  --red: #ff8a80; --red-bg: #3a1d1b; --yel: #f2c45c; --yel-bg: #352a12;
+  --grey: #b8c1cc; --grey-bg: #262e39; --good: #6fd39c; --good-bg: #16301f;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--body); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 48px; }
+@media (max-width: 860px) { .wrap { grid-template-columns: minmax(0,1fr); gap: 24px; } nav.toc { display: none; } }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 14px; }
+nav.toc p { font: 600 11px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+nav.toc a { display: block; color: var(--muted); text-decoration: none; padding: 5px 0 5px 12px; border-left: 2px solid var(--line); }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); border-left-color: var(--accent); outline: none; }
+main { min-width: 0; display: flex; flex-direction: column; gap: 56px; }
+header .eyebrow { font: 600 12px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 800 clamp(32px, 5vw, 46px)/1.08 var(--display); letter-spacing: -.01em; margin: 12px 0 16px; text-wrap: balance; }
+h2 { font: 700 26px/1.2 var(--display); margin: 0 0 16px; text-wrap: balance; }
+h3 { font: 700 17px/1.3 var(--display); margin: 28px 0 8px; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 14px; }
+ul, ol { margin: 0 0 14px; padding-left: 22px; } li { margin-bottom: 6px; }
+.lede { font-size: 19px; color: var(--muted); max-width: 60ch; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-top: 20px; font-size: 14px; color: var(--muted); }
+.facts b { color: var(--ink); font-weight: 600; }
+.tldr { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 22px 24px; }
+.tldr h2 { font-size: 18px; margin-bottom: 10px; }
+.tldr ul { margin: 0; }
+.kbd { font: 500 .88em var(--mono); background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+
+/* pills */
+.pill { display: inline-flex; align-items: center; gap: 4px; font: 600 12px/1 var(--body); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.pill.r { color: var(--red); background: var(--red-bg); }
+.pill.y { color: var(--yel); background: var(--yel-bg); }
+.pill.g { color: var(--grey); background: var(--grey-bg); }
+.pill .x { font-family: var(--mono); opacity: .8; }
+
+/* mock row */
+.mock { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 20px 0 8px; }
+.mock .cap { font-size: 12px; color: var(--muted); padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+th { font: 600 11px/1.3 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--bg); white-space: nowrap; }
+td.n { font-variant-numeric: tabular-nums; text-align: center; }
+td.cx { color: var(--red); font-weight: 600; }
+.mock tr:last-child td { border-bottom: 0; }
+.pills { display: flex; gap: 6px; flex-wrap: wrap; min-width: 220px; }
+.link { color: var(--accent); font-weight: 500; }
+.mock-note { font-size: 13px; color: var(--muted); }
+
+/* alert legend */
+.legend td:first-child { white-space: nowrap; }
+.legend td { font-size: 15px; }
+.legend .grp td { background: var(--bg); font: 600 12px/1 var(--body); letter-spacing: .06em; text-transform: uppercase; padding: 10px 12px; }
+.legend .grp.r td { color: var(--red); } .legend .grp.y td { color: var(--yel); } .legend .grp.g td { color: var(--grey); }
+.tablebox { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+
+/* problem cards */
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 8px; }
+.col { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; min-width: 0; }
+.col h3 { margin-top: 0; }
+.col p { font-size: 15px; margin: 0; }
+
+/* talk track */
+.beat { display: grid; grid-template-columns: 112px minmax(0,1fr); gap: 16px; padding: 18px 0; border-top: 1px solid var(--line); }
+.beat:last-of-type { border-bottom: 1px solid var(--line); }
+.beat .when { font: 600 12px/1.4 var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); padding-top: 3px; }
+.beat .show { font-size: 14px; color: var(--muted); margin: 0 0 6px; }
+.say { font-style: italic; border-left: 3px solid var(--accent); padding-left: 14px; margin: 0; }
+@media (max-width: 560px) { .beat { grid-template-columns: minmax(0,1fr); gap: 6px; } }
+
+/* do / don't */
+.dd { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.dd > div { border-radius: 10px; padding: 18px 20px 6px; min-width: 0; }
+.dd .do { background: var(--good-bg); } .dd .dont { background: var(--red-bg); }
+.dd h3 { margin-top: 0; } .dd .do h3 { color: var(--good); } .dd .dont h3 { color: var(--red); }
+
+/* faq */
+details { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 8px; }
+summary { cursor: pointer; padding: 14px 18px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--muted); font-weight: 500; }
+details[open] summary::after { content: "–"; }
+summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+details .a { padding: 0 18px 14px; }
+details .a p:last-child { margin-bottom: 0; }
+
+.callout { background: var(--yel-bg); border-radius: 10px; padding: 16px 20px; }
+.callout p:last-child { margin: 0; }
+.callout b { color: var(--yel); }
+.res li { margin-bottom: 10px; }
+.todo { font: 500 12px var(--mono); color: var(--yel); background: var(--yel-bg); padding: 1px 6px; border-radius: 4px; }
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 20px; }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Sections">
+    <p>On this page</p>
+    <a href="#problem">The problem</a>
+    <a href="#report">How the report works</a>
+    <a href="#alerts">The seven alerts</a>
+    <a href="#overview">Overview page</a>
+    <a href="#demo">Demo talk track</a>
+    <a href="#guardrails">Say / don't say</a>
+    <a href="#faq">Questions you'll get</a>
+    <a href="#resources">Resources</a>
+  </nav>
+
+  <main>
+    <header>
+      <div class="eyebrow">Sales handoff · TeamBuildr OS</div>
+      <h1>Member Alerts: who to call before they cancel</h1>
+      <p class="lede">A new report that flags members who are drifting away, plus a reworked Overview page that puts today's schedule and those members on the first screen an owner sees.</p>
+      <div class="facts">
+        <span><b>Live:</b> Wednesday, Oct 28, 2026</span>
+        <span><b>Product:</b> OS only (not Strength)</span>
+        <span><b>Who sees it:</b> owners and admins</span>
+        <span><b>Price:</b> included, no add-on</span>
+      </div>
+    </header>
+
+    <section class="tldr" aria-label="Summary">
+      <h2>The 30-second version</h2>
+      <ul>
+        <li><b>What it is:</b> a report under <span class="kbd">Reports → Member alerts</span> that lists members with warning signs: no visits, nothing left to book with, credits running low, attendance dropping.</li>
+        <li><b>Why owners care:</b> churn is quiet. Members fade out for weeks before they cancel. This shows the owner who is fading while there's still time to call them.</li>
+        <li><b>How it sells:</b> it turns OS into the tool an owner opens every Monday to decide who to call. Lead with the Overview page, then click into the report.</li>
+        <li><b>The limit to know:</b> it tells owners <i>who</i> to contact. It does not send messages. The owner reaches out their usual way and logs it as a note.</li>
+      </ul>
+    </section>
+
+    <section id="problem">
+      <h2>The problem it solves</h2>
+      <p>Gym owners know retention matters more than almost anything, but until now OS gave them no way to see who was at risk. The signals existed (sign-ins, cancellations, credit balances, expiration dates), but they were spread across member profiles, the schedule and the POS. Nobody has time to stitch that together for 200 members.</p>
+      <div class="cols">
+        <div class="col"><h3>"I find out when they cancel"</h3><p>By the time a cancellation lands, the member decided weeks ago. The report shows the two-week gap in visits while there's still time to fix it.</p></div>
+        <div class="col"><h3>Packs that quietly run out</h3><p>A member uses their last credit, never rebuys, and drifts off. Low-credit and expiring alerts turn that into a renewal conversation.</p></div>
+        <div class="col"><h3>"Did anyone call them?"</h3><p>Reach-outs lived in someone's head or a text thread. Notes on the report give the whole staff one shared record of who was contacted and what they said.</p></div>
+      </div>
+      <p style="margin-top:16px">Customers asked for this directly. "At-Risk Member Report" was a logged feature request from multiple accounts, starting with Home of Yoga.</p>
+    </section>
+
+    <section id="report">
+      <h2>How the report works</h2>
+      <p>The report lists every member who has signed in during the last 90 days, one row each. By default, members with the most alerts are at the top, so the first screen is the call list.</p>
+
+      <div class="mock" role="figure" aria-label="Example report rows">
+        <div class="cap"><span>Reports → Member alerts</span><span>Example rows, not real members</span></div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>Member</th><th>Wk 1</th><th>Wk 2</th><th>Wk 3</th><th>Wk 4</th><th>Avg</th><th>Cancels</th><th>Last sign in</th><th>Alerts</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td class="link">Casey Nguyen</td><td class="n">3</td><td class="n">2</td><td class="n">0</td><td class="n">0</td><td class="n">1.3</td><td class="n cx">2</td><td>19 days ago</td>
+                <td><div class="pills"><span class="pill r">No Sign In 14 Days</span><span class="pill r">No Active Mbrshp/Package</span><span class="pill g">Weekly Frequency Down</span></div></td><td class="link">Add note</td></tr>
+              <tr><td class="link">Jordan Ellis</td><td class="n">4</td><td class="n">4</td><td class="n">3</td><td class="n">2</td><td class="n">3.3</td><td class="n">0</td><td>3 days ago</td>
+                <td><div class="pills"><span class="pill y">Low Credit Amount <span class="x">x2</span></span><span class="pill g">Weekly Frequency Down</span></div></td><td class="link">View (2)</td></tr>
+              <tr><td class="link">Riley Brooks</td><td class="n">–</td><td class="n">–</td><td class="n">2</td><td class="n">3</td><td class="n">2.5</td><td class="n">0</td><td>Yesterday</td>
+                <td><div class="pills"><span class="pill y">Expiring Package</span></div></td><td class="link">Add note</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="mock-note">Riley joined two weeks ago, so the earlier weeks show a dash and don't count toward the average.</p>
+
+      <h3>The columns</h3>
+      <ul>
+        <li><b>Sign in rate:</b> sign-ins for each of the last four <i>complete</i> weeks, plus the average. The current week isn't shown until it's finished.</li>
+        <li><b>Cancels:</b> cancellations over the same four weeks. Anything above zero is red.</li>
+        <li><b>Last sign in:</b> days since their last class or appointment, capped at 90+.</li>
+        <li><b>Alerts:</b> the colored pills (see below). Hover a pill to see which package it's about, or when a pause ends.</li>
+        <li><b>Notes:</b> add a note or view past ones. Clicking a name opens the member's profile in a new tab.</li>
+      </ul>
+
+      <h3>Finding the right members</h3>
+      <ul>
+        <li><b>Sort</b> by any column. Sign in rate sorts on the most recent week.</li>
+        <li><b>Filter by alerts.</b> Picking two alerts shows members who have <i>both</i> (for example, No Sign In 14 Days + Low Credit Amount).</li>
+        <li><b>Inactive Members</b> is a separate filter for anyone with no sign-in in 90 days. These people fell off the main list, and they're the win-back list.</li>
+        <li><b>Search</b> by first or last name.</li>
+      </ul>
+
+      <h3>Notes: a light reach-out log</h3>
+      <p>These are the same member notes that already live on the member's profile, now available from the report. Each note gets a category (the studio's own categories from Studio Settings), the author and date are filled in automatically, and owners can pin up to three per member so the important context stays on top. Notes are capped at 250 characters, so they work as a log, not a CRM record.</p>
+    </section>
+
+    <section id="alerts">
+      <h2>The seven alerts</h2>
+      <p>Alerts are fixed rules. They aren't AI predictions, and owners can't change the thresholds. Color tells the owner how urgent the alert is.</p>
+      <div class="tablebox scroll">
+        <table class="legend">
+          <thead><tr><th>Alert</th><th>Fires when</th><th>What the owner does</th></tr></thead>
+          <tbody>
+            <tr class="grp r"><td colspan="3">Red · act now</td></tr>
+            <tr><td><span class="pill r">No Sign In 14 Days</span></td><td>No class or appointment sign-in in the last 14 days. Future bookings don't count.</td><td>Personal check-in: "Haven't seen you, everything OK?"</td></tr>
+            <tr><td><span class="pill r">No Active Mbrshp/Package</span></td><td>No active membership <i>and</i> no active package. A future-dated purchase clears it.</td><td>Renewal or re-sign offer. They have nothing to book with.</td></tr>
+            <tr class="grp y"><td colspan="3">Yellow · act soon</td></tr>
+            <tr><td><span class="pill y">Low Credit Amount</span></td><td>A class pack or hybrid package has 3 or fewer credits left. <span class="kbd">x2</span> means two packs are low.</td><td>Offer the next pack before they run out.</td></tr>
+            <tr><td><span class="pill y">Expiring Package</span></td><td>A class pack or hybrid package expires in the next 14 days.</td><td>Nudge them to use the credits, or renew.</td></tr>
+            <tr class="grp g"><td colspan="3">Grey · good to know</td></tr>
+            <tr><td><span class="pill g">Weekly Frequency Down</span></td><td>Fewer sign-ins last full week than the week before.</td><td>Watch the trend. A coach can mention it in class.</td></tr>
+            <tr><td><span class="pill g">Monthly Frequency Down</span></td><td>Fewer sign-ins last full month than the month before.</td><td>Good signal for a goals or progress conversation.</td></tr>
+            <tr><td><span class="pill g">On Pause</span></td><td>The member is paused. This hides their other alerts. Hover to see when the pause ends (or "indefinitely").</td><td>Plan a welcome-back touch for the end date.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:14px;font-size:14px;color:var(--muted)">Low Credit and Expiring only look at class packs and hybrid packages. Unlimited packages never run low, and memberships never show as expiring.</p>
+    </section>
+
+    <section id="overview">
+      <h2>The Overview page, reworked</h2>
+      <p>Overview is the first page an owner sees after logging in. It now answers two questions: <b>what's happening today</b>, and <b>who needs my attention</b>.</p>
+      <ul>
+        <li><b>Today's schedule strip</b> across the top: every class, appointment and workshop still to come today, with time, spots filled and teacher. Arrows page through the rest of the day, and clicking a card opens it.</li>
+        <li><b>Member alerts card:</b> the 25 members with the most alerts, with red/yellow/grey counts and days since last sign-in. <b>View full report</b> opens the report.</li>
+        <li><b>Unpaid invoices</b> (failed payments) and <b>Needs attention</b> (unsigned waivers) are still there.</li>
+      </ul>
+      <div class="callout">
+        <p><b>Existing customers will ask where their numbers went.</b> The revenue, attendance and new-member KPI cards are gone from Overview. Those totals now live under <span class="kbd">Reports → General</span>. If a customer says "my dashboard disappeared," that's the answer.</p>
+      </div>
+    </section>
+
+    <section id="demo">
+      <h2>Demo talk track</h2>
+      <p>This fits best <b>right after login, before the schedule deep-dive</b>, because Overview is the first screen anyway. Plan on about two minutes. Set it up with a discovery question first so the feature answers something the prospect already said.</p>
+
+      <h3>Discovery questions that set it up</h3>
+      <ul>
+        <li>"How do you find out a member is about to quit today?"</li>
+        <li>"When someone stops coming in, who on your team notices, and how?"</li>
+        <li>"How many class packs run out each month without a renewal?"</li>
+      </ul>
+      <p>If the answer is "we don't" or "when they cancel," you have your opening.</p>
+
+      <div class="beat"><div class="when">Open</div><div>
+        <p class="show">Show: the Overview page, wide.</p>
+        <p class="say">"This is what you see every morning. Up top is everything left on today's schedule. Below it is who needs a call."</p></div></div>
+      <div class="beat"><div class="when">The list</div><div>
+        <p class="show">Show: the Member alerts card. Point at a row with red chips.</p>
+        <p class="say">"OS watches sign-ins, packages and credits for every member and flags the ones slipping. Red means call this week. This member hasn't been in for 19 days and has nothing active on their account."</p></div></div>
+      <div class="beat"><div class="when">The why</div><div>
+        <p class="show">Show: View full report, then the four-week sign-in columns.</p>
+        <p class="say">"Here's the full picture: three visits a week, then two, then zero. That's someone you can still save. A week from now they've probably cancelled."</p></div></div>
+      <div class="beat"><div class="when">Revenue angle</div><div>
+        <p class="show">Show: hover a Low Credit pill to show the package name.</p>
+        <p class="say">"This one's not at risk, they're down to two credits. That's your renewal list. You're asking them to buy the next pack before they run out."</p></div></div>
+      <div class="beat"><div class="when">Team</div><div>
+        <p class="show">Show: Add note, pick a category, type a line.</p>
+        <p class="say">"Your coach calls, logs a quick note, and everyone on staff can see it. Nobody calls the same member twice, and you can see who's been followed up with."</p></div></div>
+      <div class="beat"><div class="when">Close the loop</div><div>
+        <p class="show">Show: pull back to the full table.</p>
+        <p class="say">"Most of our owners spend five minutes here on Monday and walk away with their call list for the week."</p></div></div>
+      <p style="margin-top:16px;font-size:14px;color:var(--muted)">Only use that last line once it's true. Until we have real usage, say "the idea is five minutes on Monday."</p>
+
+      <h3>For current customers (upsell and expansion calls)</h3>
+      <p>Frame it as something they now get for free: "Remember the at-risk list you asked about? It's live. Open Reports, then Member alerts." For a customer who's unhappy about churn, filter to <b>No Sign In 14 Days</b> live on the call and call it a starter list.</p>
+    </section>
+
+    <section id="guardrails">
+      <h2>Say / don't say</h2>
+      <div class="dd">
+        <div class="do"><h3>Say</h3><ul>
+          <li>"Flags members at risk" and "tells you who to call."</li>
+          <li>"Built from data OS already tracks. No setup."</li>
+          <li>"Fixed, simple rules: two weeks without a visit, three credits left."</li>
+          <li>"Your whole team shares the notes."</li>
+          <li>Position it as the full loop on one screen: who's slipping, why, and who already called them.</li>
+        </ul></div>
+        <div class="dont"><h3>Don't say</h3><ul>
+          <li>"It messages members for you" or "automated outreach." There's no texting or email from the report.</li>
+          <li>"AI predicts churn." The rules are fixed, not a model.</li>
+          <li>"You can set your own thresholds." You can't.</li>
+          <li>"Export it to a spreadsheet." There's no export yet.</li>
+          <li>"Nobody else has this." Most gym platforms have some kind of attendance or at-risk report. Win on how simple it is and that it sits on the home screen.</li>
+        </ul></div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>Questions you'll get</h2>
+      <details><summary>Can it text or email the member for me?</summary><div class="a"><p>No. The report tells you who to contact and why. You reach out however you normally do (text, call, in person) and log a note so the team knows.</p></div></details>
+      <details><summary>Can I change the 14-day window or the 3-credit threshold?</summary><div class="a"><p>Not today. Every studio gets the same rules. If a prospect pushes on this, log it as feedback. Don't promise it.</p></div></details>
+      <details><summary>Can my front desk staff see it?</summary><div class="a"><p>No. Member alerts and the Overview page are for owners and admins only. Front desk roles don't see Overview or Reports.</p></div></details>
+      <details><summary>Why aren't this week's visits showing?</summary><div class="a"><p>Only complete weeks count, so the numbers are never skewed by a half-finished week. This week's visits show up next Monday. The same applies to the Weekly and Monthly Frequency Down alerts.</p></div></details>
+      <details><summary>I can't find a member in the report.</summary><div class="a"><p>The main list only shows members who signed in during the last 90 days. Anyone older is under the <b>Inactive Members</b> filter. That filter also holds people who have never bought anything (for example, someone booked into a free class), even if they visited recently.</p></div></details>
+      <details><summary>Does a booked future class count as a visit?</summary><div class="a"><p>No. Only actual sign-ins count. A member with a class booked next week but no sign-in for 14 days still gets the red alert.</p></div></details>
+      <details><summary>A paused member only shows one alert. Is that right?</summary><div class="a"><p>Yes. Paused members show only <b>On Pause</b>, so you don't chase someone who told you they're away. Hover the pill to see when the pause ends.</p></div></details>
+      <details><summary>We have 1,000+ members. Will it be slow?</summary><div class="a"><p>Large studios load in batches of 500, and a counter shows "Loading 500 of X members…". Until it reads "Loaded X of X," filters and search only cover the members loaded so far.</p></div></details>
+      <details><summary>Does it work for unlimited memberships?</summary><div class="a"><p>Yes for attendance: No Sign In 14 Days and the Frequency Down alerts apply to everyone. Low Credit and Expiring only apply to class packs and hybrid packages, because unlimited plans don't run low and memberships don't expire that way.</p></div></details>
+    </section>
+
+    <section id="resources">
+      <h2>Resources</h2>
+      <ul class="res">
+        <li><a class="link" href="https://support.os.teambuildr.com/article/0tpcowx51f-staff-overview-page"><b>Your new Overview page</b></a>: support article with the 87-second video</li>
+        <li><a class="link" href="https://support.os.teambuildr.com/article/13kfrdya43-member-alerts-report-overview"><b>The Member alerts report</b></a>: support article with the 3-minute video and the full alert breakdown</li>
+        <li><b>Product spec:</b> <a class="link" href="https://app.notion.com/p/3ca24bca36d780ecb54eda32664727c6">TBOS Business Alerts PRD</a> (Notion) for edge cases.</li>
+      </ul>
+      <div class="callout" style="margin-top:16px">
+        <p><b>Before your next demo:</b> open Reports → Member alerts on the demo account you use. If it has no members, the report shows example rows behind a "No members yet" message, which won't sell anything. Make sure the account has members with a few weeks of sign-ins before you show it live.</p>
+      </div>
+    </section>
+
+    <footer>Prepared Oct 27, 2026 from the product spec, the project channel and the shipped code. Questions go to Trent.</footer>
+  </main>
+</div>
