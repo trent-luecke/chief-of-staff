@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-26T08:32:44.472323Z",
+  "fetched_at": "2026-10-27T08:41:33.677891Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -230,6 +230,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2025-08-06",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:caro@thescmqt.com",
+      "name": "Thescmqt",
+      "contact": "caro@thescmqt.com",
+      "email": "caro@thescmqt.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-26T17:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
