@@ -527,6 +527,7 @@ def main() -> None:
             sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
             filter_internal=avoma_cfg.get("filter_internal", True),
             include_non_os=True,
+            storage=storage,
         )
     except Exception as e:
         print(f"ERROR: Avoma fetch failed: {e}", file=sys.stderr)

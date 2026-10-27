@@ -290,7 +290,7 @@ def _build_slack_message(t, lead_name: str, resolved_people: list, trigger_text:
 # Transcript lookup
 # ---------------------------------------------------------------------------
 
-def _find_transcript(root_text: str, avoma_api_key: str, anthropic_api_key: str, config: dict, trigger_text: str = ""):
+def _find_transcript(root_text: str, avoma_api_key: str, anthropic_api_key: str, config: dict, trigger_text: str = "", storage=None):
     """Find the Avoma transcript for a thread. UUID extraction first, title-match fallback.
 
     trigger_text is passed as a context note to Claude if it contains rep-supplied context
@@ -313,6 +313,7 @@ def _find_transcript(root_text: str, avoma_api_key: str, anthropic_api_key: str,
             sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
             filter_internal=avoma_cfg.get("filter_internal", True),
             include_non_os=True,
+            storage=storage,
         )
     except Exception as e:
         print(f"WARNING: fetch_recent_meetings failed: {e}", file=sys.stderr)
@@ -351,7 +352,7 @@ def run_phase1(
         return
 
     root_text = get_thread_root_text(slack_bot_token, channel_id, thread_ts)
-    transcript = _find_transcript(root_text, avoma_api_key, anthropic_api_key, config, trigger_text=trigger_text)
+    transcript = _find_transcript(root_text, avoma_api_key, anthropic_api_key, config, trigger_text=trigger_text, storage=storage)
 
     if not transcript:
         post_to_thread(slack_bot_token, channel_id, thread_ts,

@@ -577,6 +577,7 @@ def collect_signals(config: dict, health: RunHealth, storage) -> CollectedData:
                         lookback_hours=avoma_cfg.get("lookback_hours", 96),
                         sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
                         filter_internal=avoma_cfg.get("filter_internal", True),
+                        storage=storage,
                     )
                     if data.avoma_transcripts:
                         print(f"   {len(data.avoma_transcripts)} OS-interested meeting(s) analyzed")

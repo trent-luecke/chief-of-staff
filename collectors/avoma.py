@@ -7,10 +7,15 @@ Fetches external sales calls involving specific reps, then uses Claude to:
 
 96h lookback window covers Monday runs that would miss Friday calls.
 UUID-based deduplication is handled by memory_observer (scans observations.jsonl).
+
+Claude analyses are cached per meeting UUID in ``state/avoma_analysis_cache.json``
+(R2, via the caller's ``storage``) so overlapping lookback windows across the
+brief, avoma_sync and the Slack trigger don't re-analyze the same call.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -301,6 +306,37 @@ def _analyze_with_claude(
         return None
 
 
+_CACHE_KEY = "state/avoma_analysis_cache.json"
+_CACHE_TTL_DAYS = 14  # longest caller lookback is 168h (Slack trigger)
+
+
+def _analysis_version(model: str) -> str:
+    """Fingerprint of model + prompt + tool schema; a change invalidates cached analyses."""
+    raw = model + _SYSTEM_PROMPT + json.dumps(_EXTRACT_TOOL, sort_keys=True)
+    return hashlib.sha256(raw.encode()).hexdigest()[:16]
+
+
+def _load_analysis_cache(storage) -> dict:
+    if storage is None:
+        return {}
+    try:
+        return storage.read_json(_CACHE_KEY, default={}) or {}
+    except Exception as e:
+        print(f"   ⚠️ Avoma analysis cache unreadable (non-fatal): {e}")
+        return {}
+
+
+def _save_analysis_cache(storage, cache: dict) -> None:
+    if storage is None:
+        return
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=_CACHE_TTL_DAYS)).isoformat()
+    kept = {k: v for k, v in cache.items() if v.get("cached_at", "") >= cutoff}
+    try:
+        storage.write_json(_CACHE_KEY, kept)
+    except Exception as e:
+        print(f"   ⚠️ Avoma analysis cache not saved (non-fatal): {e}")
+
+
 def fetch_recent_meetings(
     api_key: str,
     anthropic_api_key: str,
@@ -310,6 +346,7 @@ def fetch_recent_meetings(
     filter_internal: bool = True,
     include_non_os: bool = False,
     rep_roster: dict | None = None,
+    storage=None,
 ) -> list[AvomaTranscript]:
     """Return analyzed Avoma meetings from the past ``lookback_hours`` hours.
 
@@ -319,7 +356,27 @@ def fetch_recent_meetings(
     When ``include_non_os=True``, all external calls are returned regardless
     of os_interested — the field is still populated for downstream branching.
     Callers are responsible for UUID-based deduplication.
+
+    Pass ``storage`` to reuse cached Claude analyses by meeting UUID; without
+    it every meeting in the window is re-analyzed.
     """
+    version = _analysis_version(model)
+    cache = _load_analysis_cache(storage)
+    try:
+        return _fetch_recent_meetings(
+            api_key, anthropic_api_key, model, lookback_hours, sales_rep_emails,
+            filter_internal, include_non_os, rep_roster, cache, version,
+        )
+    finally:
+        new_entries = [v.pop("_new") for v in cache.values() if "_new" in v]
+        if new_entries:
+            _save_analysis_cache(storage, cache)
+
+
+def _fetch_recent_meetings(
+    api_key, anthropic_api_key, model, lookback_hours, sales_rep_emails,
+    filter_internal, include_non_os, rep_roster, cache: dict, version: str,
+) -> list[AvomaTranscript]:
     now = datetime.now(timezone.utc)
     from_dt = now - timedelta(hours=lookback_hours)
 
@@ -392,7 +449,14 @@ def fetch_recent_meetings(
             formatted = _format_transcript(speakers, utterances)
             title = m.get("subject") or "Untitled Meeting"
 
-            result = _analyze_with_claude(anthropic_api_key, model, title, formatted)
+            cached = cache.get(uuid)
+            if cached and cached.get("v") == version:
+                result = cached["analysis"]
+            else:
+                result = _analyze_with_claude(anthropic_api_key, model, title, formatted)
+                if result:
+                    cache[uuid] = {"v": version, "cached_at": now.isoformat(),
+                                   "analysis": result, "_new": True}
             if not result:
                 continue
             os_interested = bool(result.get("os_interested"))

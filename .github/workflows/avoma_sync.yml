@@ -37,6 +37,8 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
           METRICS_BASE_URL: ${{ secrets.METRICS_BASE_URL }}
           METRICS_PASSWORD: ${{ secrets.METRICS_PASSWORD }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         run: python scripts/avoma_sync.py
 
       - name: Commit data changes

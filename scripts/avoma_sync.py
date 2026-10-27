@@ -276,6 +276,13 @@ def main() -> None:
 
     today = date.today().isoformat()
 
+    try:
+        from lib.storage import build_storage
+        analysis_store = build_storage(config)
+    except Exception as e:
+        print(f"WARNING: R2 unavailable, Avoma analysis cache disabled: {e}", file=sys.stderr)
+        analysis_store = None
+
     lookback = config.get("demos", {}).get("lookback_hours", 72)
     print(f"🎙️  Fetching Avoma meetings (last {lookback}h)...")
     transcripts = fetch_recent_meetings(
@@ -286,6 +293,7 @@ def main() -> None:
         rep_roster=DEMO_REP_ROSTER,
         sales_rep_emails=avoma_cfg.get("sales_rep_emails", []),
         filter_internal=avoma_cfg.get("filter_internal", True),
+        storage=analysis_store,
     )
     print(f"   Found {len(transcripts)} OS-interested meeting(s).")
 
