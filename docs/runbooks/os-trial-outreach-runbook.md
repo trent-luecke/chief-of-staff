@@ -119,7 +119,8 @@ Runs right after Step E, for leads in lane `new` or `archived_untagged` (Step A)
    - lane `archived_untagged` → Trent dismissed it (deleted the draft + archived). **Skip silently** — no comment, no draft, not listed under contact-not-found, not in the summary.
 2. If `touchCount >= 1` (touch 1 really went out per HubSpot):
    - **Removed-tag marker check:** if the notification thread already has a comment beginning `Added to Trial Outreach` OR `First email sent`, this lead was in the sequence before and Trent has since removed the tag → he stopped it. **Skip silently, never re-tag.**
-   - Otherwise → `tag_conversation` addTags=[`tag_4puwt6`] on notificationConvId, then `add_comment`: `Added to Trial Outreach (auto: touch 1 sent M/D).` (M/D = first send day). Treat the lead as lane `tagged` for the rest of this run. Do NOT unarchive / change status.
+   - Otherwise → `tag_conversation` addTags=[`tag_4puwt6`] on notificationConvId, then `add_comment`: `Added to Trial Outreach (auto: touch 1 sent M/D).` (M/D = first send day). Treat the lead as lane `tagged` for the rest of this run.
+   - **Clear it from the inbox:** if the notification's `status` is not already archived, `update_conversation_status` status="archived" (touch 1 is out, so the signup no longer needs to sit open in the OS inbox; lead replies land on the outbound touch conversation, not this notification). Never unarchive. Only archive here, on the auto-tag — a thread Trent tagged himself and left open is his call.
 Step B's contact-not-found for an `archived_untagged` lead is also silent (it's almost always junk Trent already dismissed).
 
 ## Step F — Compose the draft (DRAFT ONLY — never send)
@@ -197,7 +198,7 @@ Idempotent — check existing `tagIds`/`status` first so daily re-runs don't re-
 Run Step A once, then for each Lead run this pipeline in order (early exits save work):
 1. **Step B** — HubSpot contact + segment. If contact not found → add to summary "contact not found", skip this lead (fail-safe: never draft without a contact).
 2. **Step E** — cadence: compute touchCount / lastSend / send-days from HubSpot, and hasPendingDraft.
-2b. **Step E2** — lane resolution / auto-tag. `archived_untagged` leads either get auto-tagged (→ `tagged`) or are skipped silently here. Lane `new` with touchCount ≥ 1 is also auto-tagged.
+2b. **Step E2** — lane resolution / auto-tag. `archived_untagged` leads either get auto-tagged (→ `tagged`) or are skipped silently here. Lane `new` with touchCount ≥ 1 is also auto-tagged. Every auto-tag also archives the notification out of the OS inbox.
 3. **Step H** — touch-log comments: post any missing First/Follow-up/Final "…sent: M/D" comments on notificationConvId. Always runs (records real sends even for suppressed or completed leads).
 3b. **Step I** — if `touchCount == 3` (final email sent): tag the notification "Expired Trial" (tag_v1kw1) if not already, and archive it if not already. End-of-sequence cleanup.
 4. **Step C** — demo-booked check. If suppressed:
@@ -213,15 +214,16 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
 - Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
 - Dedup flags (also in Strength): N (list leads)
 - Touch-log comments added: N (First/Follow-up/Final sent-date records)
-- Auto-tagged into Trial Outreach (touch 1 sent): N (list leads)
+- Auto-tagged into Trial Outreach + archived (touch 1 sent): N (list leads)
 - Sequences completed (tagged Expired Trial after final email): N
 - Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
-## Companion task — midday log pass (log-only)
-A second scheduled task (`os-trial-outreach-log`, weekdays 12:00 CT) runs a LOGGING-ONLY subset of this runbook, so a follow-up sent in the morning gets its sent-date comment / Expired-Trial tag the same day instead of waiting for the next 8:30 run.
-It runs ONLY: **Step A** (scan + all skip rules), **Step B** limited to resolving the HubSpot contactId/email (skip the Strength-segment classification — that's only for drafting), **Step E** (touchCount from HubSpot sends), **Step E2** (auto-tag — so a touch 1 sent this morning joins the sequence the same day), **Step H** (touch-log comments), **Step I** (end-of-sequence tag + archive).
-It does NOT run **Step C** (demo-check/reassign), **Step D** (dedup comment), or **Step F** (drafting) — it never creates a draft. Every step it runs is idempotent, so re-running at noon never duplicates a comment/tag. All drafting stays in the 8:30 run.
+## Companion task — post-send log passes (log-only)
+A second scheduled task (`os-trial-outreach-log`, weekdays 9:30 + 12:00 CT) runs a LOGGING-ONLY subset of this runbook. The 9:30 pass catches the drafts Trent sends first thing after the 8:30 run: new signups he emailed get tagged + archived out of the OS inbox within the hour, and follow-ups get their sent-date comment / Expired-Trial tag. The noon pass catches anything sent later in the morning.
+It runs ONLY: **Step A** (scan + all skip rules), **Step B** limited to resolving the HubSpot contactId/email (skip the Strength-segment classification — that's only for drafting), **Step E** (touchCount from HubSpot sends), **Step E2** (auto-tag + archive — so a touch 1 sent this morning joins the sequence and leaves the inbox the same morning), **Step H** (touch-log comments), **Step I** (end-of-sequence tag + archive).
+It does NOT run **Step C** (demo-check/reassign), **Step D** (dedup comment), or **Step F** (drafting) — it never creates a draft. Every step it runs is idempotent, so re-running at 9:30/noon never duplicates a comment/tag. All drafting stays in the 8:30 run.
 
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->
 <!-- Companion log-only task os-trial-outreach-log installed 2026-10-05, weekdays 12:00 CT. -->
+<!-- 2026-10-27: log task moved to weekdays 9:30 + 12:00 CT; Step E2 now archives the notification on auto-tag. -->
