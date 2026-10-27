@@ -125,10 +125,7 @@
       "dept heads"
     ],
     "recurring_internal_patterns": [
-      "marketing sync",
-      "os weekly",
-      "luke / trent",
-      "luke/trent"
+      "marketing sync"
     ],
     "preps_state_file": "data/meeting_preps.json",
     "sheets": {
