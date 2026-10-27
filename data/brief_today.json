@@ -1,6 +1,6 @@
 {
   "date": "2026-10-27",
-  "generated_at": "2026-10-27T12:03:25.434826+00:00",
+  "generated_at": "2026-10-27T16:57:43.367921+00:00",
   "meetings": [
     {
       "id": "olt4eh3488fftej670gj40dnro_20261027T133000Z",
@@ -172,13 +172,6 @@
       "reason": "overdue",
       "due_date": "2026-06-30",
       "project_id": "q3-os-launch"
-    },
-    {
-      "id": "t-283218",
-      "title": "follow up w/ rachel about Manny contract",
-      "reason": "overdue",
-      "due_date": "2026-10-26",
-      "project_id": null
     }
   ],
   "deals_to_review": {
