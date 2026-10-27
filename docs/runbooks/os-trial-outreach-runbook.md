@@ -220,10 +220,10 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
 ## Companion task — post-send log passes (log-only)
-A second scheduled task (`os-trial-outreach-log`, weekdays 9:30 + 12:00 CT) runs a LOGGING-ONLY subset of this runbook. The 9:30 pass catches the drafts Trent sends first thing after the 8:30 run: new signups he emailed get tagged + archived out of the OS inbox within the hour, and follow-ups get their sent-date comment / Expired-Trial tag. The noon pass catches anything sent later in the morning.
+A second scheduled task (`os-trial-outreach-log`, weekdays 9:30 + 12:30 CT) runs a LOGGING-ONLY subset of this runbook. The 9:30 pass catches the drafts Trent sends first thing after the 8:30 run: new signups he emailed get tagged + archived out of the OS inbox within the hour, and follow-ups get their sent-date comment / Expired-Trial tag. The noon pass catches anything sent later in the morning.
 It runs ONLY: **Step A** (scan + all skip rules), **Step B** limited to resolving the HubSpot contactId/email (skip the Strength-segment classification — that's only for drafting), **Step E** (touchCount from HubSpot sends), **Step E2** (auto-tag + archive — so a touch 1 sent this morning joins the sequence and leaves the inbox the same morning), **Step H** (touch-log comments), **Step I** (end-of-sequence tag + archive).
-It does NOT run **Step C** (demo-check/reassign), **Step D** (dedup comment), or **Step F** (drafting) — it never creates a draft. Every step it runs is idempotent, so re-running at 9:30/noon never duplicates a comment/tag. All drafting stays in the 8:30 run.
+It does NOT run **Step C** (demo-check/reassign), **Step D** (dedup comment), or **Step F** (drafting) — it never creates a draft. Every step it runs is idempotent, so re-running at 9:30/12:30 never duplicates a comment/tag. All drafting stays in the 8:30 run.
 
 <!-- Installed as scheduled task os-trial-outreach on <date>, manual-only pending validation. -->
 <!-- Companion log-only task os-trial-outreach-log installed 2026-10-05, weekdays 12:00 CT. -->
-<!-- 2026-10-27: log task moved to weekdays 9:30 + 12:00 CT; Step E2 now archives the notification on auto-tag. -->
+<!-- 2026-10-27: log task moved to weekdays 9:30 + 12:30 CT; Step E2 now archives the notification on auto-tag. -->
