@@ -94,6 +94,15 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
 ## Step D — Strength dedup
 1. Front `search_conversations`: scope all_inboxes, filters.inboxId=inb_25ub, query=<lead.email>.
 2. alsoInStrength = any match found. If true and the lead is not already existing_strength_customer → segment = concurrent_strength_trial.
+3. **Strength rep-activity check** (only when alsoInStrength). Trent needs to know what the Strength rep has already done before he sends, so gather it read-only:
+   - **Front:** `read_conversation` (limit 20) on each Strength-inbox match. Collect: assignee, tag names (e.g. "duplicate trial"), every teammate comment (author + date + text), any `message_outbound` from a teammate (author + date + first line), and who archived it.
+   - **HubSpot meetings (any time, past and future):** `search_crm_objects` MEETING_EVENT associated with contactId, properties hs_meeting_title, hs_meeting_start_time, hs_meeting_outcome, hubspot_owner_id. Resolve the owner name via the Config owner map.
+   - **HubSpot calls:** `search_crm_objects` CALL associated with contactId, properties hs_call_title, hs_timestamp, hs_call_status, hubspot_owner_id.
+   - **HubSpot emails:** reuse Step E's EMAIL results. List SENT emails that are NOT Trent's outreach subjects and NOT the "New Account" notification (e.g. "Demo Recap", calendar invites) — these are other reps' touches.
+   - Also note the contact's `hubspot_owner_id` (name) if set.
+   Build a one-line digest: `Strength side: <rep(s)> — <what they did, newest first, with M/D dates>. Demo: <none | held M/D (<owner>) | booked M/D (<owner>)>.` Paraphrase rep comments briefly (e.g. "Ryan reaching out via WhatsApp 10/26; Jeff tagged duplicate trial (E&P vs R&P)"). If nothing is found anywhere, say `Strength side: no rep activity logged yet.`
+   - **Duplicate-trial hint:** if a rep comment or tag says "duplicate", say so in the digest. The other trial may be under a different email, so it won't show up in an email search.
+   - **Actively-worked flag:** if a non-Trent rep has commented, emailed, called, or held/booked any meeting within the last 14 days, set strengthRepActive=true. This does NOT suppress the draft (Step C still owns suppression); it only raises it to Trent in the summary as "consider holding — <rep> is working this lead."
 
 ## Step E — Cadence state (from HubSpot EMAIL engagements)
 1. HubSpot `search_crm_objects` EMAIL, filterGroups[0].associatedWith=[{objectType:"contacts",operator:"EQUAL",objectIdValues:[contactId]}], properties: hs_email_subject, hs_timestamp, hs_email_status; sort hs_timestamp desc.
@@ -206,13 +215,13 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
    - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
    - Do NOT draft; go to next lead.
 5. Cadence gate: if `nextTouch` is null (done/not due) or `hasPendingDraft` → go to next lead (no draft). Lane `new` may only receive touch 1 (touches 2/3 require lane `tagged`). Note: a `new` lead whose touch-1 draft Trent deleted but did NOT archive gets a fresh touch-1 draft next run — archiving is the dismiss signal.
-6. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending.`
+6. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → run the Step D.3 rep-activity check, then `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending. <digest>` (digest from Step D.3). Idempotent: if the thread already has a comment beginning `Also has a Strength trial` whose digest matches today's, skip it. If the digest has changed (new rep activity), post the new one.
 7. **Step F** — compose the draft (draft only, using the segment for touch 1).
 
 ## Run summary (final message, one block)
 - Drafts created: touch1=N, touch2=N, touch3=N (list lead name + segment for touch1)
 - Suppressed for a booked demo: N (list each: lead, meetingTitle, reassigned-to or "not in Front")
-- Dedup flags (also in Strength): N (list leads)
+- Dedup flags (also in Strength): N. List each lead with its Step D.3 digest: rep(s), what they did and when, demo status, any duplicate-trial note. Prefix leads with strengthRepActive=true with "⚠ consider holding draft".
 - Touch-log comments added: N (First/Follow-up/Final sent-date records)
 - Auto-tagged into Trial Outreach + archived (touch 1 sent): N (list leads)
 - Sequences completed (tagged Expired Trial after final email): N
