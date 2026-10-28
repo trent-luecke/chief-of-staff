@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-10-27T00:00:00",
+  "resolved_at": "2026-10-28T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -35224,6 +35224,96 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "7491": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7492": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7493": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7494": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7495": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7496": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7497": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7498": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7499": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7500": {
+      "primary_person_id": "ryan-allwein",
+      "related_person_ids": [],
+      "confidence": "embedded"
+    },
+    "7502": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7503": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7504": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7505": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7506": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7507": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7508": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7509": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -35699,7 +35789,13 @@
     7357,
     7358,
     7359,
-    7363
+    7363,
+    7486,
+    7487,
+    7488,
+    7489,
+    7490,
+    7501
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -35902,6 +35998,9 @@
     "thread:Re: Offer to Purchase a Commercial License for TeamBuildr Data for Artificial Intelligence Development",
     "thread:Fwd: Teambuildr",
     "thread:Re: Information needed for SFTP request",
-    "thread:RE: Mob Armor Order"
+    "thread:RE: Mob Armor Order",
+    "thread:Something for TeamBuildr",
+    "thread:Re: Mob Armor Order",
+    "thread:Re: GymStudio Follow-Up"
   ]
 }

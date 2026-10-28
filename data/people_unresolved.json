@@ -831,6 +831,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-23"
+    },
+    {
+      "entity": "Caro Tripp",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-28"
     }
   ],
   "previously_notified": [
