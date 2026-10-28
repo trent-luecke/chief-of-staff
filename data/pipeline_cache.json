@@ -1,6 +1,17 @@
 {
-  "fetched_at": "2026-10-27T00:00:00Z",
+  "fetched_at": "2026-10-28T23:04:49Z",
   "leads": [
+    {
+      "name": "Jen McMahon",
+      "contact": "",
+      "email": "",
+      "status": "In-Trial / Post Demo",
+      "priority": "",
+      "last_contacted": "2026-10-27",
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
     {
       "name": "Caro Tripp and Ryan Allwein",
       "contact": "",
