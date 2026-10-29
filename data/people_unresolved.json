@@ -839,6 +839,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-28"
+    },
+    {
+      "entity": "Jennifer Mcmahon",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-29"
+    },
+    {
+      "entity": "Deronnsamlalsingh",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-10-29"
     }
   ],
   "previously_notified": [
