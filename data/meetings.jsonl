@@ -155,3 +155,4 @@
 {"event": "delete_thread", "id": "os_marketing", "ts": "2026-10-29T14:01:13", "thread_id": "th-42bb07"}
 {"event": "delete_thread", "id": "os_marketing", "ts": "2026-10-29T14:01:18", "thread_id": "th-e3281d"}
 {"event": "set_agenda", "id": "os_marketing", "ts": "2026-10-29T14:29:15", "items": ["how to use/distribute PWR assets", "manny agreement"]}
+{"event": "set_agenda", "id": "luke_1on1", "ts": "2026-10-29T17:32:11", "items": ["Home conversation for Strength got me thinking about the same issue for people coming to OS. Its less likely that they don't have a clue where to go, but more so give them a dedicated checklist for onboarding/account set up"]}
