@@ -1,51 +1,12 @@
 {
-  "date": "2026-10-28",
-  "generated_at": "2026-10-28T17:30:01.062594+00:00",
+  "date": "2026-10-29",
+  "generated_at": "2026-10-29T12:02:00.447510+00:00",
   "meetings": [
     {
-      "id": "3kpjvrk4m7h9tv50tcmkhppigj",
-      "title": "Truman Doctor",
-      "start": "2026-10-28T08:30:00-05:00",
-      "end": "2026-10-28T10:00:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "69oh9m5c2lf63d3vc0mui1idf8",
-      "title": "OS Alerts Launch",
-      "start": "2026-10-28T10:30:00-05:00",
-      "end": "2026-10-28T11:30:00-05:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "polina@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jasmine@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jake@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "josh@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "145m0vrad8cp69j7g3pb4tgasq",
-      "title": "Onboarding Auditor Sesh",
-      "start": "2026-10-28T12:00:00-05:00",
-      "end": "2026-10-28T12:30:00-05:00",
+      "id": "427va7uog7950apj45agnlp33o_20261029T143000Z",
+      "title": "OS | Marketing 2.0",
+      "start": "2026-10-29T09:30:00-05:00",
+      "end": "2026-10-29T10:00:00-05:00",
       "kind": "internal",
       "attendees": [
         {
@@ -53,25 +14,25 @@
           "name": ""
         },
         {
-          "email": "clayton@teambuildr.com",
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "rachel@teambuildr.com",
           "name": ""
         }
       ],
       "prep": null
     },
     {
-      "id": "2uobik47m8nvombvq9rehhf7rq",
-      "title": "Member Alerts/Overview Run-through",
-      "start": "2026-10-28T14:30:00-05:00",
-      "end": "2026-10-28T15:00:00-05:00",
+      "id": "4v5bila96u8gpm8onukns3khf6_20261029T160000Z",
+      "title": "Andrea/Amanda 1 on 1 Check In",
+      "start": "2026-10-29T11:00:00-05:00",
+      "end": "2026-10-29T11:30:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
+          "email": "amanda@teambuildr.com",
           "name": ""
         },
         {
@@ -80,6 +41,25 @@
         }
       ],
       "prep": null
+    },
+    {
+      "id": "05qo705ca6f27ai8m3usq7fp05_20261029T170000Z",
+      "title": "Luke / Trent",
+      "start": "2026-10-29T12:00:00-05:00",
+      "end": "2026-10-29T12:30:00-05:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        }
+      ],
+      "prep": "## Luke / Trent Prep\n\n---\n\n- **Team & Support Videos** \u2014 Andrea is ramping well and 2 of ~10 feature hub pages are done; open work is finishing the remaining hub pages and building out Claude-assisted videos for data import, member-booked appointments, and scheduling (voiceover still manual). No blocker, just volume.\n\n- **OS Onboarding Checklist** \u2014 Concept is solid (PushPress-style, dismissable, helps trial users + CSMs), but scope hasn't been confirmed yet \u2014 need to check with Teofe on the frontend/backend build. **Blocker: scope conversation with Teofe pending.** Concrete plan expected early November; open task is creating a fake onboarding script to feed into Claude for testing.\n\n- **Driving Adoption of OS** \u2014 Storybuildrr is landing well; next move is outreach to top TeamBuildr strength users (Luke pulling the list from Trend Zero with churn scores, Trent starting outreach and presenting a plan next week). Payments portal rebuild (OS Lite) is parked until post-Build \u2014 **not in active cycle.**\n\n- **Intermountain & Sales** \u2014 Three or four Intermountain facilities are eager but most are gating on Stripe setup; October is likely under five sales. Chris has a verbally agreed multi-year bundle deal in flight. Open question: whether Stripe and OS exports need to be combined for their SFTP \u2014 **that's unresolved.** Pipeline is 61 total (36 in-trial/post-demo), 14 demos MTD.",
+      "prep_hash": "6b98bec78d02"
     }
   ],
   "needs_today": [
@@ -93,9 +73,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 4,
-      "stale": 14,
-      "total": 18
+      "identity": 5,
+      "stale": 15,
+      "total": 20
     }
   },
   "what_moved": []
