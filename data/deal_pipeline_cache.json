@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-10-28T09:20:35.566293Z",
+  "fetched_at": "2026-10-29T09:24:13.267130Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -373,6 +373,19 @@
       "status": "in_trial",
       "priority": null,
       "last_contacted": "2026-10-05T14:30:06.108436+00:00",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:deronnsamlalsingh@gmail.com",
+      "name": "",
+      "contact": "deronnsamlalsingh@gmail.com",
+      "email": "deronnsamlalsingh@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-10-28T14:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
@@ -766,7 +779,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:joe@pfpfit.com",
