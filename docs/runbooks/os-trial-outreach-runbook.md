@@ -91,6 +91,14 @@ Rule: if a demo's `hubspot_owner_id` is in the map → reassign to that Front te
    - not in the map (e.g. Nick Hawkins) → no reassignment; mark "demo owner not in Front — assign manually".
 5. If suppressed → skip drafting this lead this run (Step F).
 
+## Step C2 — Returning-lead check (touch 1 only)
+Steps B/C/E only see the HubSpot contact matching the trial email. A lead who re-signs up under a new address (e.g. work email now, personal Gmail before) looks brand new even after demos with Trent, and gets a generic "introduce myself" draft (happened 2026-10-29 with a lead Trent had demoed twice in May). Run this only when nextTouch=1:
+1. HubSpot `search_crm_objects` CONTACT, query=<"First Last" from the notification>. Keep results whose email ≠ lead.email AND whose firstname+lastname match (case-insensitive). For each, run the Step C MEETING_EVENT search (any time, past and future) and the Step E EMAIL search.
+2. Front `search_conversations` scope all_inboxes, query=<"First Last">. Ignore this lead's own "New Account" notifications. Prior-contact signals: Calendly "New Event: <name>", "Accepted: <name> …" calendar replies, Avoma "AI Notes for … <name> …", or a SENT outreach email ("TeamBuildr OS: Welcome!" / "TeamBuildr OS Follow-Up") to another address.
+3. returningLead = any HubSpot meeting on another matching contact, OR a SENT outreach-subject email to another matching contact, OR any Step 2 prior-contact signal. A bare name match with no meeting/email/calendar evidence is NOT enough (common names).
+4. If returningLead → do NOT draft the generic touch 1. `add_comment` on notificationConvId: `Returning lead — prior contact under <other email>: <what, M/D, owner> (e.g. "OS demo + follow-up (Trent)"). Write a personal re-engagement note instead of the template.` Idempotent: skip if a comment beginning `Returning lead` already exists. List the lead under "Returning leads" in the run summary.
+   When Trent writes the note, use subject `TeamBuildr OS Follow-Up` + the HubSpot BCC so it counts as touch 1 (Step E) and the sequence continues from there; he can remove the Trial Outreach tag to stop it.
+
 ## Step D — Strength dedup
 1. Front `search_conversations`: scope all_inboxes, filters.inboxId=inb_25ub, query=<lead.email>.
 2. alsoInStrength = any match found. If true and the lead is not already existing_strength_customer → segment = concurrent_strength_trial.
@@ -214,6 +222,7 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
    - if `reassignTeammateId` (a rep who is in Front): `assign_conversation` notificationConvId → reassignTeammateId.
    - `add_comment` on notificationConvId: `Suppressed: <meetingTitle> booked (owner <rep>).` — if the owner is unmappable, use `… owner <name> not in Front — assign manually`; if the suppression was the flagged tier (generic "Meeting"), append `[flagged — verify it was a real sales touch]`.
    - Do NOT draft; go to next lead.
+4b. **Step C2** — returning-lead check (only when nextTouch=1). If returningLead → comment, list in summary, do NOT draft; go to next lead.
 5. Cadence gate: if `nextTouch` is null (done/not due) or `hasPendingDraft` → go to next lead (no draft). Lane `new` may only receive touch 1 (touches 2/3 require lane `tagged`). Note: a `new` lead whose touch-1 draft Trent deleted but did NOT archive gets a fresh touch-1 draft next run — archiving is the dismiss signal.
 6. **Step D** — Strength dedup (also finalizes the segment). If `alsoInStrength` → run the Step D.3 rep-activity check, then `add_comment` on notificationConvId: `Also has a Strength trial — coordinate before sending. <digest>` (digest from Step D.3). Idempotent: if the thread already has a comment beginning `Also has a Strength trial` whose digest matches today's, skip it. If the digest has changed (new rep activity), post the new one.
 7. **Step F** — compose the draft (draft only, using the segment for touch 1).
@@ -225,6 +234,7 @@ Run Step A once, then for each Lead run this pipeline in order (early exits save
 - Touch-log comments added: N (First/Follow-up/Final sent-date records)
 - Auto-tagged into Trial Outreach + archived (touch 1 sent): N (list leads)
 - Sequences completed (tagged Expired Trial after final email): N
+- Returning leads (prior demo/outreach under another email — no template draft; write a personal note): N (list lead, other email, prior contact + M/D)
 - Needs your review: contact-not-found [leads], demo-owner-not-in-Front [leads], parse failures [convo ids]
 - If nothing was drafted or flagged, say so explicitly ("No new OS outreach today; N leads already handled/suppressed").
 
