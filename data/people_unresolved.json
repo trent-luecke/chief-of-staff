@@ -855,6 +855,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-10-29"
+    },
+    {
+      "entity": "Deronn Samlalsingh",
+      "email": null,
+      "source": "pipeline",
+      "candidate_id": "deronnsamlalsingh",
+      "candidate_score": 97.14285714285714,
+      "added": "2026-10-30"
     }
   ],
   "previously_notified": [
