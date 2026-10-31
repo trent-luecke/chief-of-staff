@@ -1,55 +1,19 @@
 {
-  "date": "2026-10-30",
-  "generated_at": "2026-10-30T17:19:00.988144+00:00",
+  "date": "2026-10-31",
+  "generated_at": "2026-10-31T12:01:56.243044+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20261030T133000Z",
-      "title": "Focus Work",
-      "start": "2026-10-30T08:30:00-05:00",
-      "end": "2026-10-30T10:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "4g0dqo1915491irpjuidg7inc8",
-      "title": "James <> Trent",
-      "start": "2026-10-30T09:30:00-05:00",
-      "end": "2026-10-30T10:00:00-05:00",
+      "id": "5siqnatg22vegd2lf58tbiglqb_20261031T130000Z",
+      "title": "OS Weekend Support (Quinn)",
+      "start": "2026-10-31T08:00:00-05:00",
+      "end": "2026-10-31T08:15:00-05:00",
       "kind": "internal",
       "attendees": [
         {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "ii5cqgj7bq1io237ce96t64888",
-      "title": "TeamBuildr Purchase Flow for Holiday Special",
-      "start": "2026-10-30T11:30:00-05:00",
-      "end": "2026-10-30T12:00:00-05:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "brennen.ames@imail.org",
-          "name": ""
-        },
-        {
-          "email": "nick.shultz@imail.org",
+          "email": "quinn@teambuildr.com",
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20261030T193000Z",
-      "title": "Out of office",
-      "start": "2026-10-30T14:30:00-05:00",
-      "end": "2026-10-30T17:30:00-05:00",
-      "kind": "internal",
-      "attendees": [],
       "prep": null
     }
   ],
