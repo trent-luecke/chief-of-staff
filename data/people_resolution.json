@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-10-31T00:00:00",
+  "resolved_at": "2026-11-01T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -37219,6 +37219,89 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "7913": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7914": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7915": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7916": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7917": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7918": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7919": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7920": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7921": {
+      "primary_person_id": "brennen-ames",
+      "related_person_ids": [
+        "nick-shultz",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "7923": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7924": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7925": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7926": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7927": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7928": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "7929": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -37719,7 +37802,11 @@
     7779,
     7844,
     7845,
-    7846
+    7846,
+    7910,
+    7911,
+    7912,
+    7922
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
