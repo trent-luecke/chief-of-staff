@@ -17,7 +17,7 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
     - This quarter: `view://40c24bca-36d7-819e-a24d-000c15899e2e` (filtered to one Quarter value; see Quarter rollover)
     - At risk: `view://40c24bca-36d7-818f-ad2a-000cf761c1be`
     - By account: `view://40c24bca-36d7-81a9-912c-000cc4ce5164`
-- Feature Requests: `collection://ad23d54a-66ac-4f84-9fde-6c4e317892ea`. Fields: `Request` (title), `Requesting Account` (text), `Amount of Requests` (number), `Completed/Closed?` (checkbox), `Requesting Accounts` (relation → OS Accounts), `Check-ins` (relation → Check-ins).
+- Feature Requests: `collection://ad23d54a-66ac-4f84-9fde-6c4e317892ea`. Fields: `Request` (title), `Requesting Account` (text), `Amount of Requests` (number), `Completed/Closed?` (checkbox), `Requesting Accounts` (relation → OS Accounts), `Shipped notified` (one-way relation → OS Accounts, the L6 dedupe), `Check-ins` (relation → Check-ins).
 - Behavior Gaps: `collection://cd045eb1-489e-4566-924c-52bae236d36c`. **Never write to it and never add a column to it.** `Related Gap` on Check-ins is one-way on purpose.
 - Bug Tracker: `collection://29d24bca-36d7-80ef-b574-000b739e37a8`. Read-only here, used for holds.
 
@@ -51,9 +51,26 @@ Until Andrea's row is filled in, the Different-sender variant drafts on Trent's 
 - `fr-link`: Feature Request link and count update
 - `match`: free-text → account name
 
-Run it from the repo checkout. `git -C <repo> fetch origin main -q && git -C <repo> checkout -q origin/main -- lib/checkins.py lib/account_match.py scripts/checkins.py` first, so the code matches this runbook.
+**Never touch Trent's working checkout.** At the start of each run, export the code from `origin/main` into a temp directory and run the CLI from there:
+```
+R=/Users/trentluecke/dev/Claude-Projects/chief-of-staff
+T=$(mktemp -d) && git -C $R fetch origin main -q && git -C $R archive origin/main lib/__init__.py lib/checkins.py lib/account_match.py scripts/checkins.py | tar -x -C $T
+python3 $T/scripts/checkins.py <cmd>
+```
+Wherever this runbook shows `python3 scripts/checkins.py`, use `python3 $T/scripts/checkins.py`.
+
+**Inputs:** cast scores to integers, and convert dates to ISO `YYYY-MM-DD` before passing them.
 
 Never re-derive these rules in prose. Use the CLI output as-is.
+
+### Program start
+`program_start`: `2026-11-09`. This is the first Monday the draft task runs live. Update it if go-live moves. Pass it to every `due` call. Slots that fell before this date are never caught up, which spreads kickoff at about 8 per week instead of everyone in week one.
+
+### Program email subjects (used for exclusion in D2)
+- `Quick check-in from TeamBuildr OS`
+- `Re: Quick check-in from TeamBuildr OS`
+- `Thanks for the feedback`
+- `You asked for this one`
 
 ### Quarter rollover
 - **Quarter label:** the calendar quarter of the draft date ("2027 Q1"). If the label doesn't exist yet as a `Quarter` option, add it (`notion-update-data-source` ALTER COLUMN with all existing options plus the new one).
@@ -89,10 +106,12 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 
 ### D2 — Build holds (per account)
 Build the `support` list for the CLI:
-- Front `search_conversations` with the POC email, across all inboxes, last 120 days. Exclude conversations whose subject starts with the check-in subject (Appendix A).
+- Front `search_conversations` with the POC email, across all inboxes, last 120 days. **Exclude every conversation whose subject is one of the Program email subjects** (Config). The program's own emails must never create a hold.
   - Any **not archived**: `{"open": true}`.
   - Archived: `{"open": false, "closed_on": <last message date>}`.
-- Bug Tracker items related to the account page with a status that isn't Done/Closed: `{"open": true}`.
+- Bug Tracker items related to the account page:
+  - Status isn't Done/Closed: `{"open": true}`.
+  - Done/Closed and last edited in the last 21 days: `{"open": false, "closed_on": <last edited date>}`, which gives the post-fix cushion.
 - Trent's own outbound one-to-one emails to the POC in the last 21 days, excluding check-in drafts and sends: `{"open": false, "closed_on": <sent date>}`.
 
 ### D3 — Due list
@@ -102,9 +121,13 @@ From the By-account view, collect each account's Check-ins rows:
 
 Run:
 ```
-echo '{"week_monday": "...", "accounts": [{"name", "join_date", "email", "last_checkin_on", "support", "prior_outcomes"}]}' | python3 scripts/checkins.py due
+echo '{"week_monday": "...", "program_start": "<Config program_start>", "accounts": [{"name", "join_date", "email", "last_checkin_on", "support", "prior_outcomes"}]}' | python3 scripts/checkins.py due
 ```
-Use `due` and `skipped` exactly as returned. Every `skipped` with reason `held` goes in the summary under "held — support issue".
+Use `due` and `skipped` exactly as returned. Two skip reasons go in the summary:
+- `held`: under "held — support issue".
+- `bad_join_date` / `future_join_date`: under "bad join date". These accounts never get a check-in until the sheet is fixed, so they must be visible.
+
+`too_new`, `recent_checkin` and `not_slot_week` are normal and are not listed.
 
 ### D4 — Context packet (Give-first and Different-sender only)
 Gather, for that account:
@@ -149,7 +172,7 @@ For each `due` account, in order:
 7. **Generic email** (`generic_email: true`): still draft, and list it under "generic inbox — check recipient".
 
 ### D6 — Nudges
-For each Check-ins row at **Sent** where Sent is 7 or more days ago, Nudged is empty, and there's no response yet (Outcome is still Sent): draft the Nudge from Appendix A as a new outbound with BCC, then set `Nudged` = today. Never nudge twice.
+Nudges run in the **log pass** (L3b), not here, so they go out on day 7 whatever weekday the original was sent.
 
 ---
 
@@ -164,18 +187,21 @@ For each row at **Drafted**, read the Front conversation (`Front link`):
 - The draft is still unsent 7 or more days after the row was created: list it under "sitting unsent". Change nothing.
 
 ### L2 — Responses
-Check rows at **Sent** in this order. The first hit wins: a booking beats a survey, which beats a reply.
-1. **Booking:** HubSpot contact by POC email → `MEETING_EVENT` with title containing `<CHECKIN_EVENT_TITLE>` and created after `Sent`. Outcome = **Call booked**.
-2. **Survey:** Google Drive `read_file_content` on the responses sheet. Match each response's `Account` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
+**Open rows** are the account's newest row, when it is at Sent, Replied, Call booked or Silent, `Sent` is within the last 60 days, and `Platform score` is empty. A row stays open for surveys even after a reply or a Silent mark, so late answers aren't lost.
+
+For the outcome, a booking beats a survey, which beats a reply. A survey can overwrite Replied, Call booked or Silent.
+1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `<CHECKIN_EVENT_TITLE>` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
+2. **Survey** (any open row): Google Drive `read_file_content` on the responses sheet. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Account` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
    - `Platform score`, `Support score`;
    - `Alongside OS` (core Q3), `Change one thing` (core Q4);
    - `Version answers`: the two version questions, as "Q: … A: …";
-   - Outcome = **Survey answered**.
+   - `Response at` = that response's timestamp;
+   - Outcome = **Survey answered**. If the row was **Silent**, remove `Silent` and `Silent ×2` from Risk signals.
 
    If "Want to hop on a call?" = Yes, add "wants a call" to the summary.
-3. **Reply:** an inbound message on the Front conversation after `Sent`. Outcome = **Replied**.
+3. **Reply** (rows at Sent or Silent): an inbound message after `Sent` on the `Front link` conversation **or** the `Nudge link` conversation. Ignore auto-replies (out-of-office, "automatic reply"). Outcome = **Replied**. If the row was Silent, remove the Silent signals.
 
-If a survey response matches no row, list it under "unmatched responses". Never guess.
+If a qualifying response (last 60 days, not yet applied) matches no open row, list it under "unmatched responses". Never guess. A response already applied (its timestamp equals some row's `Response at`) is never listed.
 
 ### L3 — Flags (rows that got a survey this pass)
 1. **Scores:**
@@ -195,8 +221,11 @@ If a survey response matches no row, list it under "unmatched responses". Never 
    Quote the exact phrase in the summary. For Workaround or Built own, write proposed wording into `Proposed entry`: "Feature Request: <title> — <one line>" or "Gap: <title> — <one line>" (a Gap if OS has the feature but it behaves inconsistently).
 3. Never re-add a signal already on the row.
 
+### L3b — Nudges
+For each row at **Sent** where `Sent` is 7 or more days ago and `Nudged` is empty, draft the Nudge from Appendix A as a new outbound with BCC. Then set `Nudged` = today and `Nudge link` = the nudge's conversation. Never nudge twice.
+
 ### L4 — Silent
-For each row still at **Sent** where `Sent` is 14 or more days ago: Outcome = **Silent**, and add `Silent` to Risk signals. If the account's previous non-Skipped row was also **Silent**, add `Silent ×2` as well.
+For each row still at **Sent** where `Sent` is 14 or more days ago **and** `Nudged` is set and 7 or more days ago: Outcome = **Silent**, and add `Silent` to Risk signals. If the account's previous non-Skipped row was also **Silent**, add `Silent ×2` as well.
 
 ### L5 — Confirmed entries
 For each row with `Log it` ticked and `Related Feature Request` empty:
@@ -211,10 +240,13 @@ For each row with `Log it` ticked and `Related Feature Request` empty:
 For `Related Gap`, Trent pastes it by hand. Nothing to do.
 
 ### L6 — Shipped requests ("you asked, it's live")
-For each Feature Request with `Completed/Closed?` true and a non-empty `Requesting Accounts`:
-1. For each **active** account in it, check its newest Check-ins row. If `Call notes` does not already contain `notified-shipped: <request url>`, continue.
-2. Draft Appendix A "You asked, it's live" as a new outbound with BCC.
-3. Append `notified-shipped: <request url>` to that row's `Call notes` and set Follow-up = **Drafted**.
+Dedupe lives on the **Feature Request** in `Shipped notified` (relation → OS Accounts). It never sits on a Check-ins row, so it doesn't move each quarter. The Task 5 backfill seeds `Shipped notified` = `Requesting Accounts` for every request already Completed, so only **new** completions trigger.
+
+For each Feature Request with `Completed/Closed?` true:
+1. `to_notify` = active accounts in `Requesting Accounts` that are **not** in `Shipped notified`. If it's empty, skip.
+2. **Seed guard:** if `Shipped notified` is empty *and* `Requesting Accounts` has more than 5 accounts, don't draft. List it under "check: shipped request with no notify history" for Trent. That's an un-seeded backfill row, not a new ship.
+3. For each account in `to_notify`, draft Appendix A "You asked, it's live" as a new outbound with BCC. Add the account to `Shipped notified` right after its draft is created.
+4. If the account has a Check-ins row, set that row's Follow-up = **Drafted**. If it has no row, the draft still goes out. Just list it in the summary.
 
 ---
 
@@ -232,7 +264,7 @@ Give-first openers: <account — angle — cited items | PLACEHOLDER>
 Held (support issue): <accounts>
 Sitting unsent: <accounts>
 Wants a call (from survey): <accounts>
-Check: generic inboxes <…> · not in Notion <…> · no email <…> · unmatched responses <…> · Avoma <ok|skipped>
+Check: generic inboxes <…> · not in Notion <…> · no email <…> · bad join date <…> · unmatched responses <…> · shipped request with no notify history <…> · Avoma <ok|skipped>
 ```
 If a section is empty, drop it. If nothing happened, say "Nothing to do".
 

@@ -7,6 +7,7 @@ This is a one-time link of each existing Feature Request to the OS accounts that
 ## Rules
 - **What gets written:** only the relation, and only for rows Trent approves. The backfill does **not** change `Amount of Requests` or the `Requesting Account` text, because those already reflect the historical asks.
 - **How names were matched:** `scripts/checkins.py match` against the OS Accounts Database, using the first 100 rows (Active, plus 1 Churned). The rest of the accounts couldn't be pulled because the Notion SQL query allowance ran out on 2026-11-02. Many **Unmatched** names (Home of Yoga, Mass General Brigham, Off-Field, Kula, Mi-Yoga, Brock U, Straight Shot Training, …) are probably churned or legacy accounts. They get re-matched against the full account list before anything is written.
+- **Shipped notified seeding:** for every request already `Completed/Closed?`, the same approved accounts are also written to `Shipped notified`. That stops the routine from sending "it's live" for things that shipped long ago.
 - **Not account names:** "Multiple", "multiple" and "Several". These rows can't be backfilled unless you name the accounts.
 
 ## How to review

@@ -78,7 +78,7 @@ Secondary goal: every request or workaround heard is logged against the account 
 - **Population:** every row on the Active Customers tab.
 - **Grace period (Claude's call):** an account becomes eligible once its tenure is 2 months or more. The first 60 days are onboarding (matches the 60-day onboarding window used in the account-health work), and Layer 1 buyer's-story interviews cover day 14–30.
 - **Check-in week (Claude's call):** each account's slot within the 13-week quarter is fixed and derived from its Join Date:
-  `slot = (days since Join Date ÷ 7) mod 13`, and the account is due in the week where its slot comes up.
+  `slot = (days since Join Date ÷ 7) mod 13`, and the account is due in the week where its slot comes up. *(Build note: an account whose slot was missed, for example because it was held, catches up once the hold clears. Slots before the program's start date are never caught up, so kickoff doesn't flood week one.)*
   This spreads accounts evenly, needs no stored schedule, and stays stable over time. The routine also checks the log: if an account already has a check-in sent in the last 70 days, skip it. That handles edge cases like newly eligible accounts and manual sends.
 - **Weekly volume:** about 8 drafts per week at today's account count.
 - **Hold during support issues (Trent's call):** don't send a check-in while the account has an open support problem. Hold it until the problem is sorted, plus a **2–3 week cushion**.
@@ -147,8 +147,8 @@ Keep the survey to 6–7 questions and under 2 minutes. Wording is a draft for T
     **Grounding rule:** every claim in the opener must trace to a packet item, cited in the run summary. If the packet is too thin to support a specific angle, the routine leaves a marked `[PERSONAL OPENER — no grounded angle found]` placeholder for Trent instead of inventing one. The same packet is attached as a Front comment on every Low-score / Score-drop reply draft.
   - **Different sender (after two silent quarters):** drafted for the alternate owner (Andrea). Until Andrea is set up in the flow, this is drafted for Trent to forward or hand off. Builder: confirm Andrea's Front teammate ID (`tea_d12je` in the trial-outreach owner map).
 - Template copy is Trent's to write and approve. The builder drafts it in the runbook appendix, as was done for trial outreach.
-- **Follow-up nudge:** if there's no response 7 days after the send, draft one short nudge, once. No more after that.
-- **Silent:** no response 14 days after the original send (call booked, survey submitted, or email reply all count as responses). The check-in is then marked Silent.
+- **Follow-up nudge:** if there's no response 7 days after the send, draft one short nudge, once. No more after that. *(Build note: nudges run in the weekday log pass so they land on day 7, and replies to the nudge's own conversation count.)*
+- **Silent:** no response 14 days after the original send, **and** at least 7 days after the nudge (call booked, survey submitted, or email reply all count as responses). The check-in is then marked Silent. A late survey or booking upgrades a Silent row.
 
 ### 6. The check-in log (new Notion DB)
 
