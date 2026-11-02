@@ -57,3 +57,10 @@ def test_cli_fr_link_and_match():
     assert out["count"] == 2 and out["changed"] is True
     rc, out = _run("match", {"raw": "Athlete Standard", "accounts": ["The Athlete Standard"]})
     assert out["matched"][0]["account"] == "The Athlete Standard"
+
+
+def test_cli_due_respects_program_start_at_kickoff():
+    # 28 weeks old: its slot was 2 weeks ago, before the program started -> not due this week
+    rc, out = _run("due", {"week_monday": "2026-11-02", "program_start": "2026-11-02",
+                           "accounts": [_acct("Off-slot Gym", "4/20/2026", "a@b.com")]})
+    assert out["due"] == [] and out["skipped"] == [{"name": "Off-slot Gym", "reason": "not_slot_week"}]

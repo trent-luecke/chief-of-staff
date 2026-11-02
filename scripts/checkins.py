@@ -30,13 +30,14 @@ def _d(s):
 
 def cmd_due(p):
     monday = _d(p["week_monday"])
+    program_start = _d(p.get("program_start"))
     due, skipped = [], []
     for a in p["accounts"]:
         join = parse_join_date(a.get("join_date"))
         support = [{"open": bool(s.get("open")), "closed_on": _d(s.get("closed_on"))}
                    for s in a.get("support", [])]
         ok, reason = is_due(join, monday, _d(a.get("last_checkin_on")),
-                            hold_until(support, monday))
+                            hold_until(support, monday), program_start)
         if not ok:
             skipped.append({"name": a["name"], "reason": reason})
             continue

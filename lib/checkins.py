@@ -11,7 +11,6 @@ from datetime import date, datetime, timedelta
 HOLD_CUSHION_DAYS = 21
 CYCLE_WEEKS = 13
 RECENT_CHECKIN_DAYS = 70
-CATCH_UP_DAYS = 91
 LOW_SCORE = 6
 DROP_POINTS = 2
 
@@ -19,8 +18,8 @@ _IN_FLIGHT = {"Drafted", "Sent"}
 
 
 def parse_join_date(raw):
-    raw = (raw or "").strip()
-    for fmt in ("%m/%d/%Y", "%Y-%m-%d"):
+    raw = (raw or "").strip().split(" ")[0]  # Sheets exports may carry a time
+    for fmt in ("%m/%d/%Y", "%Y-%m-%d", "%m/%d/%y"):
         try:
             return datetime.strptime(raw, fmt).date()
         except ValueError:
@@ -55,7 +54,10 @@ def hold_until(support, today):
     return until if until > today else None
 
 
-def is_due(join, week_monday, last_checkin_on, hold):
+def is_due(join, week_monday, last_checkin_on, hold, program_start=None):
+    """Due on the account's slot week (every 13 weeks from join), or later in the
+    same cycle if that slot was missed (held) — but never for slots before
+    program_start, so kickoff doesn't dump every account into week one."""
     if join is None:
         return False, "bad_join_date"
     if join > week_monday:
@@ -67,8 +69,10 @@ def is_due(join, week_monday, last_checkin_on, hold):
         return False, "held"
     if last_checkin_on is not None and (week_monday - last_checkin_on).days < RECENT_CHECKIN_DAYS:
         return False, "recent_checkin"
-    catching_up = last_checkin_on is None or (week_monday - last_checkin_on).days > CATCH_UP_DAYS
-    if weeks % CYCLE_WEEKS == 0 or catching_up:
+    slot_monday = week_monday - timedelta(weeks=weeks % CYCLE_WEEKS)
+    if program_start is not None and slot_monday < program_start:
+        return False, "not_slot_week"
+    if last_checkin_on is None or last_checkin_on < slot_monday:
         return True, "due"
     return False, "not_slot_week"
 
@@ -98,10 +102,20 @@ def score_flags(current, history):
     return flags
 
 
+def _response_time(raw):
+    raw = (raw or "").strip()
+    for fmt in ("%m/%d/%Y %H:%M:%S", "%m/%d/%Y %H:%M"):  # Google Forms "Timestamp"
+        try:
+            return datetime.strptime(raw, fmt)
+        except ValueError:
+            continue
+    return datetime.fromisoformat(raw)
+
+
 def pick_latest_response(responses):
     if not responses:
         return None
-    return max(responses, key=lambda r: r["submitted_at"])
+    return max(responses, key=lambda r: _response_time(r["submitted_at"]))
 
 
 def fr_link_update(linked, text, count, account):
