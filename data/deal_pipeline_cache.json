@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-01T10:05:42.542773Z",
+  "fetched_at": "2026-11-02T10:34:08.409942Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -376,7 +376,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:deronnsamlalsingh@gmail.com",
