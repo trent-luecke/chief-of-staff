@@ -1,6 +1,6 @@
 {
   "date": "2026-11-02",
-  "generated_at": "2026-11-02T12:02:34.388031+00:00",
+  "generated_at": "2026-11-02T20:56:53.659666+00:00",
   "meetings": [
     {
       "id": "50cfatr093orc55d4r8alqucbl_20261102T140000Z",
@@ -95,6 +95,15 @@
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "3bpguatrb1qfrfpq20vjaior0n",
+      "title": "call Iron Palace",
+      "start": "2026-11-02T11:00:00-06:00",
+      "end": "2026-11-02T11:15:00-06:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     },
     {
