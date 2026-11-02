@@ -19,3 +19,28 @@ def test_match_uncertain_band():
     r = match_accounts("Country Strng", ACCTS)
     assert r["matched"] or r["uncertain"]
     assert r["unmatched"] == []
+
+
+PREFIX_ACCTS = ["Full Throttle Fitness & Performance, LLC", "SPR Conditioning", "ROI Physical Therapy & Sports Performance",
+                "Sthenos Athletics (Ryan Boylen)", "New Era Coaching Ltd", "New Era Coaching Ltd - Dunboyne",
+                "CARD Sports Performance"]
+
+
+def test_match_short_form_leading_words():
+    for raw, acct in [("Full Throttle", PREFIX_ACCTS[0]), ("SPR", PREFIX_ACCTS[1]),
+                      ("ROI", PREFIX_ACCTS[2]), ("Full-Throttle", PREFIX_ACCTS[0])]:
+        assert [m["account"] for m in match_accounts(raw, PREFIX_ACCTS)["matched"]] == [acct], raw
+
+
+def test_match_all_words_contained():
+    assert match_accounts("Ryan Boylen", PREFIX_ACCTS)["matched"][0]["account"] == "Sthenos Athletics (Ryan Boylen)"
+
+
+def test_match_ambiguous_short_form_is_uncertain():
+    r = match_accounts("New Era", PREFIX_ACCTS)
+    assert r["matched"] == [] and r["uncertain"][0]["input"] == "New Era"
+
+
+def test_match_unrelated_short_name_not_matched():
+    r = match_accounts("Pivotal Sports Performance", PREFIX_ACCTS)
+    assert r["matched"] == []

@@ -20,15 +20,26 @@ def normalize_name(name):
     return " ".join(words)
 
 
+def _score(n, a):
+    if a == n:
+        return 1.0
+    nt, at = n.split(), a.split()
+    if nt and at[:len(nt)] == nt:  # "Full Throttle" → "Full Throttle Fitness & Performance"
+        return 0.95
+    if nt and set(nt) <= set(at):  # "Ryan Boylen" → "Sthenos Athletics (Ryan Boylen)"
+        return 0.9
+    return SequenceMatcher(None, n, a).ratio()
+
+
 def _best(part, accounts):
+    """(score, account, ambiguous) — ambiguous when another account ties the top score."""
     n = normalize_name(part)
-    best = (0.0, None)
-    for acct in accounts:
-        a = normalize_name(acct)
-        score = 1.0 if a == n else SequenceMatcher(None, n, a).ratio()
-        if score > best[0]:
-            best = (score, acct)
-    return best
+    scored = sorted(((_score(n, normalize_name(a)), a) for a in accounts), reverse=True)
+    if not scored:
+        return 0.0, None, False
+    top = scored[0]
+    ambiguous = len(scored) > 1 and scored[1][0] == top[0] and top[0] < 1.0
+    return top[0], top[1], ambiguous
 
 
 def match_accounts(raw, accounts, threshold=0.88):
@@ -43,9 +54,9 @@ def match_accounts(raw, accounts, threshold=0.88):
         if whole[0] >= UNCERTAIN_FLOOR or len(parts) == 1:
             parts = [raw]
     for part in parts:
-        score, acct = _best(part, accounts)
+        score, acct, ambiguous = _best(part, accounts)
         hit = {"input": part.strip(), "account": acct, "score": round(score, 3)}
-        if score >= threshold:
+        if score >= threshold and not ambiguous:
             out["matched"].append(hit)
         elif score >= UNCERTAIN_FLOOR:
             out["uncertain"].append(hit)
