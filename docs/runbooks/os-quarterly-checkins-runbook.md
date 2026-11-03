@@ -273,7 +273,7 @@ If a section is empty, drop it. If nothing happened, say "Nothing to do".
 
 ---
 
-## Appendix A — Email copy (DRAFT: Trent must approve before the first supervised run)
+## Appendix A — Email copy (APPROVED by Trent 2026-11-03)
 
 These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing and signature, so there's no sign-off. Avoid em dashes in the body.
 
