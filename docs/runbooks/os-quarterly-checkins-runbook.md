@@ -54,7 +54,7 @@ Until Andrea's row is filled in, the Different-sender variant drafts on Trent's 
 **Never touch Trent's working checkout.** At the start of each run, export the code from `origin/main` into a temp directory and run the CLI from there:
 ```
 R=/Users/trentluecke/dev/Claude-Projects/chief-of-staff
-T=$(mktemp -d) && git -C $R fetch origin main -q && git -C $R archive origin/main lib/__init__.py lib/checkins.py lib/account_match.py scripts/checkins.py | tar -x -C $T
+T=$(mktemp -d) && git -C $R fetch origin main -q && git -C $R archive origin/main lib/__init__.py lib/checkins.py lib/account_match.py scripts/checkins.py scripts/checkins_sheet.py lib/google_auth.py | tar -x -C $T
 python3 $T/scripts/checkins.py <cmd>
 ```
 Wherever this runbook shows `python3 scripts/checkins.py`, use `python3 $T/scripts/checkins.py`.
@@ -86,7 +86,8 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 ## HARD RULES
 - **DRAFT ONLY.** Never send, and never call a send tool. Trent reviews and sends every email himself.
 - Every draft is a **new outbound** on channel `cha_30ds1` with BCC `4238329@bcc.hubspot.com`. Never a reply draft, because reply drafts silently drop the BCC.
-- If Front, HubSpot, Google Drive or Notion is unavailable, **STOP** and report it. Never run on partial data.
+- If Front, HubSpot or Notion is unavailable, or `checkins_sheet.py` exits 2, **STOP** and report it. Never run on partial data.
+- **Never read the Client List or the responses sheet with the Google Drive connector.** Its `read_file_content` returns only a sample of rows, so most accounts would be silently skipped. Always use `checkins_sheet.py` (Sheets API, read-only, full tab).
 - Never write to the Client List sheet or the Behavior Gaps DB.
 - Never create a Feature Request without `Log it` ticked on its check-in row.
 - Give-first and Different-sender openers must be **grounded**. Every claim cites a context-packet item. With no grounded angle, insert exactly `[PERSONAL OPENER — no grounded angle found]`.
@@ -98,7 +99,7 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 `week_monday` = today if Monday, else the most recent Monday (America/Chicago).
 
 ### D1 — Load accounts
-1. Google Drive `read_file_content` on the Client List sheet. Take the **Active Customers** rows: Account Name, Join Date (raw string), POC, Email.
+1. Run `python3 $T/scripts/checkins_sheet.py accounts` from the same origin/main export as the Rules CLI. It returns every **Active Customers** row as JSON (`count` + `rows`). Use Account Name, Join Date (raw string), POC, Email. Put `count` in the run summary as "Accounts read: <n>". If `count` is under 50, STOP and report: the read is incomplete.
 2. Page the OS Accounts Database in view mode and build `{Account Name → page url}`.
 3. For each sheet row, run `checkins.py match` with `{"raw": <sheet name>, "accounts": [<OS Accounts names>]}`. A single `matched` result is the account page. Anything else goes in the summary under "not in Notion" and the row gets no draft.
 4. If Email is blank, skip the row and list it under "no email".
@@ -201,7 +202,7 @@ For each row at **Drafted**, read the Front conversation (`Front link`):
 
 For the outcome, a booking beats a survey, which beats a reply. A survey can overwrite Replied, Call booked or Silent.
 1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `TeamBuildr OS Customer Check-In` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
-2. **Survey** (any open row): Google Drive `read_file_content` on the responses sheet. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Account` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
+2. **Survey** (any open row): run `python3 $T/scripts/checkins_sheet.py responses`. It returns every response from all three tabs, each tagged with `version`. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Facility/Gym Name` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
    - `Platform score`, `Support score`;
    - `Alongside OS` (the "What do you use alongside…" column), `Change one thing` (the "If you could change one thing…" column);
    - `Version answers`: every other non-empty free-text column (everything except Timestamp, Facility/Gym Name, the two scores, those two, and the call question), as "Q: … A: …". Match columns by header text, never by position, because the three tabs have different column counts;
@@ -258,6 +259,7 @@ Send a Slack DM to Trent. If Slack is unavailable, put the same block in the tas
 
 ```
 OS check-ins — <draft|log> pass, <date>
+Accounts read: <n> (draft pass only)
 At risk (Silent ×2): <accounts>
 New flags: <account — signal — "quote">
 Waiting on you ("Log it"): <account — proposed entry>
