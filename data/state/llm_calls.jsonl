@@ -1496,3 +1496,6 @@
 {"timestamp": "2026-11-02T21:07:19Z", "run_type": "daily_brief", "caller": "people", "model": "claude-sonnet-4-6", "input_tokens": 488, "output_tokens": 29, "estimated_cost_usd": 0.001899}
 {"timestamp": "2026-11-02T21:07:19Z", "run_type": "daily_brief", "caller": "brief", "model": "claude-sonnet-4-6", "input_tokens": 3962, "output_tokens": 336, "estimated_cost_usd": 0.016926}
 {"timestamp": "2026-11-02T21:07:19Z", "run_type": "daily_brief", "caller": "memory_synthesizer", "model": "claude-sonnet-4-6", "input_tokens": 122741, "output_tokens": 6324, "estimated_cost_usd": 0.463083}
+{"timestamp": "2026-11-03T12:11:38Z", "run_type": "daily_brief", "caller": "people", "model": "claude-sonnet-4-6", "input_tokens": 781, "output_tokens": 29, "estimated_cost_usd": 0.002778}
+{"timestamp": "2026-11-03T12:11:38Z", "run_type": "daily_brief", "caller": "brief", "model": "claude-sonnet-4-6", "input_tokens": 5244, "output_tokens": 408, "estimated_cost_usd": 0.021852}
+{"timestamp": "2026-11-03T12:11:38Z", "run_type": "daily_brief", "caller": "memory_synthesizer", "model": "claude-sonnet-4-6", "input_tokens": 124780, "output_tokens": 4752, "estimated_cost_usd": 0.44562}
