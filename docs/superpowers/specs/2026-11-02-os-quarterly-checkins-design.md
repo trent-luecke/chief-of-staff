@@ -78,7 +78,7 @@ Secondary goal: every request or workaround heard is logged against the account 
 - **Population:** every row on the Active Customers tab.
 - **Grace period (Claude's call):** an account becomes eligible once its tenure is 2 months or more. The first 60 days are onboarding (matches the 60-day onboarding window used in the account-health work), and Layer 1 buyer's-story interviews cover day 14–30.
 - **Check-in week (Claude's call):** each account's slot within the 13-week quarter is fixed and derived from its Join Date:
-  `slot = (days since Join Date ÷ 7) mod 13`, and the account is due in the week where its slot comes up.
+  `slot = (days since Join Date ÷ 7) mod 13`, and the account is due in the week where its slot comes up. *(Build note: an account whose slot was missed, for example because it was held, catches up once the hold clears. Slots before the program's start date are never caught up, so kickoff doesn't flood week one.)*
   This spreads accounts evenly, needs no stored schedule, and stays stable over time. The routine also checks the log: if an account already has a check-in sent in the last 70 days, skip it. That handles edge cases like newly eligible accounts and manual sends.
 - **Weekly volume:** about 8 drafts per week at today's account count.
 - **Hold during support issues (Trent's call):** don't send a check-in while the account has an open support problem. Hold it until the problem is sorted, plus a **2–3 week cushion**.
@@ -147,8 +147,8 @@ Keep the survey to 6–7 questions and under 2 minutes. Wording is a draft for T
     **Grounding rule:** every claim in the opener must trace to a packet item, cited in the run summary. If the packet is too thin to support a specific angle, the routine leaves a marked `[PERSONAL OPENER — no grounded angle found]` placeholder for Trent instead of inventing one. The same packet is attached as a Front comment on every Low-score / Score-drop reply draft.
   - **Different sender (after two silent quarters):** drafted for the alternate owner (Andrea). Until Andrea is set up in the flow, this is drafted for Trent to forward or hand off. Builder: confirm Andrea's Front teammate ID (`tea_d12je` in the trial-outreach owner map).
 - Template copy is Trent's to write and approve. The builder drafts it in the runbook appendix, as was done for trial outreach.
-- **Follow-up nudge:** if there's no response 7 days after the send, draft one short nudge, once. No more after that.
-- **Silent:** no response 14 days after the original send (call booked, survey submitted, or email reply all count as responses). The check-in is then marked Silent.
+- **Follow-up nudge:** if there's no response 7 days after the send, draft one short nudge, once. No more after that. *(Build note: nudges run in the weekday log pass so they land on day 7, and replies to the nudge's own conversation count.)*
+- **Silent:** no response 14 days after the original send, **and** at least 7 days after the nudge (call booked, survey submitted, or email reply all count as responses). The check-in is then marked Silent. A late survey or booking upgrades a Silent row.
 
 ### 6. The check-in log (new Notion DB)
 
@@ -205,7 +205,7 @@ These run after a survey response arrives, or when a check-in turns Silent.
 | **Workaround / Built own** | free text describes exporting, spreadsheets, another tool for a job OS should do, or a homemade tool | Flag it. **Propose** (in the run summary) whether it's a Feature Request or a Behavior Gap, with draft wording. Trent confirms. For Feature Requests, the routine then creates or links the request and links it to the check-in. For Gaps, Trent runs his normal "log this gap" flow, and the routine links the check-in to the resulting entry one-way. |
 | **Silent** | no response 14 days after sending | Mark it. Next quarter's draft uses the Give-first variant. |
 | **Silent ×2** | Silent in this quarter and the previous one | Mark at-risk. Next draft uses the Different-sender variant. Called out at the top of the summary. |
-| **Shipped request** | a Feature Request linked to the account is marked Completed/Closed | Draft a "you asked for X, it's live" note right away, outside the quarterly cycle. This is the cheapest retention touch available. |
+| **Shipped request** | a Feature Request linked to the account is marked Completed/Closed | Mention it in that account's next check-in draft ("you asked for X, it's live"). **Changed 2026-11-03 (Trent):** no standalone email, because feature launches already go out as their own announcement and a second email would be redundant. |
 
 Calls: after a check-in call, Trent's existing Avoma flow applies. The routine does not parse calls in v1. Trent (or a later version) fills in Call notes and Risk signals by hand. See open items.
 
@@ -213,7 +213,7 @@ Calls: after a check-in call, Trent's existing Avoma flow applies. The routine d
 
 - **Two in-app claude.ai scheduled tasks**, with prompts that fetch a runbook from `origin/main`. This is the trial-outreach pattern: the runbook lives in `docs/runbooks/os-quarterly-checkins-runbook.md`, edits take effect without reinstalling, and a one-time supervised "Run now" pre-approves the tools.
   - `os-checkins-draft`: **weekly, Monday 8:45 CT**. Picks this week's due accounts, decides version and variant, creates log rows and Front drafts, and drafts the 7-day nudges.
-  - `os-checkins-log`: **weekdays ~12:30 CT**. Detects sent drafts (sets Sent), reads new Form responses, checks HubSpot for bookings and Front for replies, applies flag rules, marks Silent, checks for shipped requests, and drafts follow-ups.
+  - `os-checkins-log`: **weekdays ~12:30 CT**. Detects sent drafts (sets Sent), reads new Form responses, checks HubSpot for bookings and Front for replies, applies flag rules, marks Silent, and drafts follow-ups. (Shipped requests are picked up by the draft pass, inside the next check-in.)
 - **Connectors needed:** Front, HubSpot, Google Drive (sheet and form responses), Notion.
 - **Avoma in the context packet: best-effort.** The avoma-transcripts MCP is flaky (it was down on 2026-11-02) and is scoped to demos. If Avoma is unreachable, the packet skips it and says so in the summary. It never blocks a draft.
 - **Run summary:** each run ends with a short summary: drafts created, new flags (with quotes), at-risk accounts, generic-email warnings, and proposed Gap/Request entries. Where the summary is delivered (Slack DM vs. Today tab vs. scheduled-task output) is left to the builder. The default is a Slack DM, matching other Trent-facing summaries.
