@@ -35,10 +35,10 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
 Until Andrea's row is filled in, the Different-sender variant drafts on Trent's channel and adds a Front comment: "Different-sender variant: hand to Andrea (tea_d12je) to send."
 
 ### Survey forms (set up in Task 6)
-- Early form pre-fill URL: `<EARLY_FORM_PREFILL_URL>` (contains literal `ACCOUNT`)
-- Settled form pre-fill URL: `<SETTLED_FORM_PREFILL_URL>`
-- Mature form pre-fill URL: `<MATURE_FORM_PREFILL_URL>`
-- Responses spreadsheet: `<RESPONSES_SHEET_ID>`
+- Early (2–6 mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSc1XEuNpLrQpcUr9QXdv1mkBjsyGhSufj5QgWk8W7e4vwVGyA/viewform?usp=pp_url&entry.1924896125=ACCOUNT` (literal `ACCOUNT` is the Facility/Gym Name field)
+- Settled (6–12 mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSe5lJ8zNsPbWglT7uONE9jBs1dS4HtFNg21GUnDwnjLertcCw/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
+- Mature (12+ mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSdiHPZ9Ru8AwIEHcMNE0-y0hIcwfBeuv1oiK90yzRRXcsntog/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
+- Responses spreadsheet: `1g4UJldueeEKytNolqqP-e8YPa6Xwo0ksKbpOiWiithI` ("OS Check-In Responses"; tabs `2-6 mo. Responses`, `6-12 mo. Responses`, `12+ mo. Responses`; the account is column `Facility/Gym Name`)
 - Calendly event title as it appears on HubSpot `MEETING_EVENT`: `<CHECKIN_EVENT_TITLE>`
 
 **If any `<...>` placeholder above is still unfilled, STOP before drafting and report "config incomplete".**
@@ -193,8 +193,8 @@ For the outcome, a booking beats a survey, which beats a reply. A survey can ove
 1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `<CHECKIN_EVENT_TITLE>` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
 2. **Survey** (any open row): Google Drive `read_file_content` on the responses sheet. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Account` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
    - `Platform score`, `Support score`;
-   - `Alongside OS` (core Q3), `Change one thing` (core Q4);
-   - `Version answers`: the two version questions, as "Q: … A: …";
+   - `Alongside OS` (the "What do you use alongside…" column), `Change one thing` (the "If you could change one thing…" column);
+   - `Version answers`: every other non-empty free-text column (everything except Timestamp, Facility/Gym Name, the two scores, those two, and the call question), as "Q: … A: …". Match columns by header text, never by position, because the three tabs have different column counts;
    - `Response at` = that response's timestamp;
    - Outcome = **Survey answered**. If the row was **Silent**, remove `Silent` and `Silent ×2` from Risk signals.
 
