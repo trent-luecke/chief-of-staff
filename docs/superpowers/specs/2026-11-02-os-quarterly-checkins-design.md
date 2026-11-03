@@ -205,7 +205,7 @@ These run after a survey response arrives, or when a check-in turns Silent.
 | **Workaround / Built own** | free text describes exporting, spreadsheets, another tool for a job OS should do, or a homemade tool | Flag it. **Propose** (in the run summary) whether it's a Feature Request or a Behavior Gap, with draft wording. Trent confirms. For Feature Requests, the routine then creates or links the request and links it to the check-in. For Gaps, Trent runs his normal "log this gap" flow, and the routine links the check-in to the resulting entry one-way. |
 | **Silent** | no response 14 days after sending | Mark it. Next quarter's draft uses the Give-first variant. |
 | **Silent ×2** | Silent in this quarter and the previous one | Mark at-risk. Next draft uses the Different-sender variant. Called out at the top of the summary. |
-| **Shipped request** | a Feature Request linked to the account is marked Completed/Closed | Draft a "you asked for X, it's live" note right away, outside the quarterly cycle. This is the cheapest retention touch available. |
+| **Shipped request** | a Feature Request linked to the account is marked Completed/Closed | Mention it in that account's next check-in draft ("you asked for X, it's live"). **Changed 2026-11-03 (Trent):** no standalone email, because feature launches already go out as their own announcement and a second email would be redundant. |
 
 Calls: after a check-in call, Trent's existing Avoma flow applies. The routine does not parse calls in v1. Trent (or a later version) fills in Call notes and Risk signals by hand. See open items.
 
@@ -213,7 +213,7 @@ Calls: after a check-in call, Trent's existing Avoma flow applies. The routine d
 
 - **Two in-app claude.ai scheduled tasks**, with prompts that fetch a runbook from `origin/main`. This is the trial-outreach pattern: the runbook lives in `docs/runbooks/os-quarterly-checkins-runbook.md`, edits take effect without reinstalling, and a one-time supervised "Run now" pre-approves the tools.
   - `os-checkins-draft`: **weekly, Monday 8:45 CT**. Picks this week's due accounts, decides version and variant, creates log rows and Front drafts, and drafts the 7-day nudges.
-  - `os-checkins-log`: **weekdays ~12:30 CT**. Detects sent drafts (sets Sent), reads new Form responses, checks HubSpot for bookings and Front for replies, applies flag rules, marks Silent, checks for shipped requests, and drafts follow-ups.
+  - `os-checkins-log`: **weekdays ~12:30 CT**. Detects sent drafts (sets Sent), reads new Form responses, checks HubSpot for bookings and Front for replies, applies flag rules, marks Silent, and drafts follow-ups. (Shipped requests are picked up by the draft pass, inside the next check-in.)
 - **Connectors needed:** Front, HubSpot, Google Drive (sheet and form responses), Notion.
 - **Avoma in the context packet: best-effort.** The avoma-transcripts MCP is flaky (it was down on 2026-11-02) and is scoped to demos. If Avoma is unreachable, the packet skips it and says so in the summary. It never blocks a draft.
 - **Run summary:** each run ends with a short summary: drafts created, new flags (with quotes), at-risk accounts, generic-email warnings, and proposed Gap/Request entries. Where the summary is delivered (Slack DM vs. Today tab vs. scheduled-task output) is left to the builder. The default is a Slack DM, matching other Trent-facing summaries.

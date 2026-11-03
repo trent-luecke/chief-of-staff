@@ -17,7 +17,7 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
     - This quarter: `view://40c24bca-36d7-819e-a24d-000c15899e2e` (filtered to one Quarter value; see Quarter rollover)
     - At risk: `view://40c24bca-36d7-818f-ad2a-000cf761c1be`
     - By account: `view://40c24bca-36d7-81a9-912c-000cc4ce5164`
-- Feature Requests: `collection://ad23d54a-66ac-4f84-9fde-6c4e317892ea`. Fields: `Request` (title), `Requesting Account` (text), `Amount of Requests` (number), `Completed/Closed?` (checkbox), `Requesting Accounts` (relation → OS Accounts), `Shipped notified` (one-way relation → OS Accounts, the L6 dedupe), `Check-ins` (relation → Check-ins).
+- Feature Requests: `collection://ad23d54a-66ac-4f84-9fde-6c4e317892ea`. Fields: `Request` (title), `Requesting Account` (text), `Amount of Requests` (number), `Completed/Closed?` (checkbox), `Requesting Accounts` (relation → OS Accounts), `Shipped notified` (one-way relation → OS Accounts, the D4a dedupe), `Check-ins` (relation → Check-ins).
 - Behavior Gaps: `collection://cd045eb1-489e-4566-924c-52bae236d36c`. **Never write to it and never add a column to it.** `Related Gap` on Check-ins is one-way on purpose.
 - Bug Tracker: `collection://29d24bca-36d7-80ef-b574-000b739e37a8`. Read-only here, used for holds.
 
@@ -70,7 +70,6 @@ Never re-derive these rules in prose. Use the CLI output as-is.
 - `Quick check-in from TeamBuildr OS`
 - `Re: Quick check-in from TeamBuildr OS`
 - `Thanks for the feedback`
-- `You asked for this one`
 
 ### Quarter rollover
 - **Quarter label:** the calendar quarter of the draft date ("2027 Q1"). If the label doesn't exist yet as a `Quarter` option, add it (`notion-update-data-source` ALTER COLUMN with all existing options plus the new one).
@@ -129,6 +128,16 @@ Use `due` and `skipped` exactly as returned. Two skip reasons go in the summary:
 
 `too_new`, `recent_checkin` and `not_slot_week` are normal and are not listed.
 
+### D4a — Shipped for them (every variant)
+There is no standalone "it's live" email. Feature launches already go out as their own announcement, so the check-in just closes the loop for the gym that asked.
+
+Dedupe lives on the **Feature Request** in `Shipped notified` (relation → OS Accounts), never on a Check-ins row. The Task 5 backfill seeded `Shipped notified` = `Requesting Accounts` for every request already Completed, so only **new** completions show up.
+
+1. `shipped_for_them` = Feature Requests with `Completed/Closed?` true, the account in `Requesting Accounts`, and the account **not** in `Shipped notified`.
+2. **Seed guard:** drop any request whose `Shipped notified` is empty *and* whose `Requesting Accounts` has more than 5 accounts. List it under "check: shipped request with no notify history". That's an un-seeded backfill row, not a new ship.
+3. If `shipped_for_them` is empty, `{{shipped_line}}` is empty. Otherwise write `{{shipped_line}}` as one or two plain sentences naming at most 2 of them (most recently edited first), e.g. "Also, the custom invoice fields you asked for went live recently." Add one grounded sentence on where to find it only if the Knowledge Hub page or the request's notes say so. Never invent a location.
+4. Give-first / Different sender: if D4 picks angle 1 (a shipped request of theirs), that request goes in `{{opener}}` instead and is left out of `{{shipped_line}}`. Never mention the same request twice.
+
 ### D4 — Context packet (Give-first and Different-sender only)
 Gather, for that account:
 1. **Their requests:** Feature Requests where `Requesting Accounts` contains the account. Split into shipped (`Completed/Closed?` true) and open.
@@ -140,7 +149,7 @@ Gather, for that account:
 4. **Their calls (best-effort):** Avoma meetings with the POC email. If Avoma is unreachable, note "Avoma: skipped" and continue.
 
 Pick ONE angle, in this order:
-1. A shipped request of theirs: "You asked for X, it's live."
+1. A shipped request of theirs, from D4a's `shipped_for_them`: "You asked for X, it's live."
 2. A shipped fix or feature that addresses a problem they actually had.
 3. A concrete idea to get more out of their account, grounded in their history.
 4. A future-project invite: an open Feature Request that fits them. "We're thinking about building X — would you be open to a quick chat about it?"
@@ -166,8 +175,9 @@ For each `due` account, in order:
 3. **Build the links:**
    - `{{survey_link}}`: the version's pre-fill URL, with `ACCOUNT` replaced by the URL-encoded **OS Accounts** name.
    - `{{call_link}}`: the owner's booking link.
-4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, and `{{opener}}` from D4 (Give-first/Different sender only).
+4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
 5. Write the draft's conversation link to `Front link`.
+   - **Shipped dedupe:** for every request named in `{{shipped_line}}` or `{{opener}}`, add the account to that request's `Shipped notified`, right after the draft is created. If Trent later deletes the draft (Outcome Skipped), the mention is not retried. That's accepted: the launch announcement already reached them.
 6. **Different-sender variant:** also `add_comment` on the conversation: "Different-sender variant (Silent ×2): hand to Andrea (tea_d12je) to send."
 7. **Generic email** (`generic_email: true`): still draft, and list it under "generic inbox — check recipient".
 
@@ -239,14 +249,6 @@ For each row with `Log it` ticked and `Related Feature Request` empty:
 
 For `Related Gap`, Trent pastes it by hand. Nothing to do.
 
-### L6 — Shipped requests ("you asked, it's live")
-Dedupe lives on the **Feature Request** in `Shipped notified` (relation → OS Accounts). It never sits on a Check-ins row, so it doesn't move each quarter. The Task 5 backfill seeds `Shipped notified` = `Requesting Accounts` for every request already Completed, so only **new** completions trigger.
-
-For each Feature Request with `Completed/Closed?` true:
-1. `to_notify` = active accounts in `Requesting Accounts` that are **not** in `Shipped notified`. If it's empty, skip.
-2. **Seed guard:** if `Shipped notified` is empty *and* `Requesting Accounts` has more than 5 accounts, don't draft. List it under "check: shipped request with no notify history" for Trent. That's an un-seeded backfill row, not a new ship.
-3. For each account in `to_notify`, draft Appendix A "You asked, it's live" as a new outbound with BCC. Add the account to `Shipped notified` right after its draft is created.
-4. If the account has a Check-ins row, set that row's Follow-up = **Drafted**. If it has no row, the draft still goes out. Just list it in the summary.
 
 ---
 
@@ -259,7 +261,8 @@ OS check-ins — <draft|log> pass, <date>
 At risk (Silent ×2): <accounts>
 New flags: <account — signal — "quote">
 Waiting on you ("Log it"): <account — proposed entry>
-Drafts created: <n> (Standard <n> · Give-first <n> · Different sender <n> · Nudge <n> · Score follow-up <n> · It's live <n>)
+Drafts created: <n> (Standard <n> · Give-first <n> · Different sender <n> · Nudge <n> · Score follow-up <n>)
+Shipped mentions: <account — request>
 Give-first openers: <account — angle — cited items | PLACEHOLDER>
 Held (support issue): <accounts>
 Sitting unsent: <accounts>
@@ -281,6 +284,8 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 >
 > I'm checking in with every gym on OS this quarter, and I'd love to hear how things are going at {{facility}}. What's working, what isn't, and what you wish OS did.
 >
+> {{shipped_line}}
+>
 > Two easy ways to share:
 > - Grab 15 or 30 minutes with me: {{call_link}}
 > - No time? A few quick questions, about 2 minutes: {{survey_link}}
@@ -292,12 +297,16 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 >
 > {{opener}}
 >
+> {{shipped_line}}
+>
 > If it's useful, I'm always happy to hop on a quick call ({{call_link}}). Or if you have 2 minutes, a few quick questions here tell us where to focus next: {{survey_link}}
 
 **Different sender** (written for Andrea to send. Until her row is set up, Trent forwards it.)
 > Hi {{first_name}},
 >
 > I'm Andrea on the TeamBuildr OS team. {{opener}}
+>
+> {{shipped_line}}
 >
 > I'd love to hear how OS is fitting at {{facility}}. 20 minutes here if you're open to it: {{call_link}}. Or 2 minutes here: {{survey_link}}
 
@@ -311,11 +320,4 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 
 `{{low_area}}` is "the platform" or "our support". `{{their_words}}` is ", and you mentioned \"<their phrase>\"" when their free text explains it, otherwise empty.
 
-**You asked, it's live** (subject `You asked for this one`)
-> Hi {{first_name}},
->
-> A while back you asked for {{request}}. It's live now. {{one_line_how}}
->
-> Thanks for pushing us on it. If anything about how it works doesn't fit how {{facility}} runs, tell me.
-
-`{{one_line_how}}` is one grounded sentence about where to find it. Source: the Knowledge Hub page or the request's notes. If there's none, leave it out.
+`{{shipped_line}}` comes from D4a. It is empty for most accounts, and its paragraph is dropped when empty.
