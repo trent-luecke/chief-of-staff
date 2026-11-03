@@ -282,8 +282,8 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 > I'm checking in with every gym on OS this quarter, and I'd love to hear how things are going at {{facility}}. What's working, what isn't, and what you wish OS did.
 >
 > Two easy ways to share:
-> - Grab 20 minutes with me: {{call_link}}
-> - No time? 6 quick questions, about 2 minutes: {{survey_link}}
+> - Grab 15 or 30 minutes with me: {{call_link}}
+> - No time? A few quick questions, about 2 minutes: {{survey_link}}
 >
 > Honest answers help us most, good or bad.
 
@@ -292,7 +292,7 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 >
 > {{opener}}
 >
-> If it's useful, I'm always happy to hop on a quick call ({{call_link}}). Or if you have 2 minutes, these 6 questions tell us where to focus next: {{survey_link}}
+> If it's useful, I'm always happy to hop on a quick call ({{call_link}}). Or if you have 2 minutes, a few quick questions here tell us where to focus next: {{survey_link}}
 
 **Different sender** (written for Andrea to send. Until her row is set up, Trent forwards it.)
 > Hi {{first_name}},
@@ -307,7 +307,7 @@ These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing 
 **Score follow-up** (subject `Thanks for the feedback`)
 > Hi {{first_name}},
 >
-> Thanks for filling that out. I noticed {{low_area}} scored lower than I'd like{{their_words}}. I want to understand what happened and get it fixed. Could we grab 15 minutes ({{call_link}}), or just reply here with what's been getting in the way?
+> Thanks for filling that out. I noticed {{low_area}} scored lower than I'd like{{their_words}}. I want to understand what happened and get it fixed. Could we grab 15 or 30 minutes {{call_link}}, or just reply here with what's been getting in the way?
 
 `{{low_area}}` is "the platform" or "our support". `{{their_words}}` is ", and you mentioned \"<their phrase>\"" when their free text explains it, otherwise empty.
 
