@@ -27,9 +27,9 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
 - Trent teammate: `tea_2glc1`. Andrea Alamo teammate: `tea_d12je`.
 - Owner map (for the Owner field and the Different-sender variant):
 
-| Owner | Front teammate | Channel | Calendly |
+| Owner | Front teammate | Channel | Booking link |
 | --- | --- | --- | --- |
-| Trent Luecke | tea_2glc1 | cha_30ds1 | `<CHECKIN_CALENDLY_URL>` |
+| Trent Luecke | tea_2glc1 | cha_30ds1 | `https://meetings.hubspot.com/trent-luecke` (HubSpot Meetings) |
 | Andrea Alamo | tea_d12je | not set up yet | not set up yet |
 
 Until Andrea's row is filled in, the Different-sender variant drafts on Trent's channel and adds a Front comment: "Different-sender variant: hand to Andrea (tea_d12je) to send."
@@ -39,7 +39,7 @@ Until Andrea's row is filled in, the Different-sender variant drafts on Trent's 
 - Settled (6–12 mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSe5lJ8zNsPbWglT7uONE9jBs1dS4HtFNg21GUnDwnjLertcCw/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
 - Mature (12+ mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSdiHPZ9Ru8AwIEHcMNE0-y0hIcwfBeuv1oiK90yzRRXcsntog/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
 - Responses spreadsheet: `1g4UJldueeEKytNolqqP-e8YPa6Xwo0ksKbpOiWiithI` ("OS Check-In Responses"; tabs `2-6 mo. Responses`, `6-12 mo. Responses`, `12+ mo. Responses`; the account is column `Facility/Gym Name`)
-- Calendly event title as it appears on HubSpot `MEETING_EVENT`: `<CHECKIN_EVENT_TITLE>`
+- Booking meeting name as it appears on HubSpot `MEETING_EVENT`: `TeamBuildr OS Customer Check-In` (HubSpot Meetings link, so bookings create the engagement natively)
 
 **If any `<...>` placeholder above is still unfilled, STOP before drafting and report "config incomplete".**
 
@@ -165,7 +165,7 @@ For each `due` account, in order:
 
 3. **Build the links:**
    - `{{survey_link}}`: the version's pre-fill URL, with `ACCOUNT` replaced by the URL-encoded **OS Accounts** name.
-   - `{{call_link}}`: the owner's Calendly URL.
+   - `{{call_link}}`: the owner's booking link.
 4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, and `{{opener}}` from D4 (Give-first/Different sender only).
 5. Write the draft's conversation link to `Front link`.
 6. **Different-sender variant:** also `add_comment` on the conversation: "Different-sender variant (Silent ×2): hand to Andrea (tea_d12je) to send."
@@ -190,7 +190,7 @@ For each row at **Drafted**, read the Front conversation (`Front link`):
 **Open rows** are the account's newest row, when it is at Sent, Replied, Call booked or Silent, `Sent` is within the last 60 days, and `Platform score` is empty. A row stays open for surveys even after a reply or a Silent mark, so late answers aren't lost.
 
 For the outcome, a booking beats a survey, which beats a reply. A survey can overwrite Replied, Call booked or Silent.
-1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `<CHECKIN_EVENT_TITLE>` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
+1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `TeamBuildr OS Customer Check-In` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
 2. **Survey** (any open row): Google Drive `read_file_content` on the responses sheet. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Account` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
    - `Platform score`, `Support score`;
    - `Alongside OS` (the "What do you use alongside…" column), `Change one thing` (the "If you could change one thing…" column);
