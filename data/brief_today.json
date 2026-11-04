@@ -1,114 +1,36 @@
 {
-  "date": "2026-11-03",
-  "generated_at": "2026-11-03T18:44:11.218476+00:00",
+  "date": "2026-11-04",
+  "generated_at": "2026-11-04T12:02:09.527423+00:00",
   "meetings": [
     {
-      "id": "olt4eh3488fftej670gj40dnro_20261103T143000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-11-03T08:30:00-06:00",
-      "end": "2026-11-03T09:00:00-06:00",
-      "kind": "internal",
+      "id": "3mggsput3nbm3j5lkof9ro7ptc",
+      "title": "RETRO - OS Member Alerts",
+      "start": "2026-11-04T11:00:00-06:00",
+      "end": "2026-11-04T12:00:00-06:00",
+      "kind": "external",
       "attendees": [
         {
-          "email": "luke@teambuildr.com",
+          "email": "polina@teambuildr.com",
           "name": ""
         },
         {
-          "email": "quinn@teambuildr.com",
+          "email": "reachingzenithdesign@gmail.com",
           "name": ""
         },
         {
-          "email": "brian@teambuildr.com",
+          "email": "jasmine@teambuildr.com",
           "name": ""
         },
         {
-          "email": "elvis@teambuildr.com",
+          "email": "jake@teambuildr.com",
           "name": ""
         },
         {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20261103T160000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-11-03T10:00:00-06:00",
-      "end": "2026-11-03T10:30:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1ml99kkgsq3riukk68nh2r7bks_20261103T170000Z",
-      "title": "Rainmakers Anonymous",
-      "start": "2026-11-03T11:00:00-06:00",
-      "end": "2026-11-03T11:45:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "emily@teambuildr.com",
+          "email": "josh@teambuildr.com",
           "name": ""
         },
         {
           "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1eogqpumdv2nsvc117nfrohcba",
-      "title": "Fitness Lab OS Orientation",
-      "start": "2026-11-03T22:00:00-06:00",
-      "end": "2026-11-03T22:30:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "bryany.parker@gmail.com",
           "name": ""
         }
       ],
