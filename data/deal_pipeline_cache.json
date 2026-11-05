@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-03T10:28:41.398839Z",
+  "fetched_at": "2026-11-05T10:24:29.660770Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -115,6 +115,19 @@
       "last_contacted": "2026-10-05T14:29:46.660859+00:00",
       "days_since_contact": null,
       "estimated_value": 2000,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:bmahon@ualberta.ca",
+      "name": "Ualberta",
+      "contact": "bmahon@ualberta.ca",
+      "email": "bmahon@ualberta.ca",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-11-04T19:00:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
       "source": "",
       "stale": false
     },
@@ -792,7 +805,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:josephspraggan@gmail.com",
