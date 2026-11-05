@@ -4670,6 +4670,20 @@
       "created": "2026-11-03",
       "last_seen": "2026-11-03",
       "provenance": "auto:calendar 2026-11-03 meeting:Fitness Lab OS Orientation"
+    },
+    {
+      "id": "kayla-fedison",
+      "canonical_name": "Kayla Fedison",
+      "aliases": [
+        "info@fitstudiova.com"
+      ],
+      "email": "info@fitstudiova.com",
+      "type": "unknown",
+      "pipeline_record": null,
+      "people_file": null,
+      "created": "2026-11-05",
+      "last_seen": "2026-11-05",
+      "provenance": "auto:calendar 2026-11-05 meeting:Fit Studio demo \u2014 Kayla Fedison"
     }
   ]
 }
