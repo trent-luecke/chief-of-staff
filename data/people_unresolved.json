@@ -863,6 +863,22 @@
       "candidate_id": "deronnsamlalsingh",
       "candidate_score": 97.14285714285714,
       "added": "2026-10-30"
+    },
+    {
+      "entity": "Brennan Mahon",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-11-06"
+    },
+    {
+      "entity": "Michael Nelson",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-11-06"
     }
   ],
   "previously_notified": [
