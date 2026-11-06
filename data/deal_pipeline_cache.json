@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-05T10:24:29.660770Z",
+  "fetched_at": "2026-11-06T10:26:28.199027Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -1075,6 +1075,19 @@
       "status": "won",
       "priority": null,
       "last_contacted": "2026-03-12",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:miken@advantagepersonaltraining.com",
+      "name": "Advantagepersonaltraining",
+      "contact": "miken@advantagepersonaltraining.com",
+      "email": "miken@advantagepersonaltraining.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-11-05T16:30:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
