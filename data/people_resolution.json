@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-06T00:00:00",
+  "resolved_at": "2026-11-07T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -39444,6 +39444,91 @@
       "primary_person_id": "jeff-davidson",
       "related_person_ids": [],
       "confidence": "embedded"
+    },
+    "8389": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8390": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8391": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8392": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8393": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8394": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8395": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8396": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8397": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8398": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8399": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8400": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8401": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8402": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8403": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8404": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8405": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -39973,7 +40058,13 @@
     8358,
     8370,
     8371,
-    8372
+    8372,
+    8383,
+    8384,
+    8385,
+    8386,
+    8387,
+    8388
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -40195,6 +40286,9 @@
     "thread:Re: Cancelling Teambuildr OS Subscription",
     "thread:Re: PSP Members",
     "thread:Re: Fit Studio Interest in TeamBuildr Strength",
-    "thread:Re: OS Questions"
+    "thread:Re: OS Questions",
+    "thread:Re: Checking in on business metrics",
+    "thread:Re: Reminder: 30 Minute TeamBuildr OS Demo with Trent Luecke at 11:30am (Pacific Time - US & Canada) on Thursday, September 11, 2025",
+    "thread:Re: wodify, zen planner"
   ]
 }
