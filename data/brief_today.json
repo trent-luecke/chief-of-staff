@@ -1,36 +1,12 @@
 {
-  "date": "2026-11-06",
-  "generated_at": "2026-11-06T18:36:45.799011+00:00",
+  "date": "2026-11-07",
+  "generated_at": "2026-11-07T12:02:25.999177+00:00",
   "meetings": [
     {
-      "id": "006adb4enl5iouf2tb1p87m38i_20261106T143000Z",
-      "title": "Focus Work",
-      "start": "2026-11-06T08:30:00-06:00",
-      "end": "2026-11-06T10:30:00-06:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261105T180000Z",
-      "title": "Luke / Trent",
-      "start": "2026-11-06T10:30:00-06:00",
-      "end": "2026-11-06T11:00:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### Team & Support Videos\n**Status:** Actively building Claude-assisted feature videos; feature hub page review ongoing.\n- Next: Continue reviewing remaining feature hub pages from Clayton (2 of ~10 done)\n- Next: Use Claude's motion editor to produce videos for data import, member-booked appointments, and scheduling\n- No blocker; voiceover remains manual by design\n\n---\n\n### OS Onboarding Checklist\n**Status:** Concept proposed; scope not yet confirmed, build not started.\n- Next: Create fake onboarding script and feed to Claude onboarding for testing\n- **Blocker:** Scope check with Teofe (frontend + backend build likely required); concrete plan expected early November \u2014 bottom-of-funnel work is cycle 1 priority first\n\n---\n\n### Driving Adoption of OS\n**Status:** Outreach plan to high-usage TeamBuildr strength customers taking shape; execution starts this week.\n- Next: Start outreach from Luke's list (top 200 private facility users suggested); present plan next week\n- Next: Luke to pull list from Trend Zero with churn scores and share; set aside time to call through / Instagram DM\n- **Dependency:** Waiting on Luke's list before outreach can begin at scale\n- Note: Payments portal rebuild (OS Lite) parked until post-Build\n\n---\n\n### Intermountain & Sales\n**Status:** A few facilities live/eager; October likely under 5 sales; one multi-year bundle deal verbally agreed.\n- Next: SFTP question (Stripe-hosted vs. combined OS + Stripe export) still needs resolution\n- **Blocker:** Most facilities are waiting on Stripe setup before moving forward; SFTP ownership unclear\n- Note: Chris's multi-year bundle deal is verbal \u2014 worth flagging stage/close timeline\n\n---\n\n### Pipeline Snapshot\n- **64 total** | In-Trial/Post Demo: 38 | No Trial/Post Demo: 6 | On-Hold: 7 | Need Update: 13\n- Demos MTD: **2**",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "7hid4m5n0uoi0vgv61sunhei06_20261106T203000Z",
-      "title": "Out of office",
-      "start": "2026-11-06T14:30:00-06:00",
-      "end": "2026-11-06T17:30:00-06:00",
+      "id": "6rro7upqc65ug3umn770e1rq09_20261107T140000Z",
+      "title": "OS Weekend Support (Trent)",
+      "start": "2026-11-07T08:00:00-06:00",
+      "end": "2026-11-07T08:15:00-06:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
@@ -48,8 +24,8 @@
   "deals_to_review": {
     "counts": {
       "identity": 5,
-      "stale": 17,
-      "total": 22
+      "stale": 18,
+      "total": 23
     }
   },
   "what_moved": []
