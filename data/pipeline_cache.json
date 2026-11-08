@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-07T00:00:00Z",
+  "fetched_at": "2026-11-08T00:00:00Z",
   "leads": [
     {
       "name": "Advantage Personal Training (Michael Nelson)",
@@ -167,17 +167,6 @@
       "stale": false
     },
     {
-      "name": "Brian Guthrie and Ryan Allwein",
-      "contact": "Brian Guthrie",
-      "email": null,
-      "status": "No Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-10-06",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
       "name": "Kyle Murphy and Ryan Allwein",
       "contact": "Kyle Murphy",
       "email": null,
@@ -186,6 +175,17 @@
       "last_contacted": "2026-10-06",
       "estimated_value": null,
       "source": null,
+      "stale": false
+    },
+    {
+      "name": "Brian Guthrie and Ryan Allwein",
+      "contact": "Brian Guthrie",
+      "email": null,
+      "status": "No Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-10-06",
+      "estimated_value": null,
+      "source": "Calendly Demo",
       "stale": false
     },
     {
@@ -690,7 +690,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
-      "estimated_value": 2000.0,
+      "estimated_value": 2000,
       "source": null,
       "stale": false
     },
@@ -701,7 +701,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
-      "estimated_value": 750.0,
+      "estimated_value": 750,
       "source": null,
       "stale": false
     },
@@ -712,7 +712,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": null,
-      "estimated_value": 2000.0,
+      "estimated_value": 2000,
       "source": null,
       "stale": false
     }
