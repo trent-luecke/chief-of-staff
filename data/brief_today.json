@@ -1,6 +1,6 @@
 {
   "date": "2026-11-09",
-  "generated_at": "2026-11-09T12:02:13.339819+00:00",
+  "generated_at": "2026-11-09T21:41:05.025652+00:00",
   "meetings": [
     {
       "id": "2cpic22b4ukd85hbqtrsda0qm2_20261109T160000Z",
@@ -55,6 +55,15 @@
       "prep": null
     },
     {
+      "id": "oc1p86gdch15os7mqtbqassd5c",
+      "title": "OS Prospect Calls",
+      "start": "2026-11-09T11:30:00-06:00",
+      "end": "2026-11-09T12:00:00-06:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
       "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261109T183000Z",
       "title": "OS Dev sync-Rev table",
       "start": "2026-11-09T12:30:00-06:00",
@@ -67,6 +76,24 @@
         },
         {
           "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "14m2hf9caq4cuerl1g8t52vftd",
+      "title": "Jeff Romkey & TeamBuildr OS Support",
+      "start": "2026-11-09T14:30:00-06:00",
+      "end": "2026-11-09T15:00:00-06:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "jeff@athleticgolf.club",
           "name": ""
         }
       ],
