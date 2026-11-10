@@ -1,6 +1,6 @@
 {
   "date": "2026-11-10",
-  "generated_at": "2026-11-10T12:01:38.656826+00:00",
+  "generated_at": "2026-11-10T18:59:54.614953+00:00",
   "meetings": [
     {
       "id": "2lvet7cp6d7irgvbqsqkkavfnc",
@@ -168,6 +168,33 @@
         },
         {
           "email": "abro@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "rjsg3ujtl9fbu7u59bsbhblavs",
+      "title": "OS Prospect Calls",
+      "start": "2026-11-10T13:30:00-06:00",
+      "end": "2026-11-10T14:00:00-06:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "5ask424juvj6nulgo2tcjms9mp",
+      "title": "Caleb Lindsey / TeamBuildr",
+      "start": "2026-11-10T15:30:00-06:00",
+      "end": "2026-11-10T16:00:00-06:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "calebjlindsey05@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
           "name": ""
         }
       ],
