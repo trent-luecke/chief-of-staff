@@ -178,6 +178,7 @@ For each `due` account, in order:
 3. **Build the links:**
    - `{{survey_link}}`: the version's pre-fill URL, with `ACCOUNT` replaced by the URL-encoded **OS Accounts** name.
    - `{{call_link}}`: the owner's booking link.
+   - In the draft body (HTML), show the call link as the plain URL and the survey link as a link labeled "2-minute check-in survey", never the raw pre-fill URL.
 4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. For the **Intro** variant, use the owner's Intro copy (Trent's until Andrea's Owner-map row is filled in). Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
 5. Write the draft's conversation link to `Front link`.
    - **Shipped dedupe:** for every request named in `{{shipped_line}}` or `{{opener}}`, add the account to that request's `Shipped notified`, right after the draft is created. If Trent later deletes the draft (Outcome Skipped), the mention is not retried. That's accepted: the launch announcement already reached them.
