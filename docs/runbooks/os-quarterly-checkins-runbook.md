@@ -22,7 +22,8 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
 - Bug Tracker: `collection://29d24bca-36d7-80ef-b574-000b739e37a8`. Read-only here, used for holds.
 
 ### Front / HubSpot
-- Send-from channel: `cha_30ds1` (trent@teambuildr.com). It auto-appends the closing and signature, so templates have none.
+- Send-from channel: `cha_30ds1` (trent@teambuildr.com). It auto-appends Trent's sign-off ("Have a good one!") and signature, so templates have neither.
+- Voice profiles: Notion page `41524bca36d78116ade3fefbcf0f4b50` ("Email Voice Profiles", under OS Customer Success). Fetch it once per run. Follow the sender's profile for every word the run writes itself (`{{opener}}`, `{{shipped_line}}`). Template text from Appendix A is used verbatim. If the page can't be read, keep drafting and note "voice profiles unavailable" in the summary.
 - BCC on every draft: `4238329@bcc.hubspot.com`
 - Trent teammate: `tea_2glc1`. Andrea Alamo teammate: `tea_d12je`.
 - Owner map (for the Owner field and the Different-sender variant):
@@ -177,7 +178,7 @@ For each `due` account, in order:
 3. **Build the links:**
    - `{{survey_link}}`: the version's pre-fill URL, with `ACCOUNT` replaced by the URL-encoded **OS Accounts** name.
    - `{{call_link}}`: the owner's booking link.
-4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
+4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. For the **Intro** variant, use the owner's Intro copy (Trent's until Andrea's Owner-map row is filled in). Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
 5. Write the draft's conversation link to `Front link`.
    - **Shipped dedupe:** for every request named in `{{shipped_line}}` or `{{opener}}`, add the account to that request's `Shipped notified`, right after the draft is created. If Trent later deletes the draft (Outcome Skipped), the mention is not retried. That's accepted: the launch announcement already reached them.
 6. **Different-sender variant:** also `add_comment` on the conversation: "Different-sender variant (Silent ×2): hand to Andrea (tea_d12je) to send."
@@ -261,7 +262,7 @@ Send a Slack DM to Trent. If Slack is unavailable, put the same text in the task
 The Slack tool takes standard markdown, headers included. Format rules:
 - First line is a bold title, not a header: `**OS check-ins: <draft|log> pass, <date>**`, then `Accounts read: <n>` on the next line (draft pass only).
 - Each section is a `#` header carrying its count, e.g. `# Drafts created: 2`.
-- Under **Drafts created** only, add a `###` sub-header for each draft type that has drafts (Standard, Give-first, Different sender, Nudge, Score follow-up), with that type's accounts as bullets underneath.
+- Under **Drafts created** only, add a `###` sub-header for each draft type that has drafts (Intro, Standard, Give-first, Different sender, Nudge, Score follow-up), with that type's accounts as bullets underneath.
 - **One account per bullet.** Never put two accounts on the same line or in the same paragraph. If one account has several items, give it several bullets.
 - Each bullet starts with the account name, then ` - ` and the detail.
 - **No IDs**: no Front conversation or draft ids, no Notion page ids, no URLs.
@@ -306,50 +307,84 @@ Avoma: skipped
 
 ---
 
-## Appendix A — Email copy (APPROVED by Trent 2026-11-03)
+## Appendix A — Email copy (APPROVED by Trent 2026-11-03; Intro added and voice updated 2026-11-11)
 
-These are plain, short, and from Trent. Channel `cha_30ds1` appends the closing and signature, so there's no sign-off. Avoid em dashes in the body.
+Plain and short. Every channel appends its own sign-off and signature (Trent's: "Have a good one!" + signature), so the body never has a sign-off, name or title. Avoid em dashes. Wording follows the sender's voice profile (see Config).
 
 **Subject (all check-in variants):** `Quick check-in from TeamBuildr OS`
 
+**Intro** (an account's first-ever check-in: program launch and every new customer; from Trent)
+> Hey {{first_name}}!
+>
+> Once a quarter, I check in with every gym on OS to see how things are going. Since this is your first one, I wanted to share why we do it.
+>
+> Most of the time we only hear from gyms when something breaks, and I'd rather catch things before they get to that point. It's a good trade for both of us. You get a direct say in what we build next and a chance to flag anything slowing you down, and we get honest feedback on where OS needs to get better.
+>
+> {{shipped_line}}
+>
+> If you have 15 or 30 minutes, you can grab time with me here -> {{call_link}}
+>
+> If a call's tough to fit in, there's a quick 2-minute survey here -> {{survey_link}}
+>
+> Honest answers help most, good or bad. If you have any questions, let me know. Otherwise, I look forward to hearing from you!
+
+**Intro, Andrea** (used once Andrea's Owner-map row is filled in; check whether her channel signature adds "Have a nice day!" before going live)
+> Hey {{first_name}}! Hope you're having a great week!
+>
+> Andrea here from TeamBuildr OS. Once a quarter, we check in with every gym on OS to see how things are going, and since this is your first one, I wanted to share a little about why we do it.
+>
+> Usually we only hear from gyms when something isn't working, and we'd much rather catch those things early. Your feedback helps us fix what's slowing you down and decide what we build next, so it really does shape OS!
+>
+> {{shipped_line}}
+>
+> Two easy ways to share:
+> - **Grab 15 or 30 minutes with me:** {{call_link}}
+> - **Prefer something quick?** A 2-minute survey: {{survey_link}}
+>
+> Honest feedback is what helps us most, good or bad - so please don't hold back! If you have any questions, let me know. Otherwise, I look forward to hearing from you!
+
 **Standard**
-> Hi {{first_name}},
+> Hey {{first_name}}!
 >
 > I'm checking in with every gym on OS this quarter, and I'd love to hear how things are going at {{facility}}. What's working, what isn't, and what you wish OS did.
 >
 > {{shipped_line}}
 >
-> Two easy ways to share:
-> - Grab 15 or 30 minutes with me: {{call_link}}
-> - No time? A few quick questions, about 2 minutes: {{survey_link}}
+> If you have 15 or 30 minutes, you can grab time with me here -> {{call_link}}
 >
-> Honest answers help us most, good or bad.
+> If a call's tough to fit in, there's a quick 2-minute survey here -> {{survey_link}}
+>
+> Honest answers help most, good or bad. If you have any questions, let me know. Otherwise, I look forward to hearing from you!
 
 **Give-first**
-> Hi {{first_name}},
+> Hey {{first_name}}!
 >
 > {{opener}}
 >
 > {{shipped_line}}
 >
-> If it's useful, I'm always happy to hop on a quick call ({{call_link}}). Or if you have 2 minutes, a few quick questions here tell us where to focus next: {{survey_link}}
-
-**Different sender** (written for Andrea to send. Until her row is set up, Trent forwards it.)
-> Hi {{first_name}},
+> If it's useful, I'm always happy to hop on a quick call -> {{call_link}}. Or if you have 2 minutes, a few quick questions here tell us where to focus next -> {{survey_link}}
 >
-> I'm Andrea on the TeamBuildr OS team. {{opener}}
+> If you have any questions, let me know. Otherwise, I look forward to hearing from you!
+
+**Different sender** (written for Andrea to send, in her voice. Until her row is set up, Trent forwards it.)
+> Hey {{first_name}}! Hope you're having a great week!
+>
+> Andrea here from TeamBuildr OS. {{opener}}
 >
 > {{shipped_line}}
 >
-> I'd love to hear how OS is fitting at {{facility}}. 20 minutes here if you're open to it: {{call_link}}. Or 2 minutes here: {{survey_link}}
+> I'd love to hear how OS is fitting at {{facility}}. You can grab 20 minutes with me here: {{call_link}}, or if you'd rather keep it quick, there's a 2-minute survey here: {{survey_link}}
+>
+> If you have any questions, let me know. Otherwise, I look forward to hearing from you!
 
 **Nudge** (subject `Re: Quick check-in from TeamBuildr OS`)
-> Hi {{first_name}}, bumping this in case it got buried. If a call isn't in the cards, the 2-minute version is here: {{survey_link}}
+> Hey {{first_name}}! Just wanted to give this a friendly nudge in case it got buried. If a call isn't in the cards, the 2-minute version is here -> {{survey_link}}
 
 **Score follow-up** (subject `Thanks for the feedback`)
-> Hi {{first_name}},
+> Hey {{first_name}}!
 >
-> Thanks for filling that out. I noticed {{low_area}} scored lower than I'd like{{their_words}}. I want to understand what happened and get it fixed. Could we grab 15 or 30 minutes {{call_link}}, or just reply here with what's been getting in the way?
+> Thanks for filling that out. I noticed {{low_area}} scored lower than I'd like{{their_words}}. I want to understand what happened and get it fixed. Could we grab 15 or 30 minutes -> {{call_link}}, or just reply here with what's been getting in the way?
 
 `{{low_area}}` is "the platform" or "our support". `{{their_words}}` is ", and you mentioned \"<their phrase>\"" when their free text explains it, otherwise empty.
 
