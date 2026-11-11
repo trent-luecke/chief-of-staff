@@ -106,7 +106,7 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 
 ### D2 — Build holds (per account)
 Build the `support` list for the CLI:
-- Front `search_conversations` with the POC email, across all inboxes, last 120 days. **Exclude every conversation whose subject is one of the Program email subjects** (Config). The program's own emails must never create a hold.
+- Front `search_conversations` with the POC email, across all inboxes, last 120 days. **Exclude every conversation whose subject is one of the Program email subjects** (Config). The program's own emails must never create a hold. **Also exclude failed-payment threads**: any subject (with or without "Re:"/"Fwd:") that contains "payment" and one of "failed", "declined" or "unsuccessful", in any order and any case (e.g. "Failed OS Payment", "Re: Failed TeamBuildrOS Payment", "Payment declined"). A billing notice is not a support issue and must never hold a check-in.
   - Any **not archived**: `{"open": true}`.
   - Keep each hold's subject and date, so the summary can give the specific reason for every held account.
   - Archived: `{"open": false, "closed_on": <last message date>}`.
