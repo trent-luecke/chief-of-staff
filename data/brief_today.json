@@ -1,200 +1,25 @@
 {
-  "date": "2026-11-10",
-  "generated_at": "2026-11-10T18:59:54.614953+00:00",
+  "date": "2026-11-11",
+  "generated_at": "2026-11-11T12:01:40.884169+00:00",
   "meetings": [
     {
-      "id": "2lvet7cp6d7irgvbqsqkkavfnc",
-      "title": "Virtual Doc Appt",
-      "start": "2026-11-10T07:00:00-06:00",
-      "end": "2026-11-10T07:30:00-06:00",
+      "id": "6e6fmrudj9sjghv0mjvrfi8nov",
+      "title": "Out of office",
+      "start": "2026-11-11T00:00:00-06:00",
+      "end": "2026-11-12T00:00:00-06:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "olt4eh3488fftej670gj40dnro_20261110T143000Z",
-      "title": "TeamBuildr OS Weekly Dev Sync",
-      "start": "2026-11-10T08:30:00-06:00",
-      "end": "2026-11-10T09:00:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elvis@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "james@teambuildr.com",
-          "name": "James Peters"
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "dd8v77935eol6k905bg547n1j5_20261110T160000Z",
-      "title": "1:1 Weekly OS Meeting",
-      "start": "2026-11-10T10:00:00-06:00",
-      "end": "2026-11-10T10:30:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "1n1ipkrudnijothhoj5fluct5r_20261110T190000Z",
-      "title": "Rev Team Meeting",
-      "start": "2026-11-10T13:00:00-06:00",
-      "end": "2026-11-10T13:30:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "emily@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "evan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "grace@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "brian@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "clayton@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "elodder@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "amanda@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "kylah@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "csnyder@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "irene@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "heather@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jpaw@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "quinn@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "cora@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "abro@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "rjsg3ujtl9fbu7u59bsbhblavs",
-      "title": "OS Prospect Calls",
-      "start": "2026-11-10T13:30:00-06:00",
-      "end": "2026-11-10T14:00:00-06:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
-    },
-    {
-      "id": "5ask424juvj6nulgo2tcjms9mp",
-      "title": "Caleb Lindsey / TeamBuildr",
-      "start": "2026-11-10T15:30:00-06:00",
-      "end": "2026-11-10T16:00:00-06:00",
+      "id": "622gpqdnn551m0ner5cupuko4f",
+      "title": "Connor / Trent: OS Feedback",
+      "start": "2026-11-11T08:30:00-06:00",
+      "end": "2026-11-11T09:00:00-06:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "calebjlindsey05@gmail.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
+          "email": "chanson@cardsperformance.com",
           "name": ""
         }
       ],
