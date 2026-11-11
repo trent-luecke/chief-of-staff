@@ -1,5 +1,8 @@
 // cloudflare/avoma-slack-bridge.js
 // Slack Events API bridge → GitHub Actions dispatch for Avoma thread processing.
+// This Worker owns the Slack app's Events URL, so DMs to the app (research capture) are routed from here too.
+
+import { handleImEvent } from "./research-capture.js";
 
 async function verifySlackSignature(request, body, signingSecret) {
   const timestamp = request.headers.get("X-Slack-Request-Timestamp");
@@ -117,6 +120,14 @@ export default {
 
     const event = payload.event;
     if (!event) return new Response("OK");
+
+    // DMs to the app → research-brain capture. Checked before the subtype filter below, because
+    // screenshot DMs arrive with subtype "file_share". Slack retries are dropped: the first delivery
+    // was already acked, and capture dedupes by event_id downstream.
+    if (event.channel_type === "im") {
+      if (request.headers.get("X-Slack-Retry-Num")) return new Response("OK");
+      return handleImEvent(event, env, ctx, payload.event_id);
+    }
 
     // Drop: non-message events, any subtype (bot_message, message_changed, etc.), bot messages
     if (event.type !== "message") return new Response("OK");

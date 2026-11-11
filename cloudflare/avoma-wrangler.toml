@@ -2,6 +2,12 @@ name = "chief-of-staff-avoma-bridge"
 main = "avoma-slack-bridge.js"
 compatibility_date = "2024-01-01"
 
+keep_vars = true  # never wipe vars set in the Cloudflare dashboard (e.g. AVOMA_CHANNEL_ID)
+
+[vars]
+TRENT_SLACK_USER = "U04ECG6KEA3"
+RB_GITHUB_REPO = "trent-luecke/research-brain"
+
 [observability]
 enabled = false
 
