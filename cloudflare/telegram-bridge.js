@@ -1,5 +1,7 @@
 // cloudflare/telegram-bridge.js
 
+import { handleResearchCommand, handleSlackEvents } from "./research-capture.js";
+
 async function dispatchToGitHub(env, workflow, inputs) {
   const resp = await fetch(
     `https://api.github.com/repos/${env.GITHUB_REPO}/actions/workflows/${workflow}/dispatches`,
@@ -319,6 +321,15 @@ export default {
 
     if (url.pathname === "/slack/routine") {
       return handleSlackRoutine(request, env, ctx);
+    }
+
+    if (url.pathname === "/slack/research") {
+      return handleResearchCommand(request, env, ctx);
+    }
+
+    // DM capture events (used only if this Worker owns the Slack app's Events URL).
+    if (url.pathname === "/slack/events") {
+      return handleSlackEvents(request, env, ctx);
     }
 
     if (url.pathname === "/slack/interactive") {
