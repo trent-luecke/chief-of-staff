@@ -30,7 +30,7 @@ def test_cli_due_mixes_due_and_skipped():
     assert out["due"][0]["generic_email"] is False
     assert out["due"][1]["generic_email"] is True
     assert {d["version"] for d in out["due"]} == {"Early"}
-    assert {d["variant"] for d in out["due"]} == {"Standard"}
+    assert {d["variant"] for d in out["due"]} == {"Intro"}
     assert out["skipped"] == [{"name": "Grind Time", "reason": "bad_join_date"}]
 
 

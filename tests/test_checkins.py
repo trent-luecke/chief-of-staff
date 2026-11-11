@@ -91,10 +91,17 @@ def test_hold_until_rules():
     assert hold_until([], MON) is None
 
 def test_variant_progression():
-    assert choose_variant([]) == "Standard"
+    assert choose_variant([]) == "Intro"
     assert choose_variant(["Survey answered"]) == "Standard"
     assert choose_variant(["Survey answered", "Silent"]) == "Give-first"
     assert choose_variant(["Silent", "Silent"]) == "Different sender"
+
+def test_first_ever_checkin_is_intro():
+    # Nothing settled yet (never checked in, or only skipped / in-flight) -> introduce the program.
+    assert choose_variant(["Skipped"]) == "Intro"
+    assert choose_variant(["Drafted"]) == "Intro"
+    # A silent first check-in escalates; it doesn't get the intro again.
+    assert choose_variant(["Silent"]) == "Give-first"
 
 def test_variant_skipped_is_transparent():
     assert choose_variant(["Silent", "Skipped", "Silent"]) == "Different sender"

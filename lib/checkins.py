@@ -79,6 +79,8 @@ def is_due(join, week_monday, last_checkin_on, hold, program_start=None):
 
 def choose_variant(prior_outcomes):
     settled = [o for o in prior_outcomes if o != "Skipped" and o not in _IN_FLIGHT]
+    if not settled:
+        return "Intro"  # first check-in ever (program launch or a new customer): explain the program
     if len(settled) >= 2 and settled[-1] == "Silent" and settled[-2] == "Silent":
         return "Different sender"
     if settled and settled[-1] == "Silent":
