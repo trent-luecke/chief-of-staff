@@ -108,6 +108,7 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 Build the `support` list for the CLI:
 - Front `search_conversations` with the POC email, across all inboxes, last 120 days. **Exclude every conversation whose subject is one of the Program email subjects** (Config). The program's own emails must never create a hold.
   - Any **not archived**: `{"open": true}`.
+  - Keep each hold's subject and date, so the summary can give the specific reason for every held account.
   - Archived: `{"open": false, "closed_on": <last message date>}`.
 - Bug Tracker items related to the account page:
   - Status isn't Done/Closed: `{"open": true}`.
@@ -255,23 +256,53 @@ For `Related Gap`, Trent pastes it by hand. Nothing to do.
 
 ## Run summary (both passes)
 
-Send a Slack DM to Trent. If Slack is unavailable, put the same block in the task output.
+Send a Slack DM to Trent. If Slack is unavailable, put the same text in the task output.
+
+The Slack tool takes standard markdown, headers included. Format rules:
+- First line is a bold title, not a header: `**OS check-ins: <draft|log> pass, <date>**`, then `Accounts read: <n>` on the next line (draft pass only).
+- Each section is a `#` header carrying its count, e.g. `# Drafts created: 2`.
+- Under **Drafts created** only, add a `###` sub-header for each draft type that has drafts (Standard, Give-first, Different sender, Nudge, Score follow-up), with that type's accounts as bullets underneath.
+- **One account per bullet.** Never put two accounts on the same line or in the same paragraph. If one account has several items, give it several bullets.
+- Each bullet starts with the account name, then ` - ` and the detail.
+- **No IDs**: no Front conversation or draft ids, no Notion page ids, no URLs.
+- Drop any section that is empty. If nothing happened, send only the title and "Nothing to do".
+
+Sections, in this order, with the detail each bullet carries:
+
+| Header | Bullet: `<account> - …` |
+|---|---|
+| `# At risk: <n>` | Silent ×2 |
+| `# New flags: <n>` | signal, "exact quote" |
+| `# Waiting on you: <n>` | proposed entry (needs "Log it") |
+| `# Drafts created: <n>` | `<tenure version> - draft ready in Front` under its `###` type |
+| `# Shipped mentions: <n>` | request named in the draft |
+| `# Give-first openers: <n>` | angle, cited items, or PLACEHOLDER |
+| `# Held: <n>` | the specific reason, e.g. `open support conversation "<subject>" (last activity <date>)`, `support conversation "<subject>" closed <date>, held until <date + 21 days>`, `open Bug Tracker item "<title>"` |
+| `# Sitting unsent: <n>` | drafted <date> |
+| `# Wants a call: <n>` | from survey |
+| `# Check: <n>` | check type and detail, e.g. `generic inbox - draft goes to <email>, check recipient`, `not in Notion - <why>`, `no email`, `bad join date - "<raw value>"`, `unmatched survey response`, `shipped request with no notify history - <request>` |
+
+End with one plain line: `Avoma: ok` or `Avoma: skipped`.
+
+Example (made-up accounts):
 
 ```
-OS check-ins — <draft|log> pass, <date>
-Accounts read: <n> (draft pass only)
-At risk (Silent ×2): <accounts>
-New flags: <account — signal — "quote">
-Waiting on you ("Log it"): <account — proposed entry>
-Drafts created: <n> (Standard <n> · Give-first <n> · Different sender <n> · Nudge <n> · Score follow-up <n>)
-Shipped mentions: <account — request>
-Give-first openers: <account — angle — cited items | PLACEHOLDER>
-Held (support issue): <accounts>
-Sitting unsent: <accounts>
-Wants a call (from survey): <accounts>
-Check: generic inboxes <…> · not in Notion <…> · no email <…> · bad join date <…> · unmatched responses <…> · shipped request with no notify history <…> · Avoma <ok|skipped>
+**OS check-ins: draft pass, 2026-11-10**
+Accounts read: 100
+
+# Drafts created: 2
+### Standard
+- Example Barbell Club - Mature - draft ready in Front
+- Sample Athletic Lab - Settled - draft ready in Front
+
+# Held: 1
+- Demo Strength Co - support conversation "Billing question" closed 2026-11-10, held until 2026-12-01
+
+# Check: 1
+- Example Barbell Club - generic inbox - draft goes to a shared info@ address, check recipient
+
+Avoma: skipped
 ```
-If a section is empty, drop it. If nothing happened, say "Nothing to do".
 
 ---
 
