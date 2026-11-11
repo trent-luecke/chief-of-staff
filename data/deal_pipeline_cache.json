@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-10T10:47:06.937178Z",
+  "fetched_at": "2026-11-11T10:23:01.704360Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -815,6 +815,19 @@
       "status": "lost",
       "priority": null,
       "last_contacted": "2025-09-02",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
+      "page_id": "deal:jsisman@prepareforperformance.com",
+      "name": "Prepareforperformance",
+      "contact": "jsisman@prepareforperformance.com",
+      "email": "jsisman@prepareforperformance.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-11-10T15:00:00Z",
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",

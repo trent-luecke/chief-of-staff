@@ -1,31 +1,31 @@
 {
-  "generated_at": "2026-11-10T19:10:12Z",
-  "reference_date": "2026-11-10",
-  "total_calls": 1567,
+  "generated_at": "2026-11-11T10:23:02Z",
+  "reference_date": "2026-11-11",
+  "total_calls": 1568,
   "totals": {
-    "calls": 1567,
-    "input_tokens": 20825213,
-    "output_tokens": 1939164,
-    "cost_usd": 91.563099
+    "calls": 1568,
+    "input_tokens": 20828134,
+    "output_tokens": 1939974,
+    "cost_usd": 91.584012
   },
   "windows": {
     "last_7d": {
-      "calls": 61,
-      "input_tokens": 1920162,
-      "output_tokens": 95876,
-      "cost_usd": 7.198626
+      "calls": 56,
+      "input_tokens": 1648684,
+      "output_tokens": 81514,
+      "cost_usd": 6.168762
     },
     "last_30d": {
-      "calls": 472,
-      "input_tokens": 8746715,
-      "output_tokens": 643381,
-      "cost_usd": 35.89086
+      "calls": 473,
+      "input_tokens": 8749636,
+      "output_tokens": 644191,
+      "cost_usd": 35.911773
     },
     "all_time": {
-      "calls": 1567,
-      "input_tokens": 20825213,
-      "output_tokens": 1939164,
-      "cost_usd": 91.563099
+      "calls": 1568,
+      "input_tokens": 20828134,
+      "output_tokens": 1939974,
+      "cost_usd": 91.584012
     }
   },
   "by_job": [
@@ -38,10 +38,10 @@
     },
     {
       "run_type": "avoma_sync",
-      "calls": 97,
-      "input_tokens": 713317,
-      "output_tokens": 107823,
-      "cost_usd": 3.757296
+      "calls": 98,
+      "input_tokens": 716238,
+      "output_tokens": 108633,
+      "cost_usd": 3.778209
     }
   ],
   "by_caller": [
@@ -54,10 +54,10 @@
     },
     {
       "caller": "avoma_analyze",
-      "calls": 334,
-      "input_tokens": 2456793,
-      "output_tokens": 372284,
-      "cost_usd": 12.954639
+      "calls": 335,
+      "input_tokens": 2459714,
+      "output_tokens": 373094,
+      "cost_usd": 12.975552
     },
     {
       "caller": "brief",
@@ -84,10 +84,10 @@
   "by_model": [
     {
       "model": "claude-sonnet-4-6",
-      "calls": 472,
-      "input_tokens": 8746715,
-      "output_tokens": 643381,
-      "cost_usd": 35.89086
+      "calls": 473,
+      "input_tokens": 8749636,
+      "output_tokens": 644191,
+      "cost_usd": 35.911773
     }
   ],
   "by_day": [
@@ -265,6 +265,13 @@
       "input_tokens": 283240,
       "output_tokens": 18608,
       "cost_usd": 1.12884
+    },
+    {
+      "date": "2026-11-11",
+      "calls": 1,
+      "input_tokens": 2921,
+      "output_tokens": 810,
+      "cost_usd": 0.020913
     }
   ]
 }
