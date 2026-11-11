@@ -186,7 +186,7 @@ For each `due` account, in order:
 7. **Generic email** (`generic_email: true`): still draft, and list it under "generic inbox — check recipient".
 
 ### D6 — Nudges
-Nudges run in the **log pass** (L3b), not here, so they go out on day 7 whatever weekday the original was sent.
+Nudges run in the **log pass** (L3b), not here, so they're drafted 4 business days after the original was sent, whatever weekday that was.
 
 ---
 
@@ -236,7 +236,7 @@ If a qualifying response (last 60 days, not yet applied) matches no open row, li
 3. Never re-add a signal already on the row.
 
 ### L3b — Nudges
-For each row at **Sent** where `Sent` is 7 or more days ago and `Nudged` is empty, draft the Nudge from Appendix A as a new outbound with BCC. Then set `Nudged` = today and `Nudge link` = the nudge's conversation. Never nudge twice.
+For each row at **Sent** where `Sent` is 4 or more business days ago (Mon–Fri, so a Monday send is nudged on Friday, a Thursday send on Wednesday) and `Nudged` is empty, draft the Nudge from Appendix A as a **reply in the original thread** (`create_draft` with `conversationId` from `Front link`, `to` the POC email, BCC `4238329@bcc.hubspot.com`), so the first email is quoted underneath. Then set `Nudged` = today and `Nudge link` = the same conversation. One nudge per account per quarter: never nudge twice.
 
 ### L4 — Silent
 For each row still at **Sent** where `Sent` is 14 or more days ago **and** `Nudged` is set and 7 or more days ago: Outcome = **Silent**, and add `Silent` to Risk signals. If the account's previous non-Skipped row was also **Silent**, add `Silent ×2` as well.
@@ -379,7 +379,7 @@ Plain and short. Every channel appends its own sign-off and signature (Trent's: 
 >
 > If you have any questions, let me know. Otherwise, I look forward to hearing from you!
 
-**Nudge** (subject `Re: Quick check-in from TeamBuildr OS`)
+**Nudge** (a reply in the original thread, so it keeps the original subject)
 > Hey {{first_name}}! Just wanted to give this a friendly nudge in case it got buried. If a call isn't in the cards, the 2-minute version is here -> {{survey_link}}
 
 **Score follow-up** (subject `Thanks for the feedback`)
