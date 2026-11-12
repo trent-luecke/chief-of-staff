@@ -179,7 +179,7 @@ For each `due` account, in order:
    - `{{survey_link}}`: the version's pre-fill URL, with `ACCOUNT` replaced by the URL-encoded **OS Accounts** name.
    - `{{call_link}}`: the owner's booking link.
    - In the draft body (HTML), show the call link as the plain URL and the survey link as a link labeled "2-minute check-in survey", never the raw pre-fill URL.
-4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. For the **Intro** variant, use the owner's Intro copy (Trent's until Andrea's Owner-map row is filled in). Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
+4. **Front `create_draft`:** a new outbound on `cha_30ds1`, to the POC email, BCC `4238329@bcc.hubspot.com`. Subject and body come from Appendix A for the Variant. For the **Intro** variant, use the owner's Intro copy (Trent's until Andrea's Owner-map row is filled in). Pick the version by the account's Join Date: **Launch Intro** if the account joined before `program_start` (an existing customer meeting the program for the first time), **Intro** (new customer) if it joined on or after `program_start`. Fill `{{first_name}}` from the first word of POC (fallback "there"), `{{facility}}` from the account name, `{{opener}}` from D4 (Give-first/Different sender only), and `{{shipped_line}}` from D4a. When `{{shipped_line}}` is empty, drop its paragraph entirely so no blank line is left.
 5. Write the draft's conversation link to `Front link`.
    - **Shipped dedupe:** for every request named in `{{shipped_line}}` or `{{opener}}`, add the account to that request's `Shipped notified`, right after the draft is created. If Trent later deletes the draft (Outcome Skipped), the mention is not retried. That's accepted: the launch announcement already reached them.
 6. **Different-sender variant:** also `add_comment` on the conversation: "Different-sender variant (Silent ×2): hand to Andrea (tea_d12je) to send."
@@ -314,7 +314,22 @@ Plain and short. Every channel appends its own sign-off and signature (Trent's: 
 
 **Subject (all check-in variants):** `Quick check-in from TeamBuildr OS`
 
-**Intro** (an account's first-ever check-in: program launch and every new customer; from Trent)
+**Launch Intro** (Intro variant for accounts that joined before `program_start`; approved by Trent 2026-11-12; from Trent)
+> Hey {{first_name}}!
+>
+> We're starting something new to stay more connected with every gym on OS: a quick check-in about every 90 days to see how things are going. Since this is your first one, I wanted to share why we're doing it.
+>
+> Most of the time we only hear from gyms when something breaks, and I'd rather catch things before they get to that point. We also want to make sure OS is actually helping you reach your goals for the business. It's a good trade for both of us. You get a direct say in what we build next and a chance to flag anything slowing you down, and we get honest feedback on where OS needs to get better.
+>
+> {{shipped_line}}
+>
+> If you have 15 or 30 minutes, you can grab time with me here -> {{call_link}}
+>
+> If a call's tough to fit in, there's a quick 2-minute survey here -> {{survey_link}}
+>
+> Honest answers help most, good or bad. If you have any questions, let me know. Otherwise, I look forward to hearing from you!
+
+**Intro** (Intro variant for new customers, joined on or after `program_start`; from Trent)
 > Hey {{first_name}}!
 >
 > Once a quarter, I check in with every gym on OS to see how things are going. Since this is your first one, I wanted to share why we do it.
