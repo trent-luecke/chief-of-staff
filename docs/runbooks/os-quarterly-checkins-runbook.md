@@ -144,7 +144,7 @@ Dedupe lives on the **Feature Request** in `Shipped notified` (relation → OS A
 
 ### D4 — Context packet (Give-first and Different-sender only)
 Gather, for that account:
-0. **Their goal:** the account's `Goal`, `Goal target`, `Goal baseline` and `Goal set` in OS Accounts Database (captured on a call; see the Notion "Check-in Call Guide"). Empty means no goal on file yet.
+0. **Their goal:** the account's `Goal`, `Goal target`, `Goal baseline`, `Goal set`, `Goal status` and `Why they switched` in OS Accounts Database (captured on calls; see the Notion "Orientation Call Guide" and "Check-in Call Guide"). Empty means nothing on file yet. Ignore a `Why they switched` whose `Why source` is "Sales call (unconfirmed)": it hasn't been confirmed with the customer, so never quote it to them.
 1. **Their requests:** Feature Requests where `Requesting Accounts` contains the account. Split into shipped (`Completed/Closed?` true) and open.
 2. **Their history:**
    - Front support conversations from the last 12 months: subjects plus a one-line gist.
