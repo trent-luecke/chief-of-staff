@@ -207,13 +207,13 @@ For each row at **Drafted**, read the Front conversation (`Front link`):
 For the outcome, a booking beats a survey, which beats a reply. A survey can overwrite Replied, Call booked or Silent.
 1. **Booking** (rows at Sent or Silent): HubSpot contact by POC email → `MEETING_EVENT` with title containing `TeamBuildr OS Customer Check-In` and created after `Sent`. Outcome = **Call booked**. If the row was Silent, remove the `Silent` and `Silent ×2` signals.
 2. **Survey** (any open row): run `python3 $T/scripts/checkins_sheet.py responses`. It returns every response from all three tabs, each tagged with `version`. **Only consider responses whose Timestamp is in the last 60 days and later than the row's `Response at`, if that's set.** Convert each Forms `Timestamp` (`M/D/YYYY H:MM:SS`) to ISO before use. Match each response's `Facility/Gym Name` value to the row with `checkins.py match` (fallback: respondent email = POC email). Gather all qualifying responses for the row submitted after `Sent`, then run `checkins.py latest`. Write:
-   - `Platform score`, `Support score`;
-   - `Alongside OS` (the "What do you use alongside…" column), `Change one thing` (the "If you could change one thing…" column);
+   - `Platform score` (header starts "How would you rate TeamBuildr OS overall"), `Support score` (header starts "How would you rate your experience with our support team");
+   - `Alongside OS` (header starts "What do you use alongside"), `Change one thing` (header starts "If you could change one thing");
    - `Version answers`: every other non-empty free-text column (everything except Timestamp, Facility/Gym Name, the two scores, those two, and the call question), as "Q: … A: …". Match columns by header text, never by position, because the three tabs have different column counts;
    - `Response at` = that response's timestamp;
    - Outcome = **Survey answered**. If the row was **Silent**, remove `Silent` and `Silent ×2` from Risk signals.
 
-   If "Want to hop on a call?" = Yes, add "wants a call" to the summary.
+   If the call question (header starts "Would you like to hop on a quick call") = Yes, add "wants a call" to the summary. Old columns for questions removed from a form stay in the sheet; they're simply empty on new responses.
 3. **Reply** (rows at Sent or Silent): an inbound message after `Sent` on the `Front link` conversation **or** the `Nudge link` conversation. Ignore auto-replies (out-of-office, "automatic reply"). Outcome = **Replied**. If the row was Silent, remove the Silent signals.
 
 If a qualifying response (last 60 days, not yet applied) matches no open row, list it under "unmatched responses". Never guess. A response already applied (its timestamp equals some row's `Response at`) is never listed.
