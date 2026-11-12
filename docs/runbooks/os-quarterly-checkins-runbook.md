@@ -144,6 +144,7 @@ Dedupe lives on the **Feature Request** in `Shipped notified` (relation → OS A
 
 ### D4 — Context packet (Give-first and Different-sender only)
 Gather, for that account:
+0. **Their goal:** the account's `Goal`, `Goal target`, `Goal baseline` and `Goal set` in OS Accounts Database (captured on a call; see the Notion "Check-in Call Guide"). Empty means no goal on file yet.
 1. **Their requests:** Feature Requests where `Requesting Accounts` contains the account. Split into shipped (`Completed/Closed?` true) and open.
 2. **Their history:**
    - Front support conversations from the last 12 months: subjects plus a one-line gist.
@@ -154,9 +155,10 @@ Gather, for that account:
 
 Pick ONE angle, in this order:
 1. A shipped request of theirs, from D4a's `shipped_for_them`: "You asked for X, it's live."
-2. A shipped fix or feature that addresses a problem they actually had.
-3. A concrete idea to get more out of their account, grounded in their history.
-4. A future-project invite: an open Feature Request that fits them. "We're thinking about building X — would you be open to a quick chat about it?"
+2. Their goal, when one is on file: one plain line that names it in their words and asks how it's going ("Last time we talked, you wanted billing down to an hour a week. How's that going?"). Never claim progress you can't see.
+3. A shipped fix or feature that addresses a problem they actually had.
+4. A concrete idea to get more out of their account, grounded in their history.
+5. A future-project invite: an open Feature Request that fits them. "We're thinking about building X — would you be open to a quick chat about it?"
 
 Write `{{opener}}` as 1–2 sentences. Record the cited packet items for the summary.
 
