@@ -46,3 +46,21 @@ def test_list_waits_and_retries_on_429(monkeypatch, capsys):
     monkeypatch.setattr(qa.time, "sleep", lambda s: slept.append(s))
     qa.cmd_list(Namespace(date=None, from_date="a", to_date="b", title=None, attendee="examplegym"))
     assert slept == [2] and "Example demo" in capsys.readouterr().out
+
+
+def test_list_asks_for_big_pages(monkeypatch, capsys):
+    seen = []
+    monkeypatch.setattr(qa.requests, "get", lambda url, **kw: (seen.append(kw.get("params")), _resp({"results": [], "next": None}))[1])
+    monkeypatch.setattr(qa, "_headers", lambda: {})
+    qa.cmd_list(Namespace(date=None, from_date="a", to_date="b", title=None, attendee=None))
+    assert seen[0]["page_size"] == 100
+
+
+def test_transcript_without_recording_says_so_instead_of_crashing(monkeypatch, capsys):
+    meeting = {"subject": "Demo", "start_at": "s", "end_at": "e", "attendees": []}
+    missing = SimpleNamespace(status_code=404, json=lambda: {"message": "Transcription not found"})
+    seq = [SimpleNamespace(status_code=200, json=lambda: meeting), missing]
+    monkeypatch.setattr(qa.requests, "get", lambda url, **kw: seq.pop(0))
+    monkeypatch.setattr(qa, "_headers", lambda: {})
+    qa.cmd_transcript(Namespace(uuid="u1"))
+    assert "No transcript for this meeting" in capsys.readouterr().out

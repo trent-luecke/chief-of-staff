@@ -16,22 +16,24 @@ Why automate it: sales reps demo Strength and OS together and aren't asked to ca
    - Use `@<domain>` when the email's domain is the gym's own.
    - Use the full email address for freemail (gmail, yahoo, outlook, hotmail, icloud, aol, live, me, msn).
    - Never use teambuildr.com.
-3. List meetings from 180 days before the Join Date up to 7 days after it:
+3. **Look in the demo log first.** `data/deal_events.jsonl` on `origin/main` has a line for every demo the pipeline detected (since 2026-08-18). Keep lines with `kind` = `demo` whose `email` or `payload.contact_emails` matches the match term, and whose `timestamp` is before the Join Date. Each one's `payload.avoma_uuid` is the meeting to read. This is exact and fast. Use it whenever it has a match.
+4. **Only if the demo log has nothing,** search Avoma for the 30 days before the Join Date. Wider windows run past the tool's page cap and come back incomplete.
    ```bash
-   python3 .claude/skills/query-avoma/query_avoma.py list --from-date <join-180d>T00:00:00Z --to-date <join+7d>T23:59:59Z --attendee "<match term>"
+   python3 .claude/skills/query-avoma/query_avoma.py list --from-date <join-30d>T00:00:00Z --to-date <join>T00:00:00Z --attendee "<match term>"
    ```
-   The list reads every page of results and waits out Avoma's rate limit, so a 180-day window can take a few minutes. That's fine for a handful of new accounts.
-   **If it returns nothing,** try once more with `--title "<POC first and last name>"`, then with `--title "<a distinctive word from the Account Name>"`. Prospects sometimes book from a different email address, and Avoma names meetings after attendees. Keep only meetings where the POC or the gym clearly took part.
-4. Keep sales calls only: demos, discovery, follow-ups and pricing calls. Skip orientation, onboarding and support calls, since those come after the decision. Read at most the 3 most recent qualifying calls:
+   If that finds no call with a recording, try `--title "<POC first and last name>"`, then `--title "<a distinctive word from the Account Name>"`, over the same window. Keep only meetings where someone from the gym took part. The buyer isn't always the POC on the Client List; a colleague on the gym's domain counts.
+5. **Read only calls before the Join Date** (sales: demo, discovery, follow-up, pricing). Calls on or after the join date are setup or orientation. Read at most the 3 most recent:
    ```bash
    python3 .claude/skills/query-avoma/query_avoma.py transcript --uuid <uuid>
    ```
+   "No transcript for this meeting" means the call wasn't recorded. Skip it; it isn't an error.
 
 ## 2. Extract the reason (strict)
 
 - **Only the prospect's own words.** Ignore the rep's pitch, and ignore agreement like "yeah that'd be great" in reply to a feature the rep described.
 - **OS only.** TeamBuildr OS is gym management: booking, scheduling, memberships, billing and payments, the member app, waivers and reporting. Leave out reasons that are only about Strength (programming, training app, athlete tracking, AMS). On a mixed call, keep only the OS part.
-- **The reason they're switching or buying,** such as a pain with their current system, something they want in one place, or something they need to run the business. Not general small talk about the gym.
+- **The reason they're switching or buying,** such as a pain with their current system, something they want in one place, or something they need to run the business. Not general small talk about the gym. Buyers with no system before (a school buying software for the first time) have a need rather than a switch; write the need.
+- **Rep-prompted agreement doesn't count on its own.** If the rep proposed it and they agreed, look for where they raised it themselves. Quote that, or leave the field empty.
 - **No inference.** If no OS-specific reason was stated, write nothing.
 
 ## 3. Write it

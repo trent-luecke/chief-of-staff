@@ -76,7 +76,7 @@ def cmd_list(args) -> None:
 
     # Follow Avoma's `next` links: a multi-week window spans many pages, and reading only the
     # first one silently drops later meetings.
-    results, url, params = [], f"{BASE_URL}/v1/meetings", {"from_date": from_date, "to_date": to_date}
+    results, url, params = [], f"{BASE_URL}/v1/meetings", {"from_date": from_date, "to_date": to_date, "page_size": 100}
     for _ in range(MAX_PAGES):
         resp = _get(url, params)
         data = resp.json()
@@ -141,7 +141,12 @@ def cmd_transcript(args) -> None:
         headers=h,
         params={"meeting_uuid": args.uuid},
         timeout=TIMEOUT,
-    ).json()
+    )
+    data = t.json() if getattr(t, "status_code", 200) == 200 else None
+    if not isinstance(data, list):
+        print("No transcript for this meeting (not recorded or not processed). Skip it.")
+        return
+    t = data
     utterances = []
     for seg in t:
         for utt in seg.get("transcript", []):
