@@ -2,7 +2,7 @@
 
 The `os-accounts-notion-mirror` scheduled task runs this step for each **newly created** account in the Notion OS Accounts Database. It fills `Why they switched` from the customer's own words on earlier sales calls, so the orientation call can confirm the reason instead of starting cold ("On your demo you mentioned ___. Still the main thing?").
 
-Why automate it: sales reps demo Strength and OS together and aren't asked to capture "why OS". When a call doesn't contain an OS-specific reason, the field stays empty and the orientation call asks fresh. That's the normal fallback, not a failure.
+Why automate it: sales reps demo Strength and OS together and aren't asked to capture "why OS". When the prospect never stated a reason, the field stays empty and the orientation call asks fresh. That's the normal fallback, not a failure.
 
 **Read-only on Avoma. The only write is two properties on the new account's page, and never when `Why they switched` already has a value.**
 
@@ -28,23 +28,28 @@ Why automate it: sales reps demo Strength and OS together and aren't asked to ca
    ```
    "No transcript for this meeting" means the call wasn't recorded. Skip it; it isn't an error.
 
-## 2. Extract the reason (strict)
+## 2. Extract the reason
 
-- **Only the prospect's own words.** Ignore the rep's pitch, and ignore agreement like "yeah that'd be great" in reply to a feature the rep described.
-- **OS only.** TeamBuildr OS is gym management: booking, scheduling, memberships, billing and payments, the member app, waivers and reporting. Leave out reasons that are only about Strength (programming, training app, athlete tracking, AMS). On a mixed call, keep only the OS part.
-- **The reason they're switching or buying,** such as a pain with their current system, something they want in one place, or something they need to run the business. Not general small talk about the gym. Buyers with no system before (a school buying software for the first time) have a need rather than a switch; write the need.
-- **Rep-prompted agreement doesn't count on its own.** If the rep proposed it and they agreed, look for where they raised it themselves. Quote that, or leave the field empty.
-- **No inference.** If no OS-specific reason was stated, write nothing.
+Its job is to give the orientation host an opener ("On your demo you mentioned ___. Still the main thing?"), which the host confirms live. So capture **whatever reason the prospect gave for buying**, even when it covers Strength and OS together, and label which product it's about. (Loosened 2026-11-12: demos pitch both products, so OS-only reasons were rare. Trent approved.)
+
+- **Who's speaking:** speaker labels (S0/S1) flip between calls. The rep works for TeamBuildr and does the pitching and screen-sharing; check the attendee emails. Everyone else on the call is the prospect side.
+- **Only the prospect's own words.** Ignore the rep's pitch. Agreement with something the rep proposed ("yeah, that'd be great") doesn't count on its own; look for where they raised it themselves.
+- **A reason, not a question.** "Do you have booking and payments?" is curiosity, not a reason. A reason is a pain with their current setup, a cost or simplicity goal ("fewer apps", "cut cost"), or something they need to run the business. Buyers with no system before (a school buying for the first time) have a need rather than a switch; write the need.
+- **Label it:**
+  - **(OS)** for gym management: booking, scheduling, memberships, billing and payments, the member app, waivers, reporting.
+  - **(Strength)** for programming, the training app, athlete tracking, AMS.
+  - **(both)** when the reason covers the bundle, like cost or fewer apps.
+- **No inference.** If they never stated a reason, write nothing.
 
 ## 3. Write it
 
 When a reason was found, set on the new account's page:
-- `Why they switched`: `<one or two plain sentences, in their framing>. "<verbatim quote, max 20 words>" (<call type> <YYYY-MM-DD>)`
-  - Example: `Wants billing, booking and the member app in one place instead of Mindbody plus spreadsheets. "I'm paying for three things that don't talk to each other" (demo 2026-08-07)`
+- `Why they switched`: `<one or two plain sentences, in their framing> (<OS|Strength|both>). "<verbatim quote, max 20 words>" (<call type> <YYYY-MM-DD>)`
+  - Example: `Wants to cut cost and run on fewer apps; unhappy with their current platform's training app (both). "I'm trying to cut cost, and then on top of that, minimize the amount of apps that we have" (demo 2026-11-10)`
 - `Why source`: `Sales call (unconfirmed)`
 
 If nothing was found, leave both empty.
 
 ## 4. Report
 
-Add one line to the task's report: `Why they switched: found for N of M new account(s); empty for [names] (no OS-specific reason on calls | no calls found, including the title fallback)`.
+Add one line to the task's report: `Why they switched: found for N of M new account(s); empty for [names] (no reason stated on calls | no recorded calls found)`.
