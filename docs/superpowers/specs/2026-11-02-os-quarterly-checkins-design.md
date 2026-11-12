@@ -96,22 +96,24 @@ Three versions, chosen by tenure at send time. The **core questions are identica
 2. How would you rate our support team? (1–10)
 3. What do you use alongside OS to run your gym, or keep track of outside of it? (free text)
 4. If you could change one thing about OS tomorrow, what would it be? (free text)
+5. Have you looked at other platforms, or built any tools of your own, to cover something OS doesn't? (free text; added 2026-11-12, formerly Mature-only)
+6. Anything changing in the next 6 months: a new space, location, staff, or ownership? (free text; added 2026-11-12)
 
 **Early accounts (2–6 months):**
 - Is there anything you set out to do in OS that you still haven't gotten set up?
 - Has anything confused you or your members?
 
 **Settled accounts (6–12 months):**
-- What do you wish OS did that it doesn't today?
-- Is there anything you export out of OS into a spreadsheet or another tool?
+- What do you still do by hand after someone books or pays? (reworded 2026-11-12 from the export question; "What do you wish OS did" cut, since it overlapped Q4)
 
 **Mature accounts (12+ months, includes 24+):**
-- Have you looked at any other platforms recently? What caught your eye?
-- Have you built, or thought about building, any of your own tools to fill gaps?
+- No extra questions since 2026-11-12: its two questions became core Q5.
+
+Revised 2026-11-12 from the research-brain deep dive on early churn signals: people leave at every tenure, a business change often comes right before, and customers describe workarounds in plain words rather than as missing features. Q1–Q4 wording is unchanged so the log pass's column mapping still works.
 
 Plus an optional last question in every version: "Want to hop on a quick call? (Yes/No)". It catches survey responders who'd also take a call.
 
-Keep the survey to 6–7 questions and under 2 minutes. Wording is a draft for Trent to edit. The structure (identical core + 2 age-specific questions) is what's decided.
+Keep the survey short: 7–9 questions, about 2 minutes (Early is the longest). Wording is a draft for Trent to edit. The structure (identical core + 2 age-specific questions) is what's decided.
 
 ### 3. Survey tool (Claude's call: Google Forms)
 

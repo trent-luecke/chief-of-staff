@@ -39,6 +39,7 @@ Until Andrea's row is filled in, the Different-sender variant drafts on Trent's 
 - Early (2–6 mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSc1XEuNpLrQpcUr9QXdv1mkBjsyGhSufj5QgWk8W7e4vwVGyA/viewform?usp=pp_url&entry.1924896125=ACCOUNT` (literal `ACCOUNT` is the Facility/Gym Name field)
 - Settled (6–12 mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSe5lJ8zNsPbWglT7uONE9jBs1dS4HtFNg21GUnDwnjLertcCw/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
 - Mature (12+ mo) form pre-fill URL: `https://docs.google.com/forms/d/e/1FAIpQLSdiHPZ9Ru8AwIEHcMNE0-y0hIcwfBeuv1oiK90yzRRXcsntog/viewform?usp=pp_url&entry.1924896125=ACCOUNT`
+- Call guide (for whoever runs the call): Notion "Check-in Call Guide" under OS Customer Success.
 - Responses spreadsheet: `1g4UJldueeEKytNolqqP-e8YPa6Xwo0ksKbpOiWiithI` ("OS Check-In Responses"; tabs `2-6 mo. Responses`, `6-12 mo. Responses`, `12+ mo. Responses`; the account is column `Facility/Gym Name`)
 - Booking meeting name as it appears on HubSpot `MEETING_EVENT`: `TeamBuildr OS Customer Check-In` (HubSpot Meetings link, so bookings create the engagement natively)
 
