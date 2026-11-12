@@ -19,6 +19,7 @@ Examples:
 import argparse
 import os
 import sys
+import time
 
 import requests
 
@@ -31,6 +32,22 @@ except ImportError:
 
 BASE_URL = "https://api.avoma.com"
 TIMEOUT = 60
+
+
+MAX_PAGES = 200
+MAX_RETRIES = 6
+
+
+def _get(url, params):
+    """GET with polite retries on Avoma's rate limit (429) and 5xx, honoring Retry-After."""
+    for attempt in range(MAX_RETRIES + 1):
+        resp = requests.get(url, headers=_headers(), params=params, timeout=TIMEOUT)
+        if getattr(resp, "status_code", 200) in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
+            wait = resp.headers.get("Retry-After") if getattr(resp, "headers", None) else None
+            time.sleep(min(int(wait) if wait and str(wait).isdigit() else 2 ** attempt * 5, 120))
+            continue
+        resp.raise_for_status()
+        return resp
 
 
 def _key() -> str:
@@ -57,15 +74,21 @@ def cmd_list(args) -> None:
     if not (from_date and to_date):
         sys.exit("Provide --date YYYY-MM-DD, or both --from-date and --to-date (ISO 8601 UTC).")
 
-    resp = requests.get(
-        f"{BASE_URL}/v1/meetings",
-        headers=_headers(),
-        params={"from_date": from_date, "to_date": to_date},
-        timeout=TIMEOUT,
-    )
-    resp.raise_for_status()
-    data = resp.json()
-    results = data.get("results", data if isinstance(data, list) else [])
+    # Follow Avoma's `next` links: a multi-week window spans many pages, and reading only the
+    # first one silently drops later meetings.
+    results, url, params = [], f"{BASE_URL}/v1/meetings", {"from_date": from_date, "to_date": to_date}
+    for _ in range(MAX_PAGES):
+        resp = _get(url, params)
+        data = resp.json()
+        if isinstance(data, list):
+            results.extend(data)
+            break
+        results.extend(data.get("results") or [])
+        url, params = data.get("next"), None
+        if not url:
+            break
+    else:
+        print(f"(stopped after {MAX_PAGES} pages; narrow the window for a complete list)", file=sys.stderr)
 
     title_needle = (args.title or "").lower()
     att_needle = (args.attendee or "").lower()
