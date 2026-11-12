@@ -1,6 +1,6 @@
 {
   "date": "2026-11-12",
-  "generated_at": "2026-11-12T12:01:39.922231+00:00",
+  "generated_at": "2026-11-12T19:16:48.795196+00:00",
   "meetings": [
     {
       "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20261105T133000Z",
@@ -49,8 +49,8 @@
     {
       "id": "05qo705ca6f27ai8m3usq7fp05_20261112T180000Z",
       "title": "Luke / Trent",
-      "start": "2026-11-12T12:00:00-06:00",
-      "end": "2026-11-12T12:30:00-06:00",
+      "start": "2026-11-12T11:30:00-06:00",
+      "end": "2026-11-12T12:00:00-06:00",
       "kind": "internal",
       "attendees": [
         {
@@ -73,6 +73,15 @@
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "p269errh6jloeii9qj9rq3dhv4",
+      "title": "OS Prospect Calls",
+      "start": "2026-11-12T12:30:00-06:00",
+      "end": "2026-11-12T13:00:00-06:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     },
     {
