@@ -1,105 +1,72 @@
 {
-  "date": "2026-11-12",
-  "generated_at": "2026-11-12T19:16:48.795196+00:00",
+  "date": "2026-11-13",
+  "generated_at": "2026-11-13T12:01:53.246126+00:00",
   "meetings": [
     {
-      "id": "sni2q7u8k9lcpi5inmrfmt8vbo_20261105T133000Z",
-      "title": "Luke & Tony Sync",
-      "start": "2026-11-12T07:30:00-06:00",
-      "end": "2026-11-12T08:00:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "antonio@weinbergventures.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "427va7uog7950apj45agnlp33o_20261112T153000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-11-12T09:30:00-06:00",
-      "end": "2026-11-12T10:00:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261112T180000Z",
-      "title": "Luke / Trent",
-      "start": "2026-11-12T11:30:00-06:00",
-      "end": "2026-11-12T12:00:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n- **Team & Support Videos** \u2014 Andrea is ramping well and two of ~10 feature hub pages are done; next is continuing the remaining hub pages and building out Claude-assisted videos (data import, member-booked appointments, scheduling candidates). No blocker, but voiceover remains manual.\n\n- **OS Onboarding Checklist** \u2014 Concept proposed (PushPress-style, dismissable); needs scope check with Teofe before anything moves. **Blocker: scope/build estimate not confirmed yet.** Concrete plan expected early November per last discussion.\n\n- **Driving Adoption of OS** \u2014 Storybuildrr is landing well; plan is to email top 200 private facility users and work from Luke's high-usage TeamBuildr strength list (with churn scores). Open task: start outreach and present a plan this week. No hard blocker, waiting on Luke's list pull from Trend Zero.\n\n- **Intermountain & Sales** \u2014 A few facilities are moving (Jen's already started); most are gated on Stripe setup. October likely under 5 sales; Chris has a verbally agreed multi-year bundle deal in flight. **Blocker: SFTP/Stripe data export question (whether OS and Stripe exports need to be combined) is still unresolved.**\n\n- **Pipeline** \u2014 51 deals total; 25 in-trial/post-demo, 3 demos MTD. No specific open task flagged beyond the multi-year bundle.",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "6usfthjvn1g3hv0si833aik07s",
-      "title": "Rob / Trent: OS Re-connect",
-      "start": "2026-11-12T12:00:00-06:00",
-      "end": "2026-11-12T12:30:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "coach@coachvanstrength.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "p269errh6jloeii9qj9rq3dhv4",
-      "title": "OS Prospect Calls",
-      "start": "2026-11-12T12:30:00-06:00",
-      "end": "2026-11-12T13:00:00-06:00",
+      "id": "619e9eggjp613f147sb7n2pij2",
+      "title": "cancel CARD SP OS account",
+      "start": "2026-11-13T08:00:00-06:00",
+      "end": "2026-11-13T08:15:00-06:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "1e6kdtg9lajf6uab5a0q0metn4",
-      "title": "McKay TeamBuildr OS Support",
-      "start": "2026-11-12T15:00:00-06:00",
-      "end": "2026-11-12T15:45:00-06:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261113T143000Z",
+      "title": "Focus Work",
+      "start": "2026-11-13T08:30:00-06:00",
+      "end": "2026-11-13T10:30:00-06:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "pbsoufqoebr7is0nv0jg57ildg",
+      "title": "Megan Feickert and Trent Luecke",
+      "start": "2026-11-13T11:30:00-06:00",
+      "end": "2026-11-13T12:00:00-06:00",
       "kind": "external",
       "attendees": [
         {
-          "email": "logan.child@imail.org",
+          "email": "psgaskill@gmail.com",
           "name": ""
         },
         {
-          "email": "jeremy.wiley@imail.org",
+          "email": "knadevine@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "meganfeickert@gmail.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "1m77mjddi39jc941uj7jillvcg",
+      "title": "Coach Rozy <> Trent: Customer Research",
+      "start": "2026-11-13T13:30:00-06:00",
+      "end": "2026-11-13T13:45:00-06:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "rozyroozen@gmail.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261113T203000Z",
+      "title": "Out of office",
+      "start": "2026-11-13T14:30:00-06:00",
+      "end": "2026-11-13T17:30:00-06:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
