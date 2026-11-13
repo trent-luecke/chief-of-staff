@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-12T00:00:00",
+  "resolved_at": "2026-11-13T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -41571,6 +41571,98 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "8840": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8841": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8842": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8843": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8844": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8845": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8846": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8847": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8848": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8852": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8853": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8854": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8855": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8856": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8857": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8858": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8859": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8860": {
+      "primary_person_id": "rob-van-valkenburgh",
+      "related_person_ids": [
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -42129,7 +42221,13 @@
     8729,
     8730,
     8731,
-    8732
+    8732,
+    8837,
+    8838,
+    8839,
+    8849,
+    8850,
+    8851
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -42364,6 +42462,7 @@
     "thread:Accepted: Connor / Trent: OS Feedback @ Wed Nov 11, 2026 8:30am - 9am (CST) (trent@teambuildr.com)",
     "thread:next sales rep idea",
     "thread:Accepted: TeamBuildr OS Weekly Dev Sync @ Tue Nov 10, 2026 8:30am - 9am (CST) (Trent Luecke)",
-    "thread:Re: Membership upgrade"
+    "thread:Re: Membership upgrade",
+    "thread:Re: ^_TeamBuildr^_ OS: Welcome!"
   ]
 }
