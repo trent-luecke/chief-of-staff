@@ -1,6 +1,6 @@
 {
   "date": "2026-11-13",
-  "generated_at": "2026-11-13T12:01:53.246126+00:00",
+  "generated_at": "2026-11-13T18:50:51.452465+00:00",
   "meetings": [
     {
       "id": "619e9eggjp613f147sb7n2pij2",
@@ -16,6 +16,15 @@
       "title": "Focus Work",
       "start": "2026-11-13T08:30:00-06:00",
       "end": "2026-11-13T10:30:00-06:00",
+      "kind": "internal",
+      "attendees": [],
+      "prep": null
+    },
+    {
+      "id": "qqhkeshhmbd1hg6vvghmt42hm0",
+      "title": "OS Prospect Calls",
+      "start": "2026-11-13T10:30:00-06:00",
+      "end": "2026-11-13T11:00:00-06:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
