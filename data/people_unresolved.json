@@ -887,6 +887,22 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-11-11"
+    },
+    {
+      "entity": "Wileyatc",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-11-14"
+    },
+    {
+      "entity": "Loganchild",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-11-14"
     }
   ],
   "previously_notified": [

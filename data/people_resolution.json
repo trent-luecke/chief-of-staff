@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-13T00:00:00",
+  "resolved_at": "2026-11-14T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -41663,6 +41663,89 @@
         "trent-luecke"
       ],
       "confidence": "embedded"
+    },
+    "8869": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8870": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8871": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8872": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8873": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8874": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8875": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8876": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8877": {
+      "primary_person_id": "jeremy-wiley",
+      "related_person_ids": [
+        "logan-child",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "8879": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8880": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8881": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8882": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8883": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8884": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "8885": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -42227,7 +42310,16 @@
     8839,
     8849,
     8850,
-    8851
+    8851,
+    8861,
+    8862,
+    8863,
+    8864,
+    8865,
+    8866,
+    8867,
+    8868,
+    8878
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -42463,6 +42555,10 @@
     "thread:next sales rep idea",
     "thread:Accepted: TeamBuildr OS Weekly Dev Sync @ Tue Nov 10, 2026 8:30am - 9am (CST) (Trent Luecke)",
     "thread:Re: Membership upgrade",
-    "thread:Re: ^_TeamBuildr^_ OS: Welcome!"
+    "thread:Re: ^_TeamBuildr^_ OS: Welcome!",
+    "thread:Re: Access",
+    "thread:Accepted: Coach Rozy <> Trent: Customer Research @ Fri Nov 13, 2026 1:30pm - 1:45pm (CST) (trent@teambuildr.com)",
+    "thread:TrainHeroic on google",
+    "thread:Re: TeamBuildr Research Inquiry"
   ]
 }
