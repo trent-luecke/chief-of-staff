@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-13T00:00:00Z",
+  "fetched_at": "2026-11-14T00:00:00Z",
   "leads": [
     {
       "name": "Julian Sisman",
@@ -701,7 +701,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": null,
       "stale": false
     },
@@ -712,7 +712,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": null,
       "last_contacted": null,
-      "estimated_value": 750,
+      "estimated_value": 750.0,
       "source": null,
       "stale": false
     },
@@ -723,7 +723,7 @@
       "status": "Out of Demo / Need Upate",
       "priority": "Medium",
       "last_contacted": null,
-      "estimated_value": 2000,
+      "estimated_value": 2000.0,
       "source": null,
       "stale": false
     }
