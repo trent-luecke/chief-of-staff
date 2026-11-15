@@ -1,6 +1,6 @@
 {
-  "date": "2026-11-14",
-  "generated_at": "2026-11-14T17:23:01.407119+00:00",
+  "date": "2026-11-15",
+  "generated_at": "2026-11-15T12:01:34.741597+00:00",
   "meetings": [],
   "needs_today": [
     {
@@ -14,8 +14,8 @@
   "deals_to_review": {
     "counts": {
       "identity": 5,
-      "stale": 18,
-      "total": 23
+      "stale": 19,
+      "total": 24
     }
   },
   "what_moved": []
