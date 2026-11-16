@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-15T00:00:00Z",
+  "fetched_at": "2026-11-16T00:09:31Z",
   "leads": [
     {
       "name": "Julian Sisman",
@@ -35,7 +35,7 @@
       "stale": false
     },
     {
-      "name": "Intermountain Health – Holiday Sale Purchase Flow (5 locations)",
+      "name": "Intermountain Health \u2013 Holiday Sale Purchase Flow (5 locations)",
       "contact": null,
       "email": null,
       "status": "On-Hold",
@@ -123,7 +123,7 @@
       "stale": false
     },
     {
-      "name": "Matt Holley",
+      "name": "Asher Wojciechowski",
       "contact": null,
       "email": null,
       "status": "In-Trial / Post Demo",
@@ -140,6 +140,28 @@
       "status": "On-Hold",
       "priority": null,
       "last_contacted": "2026-10-15",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Matt Holley",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-10-15",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Charle Jaspers",
+      "contact": "Charle Jaspers",
+      "email": "charle.jaspers@outlook.com",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-10-14",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -211,7 +233,7 @@
       "stale": false
     },
     {
-      "name": "Shannon Mccarty – Fresh Kut Fitness",
+      "name": "Shannon Mccarty \u2013 Fresh Kut Fitness",
       "contact": null,
       "email": null,
       "status": "No Trial / Post Demo",
@@ -244,17 +266,6 @@
       "stale": false
     },
     {
-      "name": "Joe Pfister – Fitness and Performance Frederick (PFP Fit)",
-      "contact": "Joe Pfister (owner); Kyle (team member)",
-      "email": null,
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-09-21",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Wave Wellness",
       "contact": null,
       "email": null,
@@ -266,12 +277,12 @@
       "stale": false
     },
     {
-      "name": "Jesse Cook",
-      "contact": null,
+      "name": "Joe Pfister \u2013 Fitness and Performance Frederick (PFP Fit)",
+      "contact": "Joe Pfister (owner); Kyle (team member)",
       "email": null,
       "status": "In-Trial / Post Demo",
       "priority": null,
-      "last_contacted": "2026-09-10",
+      "last_contacted": "2026-09-21",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -283,6 +294,17 @@
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-09-14",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Jesse Cook",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-09-10",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -332,17 +354,6 @@
       "stale": false
     },
     {
-      "name": "Will Johnson – Grind Time",
-      "contact": null,
-      "email": null,
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-09-01",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Alina Bushma",
       "contact": null,
       "email": null,
@@ -362,6 +373,17 @@
       "last_contacted": "2026-09-03",
       "estimated_value": null,
       "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Will Johnson \u2013 Grind Time",
+      "contact": null,
+      "email": null,
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": "2026-09-01",
+      "estimated_value": null,
+      "source": null,
       "stale": false
     },
     {
@@ -409,78 +431,12 @@
       "stale": false
     },
     {
-      "name": "Andrew Howard – MVMT",
+      "name": "Andrew Howard \u2013 MVMT",
       "contact": null,
       "email": null,
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-08-19",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Asher Wojciechowski",
-      "contact": null,
-      "email": null,
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-10-15",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "High Ground Performance (Taino Fears-Perez)",
-      "contact": null,
-      "email": null,
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "David Arcemant",
-      "contact": null,
-      "email": null,
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Mike Brown (SAPT)",
-      "contact": null,
-      "email": null,
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-05-27",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Andrew Levine",
-      "contact": null,
-      "email": null,
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-21",
-      "estimated_value": null,
-      "source": null,
-      "stale": false
-    },
-    {
-      "name": "Jamie Tellier",
-      "contact": null,
-      "email": null,
-      "status": "In-Trial / Post Demo",
-      "priority": null,
-      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -497,23 +453,45 @@
       "stale": false
     },
     {
-      "name": "Warren Clinkscales – Youth Athlete Training (OS)",
+      "name": "Jamie Tellier",
       "contact": null,
       "email": null,
       "status": "In-Trial / Post Demo",
       "priority": null,
-      "last_contacted": "2026-07-06",
+      "last_contacted": "2026-07-28",
       "estimated_value": null,
       "source": null,
       "stale": false
     },
     {
-      "name": "Jennifer Foust – Kent Denver (OS Lite)",
+      "name": "Andrew Levine",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-21",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Jennifer Foust \u2013 Kent Denver (OS Lite)",
       "contact": null,
       "email": null,
       "status": "In-Trial / Post Demo",
       "priority": null,
       "last_contacted": "2026-07-09",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Warren Clinkscales \u2013 Youth Athlete Training (OS)",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-07-06",
       "estimated_value": null,
       "source": null,
       "stale": false
@@ -563,7 +541,7 @@
       "stale": false
     },
     {
-      "name": "Mark Olson — Athletic Mentors",
+      "name": "Mark Olson \u2014 Athletic Mentors",
       "contact": "Mark Olson",
       "email": "mark@athleticmentors.com",
       "status": "In-Trial / Post Demo",
@@ -574,47 +552,36 @@
       "stale": false
     },
     {
-      "name": "Patrick Labat — TGMC",
-      "contact": "Patrick Labat",
-      "email": "patrick.labat@tgmc.com",
-      "status": "In-Trial / Post Demo",
-      "priority": "Medium",
-      "last_contacted": "2026-03-10",
-      "estimated_value": null,
-      "source": "Calendly Demo",
-      "stale": false
-    },
-    {
-      "name": "Jen Kimball",
-      "contact": "Jen Kimball",
-      "email": "jennifer.kimball@imail.org",
-      "status": "In-Trial / Post Demo",
+      "name": "High Ground Performance (Taino Fears-Perez)",
+      "contact": null,
+      "email": null,
+      "status": "Out of Demo / Need Upate",
       "priority": null,
-      "last_contacted": "2026-03-10",
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": null,
       "stale": false
     },
     {
-      "name": "Santiago Diaz Murrieta",
-      "contact": "Santiago Diaz Murrieta",
-      "email": "fisiodiazlax@gmail.com",
-      "status": "In-Trial / Post Demo",
+      "name": "David Arcemant",
+      "contact": null,
+      "email": null,
+      "status": "Out of Demo / Need Upate",
       "priority": null,
-      "last_contacted": "2026-03-09",
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
       "source": null,
       "stale": false
     },
     {
-      "name": "Emma Hicks — For Fitness & Athletics",
-      "contact": "Emma Hicks",
-      "email": "emmahicks@forfitnessandathletics.com",
-      "status": "On-Hold",
-      "priority": "Medium",
-      "last_contacted": "2026-03-05",
+      "name": "Mike Brown (SAPT)",
+      "contact": null,
+      "email": null,
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-05-27",
       "estimated_value": null,
-      "source": "Marketing",
+      "source": null,
       "stale": false
     },
     {
@@ -629,14 +596,47 @@
       "stale": false
     },
     {
-      "name": "Charle Jaspers",
-      "contact": "Charle Jaspers",
-      "email": "charle.jaspers@outlook.com",
+      "name": "Jen Kimball",
+      "contact": "Jen Kimball",
+      "email": "jennifer.kimball@imail.org",
       "status": "In-Trial / Post Demo",
       "priority": null,
-      "last_contacted": "2026-10-14",
+      "last_contacted": "2026-03-10",
       "estimated_value": null,
       "source": null,
+      "stale": false
+    },
+    {
+      "name": "Patrick Labat \u2014 TGMC",
+      "contact": "Patrick Labat",
+      "email": "patrick.labat@tgmc.com",
+      "status": "In-Trial / Post Demo",
+      "priority": "Medium",
+      "last_contacted": "2026-03-10",
+      "estimated_value": null,
+      "source": "Calendly Demo",
+      "stale": false
+    },
+    {
+      "name": "Santiago Diaz Murrieta",
+      "contact": "Santiago Diaz Murrieta",
+      "email": "fisiodiazlax@gmail.com",
+      "status": "In-Trial / Post Demo",
+      "priority": null,
+      "last_contacted": "2026-03-09",
+      "estimated_value": null,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Emma Hicks \u2014 For Fitness & Athletics",
+      "contact": "Emma Hicks",
+      "email": "emmahicks@forfitnessandathletics.com",
+      "status": "On-Hold",
+      "priority": "Medium",
+      "last_contacted": "2026-03-05",
+      "estimated_value": null,
+      "source": "Marketing",
       "stale": false
     },
     {
@@ -695,17 +695,6 @@
       "stale": false
     },
     {
-      "name": "Dustin Sport Performance",
-      "contact": "Jack Dustin",
-      "email": "dustin.sportperformance@gmail.com",
-      "status": "Out of Demo / Need Upate",
-      "priority": null,
-      "last_contacted": null,
-      "estimated_value": 750.0,
-      "source": null,
-      "stale": false
-    },
-    {
       "name": "Aaron Letinksi",
       "contact": "Aaron Letinski",
       "email": "letinskia26@gmail.com",
@@ -713,6 +702,17 @@
       "priority": null,
       "last_contacted": null,
       "estimated_value": 2000.0,
+      "source": null,
+      "stale": false
+    },
+    {
+      "name": "Dustin Sport Performance",
+      "contact": "Jack Dustin",
+      "email": "dustin.sportperformance@gmail.com",
+      "status": "Out of Demo / Need Upate",
+      "priority": null,
+      "last_contacted": null,
+      "estimated_value": 750.0,
       "source": null,
       "stale": false
     },
