@@ -1,6 +1,6 @@
 {
   "date": "2026-11-16",
-  "generated_at": "2026-11-16T12:01:33.636837+00:00",
+  "generated_at": "2026-11-16T21:19:48.438854+00:00",
   "meetings": [
     {
       "id": "3vn3bhvbklv265s15fekc0oocf_20261116T150000Z",
@@ -97,6 +97,10 @@
       "attendees": [
         {
           "email": "joe@joedelltraining.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
           "name": ""
         }
       ],
