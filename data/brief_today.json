@@ -1,7 +1,148 @@
 {
-  "date": "2026-11-15",
-  "generated_at": "2026-11-15T18:03:40.195979+00:00",
-  "meetings": [],
+  "date": "2026-11-16",
+  "generated_at": "2026-11-16T12:01:33.636837+00:00",
+  "meetings": [
+    {
+      "id": "3vn3bhvbklv265s15fekc0oocf_20261116T150000Z",
+      "title": "Rev: Department Heads",
+      "start": "2026-11-16T09:00:00-06:00",
+      "end": "2026-11-16T09:45:00-06:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "hewitt@teambuildr.com",
+          "name": "Hewitt Tomlin"
+        },
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "luke@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "2cpic22b4ukd85hbqtrsda0qm2_20261116T160000Z",
+      "title": "Stand Up - Sales",
+      "start": "2026-11-16T10:00:00-06:00",
+      "end": "2026-11-16T10:15:00-06:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "jeff@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "ryan@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "lmartin@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "melissa@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "chris@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "5plkcp1mhlb1o6f7mkilm4oa3k_20261116T163000Z",
+      "title": "OS \"Sit Down\"",
+      "start": "2026-11-16T10:30:00-06:00",
+      "end": "2026-11-16T11:00:00-06:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "quinn@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "amanda@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "8cskuh16e6of0ltm57mfc25r7k",
+      "title": "Joe Dell and Trent Luecke",
+      "start": "2026-11-16T11:30:00-06:00",
+      "end": "2026-11-16T12:00:00-06:00",
+      "kind": "external",
+      "attendees": [
+        {
+          "email": "joe@joedelltraining.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "6quu4e2jinlqpoqu3gsk4uaf6v_20261116T183000Z",
+      "title": "OS Dev sync-Rev table",
+      "start": "2026-11-16T12:30:00-06:00",
+      "end": "2026-11-16T12:45:00-06:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "brian@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "andrea@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    },
+    {
+      "id": "0mu11opojo5nl73j7n4e74lid5",
+      "title": "OS in Home",
+      "start": "2026-11-16T13:00:00-06:00",
+      "end": "2026-11-16T14:00:00-06:00",
+      "kind": "internal",
+      "attendees": [
+        {
+          "email": "kato@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "alex@teambuildr.com",
+          "name": ""
+        },
+        {
+          "email": "teofe@teambuildr.com",
+          "name": ""
+        }
+      ],
+      "prep": null
+    }
+  ],
   "needs_today": [
     {
       "id": "t-488053",
@@ -14,8 +155,8 @@
   "deals_to_review": {
     "counts": {
       "identity": 5,
-      "stale": 19,
-      "total": 24
+      "stale": 20,
+      "total": 25
     }
   },
   "what_moved": []
