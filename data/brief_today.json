@@ -1,6 +1,6 @@
 {
   "date": "2026-11-17",
-  "generated_at": "2026-11-17T12:01:38.450426+00:00",
+  "generated_at": "2026-11-17T20:09:19.154008+00:00",
   "meetings": [
     {
       "id": "olt4eh3488fftej670gj40dnro_20261117T143000Z",
@@ -116,6 +116,15 @@
           "name": ""
         }
       ],
+      "prep": null
+    },
+    {
+      "id": "2e307sgc78m15ul5jp4hcc6onc",
+      "title": "OS Prospect Calls",
+      "start": "2026-11-17T12:00:00-06:00",
+      "end": "2026-11-17T12:30:00-06:00",
+      "kind": "internal",
+      "attendees": [],
       "prep": null
     }
   ],
