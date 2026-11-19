@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-18T11:10:19.902730Z",
+  "fetched_at": "2026-11-19T11:10:17.945732Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -532,7 +532,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:gaird@greycliffcap.com",
@@ -727,7 +727,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:jeff@accelerationpro.com",
@@ -753,7 +753,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:jennifer.mcmahon@mammothhospital.com",
@@ -977,6 +977,19 @@
       "stale": false
     },
     {
+      "page_id": "deal:leon.parkes95@gmail.com",
+      "name": "",
+      "contact": "leon.parkes95@gmail.com",
+      "email": "leon.parkes95@gmail.com",
+      "status": "demoed",
+      "priority": null,
+      "last_contacted": "2026-11-18T14:30:00Z",
+      "days_since_contact": null,
+      "estimated_value": null,
+      "source": "",
+      "stale": false
+    },
+    {
       "page_id": "deal:letinskia26@gmail.com",
       "name": "Aaron Letinksi",
       "contact": "",
@@ -1026,7 +1039,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:mark@dinardosports.com",
@@ -1312,7 +1325,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:notion:38324bca-36d7-8117-b595-c733bcdf51ca",
