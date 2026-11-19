@@ -1,40 +1,40 @@
 {
-  "generated_at": "2026-11-19T12:10:53Z",
+  "generated_at": "2026-11-19T19:48:46Z",
   "reference_date": "2026-11-19",
-  "total_calls": 1634,
+  "total_calls": 1639,
   "totals": {
-    "calls": 1634,
-    "input_tokens": 22962254,
-    "output_tokens": 2046834,
-    "cost_usd": 99.589272
+    "calls": 1639,
+    "input_tokens": 23096251,
+    "output_tokens": 2052730,
+    "cost_usd": 100.079703
   },
   "windows": {
     "last_7d": {
-      "calls": 49,
-      "input_tokens": 1602535,
-      "output_tokens": 79276,
-      "cost_usd": 5.996745
+      "calls": 54,
+      "input_tokens": 1736532,
+      "output_tokens": 85172,
+      "cost_usd": 6.487176
     },
     "last_30d": {
-      "calls": 289,
-      "input_tokens": 7535893,
-      "output_tokens": 437260,
-      "cost_usd": 29.166579
+      "calls": 294,
+      "input_tokens": 7669890,
+      "output_tokens": 443156,
+      "cost_usd": 29.65701
     },
     "all_time": {
-      "calls": 1634,
-      "input_tokens": 22962254,
-      "output_tokens": 2046834,
-      "cost_usd": 99.589272
+      "calls": 1639,
+      "input_tokens": 23096251,
+      "output_tokens": 2052730,
+      "cost_usd": 100.079703
     }
   },
   "by_job": [
     {
       "run_type": "daily_brief",
-      "calls": 244,
-      "input_tokens": 7211485,
-      "output_tokens": 387986,
-      "cost_usd": 27.454245
+      "calls": 249,
+      "input_tokens": 7345482,
+      "output_tokens": 393882,
+      "cost_usd": 27.944676
     },
     {
       "run_type": "avoma_sync",
@@ -47,31 +47,31 @@
   "by_caller": [
     {
       "caller": "memory_synthesizer",
-      "calls": 52,
-      "input_tokens": 6289558,
-      "output_tokens": 252498,
-      "cost_usd": 22.656144
+      "calls": 53,
+      "input_tokens": 6399864,
+      "output_tokens": 255691,
+      "cost_usd": 23.034957
     },
     {
       "caller": "avoma_analyze",
-      "calls": 143,
-      "input_tokens": 1038319,
-      "output_tokens": 158297,
-      "cost_usd": 5.489412
+      "calls": 145,
+      "input_tokens": 1057355,
+      "output_tokens": 160587,
+      "cost_usd": 5.58087
     },
     {
       "caller": "brief",
-      "calls": 52,
-      "input_tokens": 180289,
-      "output_tokens": 18618,
-      "cost_usd": 0.820137
+      "calls": 53,
+      "input_tokens": 184450,
+      "output_tokens": 19002,
+      "cost_usd": 0.83838
     },
     {
       "caller": "people",
-      "calls": 37,
-      "input_tokens": 23301,
-      "output_tokens": 5636,
-      "cost_usd": 0.154443
+      "calls": 38,
+      "input_tokens": 23795,
+      "output_tokens": 5665,
+      "cost_usd": 0.15636
     },
     {
       "caller": "meeting_prep_recipe",
@@ -84,10 +84,10 @@
   "by_model": [
     {
       "model": "claude-sonnet-4-6",
-      "calls": 289,
-      "input_tokens": 7535893,
-      "output_tokens": 437260,
-      "cost_usd": 29.166579
+      "calls": 294,
+      "input_tokens": 7669890,
+      "output_tokens": 443156,
+      "cost_usd": 29.65701
     }
   ],
   "by_day": [
@@ -275,10 +275,10 @@
     },
     {
       "date": "2026-11-19",
-      "calls": 6,
-      "input_tokens": 131360,
-      "output_tokens": 10325,
-      "cost_usd": 0.548955
+      "calls": 11,
+      "input_tokens": 265357,
+      "output_tokens": 16221,
+      "cost_usd": 1.039386
     }
   ]
 }
