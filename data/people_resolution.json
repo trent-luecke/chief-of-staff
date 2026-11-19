@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-18T00:00:00",
+  "resolved_at": "2026-11-19T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -42718,6 +42718,111 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "9112": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9113": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9114": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9115": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9116": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9117": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9118": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9119": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9120": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9121": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9122": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9123": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9124": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9125": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9126": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9127": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9128": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9129": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9130": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9131": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9132": {
+      "primary_person_id": "chris-reynolds",
+      "related_person_ids": [],
+      "confidence": "embedded"
     }
   },
   "unresolved_lines": [
@@ -43314,7 +43419,17 @@
     8954,
     8955,
     8956,
-    9029
+    9029,
+    9102,
+    9103,
+    9104,
+    9105,
+    9106,
+    9107,
+    9108,
+    9109,
+    9110,
+    9111
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -43562,6 +43677,14 @@
     "thread:Re: Subscription renewal",
     "thread:Re: TeamBuildr OS Support - Roster",
     "thread:A new device logged into your account",
-    "thread:estimate for Trent"
+    "thread:estimate for Trent",
+    "thread:Accepted: TeamBuildr OS Weekly Dev Sync @ Tue Nov 17, 2026 8:30am - 9am (CST) (Trent Luecke)",
+    "thread:BAH/TeamBuildr Sync",
+    "thread:Re:  quick question",
+    "thread:Declined: TeamBuildr OS Weekly Dev Sync @ Tue Nov 24, 2026 8:30am - 9am (CST) (Trent Luecke)",
+    "thread:Re: Software Cancellation",
+    "thread:about the strength software",
+    "thread:Re: Log in to your studio",
+    "thread:Accepted: Spencer Anthony and Trent Luecke"
   ]
 }

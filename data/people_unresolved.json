@@ -911,6 +911,14 @@
       "candidate_id": null,
       "candidate_score": 0,
       "added": "2026-11-15"
+    },
+    {
+      "entity": "Leon Parkes",
+      "email": null,
+      "source": "avoma",
+      "candidate_id": null,
+      "candidate_score": 0,
+      "added": "2026-11-19"
     }
   ],
   "previously_notified": [
