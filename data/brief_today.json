@@ -1,26 +1,12 @@
 {
-  "date": "2026-11-18",
-  "generated_at": "2026-11-18T19:41:44.080456+00:00",
+  "date": "2026-11-19",
+  "generated_at": "2026-11-19T12:01:40.613612+00:00",
   "meetings": [
     {
-      "id": "7j9evth02hi82bldpb41tnri8p",
-      "title": "Michael <> Trent: Customer Research",
-      "start": "2026-11-18T09:00:00-06:00",
-      "end": "2026-11-18T09:15:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "coachmike.dsp@gmail.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "2pgvfs8k68ove3uorjlqn0uqd4",
-      "title": "Call Trent",
-      "start": "2026-11-18T10:15:00-06:00",
-      "end": "2026-11-18T10:45:00-06:00",
+      "id": "05qo705ca6f27ai8m3usq7fp05_20261119T180000Z",
+      "title": "Luke / Trent",
+      "start": "2026-11-19T12:00:00-06:00",
+      "end": "2026-11-19T12:30:00-06:00",
       "kind": "internal",
       "attendees": [
         {
@@ -28,88 +14,8 @@
           "name": ""
         }
       ],
-      "prep": null
-    },
-    {
-      "id": "fumdcnpp0vbvgf5onjuser8fff_20261111T170000Z",
-      "title": "Sales // Marketing Sync",
-      "start": "2026-11-18T11:00:00-06:00",
-      "end": "2026-11-18T11:45:00-06:00",
-      "kind": "internal",
-      "attendees": [
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "eduardo@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "hewitt@teambuildr.com",
-          "name": "Hewitt Tomlin"
-        },
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "heather@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "clayton@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "chris@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "jeff@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "lmartin@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "melissa@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "ryan@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "su9sj1pdh3u7kv4fbd029ilng0",
-      "title": "Mark / Trent",
-      "start": "2026-11-18T13:00:00-06:00",
-      "end": "2026-11-18T13:30:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "mark@dinardosports.com",
-          "name": ""
-        }
-      ],
-      "prep": null
-    },
-    {
-      "id": "b6o2sslkdcq8t95qh8vss2q8ko",
-      "title": "OS Prospect Calls",
-      "start": "2026-11-18T13:30:00-06:00",
-      "end": "2026-11-18T14:00:00-06:00",
-      "kind": "internal",
-      "attendees": [],
-      "prep": null
+      "prep": "## Luke / Trent Prep\n\n---\n\n### Team & Support Videos\n**Status:** Andrea ramping well; Claude-based video production in progress (~2 of ~10 feature hub pages done.\n- **Open tasks:** Continue reviewing remaining feature hub pages from Clayton; next video candidates are data import, member-booked appointments, and scheduling\n- **No blocker**\n\n---\n\n### OS Onboarding Checklist\n**Status:** Concept proposed; scoping and build planning pending, with concrete plan expected early November.\n- **Open tasks:** Create fake onboarding script and feed to Claude for testing; confirm scope with Teofe on frontend/backend build needed\n- **Blocker:** Bottom-of-funnel work is cycle 1 priority, so this is queued behind that\n\n---\n\n### Driving Adoption of OS\n**Status:** Storybuildrr gaining traction as lead magnet; outreach to high-usage TeamBuildr strength customers being organized.\n- **Open tasks:** Luke pulling list (with churn scores) from Trend Zero; Trent to start outreach from list and present a plan next week\n- **Note:** Payments portal rebuild (OS Lite) parked until post-Build \u2014 needs senior devs\n\n---\n\n### Intermountain & Sales\n**Status:** A few facilities eager and moving; most still gated on Stripe setup; October likely under 5 sales.\n- **Open tasks:** Intermountain SFTP request (Stripe data) needs clarity on whether Stripe + OS exports must be combined; Chris has a verbally agreed multi-year bundle deal to watch\n- **Blocker:** Stripe setup is the gating dependency for most facilities moving forward\n\n---\n\n### Pipeline Snapshot\n- **66 total** | Demos MTD: 4\n- In-Trial/Post Demo: 40 | No Trial/Post Demo: 6 | On-Hold: 7 | Need Update: 13",
+      "prep_hash": "6b98bec78d02"
     }
   ],
   "needs_today": [
@@ -123,9 +29,9 @@
   ],
   "deals_to_review": {
     "counts": {
-      "identity": 5,
-      "stale": 20,
-      "total": 25
+      "identity": 6,
+      "stale": 25,
+      "total": 31
     }
   },
   "what_moved": []
