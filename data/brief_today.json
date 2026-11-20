@@ -1,65 +1,32 @@
 {
-  "date": "2026-11-19",
-  "generated_at": "2026-11-19T19:41:24.869810+00:00",
+  "date": "2026-11-20",
+  "generated_at": "2026-11-20T12:01:46.843263+00:00",
   "meetings": [
     {
-      "id": "a9i79de4hl0h23gub4finkdvrg",
-      "title": "OS Prospect Calls",
-      "start": "2026-11-19T10:30:00-06:00",
-      "end": "2026-11-19T11:30:00-06:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261120T143000Z",
+      "title": "Focus Work",
+      "start": "2026-11-20T08:30:00-06:00",
+      "end": "2026-11-20T10:30:00-06:00",
       "kind": "internal",
       "attendees": [],
       "prep": null
     },
     {
-      "id": "4nnvc1lkc41nr2dokdog2k5mhu",
-      "title": "Trent / Teofe",
-      "start": "2026-11-19T11:15:00-06:00",
-      "end": "2026-11-19T12:00:00-06:00",
+      "id": "2754bi1odppr961r3b8ubpvljk",
+      "title": "Doctor",
+      "start": "2026-11-20T09:30:00-06:00",
+      "end": "2026-11-20T11:00:00-06:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "teofe@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261119T180000Z",
-      "title": "Luke / Trent",
-      "start": "2026-11-19T12:00:00-06:00",
-      "end": "2026-11-19T12:30:00-06:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261120T203000Z",
+      "title": "Out of office",
+      "start": "2026-11-20T14:30:00-06:00",
+      "end": "2026-11-20T17:30:00-06:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent Prep\n\n---\n\n### Team & Support Videos\n**Status:** Andrea ramping well; Claude-based video production in progress (~2 of ~10 feature hub pages done.\n- **Open tasks:** Continue reviewing remaining feature hub pages from Clayton; next video candidates are data import, member-booked appointments, and scheduling\n- **No blocker**\n\n---\n\n### OS Onboarding Checklist\n**Status:** Concept proposed; scoping and build planning pending, with concrete plan expected early November.\n- **Open tasks:** Create fake onboarding script and feed to Claude for testing; confirm scope with Teofe on frontend/backend build needed\n- **Blocker:** Bottom-of-funnel work is cycle 1 priority, so this is queued behind that\n\n---\n\n### Driving Adoption of OS\n**Status:** Storybuildrr gaining traction as lead magnet; outreach to high-usage TeamBuildr strength customers being organized.\n- **Open tasks:** Luke pulling list (with churn scores) from Trend Zero; Trent to start outreach from list and present a plan next week\n- **Note:** Payments portal rebuild (OS Lite) parked until post-Build \u2014 needs senior devs\n\n---\n\n### Intermountain & Sales\n**Status:** A few facilities eager and moving; most still gated on Stripe setup; October likely under 5 sales.\n- **Open tasks:** Intermountain SFTP request (Stripe data) needs clarity on whether Stripe + OS exports must be combined; Chris has a verbally agreed multi-year bundle deal to watch\n- **Blocker:** Stripe setup is the gating dependency for most facilities moving forward\n\n---\n\n### Pipeline Snapshot\n- **66 total** | Demos MTD: 4\n- In-Trial/Post Demo: 40 | No Trial/Post Demo: 6 | On-Hold: 7 | Need Update: 13",
-      "prep_hash": "6b98bec78d02"
-    },
-    {
-      "id": "5a3j0ane2oec4nibsi5019kng5",
-      "title": "Megan <> Trent: OS Support",
-      "start": "2026-11-19T12:45:00-06:00",
-      "end": "2026-11-19T13:15:00-06:00",
-      "kind": "external",
-      "attendees": [
-        {
-          "email": "mhart@uams.edu",
-          "name": ""
-        },
-        {
-          "email": "chadley@uams.edu",
-          "name": ""
-        },
-        {
-          "email": "andrea@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     }
   ],
@@ -75,8 +42,8 @@
   "deals_to_review": {
     "counts": {
       "identity": 6,
-      "stale": 25,
-      "total": 31
+      "stale": 26,
+      "total": 32
     }
   },
   "what_moved": []
