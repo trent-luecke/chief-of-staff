@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-11-19T11:10:17.945732Z",
+  "fetched_at": "2026-11-20T10:57:20.866612Z",
   "leads": [
     {
       "page_id": "deal:alex@smartperformance.ca",
@@ -181,7 +181,7 @@
       "days_since_contact": null,
       "estimated_value": null,
       "source": "",
-      "stale": false
+      "stale": true
     },
     {
       "page_id": "deal:brian@athletestpi.com",
