@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-20T00:00:00",
+  "resolved_at": "2026-11-21T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -43568,6 +43568,119 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "9295": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9296": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9297": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9298": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9299": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9300": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9301": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9302": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9303": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9304": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9305": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9306": {
+      "primary_person_id": "andrea-alamo",
+      "related_person_ids": [
+        "chadley",
+        "trent-luecke"
+      ],
+      "confidence": "embedded"
+    },
+    "9309": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9310": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9311": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9312": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9313": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9314": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9315": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9316": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9317": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "9318": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -44177,7 +44290,19 @@
     9111,
     9133,
     9134,
-    9210
+    9210,
+    9285,
+    9286,
+    9287,
+    9288,
+    9289,
+    9290,
+    9291,
+    9292,
+    9293,
+    9294,
+    9307,
+    9308
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -44435,6 +44560,10 @@
     "thread:Re: Log in to your studio",
     "thread:Accepted: Spencer Anthony and Trent Luecke",
     "thread:your AEs",
-    "thread:Re: Teambuildr strength issue"
+    "thread:Re: Teambuildr strength issue",
+    "thread:Accepted: Megan <> Trent: OS Support",
+    "thread:Re: Teambuildr Strength Question",
+    "thread:Re: Web Design",
+    "thread:Accepted: Megan <> Trent: OS Support @ Thu Nov 19, 2026 12:45pm - 1:15pm (CST) (Trent Luecke)"
   ]
 }
