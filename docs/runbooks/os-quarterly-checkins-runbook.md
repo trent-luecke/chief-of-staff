@@ -8,7 +8,7 @@ Spec: `docs/superpowers/specs/2026-11-02-os-quarterly-checkins-design.md`. Plan:
 
 ### Accounts
 - Client List sheet: `1Rxk54_u3w0Llm78Yqv8e2BaKG9ddG4UzTMEvaTCmgzs`, tab **Active Customers** (Account Name, Join Date, POC, Email, Phone, Status, Price Point, Length of Engagement). READ ONLY. Never write to this sheet.
-- OS Accounts Database: `collection://3d124bca-36d7-8069-a2fa-000b83deae3d` (Account Name, Join Date, Status, `TeamBuildr OS 🪲 Tracker` relation, `Check-ins` and `Feature Requests` back-relations).
+- OS Accounts Database: `collection://3d124bca-36d7-8069-a2fa-000b83deae3d` (Account Name, Join Date, Status, `Exclude from check-ins` checkbox, `TeamBuildr OS 🪲 Tracker` relation, `Check-ins` and `Feature Requests` back-relations).
 
 ### Notion
 - 🔁 OS Check-ins database: `522a80535342453789d4564ca28acaa7`, data source `collection://73b2f83a-ad40-4514-bde4-eee179d8bf69` (under OS Customer Success).
@@ -102,9 +102,10 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 
 ### D1 — Load accounts
 1. Run `python3 $T/scripts/checkins_sheet.py accounts` from the same origin/main export as the Rules CLI. It returns every **Active Customers** row as JSON (`count` + `rows`). Use Account Name, Join Date (raw string), POC, Email. Put `count` in the run summary as "Accounts read: <n>". If `count` is under 50, STOP and report: the read is incomplete.
-2. Page the OS Accounts Database in view mode and build `{Account Name → page url}`.
+2. Page the OS Accounts Database in view mode and build `{Account Name → page url}`. Also record each account's `Exclude from check-ins` checkbox.
 3. For each sheet row, run `checkins.py match` with `{"raw": <sheet name>, "accounts": [<OS Accounts names>]}`. A single `matched` result is the account page. Anything else goes in the summary under "not in Notion" and the row gets no draft.
 4. If Email is blank, skip the row and list it under "no email".
+5. If the matched account has `Exclude from check-ins` ticked (internal or coworker-owned accounts, e.g. a gym whose POC is a teammate), skip it silently: no draft, no Check-ins row, not passed to `due`, and not listed in the summary. This is a standing opt-out, not churn; churned accounts leave via the Client List (All OS Customers → status cancelled).
 
 ### D2 — Build holds (per account)
 Build the `support` list for the CLI:
