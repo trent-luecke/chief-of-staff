@@ -7,6 +7,7 @@ through the Sheets API instead:
 
     python3 scripts/checkins_sheet.py accounts    # Active Customers rows
     python3 scripts/checkins_sheet.py responses   # all 3 survey tabs
+    python3 scripts/checkins_sheet.py cancellations  # cancellations sheet (churn sync)
 
 Prints JSON to stdout. Exit 2 with {"error": ...} on failure. Never writes.
 """
@@ -25,6 +26,8 @@ RESPONSE_TABS = {
     "6-12 mo. Responses": "Settled",
     "12+ mo. Responses": "Mature",
 }
+CANCELLATIONS_ID = "1BYMMVKw19Y9pwp7oFYMvUC4Webk-NI-Y-kevj7CX6D4"
+CANCELLATION_TABS = ("MONTHLY Cancellations", "ANNUAL Non-Renewals")
 # The runbook runs this from a git-archive export, which has no .env.
 _ENV_FALLBACK = Path("/Users/trentluecke/dev/Claude-Projects/chief-of-staff/.env")
 
@@ -60,6 +63,56 @@ def read_responses(service):
     return out
 
 
+def _col(head, *needles):
+    """Index of the first header containing any needle (case-insensitive), else None."""
+    for i, h in enumerate(head):
+        if any(n in h.casefold() for n in needles):
+            return i
+    return None
+
+
+def _iso(raw):
+    from datetime import datetime
+    raw = (raw or "").strip().split(" ")[0]
+    for fmt in ("%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(raw, fmt).date().isoformat()
+        except ValueError:
+            pass
+    return ""
+
+
+def cancellation_records(rows, tab):
+    """Cancellations tab rows → [{name, cancelled_on, returned, tab}].
+
+    Columns are found by header text (the tabs differ, and column A is a
+    "Jump to Bottom" link that's blank on data rows, so rows_to_records won't do).
+    """
+    if not rows:
+        return []
+    head = [h.strip() for h in rows[0]]
+    name_i = _col(head, "account")
+    if name_i is None:
+        raise ValueError(f"{tab}: no Account column in header {head}")
+    date_i = _col(head, "date")
+    ret_i = _col(head, "returned")
+    cell = lambda r, i: r[i].strip() if i is not None and i < len(r) else ""
+    out = []
+    for r in rows[1:]:
+        name = cell(r, name_i)
+        if name:
+            out.append({"name": name, "cancelled_on": _iso(cell(r, date_i)),
+                        "returned": cell(r, ret_i), "tab": tab})
+    return out
+
+
+def read_cancellations(service):
+    out = []
+    for tab in CANCELLATION_TABS:
+        out += cancellation_records(_tab(service, CANCELLATIONS_ID, tab), tab)
+    return out
+
+
 def _service():
     from dotenv import load_dotenv
     env = _ROOT / ".env"
@@ -68,7 +121,7 @@ def _service():
     return build_sheets_service()
 
 
-COMMANDS = {"accounts": read_accounts, "responses": read_responses}
+COMMANDS = {"accounts": read_accounts, "responses": read_responses, "cancellations": read_cancellations}
 
 
 def main():

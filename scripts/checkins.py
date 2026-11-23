@@ -4,7 +4,7 @@
 Called by docs/runbooks/os-quarterly-checkins-runbook.md so the
 deterministic rules run the same way every pass:
 
-    echo '<json>' | python3 scripts/checkins.py due|flags|latest|fr-link|match
+    echo '<json>' | python3 scripts/checkins.py due|flags|latest|fr-link|match|churn
 """
 import argparse
 import json
@@ -16,6 +16,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 
 from lib.account_match import match_accounts  # noqa: E402
+from lib.churn import churn_actions  # noqa: E402
 from lib.checkins import (  # noqa: E402
     choose_variant, fr_link_update, hold_until, is_due, parse_join_date,
     pick_latest_response, score_flags, survey_version, tenure_months,
@@ -59,6 +60,7 @@ COMMANDS = {
     "fr-link": lambda p: fr_link_update(p.get("linked", []), p.get("text", ""),
                                         p.get("count"), p["account"]),
     "match": lambda p: match_accounts(p["raw"], p["accounts"]),
+    "churn": lambda p: churn_actions(p["cancellations"], p["accounts"], _d(p.get("today"))),
 }
 
 

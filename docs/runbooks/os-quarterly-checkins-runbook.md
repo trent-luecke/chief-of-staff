@@ -56,7 +56,7 @@ Until Andrea's row is filled in, the Different-sender variant drafts on Trent's 
 **Never touch Trent's working checkout.** At the start of each run, export the code from `origin/main` into a temp directory and run the CLI from there:
 ```
 R=/Users/trentluecke/dev/Claude-Projects/chief-of-staff
-T=$(mktemp -d) && git -C $R fetch origin main -q && git -C $R archive origin/main lib/__init__.py lib/checkins.py lib/account_match.py scripts/checkins.py scripts/checkins_sheet.py lib/google_auth.py | tar -x -C $T
+T=$(mktemp -d) && git -C $R fetch origin main -q && git -C $R archive origin/main lib/__init__.py lib/checkins.py lib/account_match.py lib/churn.py scripts/checkins.py scripts/checkins_sheet.py lib/google_auth.py | tar -x -C $T
 python3 $T/scripts/checkins.py <cmd>
 ```
 Wherever this runbook shows `python3 scripts/checkins.py`, use `python3 $T/scripts/checkins.py`.
@@ -102,10 +102,11 @@ The workspace has a **limited SQL / rows-mode `query-data-sources` allowance**. 
 
 ### D1 — Load accounts
 1. Run `python3 $T/scripts/checkins_sheet.py accounts` from the same origin/main export as the Rules CLI. It returns every **Active Customers** row as JSON (`count` + `rows`). Use Account Name, Join Date (raw string), POC, Email. Put `count` in the run summary as "Accounts read: <n>". If `count` is under 50, STOP and report: the read is incomplete.
-2. Page the OS Accounts Database in view mode and build `{Account Name → page url}`. Also record each account's `Exclude from check-ins` checkbox.
+2. Page the OS Accounts Database in view mode and build `{Account Name → page url}`. Also record each account's `Exclude from check-ins` checkbox and `Status`.
 3. For each sheet row, run `checkins.py match` with `{"raw": <sheet name>, "accounts": [<OS Accounts names>]}`. A single `matched` result is the account page. Anything else goes in the summary under "not in Notion" and the row gets no draft.
 4. If Email is blank, skip the row and list it under "no email".
 5. If the matched account has `Exclude from check-ins` ticked (internal or coworker-owned accounts, e.g. a gym whose POC is a teammate), skip it silently: no draft, no Check-ins row, not passed to `due`, and not listed in the summary. This is a standing opt-out, not churn; churned accounts leave via the Client List (All OS Customers → status cancelled).
+6. If the matched account's `Status` is `Churned` (set by hand or by the daily churn sync, `docs/runbooks/churn-sync.md`), skip it: no draft, no Check-ins row, not passed to `due`. List it under Check as `churned in Notion, still Active on Client List`, so the sheet gets fixed (it also drives MRR).
 
 ### D2 — Build holds (per account)
 Build the `support` list for the CLI:
@@ -286,7 +287,7 @@ Sections, in this order, with the detail each bullet carries:
 | `# Held: <n>` | the specific reason, e.g. `open support conversation "<subject>" (last activity <date>)`, `support conversation "<subject>" closed <date>, held until <date + 21 days>`, `open Bug Tracker item "<title>"` |
 | `# Sitting unsent: <n>` | drafted <date> |
 | `# Wants a call: <n>` | from survey |
-| `# Check: <n>` | check type and detail, e.g. `generic inbox - draft goes to <email>, check recipient`, `not in Notion - <why>`, `no email`, `bad join date - "<raw value>"`, `unmatched survey response`, `shipped request with no notify history - <request>` |
+| `# Check: <n>` | check type and detail, e.g. `generic inbox - draft goes to <email>, check recipient`, `not in Notion - <why>`, `no email`, `bad join date - "<raw value>"`, `unmatched survey response`, `shipped request with no notify history - <request>`, `churned in Notion, still Active on Client List` |
 
 End with one plain line: `Avoma: ok` or `Avoma: skipped`.
 
