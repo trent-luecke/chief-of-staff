@@ -1,6 +1,6 @@
 {
-  "date": "2026-11-26",
-  "generated_at": "2026-11-26T20:36:47.969395+00:00",
+  "date": "2026-11-27",
+  "generated_at": "2026-11-27T12:01:38.206164+00:00",
   "meetings": [
     {
       "id": "28hsog8ff6qv1dq2ojqac9iqjo",
@@ -12,41 +12,22 @@
       "prep": null
     },
     {
-      "id": "427va7uog7950apj45agnlp33o_20261126T153000Z",
-      "title": "OS | Marketing 2.0",
-      "start": "2026-11-26T09:30:00-06:00",
-      "end": "2026-11-26T10:00:00-06:00",
+      "id": "006adb4enl5iouf2tb1p87m38i_20261127T143000Z",
+      "title": "Focus Work",
+      "start": "2026-11-27T08:30:00-06:00",
+      "end": "2026-11-27T10:30:00-06:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "nicole@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        },
-        {
-          "email": "rachel@teambuildr.com",
-          "name": ""
-        }
-      ],
+      "attendees": [],
       "prep": null
     },
     {
-      "id": "05qo705ca6f27ai8m3usq7fp05_20261126T180000Z",
-      "title": "Luke / Trent",
-      "start": "2026-11-26T12:00:00-06:00",
-      "end": "2026-11-26T12:30:00-06:00",
+      "id": "7hid4m5n0uoi0vgv61sunhei06_20261127T203000Z",
+      "title": "Out of office",
+      "start": "2026-11-27T14:30:00-06:00",
+      "end": "2026-11-27T17:30:00-06:00",
       "kind": "internal",
-      "attendees": [
-        {
-          "email": "luke@teambuildr.com",
-          "name": ""
-        }
-      ],
-      "prep": "## Luke / Trent \u2014 Project Updates\n\n---\n\n**Lead Magnet Build & Deployment Workflow**\n- Building a Claude framework with Clayton Young to encode HubSpot/marketing requirements upfront and eliminate late-stage rework (~10 changes last deploy)\n- \ud83d\udd34 **Blocker:** Getting James Peters on a huddle to establish a clean handoff \u2014 desired flow is Trent + Clayton sign off \u2192 James deploys on set date, no scramble\n\n---\n\n**Company OS (Claude Shared Workflows)**\n- Exploring giving everyone Claude access with 2\u20133 power users building shared workflows via GitHub repo\n- Next step: collecting thoughts and potentially presenting at department heads meeting (concept doesn't land well verbally)\n- No hard blocker; cost of full rollout is an open question\n\n---\n\n**CSM Cross-Sell at Strength Renewals**\n- Lucas Green has directed Brian's team to contact private facilities 6 months pre-renewal with 3-month check-ins; some automated\n- Training underway with Tony on cross-sell/upsell\n- \ud83d\udd34 **Blocker:** Momentum stalled after Kylah left; Alex on paternity leave in December \u2014 coverage gap is real\n\n---\n\n**Cleaner Data & Cross-Sell Signals**\n- HubSpot cleanup underway (prerequisite for any AI ambition); third data stream to flag cross-sell signals (e.g. Strength gold plan facility downloading OS content) is planned\n- No discrete open task beyond HubSpot work in progress with Clayton\n\n---\n\n**USR Partnership**\n- In phase two for Strength: targeting ~10 customers to run USR programming over winter for outcome data\n- Not ready to bring OS into the conversation yet; relationship is progressing on its own timeline\n- No current blocker\n\n---\n\n**Strength Member Management Survey**\n- An in-app Intercom question on current member management software is worth running \u2014 likely done before but results were never reviewed\n- No open task assigned yet; flagging as low-lift intel opportunity\n\n---\n\n**Partner & Mastermind Outreach**\n- Michael Durkin (Three Rivers) gave strong feedback; next step is asking him for intros to Sports Performance CEO mastermind and Overtime Athletes\n- Also: checking with Nicole Foley on whether TeamBuildr has any existing Overtime Athletes relationship\n- No blocker; outreach just needs to go out\n\n---\n\n**Product Gaps**\n- Bottom-of-funnel audit in cycle one \u2014 scoping with Teofe today; comes up in every demo/orientation\n- Other flagged gaps: churn report, member booked appointments in mobile app",
-      "prep_hash": "6b98bec78d02"
+      "attendees": [],
+      "prep": null
     }
   ],
   "needs_today": [
