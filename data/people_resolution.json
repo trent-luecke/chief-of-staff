@@ -1,5 +1,5 @@
 {
-  "resolved_at": "2026-11-27T00:00:00",
+  "resolved_at": "2026-11-28T00:00:00",
   "resolutions": {
     "1": {
       "primary_person_id": "drew-devine",
@@ -47409,6 +47409,81 @@
       "primary_person_id": null,
       "related_person_ids": [],
       "confidence": "system"
+    },
+    "10097": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10098": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10099": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10100": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10101": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10102": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10103": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10104": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10105": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10106": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10107": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10108": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10109": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10110": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
+    },
+    "10111": {
+      "primary_person_id": null,
+      "related_person_ids": [],
+      "confidence": "system"
     }
   },
   "unresolved_lines": [
@@ -48061,7 +48136,9 @@
     9803,
     9876,
     9877,
-    9949
+    9949,
+    10095,
+    10096
   ],
   "unresolved_entities": [
     "patrick-labat-—-tgmc",
@@ -48333,6 +48410,7 @@
     "thread:Re: Purchase Confirmation Emails",
     "thread:TrainHeroic comparison",
     "thread:User controls",
-    "thread:Accepted: Trent/Andrea: OS \"Customer\" Check In @ Tue Dec 1, 2026 12pm - 1pm (CST) (Trent Luecke)"
+    "thread:Accepted: Trent/Andrea: OS \"Customer\" Check In @ Tue Dec 1, 2026 12pm - 1pm (CST) (Trent Luecke)",
+    "thread:Fwd: A toast to the little moments ☕"
   ]
 }
